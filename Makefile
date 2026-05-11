@@ -947,8 +947,18 @@ imgtool:
 
 fteqcc:
 	if [ ! -d ThirdParty ];then mkdir ThirdParty && git clone $(ENGINE_URL) ThirdParty/fteqw;fi
-	cd ThirdParty/fteqw/engine && $(MAKE) qcc-rel
-	-install -m 0777 ./ThirdParty/fteqw/engine/release/fteqcc ./
+	if gcc -dumpmachine 2>/dev/null | grep -qE '(w64-mingw32|w64-windows-gnu)'; then \
+		cd ThirdParty/fteqw/engine && $(MAKE) qcc-rel FTE_TARGET=win64; \
+	else \
+		cd ThirdParty/fteqw/engine && $(MAKE) qcc-rel; \
+	fi
+	if [ -f ./ThirdParty/fteqw/engine/release/fteqcc64.exe ]; then \
+		cp -f ./ThirdParty/fteqw/engine/release/fteqcc64.exe ./fteqcc.exe; \
+	elif [ -f ./ThirdParty/fteqw/engine/release/fteqcc.exe ]; then \
+		cp -f ./ThirdParty/fteqw/engine/release/fteqcc.exe ./fteqcc.exe; \
+	else \
+		-cp -f ./ThirdParty/fteqw/engine/release/fteqcc ./fteqcc || cp -f ./ThirdParty/fteqw/engine/release/fteqcc ./fteqcc.exe; \
+	fi
 
 generatebuiltinsl:
 	cd ThirdParty/fteqw/engine/shaders && $(MAKE) generatebuiltinsl

@@ -192,7 +192,7 @@ ncStats::Init(void)
 		fullServerInfo = strcat(fullServerInfo, "\\", "timelimit", "\\", cvars.GetString("timelimit"));
 		fullServerInfo = strcat(fullServerInfo, "\\", "sv_hostname", "\\", hostName);
 		fullServerInfo = strcat(fullServerInfo, "\\", "sv_maxclients", "\\", maxClients);
-		fullServerInfo = strcat(fullServerInfo, "\\", "com_gamename", "\\", "Nuclide");
+		fullServerInfo = strcat(fullServerInfo, "\\", "com_gamename", "\\", "Stiletto Swift");
 		fullServerInfo = strcat(fullServerInfo, "\\", "g_gametype", "\\", "0");
 		fullServerInfo = strcat(fullServerInfo, "\\", "mapname", "\\", serverinfo.GetString("mapname"));
 		fullServerInfo = strcat(fullServerInfo, "\\", "gamename", "\\", cvars.GetString("fs_game"));
@@ -204,11 +204,11 @@ ncStats::Init(void)
 		Info("Log_Standard", "ngLog");
 		Info("Log_Version", "1.2");
 		Info("Log_Info", "http://www.netgamesusa.com/ngLog/");
-		Info("Game_Name", "Nuclide");
+		Info("Game_Name", "Stiletto Swift");
 		Info("Game_Version", gameVersion);
-		Info("Game_Creator", "Vera Visions, L.L.C.");
-		Info("Game_Creator_URL",  "http://www.vera-visions.com");
-		Info("Game_Decoder_Ring_URL",  "http://www.vera-visions.com/Nuclide_Log_Decoder_Ring.html");
+		Info("Game_Creator", "Tomboy Princess");
+		Info("Game_Creator_URL",  "");
+		Info("Game_Decoder_Ring_URL",  "");
 		Info("Absolute_time",  currentTime);
 		Info("Server_ServerName", hostName);
 		Info("Server_AdminName", adminName);
@@ -259,10 +259,10 @@ ncStats::Init(void)
 		Info("Log_Standard", "ngLog");
 		Info("Log_Version", "1.2");
 		Info("Log_Info", "http://www.netgamesusa.com/ngLog/");
-		Info("Game_Name", "Nuclide");
+		Info("Game_Name", "Stiletto Swift");
 		Info("Game_Version", "This Is A Versioning String");
-		Info("Game_Author", "Vera Visions, L.L.C.");
-		Info("Game_Author_URL",  "http://www.vera-visions.com");
+		Info("Game_Author", "Tomboy Princess");
+		Info("Game_Author_URL",  "");
 		Info("Server_Adress", serverAddress);
 		Info("Server_Port", serverPort);
 		Info("Absolute_time",  currentTime);

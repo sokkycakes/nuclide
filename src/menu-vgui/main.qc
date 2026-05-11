@@ -17,6 +17,7 @@
 void
 m_init(void)
 {
+	UI_Options_ResetKeybindCapture();
 	Platform_Init();
 	UISystem_Init();
 	Desktop_Init();
@@ -82,9 +83,42 @@ m_drawloading(vector screensize, float opaque)
 	Loading_Draw(screensize);
 }
 
+static float
+Menu_IsEngineToggleConsoleKey(float evtype, float scanx)
+{
+	float n;
+	float i;
+	float k;
+
+	if (evtype != IE_KEYDOWN)
+		return 0;
+
+	if (scanx <= 0)
+		return 0;
+
+	n = tokenize(findkeysforcommand("toggleconsole"));
+
+	for (i = 0; i < n; i++) {
+		k = stof(argv(i));
+
+		if (k >= 0 && scanx == k)
+			return 1;
+	}
+
+	return (scanx == K_BACKQUOTE);
+}
+
 float
 Menu_InputEvent (float evtype, float scanx, float chary, float devid)
 {
+	if (Menu_IsEngineToggleConsoleKey(evtype, scanx)) {
+		localcmd("toggleconsole\n");
+		return (float)g_active;
+	}
+
+	if (UI_Options_KeybindCapture(evtype, scanx, chary, devid))
+		return (float)g_active;
+
 	switch (evtype) {
 	case IE_KEYDOWN:
 		if (chary == K_ESCAPE) {
@@ -125,6 +159,7 @@ m_hide
 void
 m_hide(void)
 {
+	UI_Options_ResetKeybindCapture();
 	g_active = FALSE;
 	setkeydest(KEY_GAME);
 	setmousetarget(TARGET_CLIENT);

@@ -34,6 +34,7 @@ public:
 	nonvirtual int GetMaxVisibleItems(void);
 
 	nonvirtual void AddItem(string);
+	nonvirtual void SetItem(int, string);
 	nonvirtual string GetItem(int);
 
 	nonvirtual void SetItemCount(int);
@@ -228,6 +229,15 @@ void vguiList::AddItem (string strItem)
 			break;
 		}
 	}
+}
+
+void vguiList::SetItem (int iIdx, string strItem)
+{
+	if (iIdx < 0i || iIdx >= m_iItemCount) {
+		return;
+	}
+
+	m_strItems[iIdx] = strItem;
 }
 
 void vguiList::CallOnScroll (void(void) vFunc)

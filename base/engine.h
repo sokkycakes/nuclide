@@ -1,16 +1,16 @@
-#define FULLENGINENAME		"Nuclide"
-#define GAME_SHORTNAME		"NC"
+#define FULLENGINENAME		"Stiletto Swift"
+#define GAME_SHORTNAME		"SS"
 #define GAME_BASEGAMES		"base"
-#define GAME_PROTOCOL		"Nuclide"
+#define GAME_PROTOCOL		"StilettoSwift"
 #define GAME_DEFAULTCMDS	"fteplug_ffmpeg;fteplug_ode;plug_load ffmpeg;plug_load ode;exec quake.rc"
 #define GAME_DOWNLOADSURL	"https://www.frag-net.com/pkgs/list"
 
 #define BRANDING_ICON "wastes.ico"
 #define DISTRIBUTION "VTW"
-#define DISTRIBUTIONLONG "Vera Visions"
+#define DISTRIBUTIONLONG "Tomboy Princess"
 #define GAME_FULLNAME		FULLENGINENAME
 #define GAME_DEFAULTPORT	27500
-#define ENGINEWEBSITE "https://www.vera-visions.com/"
+#define ENGINEWEBSITE ""
 
 #ifndef GLQUAKE
 #define GLQUAKE
@@ -25,7 +25,6 @@
 
  /* disable quake specific hacks and overrides */
 #define QUAKETC
-#define NOBUILTINMENUS
 #define NOLEGACY
 
 /* engine behaviour */

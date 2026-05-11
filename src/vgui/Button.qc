@@ -22,9 +22,6 @@ enumflags
 	BUTTON_CUSTOMFLAGS
 };
 
-/* TODO: MOVE THESE INTO vguiButton! COMPILER NEEDS TO BE FIXED FIRST HOWEVER. */
-.void(void) tmpvguiButton1;
-
 /** VGUI Widget: Button
 
 @ingroup vgui
@@ -73,6 +70,7 @@ private:
 	string m_strIcon;
 	string m_strExec;
 	int m_keyEquivalent;
+	virtual void(void) m_clickFunc = 0;
 };
 
 void
@@ -139,9 +137,7 @@ vguiButton::SetIcon(string strName)
 void
 vguiButton::SetFunc(void(void) func)
 {
-	//#warning "SetFunc in vguiButton is DEPRECATED. Compiler IS generating JUNK in the old way. Please override vguiButton and define a OnMouseDown/Up method instead"
-	//m_vFunc = vFunc;
-	tmpvguiButton1 = func;
+	m_clickFunc = func;
 }
 void
 vguiButton::SetExec(string exe)
@@ -168,7 +164,7 @@ vguiButton::ButtonDisabled(void)
 		return (false);
 	}
 
-	if (tmpvguiButton1) {
+	if (m_clickFunc) {
 		return (false);
 	}
 
@@ -265,8 +261,8 @@ vguiButton::Input(float flEVType, float flKey, float flChar, float flDevID)
 			if (m_iFlags & BUTTON_DOWN && mouseHover) {
 				OnMouseUp();
 
-				if (tmpvguiButton1)
-					tmpvguiButton1();
+				if (m_clickFunc)
+					m_clickFunc();
 
 				if (STRING_SET(m_strExec)) {
 					localcmd(sprintf("%s\n", m_strExec));

@@ -1,15 +1,8 @@
-# Mayhem
+# Stiletto Swift
 
-## Overview
-
-- FPS game sample
-- Using LQ assets
-
-## Credits
-
-- eukara
-- LibreQuake team
+Proto — Tomboy Princess.
 
 ## License
 
-ISC
+ISC (inherits Nuclide / sample asset terms where applicable.)
+

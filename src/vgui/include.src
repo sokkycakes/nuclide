@@ -18,6 +18,7 @@
 ../vgui/Rect.qc
 ../vgui/3DView.qc
 ../vgui/ScrollBar.qc
+../vgui/Slider.qc
 ../vgui/List.qc
 ../vgui/ListPicker.qc
 ../vgui/ListBox.qc

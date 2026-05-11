@@ -22,8 +22,6 @@ enumflags
 	BUTTON_CUSTOMFLAGS
 };
 
-/* TODO: MOVE THESE INTO vguiButton! COMPILER NEEDS TO BE FIXED FIRST HOWEVER. */
-.void(void) tmpvguiButton1;
 
 /** VGUI Widget: Command Menu Button
 
