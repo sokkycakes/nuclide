@@ -294,7 +294,7 @@ SVPF_combat_Obituary(string targetName, string attackerName, string weaponDef, s
 	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
 	WriteByte(MSG_MULTICAST, EV_OBITUARY);
 
-	#warning TODO: we can optimise this further. weaponDef can be replaced with a decl id target and attacker can be id's if they occupy client slots.
+	// TODO: optimise obituary net traffic — weaponDef as decl id; attacker as client slot ids when applicable.
 	WriteString(MSG_MULTICAST, targetName);
 	WriteString(MSG_MULTICAST, attackerName);
 	WriteString(MSG_MULTICAST, weaponDef);

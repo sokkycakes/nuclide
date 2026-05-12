@@ -5,4 +5,4 @@
 #include weapons/rocketlauncher.def
 #include weapons/shotgun.def
 #include weapons/supernailgun.def
-#include weapons/supershotgun.def
+#include weapons/stiletto.def

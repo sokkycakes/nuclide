@@ -279,8 +279,9 @@ private:
 	entity m_followingEntity;
 	float m_moveSpeedKey;
 	string m_mindset;
-	entity m_hook;
 #endif
+
+	entity m_hook;
 
 	/* These are defined in side defs\*.def, ammo_types and ammo_names */
 	int m_ammoTypes[MAX_AMMO_TYPES];

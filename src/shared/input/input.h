@@ -7,6 +7,9 @@
 #define INPUT_BUTTON6 0x00000020	/* use */
 #define INPUT_BUTTON7 0x00000040	/* reserved */
 #define INPUT_BUTTON8 0x00000080	/* crouching */
+#define INPUT_BUTTON9 0x00000100	/* reserved for abilities */
+#define INPUT_BUTTON10 0x00000200	/* reserved for abilities */
+#define INPUT_BUTTON11 0x00000400	/* reserved for abilities */
 
 #define INPUT_PRIMARY INPUT_BUTTON0
 #define INPUT_JUMP INPUT_BUTTON2
@@ -16,3 +19,4 @@
 #define INPUT_USE INPUT_BUTTON5 /* This can NEVER change. Engine hard-coded. */
 #define INPUT_SPRINT INPUT_BUTTON7
 #define INPUT_CROUCH INPUT_BUTTON8
+#define INPUT_STILETTO_GRAPPLE INPUT_BUTTON11

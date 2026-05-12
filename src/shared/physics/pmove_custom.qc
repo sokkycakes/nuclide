@@ -260,39 +260,46 @@ PMoveCustom_AccelFriction(float move_time, float premove, vector wish_dir, float
 
 	/* apply friction */
 	if (retainSpeed > 0) {
-		/* Next few lines of code assumes self is using player's hull, however it could be a monster
-			who use differen hull size, therefore it is invalid, so we probably better of using mins/maxs,
-			on the other hand edge friction is probably not that important. */
+		bool skipGroundFriction;
 
-		// if the leading edge is over a dropoff, increase friction
-		vecTemp = self.origin + normalize(vecTemp) * 16 + [0,0,1] * self.mins[2];
-		traceline(vecTemp, vecTemp + [0,0,-34], TRUE, self);
+		skipGroundFriction = (self.identity == ENT_PLAYER &&
+			((ncPlayer)self).m_pmoveHookVelocity != g_vec_null);
 
-		// apply friction
-		if (trace_fraction == 1.0) {
-			if (retainSpeed < g_pmoveVars.pm_stopspeed) {
-				retainSpeed = 1 - move_time * (g_pmoveVars.pm_stopspeed / retainSpeed) * frictionMultiplier * g_pmoveVars.pm_edgefriction;
+		if (skipGroundFriction == false) {
+			/* Next few lines of code assumes self is using player's hull, however it could be a monster
+				who use differen hull size, therefore it is invalid, so we probably better of using mins/maxs,
+				on the other hand edge friction is probably not that important. */
+
+			// if the leading edge is over a dropoff, increase friction
+			vecTemp = self.origin + normalize(vecTemp) * 16 + [0,0,1] * self.mins[2];
+			traceline(vecTemp, vecTemp + [0,0,-34], TRUE, self);
+
+			// apply friction
+			if (trace_fraction == 1.0) {
+				if (retainSpeed < g_pmoveVars.pm_stopspeed) {
+					retainSpeed = 1 - move_time * (g_pmoveVars.pm_stopspeed / retainSpeed) * frictionMultiplier * g_pmoveVars.pm_edgefriction;
+				} else {
+					retainSpeed = 1 - move_time * frictionMultiplier * g_pmoveVars.pm_edgefriction;
+				}
 			} else {
-				retainSpeed = 1 - move_time * frictionMultiplier * g_pmoveVars.pm_edgefriction;
+				if (retainSpeed < g_pmoveVars.pm_stopspeed) {
+					retainSpeed = 1 - move_time * (g_pmoveVars.pm_stopspeed / retainSpeed) * frictionMultiplier;
+				} else {
+					
+					retainSpeed = 1 - move_time * frictionMultiplier;
+				}
 			}
-		} else {
-			if (retainSpeed < g_pmoveVars.pm_stopspeed) {
-				retainSpeed = 1 - move_time * (g_pmoveVars.pm_stopspeed / retainSpeed) * frictionMultiplier;
+
+			if (retainSpeed < 0) {
+				self.velocity = [0,0,0];
 			} else {
-				
-				retainSpeed = 1 - move_time * frictionMultiplier;
+				self.velocity[0] = self.velocity[0] * retainSpeed;
+				self.velocity[1] = self.velocity[1] * retainSpeed;
+
+				/* don't apply friction to horizontal movement... or else jumps get clamped */
+				if (self.flags & FL_JUMPRELEASED)
+					self.velocity[2] = self.velocity[2] * retainSpeed;
 			}
-		}
-
-		if (retainSpeed < 0) {
-			self.velocity = [0,0,0];
-		} else {
-			self.velocity[0] = self.velocity[0] * retainSpeed;
-			self.velocity[1] = self.velocity[1] * retainSpeed;
-
-			/* don't apply friction to horizontal movement... or else jumps get clamped */
-			if (self.flags & FL_JUMPRELEASED)
-				self.velocity[2] = self.velocity[2] * retainSpeed;
 		}
 	}
 

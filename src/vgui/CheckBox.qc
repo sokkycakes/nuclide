@@ -38,16 +38,27 @@ public:
 	virtual bool Input(float, float, float, float);
 	virtual void Spawned(void);
 
+	nonvirtual void CallOnChanged(void(void));
+
 private:
 	vector m_vecColor;
 	float m_flAlpha;
 	string m_strTitle;
 };
 
+.void(void) tmpvguiCheckboxChanged;
+
 void vguiCheckbox::vguiCheckbox(void)
 {
 	m_vecColor = UI_MAINCOLOR;
 	m_flAlpha = 1.0f;
+	tmpvguiCheckboxChanged = __NULL__;
+}
+
+void
+vguiCheckbox::CallOnChanged(void(void) fn)
+{
+	tmpvguiCheckboxChanged = fn;
 }
 
 void
@@ -113,6 +124,8 @@ bool vguiCheckbox::Input (float flEVType, float flKey, float flChar, float flDev
 		if (flKey == K_MOUSE1) {
 			if (m_iFlags & CHECKBOX_DOWN && Util_MouseAbove(g_vecMousePos, m_parent.m_vecOrigin + m_vecOrigin, m_vecSize)) {
 				SetValue(!GetValue());
+				if (tmpvguiCheckboxChanged)
+					tmpvguiCheckboxChanged();
 				ret = true;
 			}
 			m_iFlags -= (m_iFlags & CHECKBOX_DOWN);

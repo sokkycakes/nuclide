@@ -407,6 +407,18 @@ Cmd_Parse(string sCMD)
 	case "-attack2":
 		pSeat->m_iInputAttack2 = false;
 		break;
+	case "+stiletto_grapple":
+		pSeat->m_iInputStilettoGrapple = true;
+		break;
+	case "-stiletto_grapple":
+		pSeat->m_iInputStilettoGrapple = false;
+		break;
+	case "+stiletto_boot":
+		pSeat->m_iInputStilettoBoot = true;
+		break;
+	case "-stiletto_boot":
+		pSeat->m_iInputStilettoBoot = false;
+		break;
 	case "+reload":
 		pSeat->m_iInputReload = true;
 		break;
@@ -435,32 +447,11 @@ Cmd_Parse(string sCMD)
 
 		pSeat->m_bSpecInput = false;
 		break;
-	case "+prone":
-		pSeat->m_iInputProne = true;
-		break;
-	case "-prone":
-		pSeat->m_iInputProne = false;
-		break;
 	case "+sprint":
 		pSeat->m_iSprinting = true;
 		break;
 	case "-sprint":
 		pSeat->m_iSprinting = false;
-		break;
-	case "+leanleft":
-		pSeat->m_iLeanDir = -1;
-		break;
-	case "-leanleft":
-		pSeat->m_iLeanDir = 0;
-		break;
-	case "+leanright":
-		pSeat->m_iLeanDir = 1;
-		break;
-	case "-leanright":
-		pSeat->m_iLeanDir = 0;
-		break;
-	case "goprone":
-		pSeat->m_dForceStance = STANCE_PRONE;
 		break;
 	case "gocrouch":
 		pSeat->m_dForceStance = STANCE_CROUCH;
@@ -715,6 +706,10 @@ Cmd_Init(void)
 	registercommand("-attack");
 	registercommand("+attack2");
 	registercommand("-attack2");
+	registercommand("+stiletto_grapple");
+	registercommand("-stiletto_grapple");
+	registercommand("+stiletto_boot");
+	registercommand("-stiletto_boot");
 	registercommand("+reload");
 	registercommand("-reload");
 	registercommand("+activate");
@@ -723,18 +718,11 @@ Cmd_Init(void)
 	registercommand("-use");
 	registercommand("+duck");
 	registercommand("-duck");
-	registercommand("+prone");
-	registercommand("-prone");
-	registercommand("goprone");
 	registercommand("gocrouch");
 	registercommand("+gostand");
 	registercommand("-gostand");
 	registercommand("+sprint");
 	registercommand("-sprint");
-	registercommand("+leanleft");
-	registercommand("-leanleft");
-	registercommand("+leanright");
-	registercommand("-leanright");
 	registercommand("weapnext");
 	registercommand("weapprev");
 

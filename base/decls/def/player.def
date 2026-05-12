@@ -30,7 +30,7 @@ entityDef player
 	"armorProtection"		"0"
 	"armorBonus"			"1"
 	"ammo_shells"			"25"
-	"weapon"				"weapon_axe,weapon_shotgun"
+	"weapon"				"weapon_axe,weapon_shotgun,weapon_stiletto_grapple,weapon_stiletto_boot"
 	"current_weapon"		"1"
 	"pm_normalviewheight"	"46"
 	"pm_walkspeed"			"280"

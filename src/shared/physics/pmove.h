@@ -138,8 +138,24 @@ ncDict g_waterDamageDecl;
 ncDict g_slimeDamageDecl;
 ncDict g_lavaDamageDecl;
 
+#define STILETTO_GRAPPLE_HOOK_SPEED_QUAKE	(40.0f * 39.37008f)
+
 /** Called by Nuclide. Sets up g_pmoveVars. */
 void PMove_Init(void);
+
+void Stiletto_ApplyMoveTuning(entity pl);
+float Stiletto_GrapplePullSpeed(void);
+float Stiletto_GrappleMaxRange(entity pl);
+void Stiletto_Grapple_CheckFlyingMiss(entity pl);
+void Stiletto_GrappleHop(entity pl);
+void Stiletto_Server_GrappleRecharge(entity pl);
+void Stiletto_ParryWindow(entity pl);
+void Stiletto_UpdateWallState(entity pl, vector moveWish);
+void Stiletto_OnPhysicsStart(entity pl);
+void Stiletto_PmGunjumpAir(entity pl, int curButtons, vector moveWish);
+void Stiletto_WallJump(entity pl, int curButtons);
+void Stiletto_WallSlidePostMove(entity pl);
+void Stiletto_EndPhysicsFrame(entity pl, int curButtons);
 
 void PMoveCustom_RunPlayerPhysics(entity);
 void PMoveCustom_RunCrouchPhysics(entity);

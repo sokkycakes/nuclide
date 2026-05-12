@@ -605,9 +605,25 @@ ncPlayer::Physics_Run(void)
 	float flBaseVel =  m_pmoveBaseVelocity[2];
 	bool wasOnGround = (flags & FL_ONGROUND) ? true : false;
 	bool sprintFail = false;
+	float stilettoGravSave = gravity;
 
 	saved_input_movevalues = input_movevalues;
 	saved_input_buttons = input_buttons;
+
+	Stiletto_OnPhysicsStart(this);
+
+	Stiletto_Grapple_CheckFlyingMiss(this);
+
+	if (!(saved_input_buttons & INPUT_PRIMARY)) {
+		if (m_pmoveHookVelocity != g_vec_null) {
+			Stiletto_GrappleHop(this);
+			Grapple_Clear(this);
+		}
+	}
+
+#ifdef SERVER
+	Stiletto_Server_GrappleRecharge(this);
+#endif
 
 	sprintFail = ((input_buttons & INPUT_CROUCH) || (input_buttons & INPUT_PRONE)) ? true : false;
 
@@ -619,6 +635,10 @@ ncPlayer::Physics_Run(void)
 
 	maxspeed = Physics_MaxSpeed();
 
+	Stiletto_ParryWindow(this);
+	Stiletto_UpdateWallState(this, saved_input_movevalues);
+	Stiletto_ApplyMoveTuning(this);
+
 #ifdef SERVER
 	//printf("SERVER: %v; max: %f; fric: %f; grav: %f\n", input_movevalues, maxspeed, friction, gravity);
 #else
@@ -628,17 +648,14 @@ ncPlayer::Physics_Run(void)
 	/* give us a chance to manipulate input_ globals before running physics */
 	Physics_InputPreMove();
 
+	Stiletto_PmGunjumpAir(this, saved_input_buttons, saved_input_movevalues);
+	Stiletto_WallJump(this, saved_input_buttons);
+
 	/* handle footsteps */
 	Footsteps_Update();
 
 	/* handle drowning and other environmental factors */
 	Physics_WaterMove();
-
-	/* grappling hook stuff, TODO: variable speeds */
-	if (m_pmoveHookVelocity != g_vec_null) {
-		velocity = (m_pmoveHookVelocity - origin);
-		velocity = (velocity * (1 / (vlen(velocity) / 750)));
-	}
 
 	Physics_SetViewParms();
 
@@ -654,6 +671,24 @@ ncPlayer::Physics_Run(void)
 		PMoveCustom_RunPlayerPhysics(this);
 	}
 
+	Stiletto_UpdateWallState(this, saved_input_movevalues);
+	Stiletto_WallSlidePostMove(this);
+
+	/* Pull only after Grapple_Touch latches (m_pmoveHookVelocity); flying m_hook must not yank the player. */
+	if (m_pmoveHookVelocity != g_vec_null) {
+		vector pull = m_pmoveHookVelocity - origin;
+		float dist = vlen(pull);
+		float pullSpeed = Stiletto_GrapplePullSpeed();
+
+		if (dist >= STILETTO_GRAPPLE_SNAP_DIST_QUAKE) {
+			pull = pull * (1.0f / dist);
+			velocity = pull * pullSpeed;
+		} else {
+			// Close enough that further "constant speed" pulls start to feel punchy/jittery.
+			velocity = g_vec_null;
+		}
+	}
+
 	Physics_CheckJump(FALSE);
 
 	if (wasOnGround == false && (flags & FL_ONGROUND)) {
@@ -663,9 +698,12 @@ ncPlayer::Physics_Run(void)
 		Physics_Fall(flFallVel - flBaseVel);
 	}
 
+	gravity = stilettoGravSave;
+
 	input_movevalues = saved_input_movevalues;
 	input_buttons = saved_input_buttons;
 	Physics_InputPostMove();
+	Stiletto_EndPhysicsFrame(this, saved_input_buttons);
 	angles = fixAngle(angles);
 
 #ifdef SERVER

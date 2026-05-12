@@ -88,6 +88,11 @@ Cmd_ParseClientCommand(ncClient sender, string cmd, int commandArguments)
 	case "joinTeam":
 		g_grMode.PlayerRequestTeam((ncPlayer)sender, (int)stoi(argv(1)));
 		break;
+	case "nuclide_abi_grapple":
+		if (is.Player(sender)) {
+			Stiletto_FireGrapple(sender);
+		}
+		break;
 	default:
 		clientcommand(sender, cmd);
 	}

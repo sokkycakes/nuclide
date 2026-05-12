@@ -118,6 +118,7 @@ void Client_FixAngle(entity, vector);
 void Client_ShakeOnce(vector, float, float, float, float);
 
 void Mapcycle_Load(string);
+void Stiletto_FireGrapple(entity pl);
 
 ncEntity eActivator;
 

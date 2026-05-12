@@ -29,6 +29,24 @@ public:
 	virtual bool Input(float, float, float, float);
 };
 
+static bool
+vguiView_InputChainLastFirst(vguiWidget w, float flEVType, float flKey,
+	float flChar, float flDevID)
+{
+	if (!w)
+		return false;
+	if (!w.m_parent.Visible())
+		return false;
+	if (w.m_children) {
+		if (vguiView_InputChainLastFirst(w.m_children, flEVType, flKey,
+		    flChar, flDevID))
+			return true;
+	}
+	if (!w.Visible())
+		return false;
+	return w.Input(flEVType, flKey, flChar, flDevID);
+}
+
 void
 vguiView::vguiView(void)
 {
@@ -62,19 +80,8 @@ void vguiView::Draw(void)
 
 bool vguiView::Input (float flEVType, float flKey, float flChar, float flDevID)
 {
-	float ret = false;
-
-	vguiWidget wNext = this;
-	do {
-		wNext = wNext.m_children;
-		if (wNext && wNext.Visible() && wNext.m_parent.Visible()) {
-			ret = wNext.Input(flEVType, flKey, flChar, flDevID);
-		}
-
-		if (ret == true)
-			return true;
-
-	} while (wNext);
-
-	return (ret);
+	if (!m_children)
+		return false;
+	return vguiView_InputChainLastFirst(m_children, flEVType, flKey, flChar,
+	    flDevID);
 }

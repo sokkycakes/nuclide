@@ -381,6 +381,8 @@ struct
 	bool m_iInputSprint;
 	bool m_iInputProne;
 	bool m_iInputJump;
+	bool m_iInputStilettoGrapple;
+	bool m_iInputStilettoBoot;
 	movementStance_t m_dForceStance;
 	float m_flInputBlockTime;
 	

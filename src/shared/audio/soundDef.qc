@@ -36,7 +36,7 @@ void
 SoundDef_Shutdown(void)
 {
 	/* free up the entity slot */
-	for (ncSoundDict spaceList = world; (spaceList = find(spaceList, ::classname, "ncSoundDict"));) {
+	for (ncSoundDict spaceList = world; (spaceList = (ncSoundDict)find(spaceList, ::classname, "ncSoundDict"));) {
 		remove(spaceList);
 	}
 }
@@ -360,7 +360,7 @@ SoundDef_PrecacheFile(string fileName)
 static ncSoundDict
 SoundDef_FindSoundByName(string soundName)
 {
-	for (ncSoundDict spaceList = world; (spaceList = find(spaceList, ::classname, "ncSoundDict"));) {
+	for (ncSoundDict spaceList = world; (spaceList = (ncSoundDict)find(spaceList, ::classname, "ncSoundDict"));) {
 		if (spaceList.name == soundName) {
 			return (spaceList);
 		}
@@ -454,7 +454,6 @@ SoundDef_Distance(entity target, string shader)
 	float radius;
 	float pitch;
 	int flag;
-	int sample;
 	ncSoundDict newSound;
 
 	if (!STRING_SET(shader)) {
@@ -475,7 +474,7 @@ SoundDef_Distance(entity target, string shader)
 
 	/* set pitch */
 	pitch = random(newSound.pitch_min, newSound.pitch_max);
-	radius = SoundDef_GetAttenuation(sample);
+	radius = SoundDef_GetAttenuation(newSound);
 	volume = newSound.volume;
 
 	/* flags */
@@ -518,7 +517,6 @@ SoundDef_DistancePos(vector pos, string shader)
 	float radius;
 	float pitch;
 	int flag;
-	int sample;
 	ncSoundDict newSound;
 
 	if (!STRING_SET(shader)) {
@@ -539,7 +537,7 @@ SoundDef_DistancePos(vector pos, string shader)
 
 	/* set pitch */
 	pitch = random(newSound.pitch_min, newSound.pitch_max);
-	radius = SoundDef_GetAttenuation(sample);
+	radius = SoundDef_GetAttenuation(newSound);
 	volume = newSound.volume;
 
 	/* flags */
@@ -581,7 +579,6 @@ SoundDef_Play(entity target, int chan, string shader)
 	float radius;
 	float pitch;
 	float flag;
-	int sample;
 
 	if (!STRING_SET(shader)) {
 		return;
@@ -603,7 +600,7 @@ SoundDef_Play(entity target, int chan, string shader)
 
 	/* set pitch */
 	pitch = random(newSound.pitch_min, newSound.pitch_max);
-	radius = SoundDef_GetAttenuation(sample);
+	radius = SoundDef_GetAttenuation(newSound);
 	volume = newSound.volume;
 
 	/* flags */
@@ -702,7 +699,6 @@ SoundDef_PlayAt(vector pos, string shader)
 	float radius;
 	float pitch;
 	int flag;
-	int sample;
 
 	if (!STRING_SET(shader)) {
 		return;
@@ -750,7 +746,7 @@ SoundDef_PlayAt(vector pos, string shader)
 	SndLog("Playing %s %S (radius: %f)", shader, argv(r), newSound.dist_max );
 
 	/* really? this doesn't do any more? */
-	pointsound_proper(pos, argv(r), newSound.volume, SoundDef_GetAttenuation(sample), pitch);
+	pointsound_proper(pos, argv(r), newSound.volume, SoundDef_GetAttenuation(newSound), pitch);
 
 	if (STRING_SET(newSound.distshader)) {
 		SoundDef_DistancePos(pos, newSound.distshader);
@@ -763,7 +759,6 @@ SoundDef_PlayLocal(string shader)
 {
 	int r;
 	int flag;
-	int sample;
 
 	if (!STRING_SET(shader)) {
 		return;
@@ -796,32 +791,43 @@ SoundDef_GetID(string defName)
 	return SoundDef_GetSoundIDByName(defName);
 }
 
+static ncSoundDict
+SoundDef_FindSoundByModelIndex(int modelIndex)
+{
+	if (modelIndex < 1) {
+		return __NULL__;
+	}
+
+	for (ncSoundDict spaceList = world; (spaceList = (ncSoundDict)find(spaceList, ::classname, "ncSoundDict"));) {
+		if ((int)getmodelindex(strcat("*S:", spaceList.name), false) == modelIndex) {
+			return spaceList;
+		}
+	}
+
+	return __NULL__;
+}
+
 void
-SoundDef_Update(entity target, int channel, int sample, float volume)
+SoundDef_Update(entity target, int channel, int sndModelIdx, float volume)
 {
 	int r;
 	float radius;
 	float pitch;
 	int flag;
-
 	ncSoundDict newSound;
 
-	//newSound = SoundDef_FindSoundByName(shader);
-
+	newSound = SoundDef_FindSoundByModelIndex(sndModelIdx);
 	if (!newSound) {
 		return;
 	}
 
-	/* pick a sample */
-	r = floor(random(0,  newSound.sample_count));
+	r = floor(random(0, newSound.sample_count));
 	tokenizebyseparator(newSound.samples, "\n");
 
-	/* set pitch */
 	pitch = random(newSound.pitch_min, newSound.pitch_max);
-	radius = SoundDef_GetAttenuation(sample);
+	radius = SoundDef_GetAttenuation(newSound);
 	flag = 0;
 
-	/* flags */
 	if (newSound.flags & SNDFL_NOREVERB) {
 		flag |= SOUNDFLAG_NOREVERB;
 	}
@@ -844,7 +850,7 @@ SoundDef_Update(entity target, int channel, int sample, float volume)
 	soundupdate(
 		target,
 		channel,
-		argv(0),
+		argv(r),
 		newSound.volume * volume,
 		radius,
 		pitch,
@@ -958,8 +964,10 @@ SoundDef_DebugList(void)
 {
 	int soundsCount = 0i;
 
-	for (ncSoundDict spaceList = world; (spaceList = find(spaceList, ::classname, "ncSoundDict"));) {
-		print(sprintf("%i: %s (%i samples)\n", soundsCount, spaceList.name, spaceList.sample_count));
+	for (ncSoundDict spaceList = world; (spaceList = (ncSoundDict)find(spaceList, ::classname, "ncSoundDict"));) {
+		print(sprintf("%i: ", soundsCount));
+		print(spaceList.name);
+		print(sprintf(" (%i samples)\n", spaceList.sample_count));
 		soundsCount++;
 	}
 

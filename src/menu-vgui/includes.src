@@ -3,6 +3,7 @@
 ../client/font.h
 ../platform/defs.h
 defs.h
+ui_gameui_strings.h
 ../vgui/include.src
 loading.qc
 main.h

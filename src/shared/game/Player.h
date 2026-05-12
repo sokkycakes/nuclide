@@ -300,6 +300,17 @@ private:
 	/* vehicle info */
 	NETWORKED_ENT(vehicle)
 	NETWORKED_VECTOR(m_pmoveHookVelocity)
+	NETWORKED_FLOAT(m_stilettoGrappleCharges)
+	NETWORKED_FLOAT(m_stilettoGrappleRechargeAccum)
+	int m_stilettoGrappleHeld;
+	NETWORKED_VECTOR(m_stilettoWallNorm)
+	NETWORKED_FLOAT(m_stilettoWallJumpCooldown)
+	NETWORKED_FLOAT(m_stilettoAirDodgeCharges)
+	NETWORKED_FLOAT(m_stilettoAirStallCharges)
+	NETWORKED_FLOAT(m_stilettoAirStallEnd)
+	NETWORKED_FLOAT(m_stilettoParryEnd)
+
+	int m_stilettoPrevButtons;
 
 #ifdef CLIENT
 	int sequence;
@@ -369,6 +380,7 @@ enumflags
 	PLAYER_WEAPONFRAME,
 	PLAYER_TOPFRAME,
 	PLAYER_BOTTOMFRAME,
+	PLAYER_STILETTO,
 	PLAYER_CUSTOMFIELDSTART,
 };
 

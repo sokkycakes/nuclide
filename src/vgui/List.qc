@@ -16,6 +16,7 @@
 
 .void(void) tmpvguiList1;
 .void(void) tmpvguiList3;
+.bool(int) tmpvguiListRowOk;
 
 /** VGUI Widget: List
 
@@ -47,6 +48,8 @@ public:
 	nonvirtual void CallOnScroll(void(void));
 	nonvirtual void CallOnDoubleClick(void(vguiList, int));
 	nonvirtual void CallOnSelectionChanged(void(void));
+	nonvirtual void CallRowAllowed(bool(int));
+	nonvirtual void SetCaptureHighlightRow(int);
 
 	virtual void Draw(void);
 	virtual bool Input(float, float, float, float);
@@ -59,6 +62,7 @@ private:
 	int m_iSelected;
 	int m_iDrawOffset;
 	float m_flClickTimer;
+	int m_iCaptureHighlightRow;
 };
 
 .void(vguiList, int) tmpvguiList2;
@@ -67,9 +71,11 @@ void vguiList::vguiList(void)
 {
 	m_iSelected = -1;
 	m_iDrawOffset = 0;
+	m_iCaptureHighlightRow = -1;
 	tmpvguiList1 = __NULL__;
 	tmpvguiList2 = __NULL__;
 	tmpvguiList3 = __NULL__;
+	tmpvguiListRowOk = __NULL__;
 }
 
 void vguiList::Spawned(void)
@@ -107,6 +113,14 @@ void vguiList::Draw(void)
 			drawfill(m_parent.m_vecOrigin + m_vecOrigin + vecOffset + [-7,-3], [m_vecSize[0] - 2, 18], [1,1,1], 0.1f);
 		}
 
+		if (m_iCaptureHighlightRow == i) {
+			drawfill(m_parent.m_vecOrigin + m_vecOrigin + vecOffset + [-7,-3], [m_vecSize[0] - 2, 18], [1,0.65,0], 0.45f);
+			drawfill(m_parent.m_vecOrigin + m_vecOrigin + vecOffset + [-7,-3], [m_vecSize[0] - 2, 1], [0,1,0], 1.0f);
+			drawfill(m_parent.m_vecOrigin + m_vecOrigin + vecOffset + [-7,14], [m_vecSize[0] - 2, 1], [0,1,0], 1.0f);
+			drawfill(m_parent.m_vecOrigin + m_vecOrigin + vecOffset + [-7,-3], [1, 18], [0,1,0], 1.0f);
+			drawfill(m_parent.m_vecOrigin + m_vecOrigin + vecOffset + [m_vecSize[0] - 10, -3], [1, 18], [0,1,0], 1.0f);
+		}
+
 		theme.DrawText(m_parent.m_vecOrigin + m_vecOrigin + vecOffset, m_strItems[i], m_vecSize, g_fntDefault);
 		vecOffset[1] += 20;
 	}
@@ -126,25 +140,33 @@ bool vguiList::Input (float flEVType, float flKey, float flChar, float flDevID)
 
 	vector vecOffset = [8,8];
 	if (flEVType == IE_KEYDOWN) {
+		if (!Visible() || !m_parent.Visible()) {
+			return (false);
+		}
 		if (flKey == K_MOUSE1) {
 			for (int i = m_iDrawOffset; i < iMaxDisplay + m_iDrawOffset; i++) {
+				if (!m_strItems[i]) {
+					break;
+				}
 				if (Util_MouseAbove(g_vecMousePos, m_parent.m_vecOrigin + m_vecOrigin + vecOffset, [m_vecSize[0] - 16, 20])) {
-					/* last item as last time */
-					if (m_iSelected == i) {
-						/* double click timer */
-						if (m_flClickTimer > time) {
-							if (tmpvguiList2)
-								tmpvguiList2(this, i);
+					if (!tmpvguiListRowOk || tmpvguiListRowOk(i)) {
+						/* last item as last time */
+						if (m_iSelected == i) {
+							/* double click timer */
+							if (m_flClickTimer > time) {
+								if (tmpvguiList2)
+									tmpvguiList2(this, i);
+							}
 						}
-					}
-					m_iSelected = i;
+						m_iSelected = i;
 
-					if (tmpvguiList3) {
-						tmpvguiList3();
-					}
+						if (tmpvguiList3) {
+							tmpvguiList3();
+						}
 
-					m_flClickTimer = time + 0.5f;
-					ret = true;
+						m_flClickTimer = time + 0.5f;
+						ret = true;
+					}
 				}
 				vecOffset[1] += 20;
 			}
@@ -153,6 +175,125 @@ bool vguiList::Input (float flEVType, float flKey, float flChar, float flDevID)
 			ret = true;
 		} else if (flKey == K_MWHEELDOWN && iMouseOver) {
 			SetOffset(m_iDrawOffset + (iMaxDisplay / 4), TRUE);
+			ret = true;
+		} else if (flKey == K_UPARROW || flKey == K_DOWNARROW || flKey == K_HOME
+			|| flKey == K_END || flKey == K_PGUP || flKey == K_PGDN) {
+			int iNew;
+			int iPage;
+			int iMaxOff;
+
+			iNew = m_iSelected;
+			iPage = iMaxDisplay;
+			if (iPage < 1)
+				iPage = 1;
+
+			if (flKey == K_HOME) {
+				iNew = 0;
+			} else if (flKey == K_END) {
+				iNew = m_iItemCount - 1;
+			} else if (flKey == K_PGUP) {
+				if (iNew < 0)
+					iNew = m_iItemCount - 1;
+				else
+					iNew -= iPage;
+			} else if (flKey == K_PGDN) {
+				if (iNew < 0)
+					iNew = 0;
+				else
+					iNew += iPage;
+			} else if (flKey == K_UPARROW) {
+				if (iNew < 0)
+					iNew = m_iItemCount - 1;
+				else
+					iNew--;
+			} else {
+				if (iNew < 0)
+					iNew = 0;
+				else
+					iNew++;
+			}
+
+			if (iNew < 0)
+				iNew = 0;
+			if (iNew >= m_iItemCount)
+				iNew = m_iItemCount - 1;
+
+			if (tmpvguiListRowOk) {
+				if (flKey == K_HOME) {
+					iNew = 0;
+					while (iNew < m_iItemCount &&
+					    tmpvguiListRowOk(iNew) == false)
+						iNew++;
+					if (iNew >= m_iItemCount)
+						iNew = m_iItemCount - 1;
+				} else if (flKey == K_END) {
+					iNew = m_iItemCount - 1;
+					while (iNew >= 0 &&
+					    tmpvguiListRowOk(iNew) == false)
+						iNew--;
+					if (iNew < 0)
+						iNew = 0;
+				} else {
+					int dir;
+					int guard;
+
+					dir = 0;
+					if (flKey == K_UPARROW || flKey == K_PGUP)
+						dir = -1;
+					else if (flKey == K_DOWNARROW || flKey == K_PGDN)
+						dir = 1;
+
+					guard = 0;
+					while (iNew >= 0 && iNew < m_iItemCount &&
+					    tmpvguiListRowOk(iNew) == false) {
+						if (dir == 0)
+							break;
+						iNew += dir;
+						guard++;
+						if (guard > m_iItemCount + 4)
+							break;
+						if (iNew < 0)
+							iNew = m_iItemCount - 1;
+						else if (iNew >= m_iItemCount)
+							iNew = 0;
+					}
+
+					if (iNew >= 0 && iNew < m_iItemCount &&
+					    tmpvguiListRowOk(iNew) == false) {
+						iNew = -1;
+						for (int scan = 0; scan < m_iItemCount; scan++) {
+							if (tmpvguiListRowOk(scan)) {
+								iNew = scan;
+								break;
+							}
+						}
+						if (iNew < 0)
+							iNew = 0;
+					}
+				}
+			}
+
+			m_iSelected = iNew;
+
+			iMaxOff = m_iItemCount - iMaxDisplay;
+			if (iMaxOff < 0)
+				iMaxOff = 0;
+			if (m_iItemCount <= iMaxDisplay) {
+				m_iDrawOffset = 0;
+			} else {
+				if (m_iSelected < m_iDrawOffset)
+					m_iDrawOffset = m_iSelected;
+				if (m_iSelected >= m_iDrawOffset + iMaxDisplay)
+					m_iDrawOffset = m_iSelected - iMaxDisplay + 1;
+				if (m_iDrawOffset < 0)
+					m_iDrawOffset = 0;
+				if (m_iDrawOffset > iMaxOff)
+					m_iDrawOffset = iMaxOff;
+			}
+
+			if (tmpvguiList3)
+				tmpvguiList3();
+
 			ret = true;
 		}
 	}
@@ -253,4 +394,16 @@ void vguiList::CallOnSelectionChanged (void(void) vFunc)
 void vguiList::CallOnDoubleClick (void(vguiList, int) vFunc)
 {
 	tmpvguiList2 = vFunc;
+}
+
+void
+vguiList::CallRowAllowed(bool(int) vFunc)
+{
+	tmpvguiListRowOk = vFunc;
+}
+
+void
+vguiList::SetCaptureHighlightRow(int row)
+{
+	m_iCaptureHighlightRow = row;
 }

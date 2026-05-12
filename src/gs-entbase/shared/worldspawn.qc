@@ -130,6 +130,7 @@ ncWorldSpawn::ncWorldSpawn(void)
 	lightstyle(69, "vv");
 
 	precache.Model("models/error.vvm");
+	precache.Model("progs/s_spike.mdl");
 
 	//if (autocvar_sv_levelexec)
 	//	readcmd(sprintf("exec maps/%s.cfg\n", mapname));

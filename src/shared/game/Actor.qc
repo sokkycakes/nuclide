@@ -30,10 +30,10 @@ ncActor::ncActor(void)
 	m_followingEntity = __NULL__;
 	m_moveSpeedKey = 0.0f;
 	m_mindset = __NULL__;
-	m_hook = __NULL__;
 	m_pathTarget = "";
 #endif
 
+	m_hook = __NULL__;
 	m_itemList = __NULL__;
 	activeweapon = 0;
 	m_itemStart = 0;

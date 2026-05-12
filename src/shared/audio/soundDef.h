@@ -167,7 +167,7 @@ void SoundDef_PlayAt(vector worldPos, string sndDef);
 /** Client-side only: Play a sound locally, outside the game world. */
 void SoundDef_PlayLocal(string shader);
 /** Client-side only: Update the sound parameters on a given entity. */
-void SoundDef_Update(entity targetEntity, int sndChannel, int sndSample, float desiredVolume);
+void SoundDef_Update(entity targetEntity, int sndChannel, int sndModelIdx, float desiredVolume);
 
 int SoundDef_GetID(string sndDef);
 #else

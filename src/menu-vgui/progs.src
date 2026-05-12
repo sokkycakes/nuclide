@@ -2,6 +2,7 @@
 //#pragma flag enable assumeint
 #pragma progs_dat  "../../platform/menu.dat"
 #define MENU
+#define GAME_DIR "base"
 
 #includelist
 includes.src

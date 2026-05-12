@@ -480,7 +480,12 @@ ncStats::Kill(ncPlayer killedPlayer, ncEntity inflicingEntity, ncEntity attackin
 			return;
 		}
 
-		fputs(g_statLogHandle, sprintf("%s\tKill\t%i\t%s\t%i\t%i\t%i\t%s\t%i\t%i\n", LocalTime(), attackerNum, attackerWeapon, attackerScoreChange, attackerPing, deadNum, deadWeapon, killedScoreChange, deadPing));
+		{
+			string killLine = strcat(
+				sprintf("%s\tKill\t%i\t%s\t%i\t%i\t", LocalTime(), attackerNum, attackerWeapon, attackerScoreChange, attackerPing),
+				sprintf("%i\t%s\t%i\t%i\n", deadNum, deadWeapon, killedScoreChange, deadPing));
+			fputs(g_statLogHandle, killLine);
+		}
 		break;
 	}
 

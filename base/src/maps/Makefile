@@ -10,3 +10,4 @@ all:
 	$(QCC) lqdm8.src
 	$(QCC) lqdm9.src
 	$(QCC) lqdm10.src
+	$(QCC) stiletto_dev.src

@@ -22,6 +22,7 @@ enumflags
 };
 
 .void(void) tmpvguiTextBox1;
+.void(void) tmpvguiTextBoxChanged;
 
 /** VGUI Widget: Text Box
 
@@ -42,6 +43,7 @@ public:
 	virtual bool Input(float, float, float, float);
 	virtual void Spawned(void);
 	virtual void CallOnEnter(void(void));
+	nonvirtual void CallOnTextChanged(void(void));
 
 private:
 	vector m_vecColor;
@@ -54,6 +56,8 @@ void vguiTextBox::vguiTextBox(void)
 {
 	m_vecColor = UI_MAINCOLOR;
 	m_flAlpha = 1.0f;
+	tmpvguiTextBox1 = __NULL__;
+	tmpvguiTextBoxChanged = __NULL__;
 }
 
 void vguiTextBox:: Spawned(void)
@@ -76,6 +80,12 @@ vguiTextBox::CallOnEnter(void(void) func)
 	//#warning "SetFunc in vguiButton is DEPRECATED. Compiler IS generating JUNK in the old way. Please override vguiButton and define a OnMouseDown/Up method instead"
 	//m_vFunc = vFunc;
 	tmpvguiTextBox1 = func;
+}
+
+void
+vguiTextBox::CallOnTextChanged(void(void) func)
+{
+	tmpvguiTextBoxChanged = func;
 }
 
 void vguiTextBox::Draw(void)
@@ -135,8 +145,11 @@ bool vguiTextBox::Input (float flEVType, float flKey, float flChar, float flDevI
 		break;
 	case K_BACKSPACE:
 			if (flEVType == IE_KEYDOWN)
-				if (m_iFlags & TEXTBOX_FOCUS)
+				if (m_iFlags & TEXTBOX_FOCUS) {
 					m_strText = substring(m_strText, 0, strlen(m_strText) - 1);
+					if (tmpvguiTextBoxChanged)
+						tmpvguiTextBoxChanged();
+				}
 		break;
 	case K_ENTER:
 		if (tmpvguiTextBox1) {
@@ -148,8 +161,11 @@ bool vguiTextBox::Input (float flEVType, float flKey, float flChar, float flDevI
 			ret = true;
 		else if (m_iFlags & TEXTBOX_FOCUS) {
 			if ((flChar >= 32 && flChar <= 125)) {
-				if (flEVType == IE_KEYDOWN)
+				if (flEVType == IE_KEYDOWN) {
 					m_strText = sprintf("%s%s", m_strText, chr2str(flChar));
+					if (tmpvguiTextBoxChanged)
+						tmpvguiTextBoxChanged();
+				}
 				ret = true;
 			}
 			if ((flKey >= 32 && flKey <= 125)) {

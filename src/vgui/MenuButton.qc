@@ -161,7 +161,7 @@ vguiMenuButton::Input (float flEVType, float flKey, float flChar, float flDevID)
 {
 	if (m_iFlags & MBUTTON_AUTHONLY) {
 		if (FragNet_Status() != STATE_ONLINE) {
-			return;
+			return false;
 		}
 	}
 

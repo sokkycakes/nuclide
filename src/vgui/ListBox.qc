@@ -32,6 +32,7 @@ public:
 	nonvirtual string GetItem(void);
 	nonvirtual void SelectionComplete(string);
 	nonvirtual void ShowPicker(void);
+	nonvirtual void CallOnPicked(void(void) func);
 
 	virtual void Draw(void);
 	virtual bool Input(float, float, float, float);
@@ -54,6 +55,12 @@ void
 vguiListBox::SelectionComplete(string selectedString)
 {
 	m_strTitle = selectedString;
+}
+
+void
+vguiListBox::CallOnPicked(void(void) func)
+{
+	m_listPicker.CallOnAfterSelect(func);
 }
 
 void

@@ -434,7 +434,7 @@ ncSurfacePropEntity::Extinguish(void)
 {
 	RemoveEffects(EF_ONFIRE);
 	m_burningAttacker = __NULL__;
-	m_burningWeapon =
+	m_burningWeapon = __NULL__;
 	m_timeUntilBurningStops = 0;
 }
 

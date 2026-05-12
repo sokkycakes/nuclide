@@ -50,3 +50,5 @@
 #define VFL_VIDREMOVE			(1<<14) /**< Entity will be flushed upon vid_reload. */
 #define VFL_NOFRAMEADVANCE		(1<<15) /**< Entity will be requested not to advance in animation by itself. */
 #define VFL_HOLDING				(1<<16) /**< Entity will be requested not to advance in animation by itself. */
+#define VFL_STILETTO_WALL		(1<<17)
+#define VFL_STILETTO_PARRY		(1<<18)

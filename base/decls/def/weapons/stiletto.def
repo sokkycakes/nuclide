@@ -1,0 +1,67 @@
+entityDef attack_stiletto_grapple_hook
+{
+	"spawnclass"		"ncAttack"
+	"grappleHook"		"1"
+	"model"				"progs/s_spike.mdl"
+}
+
+entityDef fireInfo_stiletto_grapple
+{
+	"def_onFire"		"attack_stiletto_grapple_hook"
+	"fireRate"			"0.2"
+	"ammoRequired"		"0"
+}
+
+entityDef weapon_stiletto_grapple
+{
+	"inherit"			"weapon_shotgun"
+	"editor_usage"		"Stiletto grapple"
+	"def_fireInfo"		"fireInfo_stiletto_grapple"
+	"model_view"		"progs/v_spike.mdl"
+	"model_player"		"progs/v_spike.mdl"
+	"inv_name"			"Stiletto Grapple"
+	"ammoRequired"		"0"
+	"ammoPerShot"		"0"
+	"clipSize"			"0"
+	"clipSizeDefault"	"0"
+	"hudSlot"			"3"
+	"hudSlotPos"		"0"
+	"weight"			"5"
+	"icon"				"weapon_shotgun.weapon"
+	"iconSelected"		"weapon_shotgun.weapon_s"
+}
+
+entityDef projectile_stiletto_boot
+{
+	"inherit"			"projectile_bullet_base"
+	"damage"			"12"
+	"hitscans"			"1"
+	"range"				"72"
+	"spread"			"0 0"
+}
+
+entityDef fireInfo_stiletto_boot
+{
+	"def_onFire"		"projectile_stiletto_boot"
+	"fireRate"			"0.45"
+	"knockback"			"140"
+	"knockbackRelease"	"380"
+	"punchSpring"		"-4 0 0"
+}
+
+entityDef weapon_stiletto_boot
+{
+	"inherit"			"weapon_shotgun"
+	"editor_usage"		"Stiletto air kick"
+	"def_fireInfo"		"fireInfo_stiletto_boot"
+	"inv_name"			"Stiletto Boot"
+	"ammoRequired"		"0"
+	"ammoPerShot"		"0"
+	"clipSize"			"0"
+	"clipSizeDefault"	"0"
+	"hudSlot"			"2"
+	"hudSlotPos"		"1"
+	"weight"			"6"
+	"icon"				"weapon_shotgun.weapon"
+	"iconSelected"		"weapon_shotgun.weapon_s"
+}

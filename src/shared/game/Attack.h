@@ -51,6 +51,8 @@ private:
 #endif
 };
 
+void Grapple_Clear(entity pl);
+
 #ifdef SERVER
 ncAttack ncAttack_SpawnDef(string entityDef, ncActor theOwner);
 ncAttack ncAttack_SpawnDefAtPosition(string entityDef, ncActor theOwner, vector vecOrigin, vector vecAngles);

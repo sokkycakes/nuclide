@@ -32,6 +32,7 @@ audio/Sound.qc
 game/Client.qc
 game/Spectator.qc
 physics/pmove_custom.qc
+physics/stiletto_tuning.qc
 system/cloader.qc
 audio/soundDef.qc
 physics/Ragdoll.qc

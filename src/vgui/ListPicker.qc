@@ -15,6 +15,7 @@
 */
 
 .void(string) tmpvguiPickerCB;
+.void(void) tmpvguiPickerAfterSelect;
 
 class
 vguiListPicker:vguiWindow
@@ -31,6 +32,7 @@ vguiListPicker:vguiWindow
 	nonvirtual void AddItem(string);
 	nonvirtual void SetItemCount(int);
 	nonvirtual void CallOnSelect(void(string) func);
+	nonvirtual void CallOnAfterSelect(void(void) func);
 
 private:
 	vguiList m_lsbEntries;
@@ -46,6 +48,7 @@ vguiListPicker::vguiListPicker(void)
 	m_scrlEntries = __NULL__;
 	m_btnSelect = __NULL__;
 	tmpvguiPickerCB = 0;
+	tmpvguiPickerAfterSelect = 0;
 }
 
 void
@@ -85,6 +88,8 @@ vguiListPicker::ListPicker_Select(void)
 	if (tmpvguiPickerCB) {
 		tmpvguiPickerCB(m_lsbEntries.GetItem( m_lsbEntries.GetSelected() ));
 	}
+	if (tmpvguiPickerAfterSelect)
+		tmpvguiPickerAfterSelect();
 	Hide();
 }
 
@@ -92,6 +97,12 @@ void
 vguiListPicker::CallOnSelect(void(string) func)
 {
 	tmpvguiPickerCB = func;
+}
+
+void
+vguiListPicker::CallOnAfterSelect(void(void) func)
+{
+	tmpvguiPickerAfterSelect = func;
 }
 
 void

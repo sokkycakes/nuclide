@@ -75,6 +75,16 @@ ncPlayer::ncPlayer(void)
 	m_pmoveHookVelocity = g_vec_null;
 	m_pmoveVars = 0;
 	m_holdingEntity = 0;
+	m_stilettoGrappleCharges = 3.0f;
+	m_stilettoGrappleRechargeAccum = 0.0f;
+	m_stilettoWallNorm = g_vec_null;
+	m_stilettoWallJumpCooldown = 0.0f;
+	m_stilettoAirDodgeCharges = 1.0f;
+	m_stilettoAirStallCharges = 1.0f;
+	m_stilettoAirStallEnd = 0.0f;
+	m_stilettoParryEnd = 0.0f;
+	m_stilettoPrevButtons = 0;
+	m_stilettoGrappleHeld = 0;
 }
 
 ncWeapon
@@ -203,13 +213,13 @@ ncPlayer::CanSprint(void)
 bool
 ncPlayer::CanProne(void)
 {
-	return m_pmoveVars.pm_proneheight > 0 ? (true) : false;
+	return (false);
 }
 
 bool
 ncPlayer::CanLean(void)
 {
-	return (true);
+	return (false);
 }
 
 bool
@@ -853,6 +863,12 @@ ncPlayer::CalculateLean(vector viewAngle)
 	float heightChange;
 	ncPlayer pl = (ncPlayer)pSeat->m_ePlayer;
 
+	if (CanLean() == false) {
+		pSeat->m_flLeaning = 0.0f;
+		pSeat->m_iLeanDir = 0;
+		return (g_vec_null);
+	}
+
 	if (pSeat->m_iLeanDir > 0i) {
 		pSeat->m_flLeaning += frametime * 5;
 	} else if (pSeat->m_iLeanDir < 0i) {
@@ -952,9 +968,6 @@ ncPlayer::ClientInputFrame(void)
 	}
 	if (pSeat->m_iInputDuck == true) {
 		input_buttons |= INPUT_CROUCH;
-	}
-	if (pSeat->m_iInputProne == true) {
-		input_buttons |= INPUT_PRONE;
 	}
 	if (pSeat->m_iInputSprint == true) {
 		input_buttons |= INPUT_SPRINT;
@@ -1113,6 +1126,17 @@ ncPlayer::ReceiveEntity(float isNew, float flChanged)
 	READENTITY_BYTE(anim_bottom, PLAYER_BOTTOMFRAME)
 	READENTITY_FLOAT(anim_bottom_time, PLAYER_BOTTOMFRAME)
 
+	READENTITY_FLOAT(m_stilettoGrappleCharges, PLAYER_STILETTO)
+	READENTITY_FLOAT(m_stilettoGrappleRechargeAccum, PLAYER_STILETTO)
+	READENTITY_COORD(m_stilettoWallNorm[0], PLAYER_STILETTO)
+	READENTITY_COORD(m_stilettoWallNorm[1], PLAYER_STILETTO)
+	READENTITY_COORD(m_stilettoWallNorm[2], PLAYER_STILETTO)
+	READENTITY_FLOAT(m_stilettoWallJumpCooldown, PLAYER_STILETTO)
+	READENTITY_FLOAT(m_stilettoAirDodgeCharges, PLAYER_STILETTO)
+	READENTITY_FLOAT(m_stilettoAirStallCharges, PLAYER_STILETTO)
+	READENTITY_FLOAT(m_stilettoAirStallEnd, PLAYER_STILETTO)
+	READENTITY_FLOAT(m_stilettoParryEnd, PLAYER_STILETTO)
+
 	/* we only really care about the declclass for decl lookups. */
 	if (flChanged & PLAYER_MODELINDEX) {
 		declclass = EntityDef_NameFromNetID(entityDefID);
@@ -1214,6 +1238,14 @@ ncPlayer::PredictPreFrame(void)
 	SAVE_STATE(sndindex_idle)
 	SAVE_STATE(activeweapon)
 	SAVE_STATE(m_animBackend)
+	SAVE_STATE(m_stilettoGrappleCharges)
+	SAVE_STATE(m_stilettoGrappleRechargeAccum)
+	SAVE_STATE(m_stilettoWallNorm)
+	SAVE_STATE(m_stilettoWallJumpCooldown)
+	SAVE_STATE(m_stilettoAirDodgeCharges)
+	SAVE_STATE(m_stilettoAirStallCharges)
+	SAVE_STATE(m_stilettoAirStallEnd)
+	SAVE_STATE(m_stilettoParryEnd)
 
 	for (int i = 0i; i < MAX_AMMO_TYPES; i++) {
 		m_ammoTypes_net[i] = m_ammoTypes[i];
@@ -1269,6 +1301,14 @@ ncPlayer::PredictPostFrame(void)
 	ROLL_BACK(anim_bottom_time)
 	ROLL_BACK(sndindex_idle)
 	ROLL_BACK(m_animBackend)
+	ROLL_BACK(m_stilettoGrappleCharges)
+	ROLL_BACK(m_stilettoGrappleRechargeAccum)
+	ROLL_BACK(m_stilettoWallNorm)
+	ROLL_BACK(m_stilettoWallJumpCooldown)
+	ROLL_BACK(m_stilettoAirDodgeCharges)
+	ROLL_BACK(m_stilettoAirStallCharges)
+	ROLL_BACK(m_stilettoAirStallEnd)
+	ROLL_BACK(m_stilettoParryEnd)
 
 	/* make sure to relink these */
 	ROLL_BACK(vehicle_entnum)
@@ -1360,6 +1400,15 @@ ncPlayer::Save(float handle)
 	SaveVector(handle, "m_punchVelocity", m_punchVelocity);
 	SaveVector(handle, "v_angle", v_angle);
 	SaveVector(handle, "view_ofs", view_ofs);
+	SaveFloat(handle, "m_stilettoGrappleCharges", m_stilettoGrappleCharges);
+	SaveFloat(handle, "m_stilettoGrappleRechargeAccum", m_stilettoGrappleRechargeAccum);
+	SaveVector(handle, "m_stilettoWallNorm", m_stilettoWallNorm);
+	SaveFloat(handle, "m_stilettoWallJumpCooldown", m_stilettoWallJumpCooldown);
+	SaveFloat(handle, "m_stilettoAirDodgeCharges", m_stilettoAirDodgeCharges);
+	SaveFloat(handle, "m_stilettoAirStallCharges", m_stilettoAirStallCharges);
+	SaveFloat(handle, "m_stilettoAirStallEnd", m_stilettoAirStallEnd);
+	SaveFloat(handle, "m_stilettoParryEnd", m_stilettoParryEnd);
+	SaveInt(handle, "m_stilettoPrevButtons", m_stilettoPrevButtons);
 }
 
 void
@@ -1476,6 +1525,33 @@ ncPlayer::Restore(string keyName, string setValue)
 		break;
 	case "view_ofs":
 		view_ofs = ReadVector(setValue);
+		break;
+	case "m_stilettoGrappleCharges":
+		m_stilettoGrappleCharges = ReadFloat(setValue);
+		break;
+	case "m_stilettoGrappleRechargeAccum":
+		m_stilettoGrappleRechargeAccum = ReadFloat(setValue);
+		break;
+	case "m_stilettoWallNorm":
+		m_stilettoWallNorm = ReadVector(setValue);
+		break;
+	case "m_stilettoWallJumpCooldown":
+		m_stilettoWallJumpCooldown = ReadFloat(setValue);
+		break;
+	case "m_stilettoAirDodgeCharges":
+		m_stilettoAirDodgeCharges = ReadFloat(setValue);
+		break;
+	case "m_stilettoAirStallCharges":
+		m_stilettoAirStallCharges = ReadFloat(setValue);
+		break;
+	case "m_stilettoAirStallEnd":
+		m_stilettoAirStallEnd = ReadFloat(setValue);
+		break;
+	case "m_stilettoParryEnd":
+		m_stilettoParryEnd = ReadFloat(setValue);
+		break;
+	case "m_stilettoPrevButtons":
+		m_stilettoPrevButtons = ReadInt(setValue);
 		break;
 	default:
 		super::Restore(keyName, setValue);
@@ -1715,6 +1791,17 @@ ncPlayer::EvaluateEntity(void)
 	EVALUATE_FIELD(anim_bottom, PLAYER_BOTTOMFRAME)
 	EVALUATE_FIELD(anim_bottom_time, PLAYER_BOTTOMFRAME)
 
+	EVALUATE_FIELD(m_stilettoGrappleCharges, PLAYER_STILETTO)
+	EVALUATE_FIELD(m_stilettoGrappleRechargeAccum, PLAYER_STILETTO)
+	EVALUATE_VECTOR(m_stilettoWallNorm, 0, PLAYER_STILETTO)
+	EVALUATE_VECTOR(m_stilettoWallNorm, 1, PLAYER_STILETTO)
+	EVALUATE_VECTOR(m_stilettoWallNorm, 2, PLAYER_STILETTO)
+	EVALUATE_FIELD(m_stilettoWallJumpCooldown, PLAYER_STILETTO)
+	EVALUATE_FIELD(m_stilettoAirDodgeCharges, PLAYER_STILETTO)
+	EVALUATE_FIELD(m_stilettoAirStallCharges, PLAYER_STILETTO)
+	EVALUATE_FIELD(m_stilettoAirStallEnd, PLAYER_STILETTO)
+	EVALUATE_FIELD(m_stilettoParryEnd, PLAYER_STILETTO)
+
 	for (int i = 0i; i < MAX_AMMO_TYPES; i++) {
 		EVALUATE_VECTOR(m_ammoTypes, i, PLAYER_AMMOTYPES)
 	}
@@ -1829,6 +1916,17 @@ ncPlayer::SendEntity(entity ePEnt, float flChanged)
 	SENDENTITY_BYTE(anim_bottom, PLAYER_BOTTOMFRAME)
 	SENDENTITY_FLOAT(anim_bottom_time, PLAYER_BOTTOMFRAME)
 
+	SENDENTITY_FLOAT(m_stilettoGrappleCharges, PLAYER_STILETTO)
+	SENDENTITY_FLOAT(m_stilettoGrappleRechargeAccum, PLAYER_STILETTO)
+	SENDENTITY_COORD(m_stilettoWallNorm[0], PLAYER_STILETTO)
+	SENDENTITY_COORD(m_stilettoWallNorm[1], PLAYER_STILETTO)
+	SENDENTITY_COORD(m_stilettoWallNorm[2], PLAYER_STILETTO)
+	SENDENTITY_FLOAT(m_stilettoWallJumpCooldown, PLAYER_STILETTO)
+	SENDENTITY_FLOAT(m_stilettoAirDodgeCharges, PLAYER_STILETTO)
+	SENDENTITY_FLOAT(m_stilettoAirStallCharges, PLAYER_STILETTO)
+	SENDENTITY_FLOAT(m_stilettoAirStallEnd, PLAYER_STILETTO)
+	SENDENTITY_FLOAT(m_stilettoParryEnd, PLAYER_STILETTO)
+
 	for (int i = 0i; i < MAX_AMMO_TYPES; i++) {
 		SENDENTITY_BYTE(m_ammoTypes[i], PLAYER_AMMOTYPES)
 	}
@@ -1858,6 +1956,7 @@ ncPlayer::OptimiseChangedFlags(entity ePEnt, float flChanged)
 		flChanged &= ~PLAYER_PUNCHANGLE;
 		flChanged &= ~PLAYER_VIEWZOOM;
 		flChanged &= ~PLAYER_SPECTATE;
+		flChanged &= ~PLAYER_STILETTO;
 	} else {
 		/* always keep us alive to ourselves or the person spectating */
 		/* this will make prediction smoother */
@@ -2290,7 +2389,7 @@ ncPlayer::Damage(entity inflictor, entity attacker, ncDict damageDecl, float dam
 		string deadWeapon = this.m_activeWeapon.declclass;
 		rules.PlayerDeath(this, (ncActor)inflictor, (ncActor)attacker, attackerWeapon);
 		Death(inflictor, attacker, (int)damagePoints, dmgDir, hitLocation, 0i);
-		ncStats::Kill(this, inflictor, attacker, attacker.frags - attackerOldScore, attackerWeapon, this.frags - deadOldScore, deadWeapon);
+		ncStats::Kill(this, (ncEntity)inflictor, (ncEntity)attacker, attacker.frags - attackerOldScore, attackerWeapon, this.frags - deadOldScore, deadWeapon);
 	} else {
 		rules.PlayerPain(this, (ncActor)attacker, damageDecl);
 		Pain(inflictor, attacker, (int)damagePoints, dmgDir, hitLocation, 0i);

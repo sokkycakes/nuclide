@@ -111,12 +111,30 @@ Menu_IsEngineToggleConsoleKey(float evtype, float scanx)
 float
 Menu_InputEvent (float evtype, float scanx, float chary, float devid)
 {
+	switch (evtype) {
+	case IE_MOUSEABS:
+		g_vecMousePos[0] = scanx;
+		g_vecMousePos[1] = chary;
+		break;
+	case IE_MOUSEDELTA:
+		g_vecMousePos[0] += scanx;
+		g_vecMousePos[1] += chary;
+		break;
+	default:
+		break;
+	}
+
+	g_vecMousePos = getmousepos();
+
 	if (Menu_IsEngineToggleConsoleKey(evtype, scanx)) {
 		localcmd("toggleconsole\n");
 		return (float)g_active;
 	}
 
 	if (UI_Options_KeybindCapture(evtype, scanx, chary, devid))
+		return (float)g_active;
+
+	if (UI_Options_HandleMenuKeys(evtype, scanx, chary, devid))
 		return (float)g_active;
 
 	switch (evtype) {
@@ -127,17 +145,10 @@ Menu_InputEvent (float evtype, float scanx, float chary, float devid)
 			}
 		}
 		break;
-	case IE_MOUSEABS:
-		g_vecMousePos[0] = scanx;
-		g_vecMousePos[1] = chary;
-		break;
-	case IE_MOUSEDELTA:
-		g_vecMousePos[0] += scanx;
-		g_vecMousePos[1] += chary;
+	default:
 		break;
 	}
 
-	g_vecMousePos = getmousepos();
 	g_uiDesktop.Input(evtype, scanx, chary, devid);
 	return (float)g_active;
 }

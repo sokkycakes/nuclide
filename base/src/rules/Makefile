@@ -1,7 +1,7 @@
 QCC=fteqcc
 
 all:
-	mkdir -p ../../progs/
+	@python -c "import os; os.makedirs('../../progs', exist_ok=True)"
 	$(QCC) $(CFLAGS) deathmatch.src
 	$(QCC) $(CFLAGS) singleplayer.src
 	$(QCC) $(CFLAGS) invasion.src
