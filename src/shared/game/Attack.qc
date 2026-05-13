@@ -113,7 +113,7 @@ Grapple_Touch(void)
 		pl.m_hook.solid = SOLID_NOT;
 		sound(pl, CHAN_WEAPON, "sound/hook_hit.wav", 1.0f, ATTN_NORM);
 		pl.m_pmoveHookVelocity = pl.m_hook.origin;
-		pl.m_stilettoGrappleHeld = (input_buttons & INPUT_PRIMARY) ? 1 : 0;
+		pl.m_stilettoGrappleHeld = ((input_buttons & INPUT_PRIMARY) || pl.m_stilettoGrappleActionHeld) ? 1 : 0;
 	}  else {
 		sound(pl, CHAN_WEAPON, "sound/hook_bounce.wav", 1.0f, ATTN_NORM);
 		Grapple_Clear(pl);

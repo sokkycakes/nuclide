@@ -408,9 +408,11 @@ Cmd_Parse(string sCMD)
 		pSeat->m_iInputAttack2 = false;
 		break;
 	case "+stiletto_grapple":
+		localcmd("cmd nuclide_abi_grapple 1\n");
 		pSeat->m_iInputStilettoGrapple = true;
 		break;
 	case "-stiletto_grapple":
+		localcmd("cmd nuclide_abi_grapple 0\n");
 		pSeat->m_iInputStilettoGrapple = false;
 		break;
 	case "+stiletto_boot":

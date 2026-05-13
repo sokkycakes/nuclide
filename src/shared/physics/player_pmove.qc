@@ -614,12 +614,14 @@ ncPlayer::Physics_Run(void)
 
 	Stiletto_Grapple_CheckFlyingMiss(this);
 
-	if (!(saved_input_buttons & INPUT_PRIMARY)) {
+#ifdef SERVER
+	if (!(input_buttons & INPUT_PRIMARY) && !m_stilettoGrappleActionHeld) {
 		if (m_pmoveHookVelocity != g_vec_null) {
 			Stiletto_GrappleHop(this);
 			Grapple_Clear(this);
 		}
 	}
+#endif
 
 #ifdef SERVER
 	Stiletto_Server_GrappleRecharge(this);

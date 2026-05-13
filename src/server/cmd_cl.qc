@@ -90,7 +90,13 @@ Cmd_ParseClientCommand(ncClient sender, string cmd, int commandArguments)
 		break;
 	case "nuclide_abi_grapple":
 		if (is.Player(sender)) {
-			Stiletto_FireGrapple(sender);
+			ncPlayer pl = (ncPlayer)sender;
+			if (argv(1) == "1") {
+				pl.m_stilettoGrappleActionHeld = 1;
+				Stiletto_FireGrapple(sender);
+			} else {
+				pl.m_stilettoGrappleActionHeld = 0;
+			}
 		}
 		break;
 	default:

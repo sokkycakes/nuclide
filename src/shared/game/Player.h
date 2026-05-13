@@ -303,6 +303,7 @@ private:
 	NETWORKED_FLOAT(m_stilettoGrappleCharges)
 	NETWORKED_FLOAT(m_stilettoGrappleRechargeAccum)
 	int m_stilettoGrappleHeld;
+	int m_stilettoGrappleActionHeld;
 	NETWORKED_VECTOR(m_stilettoWallNorm)
 	NETWORKED_FLOAT(m_stilettoWallJumpCooldown)
 	NETWORKED_FLOAT(m_stilettoAirDodgeCharges)

@@ -85,6 +85,7 @@ ncPlayer::ncPlayer(void)
 	m_stilettoParryEnd = 0.0f;
 	m_stilettoPrevButtons = 0;
 	m_stilettoGrappleHeld = 0;
+	m_stilettoGrappleActionHeld = 0;
 }
 
 ncWeapon

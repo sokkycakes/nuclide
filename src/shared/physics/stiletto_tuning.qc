@@ -499,4 +499,19 @@ Stiletto_FireGrapple(entity e)
 
 	ncAttack_SpawnDef("attack_stiletto_grapple_hook", (ncActor)pl);
 }
+
+void
+Stiletto_ReleaseGrapple(entity e)
+{
+	ncPlayer pl = (ncPlayer)e;
+
+	if (!is.Player(pl)) {
+		return;
+	}
+
+	if (pl.m_pmoveHookVelocity != g_vec_null) {
+		Stiletto_GrappleHop(pl);
+		Grapple_Clear(pl);
+	}
+}
 #endif
