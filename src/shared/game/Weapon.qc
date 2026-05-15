@@ -39,6 +39,7 @@ ncWeapon::ncWeapon(void)
 	m_playerModel = 0.0f;
 	m_weaponFireRate = 1.0f;
 	m_weaponState = 0;
+	m_fiInfiniteReserve = false;
 	m_weaponLastFireInfo = __NULL__;
 	m_fiSpeedMod = 1.0f;
 	m_fiReloadTime = -1.0f;
@@ -858,6 +859,7 @@ ncWeapon::ReloadCachedAttributes(void)
 	m_primaryAmmoType = ammoNumForName(firstType);
 	m_fiPrimedFuse = GetDefFloat("primed_fuse");
 	m_fiPowerAmmo = GetDefBool("powerAmmo");
+	m_fiInfiniteReserve = GetDefBool("infiniteReserve");
 	m_fiRemoveOnEmpty = GetDefBool("removeOnEmpty");
 	m_fiFXTrail = particleeffectnum(GetDefString("fx_trail"));
 	m_fiAltModeSwitch = GetDefBool("altMode");
@@ -937,7 +939,7 @@ ncWeapon::IsEmpty(void)
 			/* no more ammo in clip? */
 			if (m_weaponClip <= 0i || (m_weaponClip - m_fiAmmoPerShot) < 0i) {
 				/* possible to reload? */
-				if (ourOwner.HasAmmo(m_fiAmmoType, 1) == true) {
+				if (ourOwner.HasAmmo(m_fiAmmoType, 1) == true || m_fiInfiniteReserve == true) {
 					return (false);
 				}
 				return (true);
@@ -1024,7 +1026,7 @@ ncWeapon::UseAmmo(string fireInfo)
 			/* no more ammo in clip? */
 			if (m_weaponClip <= 0i || (m_weaponClip - m_fiAmmoPerShot) < 0i) {
 				/* possible to reload? */
-				if (ourOwner.HasAmmo(m_fiAmmoType, 1) == true) {
+				if (ourOwner.HasAmmo(m_fiAmmoType, 1) == true || m_fiInfiniteReserve == true) {
 					Reload();
 					return (false);
 				} else { /* no, play empty sound */
@@ -1594,7 +1596,9 @@ ncWeapon::Idle(void)
 		float reloadTime;
 		idleAnim = GetSubDefAct(m_weaponLastFireInfo, "reload");
 		m_weaponClip++;
-		ourOwner.UseAmmo(m_primaryAmmoType, 1);
+		if (m_fiInfiniteReserve == false) {
+			ourOwner.UseAmmo(m_primaryAmmoType, 1);
+		}
 		ourOwner.Event_ReloadWeapon();
 
 		if (HasReserveAmmo() == false || m_weaponClip >= m_weaponClipSize) {
@@ -1842,6 +1846,12 @@ ncWeapon::_ReloadFinished(void)
 	ncPlayer ourOwner = (ncPlayer)GetOwner();
 	int ammoToDeduct;
 
+	if (m_fiInfiniteReserve == true) {
+		m_weaponClip = m_weaponClipSize;
+		WeaponStoppedReloading();
+		return;
+	}
+
 	ammoToDeduct = m_weaponClipSize - m_weaponClip;
 
 	/* not enough ammo. assign whatever is left. */
@@ -1897,7 +1907,7 @@ ncWeapon::Reload(void)
 	}
 
 	/* no leftover ammo at all. */
-	if (ourOwner.HasAmmo(ammoTypeID, 1) == false) {
+	if (ourOwner.HasAmmo(ammoTypeID, 1) == false && m_fiInfiniteReserve == false) {
 		return;
 	}
 
@@ -1965,6 +1975,10 @@ ncWeapon::HasReserveAmmo(void)
 {
 	ncPlayer ourOwner = (ncPlayer)GetOwner();
 	int ammoTypeID1 = m_primaryAmmoType;
+
+	if (m_fiInfiniteReserve == true) {
+		return (true);
+	}
 
 	if (ourOwner.HasAmmo(m_primaryAmmoType, 1)) {
 		return (true);

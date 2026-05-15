@@ -18,7 +18,7 @@ entityDef weapon_collier_sidearm
 	"def_fireInfo"		"fireInfo_collierPrimary"
 	"inv_name"			"Collier"
 	"ammoType"			"ammo_nails"
-	"inv_ammo_nails"	"24"
+	"infiniteReserve"	"1"
 	"ammoRequired"		"1"
 	"ammoPerShot"		"1"
 	"clipSize"			"6"

@@ -110,6 +110,7 @@ FireInfo. If that does not exist, secondary attacks are not possible.
 - "continuousSmoke" : whether the particle effect is continous
 - "clipSize" : maximum clip size
 - "clipSizeDefault" : Initial clip size on pickup.
+- "infiniteReserve" : When 1, reserve ammo for this weapon is never consumed and reload is always allowed from reserve; the clip still drains and magazine reload timing still applies.
 - "animPrefix" : Alternative set of animations to use by the weapon. See the ncPlayer documentation for details about the set of activities that will be picked from.
 
 ## FireInfo related keys
@@ -519,6 +520,7 @@ private:
 	float m_fiPrimedFuse;
 	float m_fiZoomFOV;
 	bool m_fiPowerAmmo;
+	bool m_fiInfiniteReserve;
 	bool m_fiRemoveOnEmpty;
 	string m_fiBrassDef;
 	string m_fiCartridgeDef;
