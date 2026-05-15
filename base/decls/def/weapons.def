@@ -2,6 +2,7 @@
 #include weapons/grenadelauncher.def
 #include weapons/lightning.def
 #include weapons/nailgun.def
+#include weapons/collier_sidearm.def
 #include weapons/rocketlauncher.def
 #include weapons/shotgun.def
 #include weapons/supernailgun.def

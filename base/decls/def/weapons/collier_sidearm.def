@@ -1,0 +1,49 @@
+entityDef weapon_collier_sidearm
+{
+	"editor_color"		".3 .3 1"
+	"editor_mins"		"-16 -16 0"
+	"editor_maxs"		"16 16 32"
+	"editor_usage"		"Collier sidearm (revolver cadence, nail projectile)"
+	"editor_rotatable"	"1"
+
+	"spawnclass"		"ncWeapon"
+	"model"				"progs/g_nail.mdl"
+	"model_view"		"progs/v_nail.mdl"
+	"snd_acquire"		"weapon.pickup"
+	"snd_respawn"		"item.respawn"
+	"spin"				"1"
+	"pickupFlash"		"1"
+	"animPrefix"		"nailgun"
+
+	"def_fireInfo"		"fireInfo_collierPrimary"
+	"inv_name"			"Collier"
+	"ammoType"			"ammo_nails"
+	"inv_ammo_nails"	"24"
+	"ammoRequired"		"1"
+	"ammoPerShot"		"1"
+
+	"act_fire"			"1"
+	"act_idle"			"0"
+
+	"snd_fire"			"weapon_nailgun.shoot"
+	"snd_empty"			"weapon.empty"
+
+	"hudSlot"			"1"
+	"hudSlotPos"		"0"
+	"weight"			"10"
+	"crosshair"			"none"
+}
+
+entityDef fireInfo_collierPrimary
+{
+	"def_onFire"		"projectile_collier"
+	"fireRate"			"0.52"
+	"punchSpring"		"-1.2 0.6 0"
+}
+
+entityDef projectile_collier
+{
+	"inherit"		"projectile_nail"
+	"offset"		"20 0 -7"
+	"velocity"		"1200"
+}

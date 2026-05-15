@@ -5,8 +5,8 @@ entityDef info_player_start
 	"editor_description" "Singleplayer Spawn Point"
 	"editor_color" "1 0 0"
 	"spawnclass" "ncSpawnPoint"
-	"def_precache1"		"weapon_shotgun"
-	"def_precache2"		"weapon_axe"
+	"def_precache1"		"weapon_collier_sidearm"
+	"def_precache2"		"weapon_collier_sidearm"
 }
 
 entityDef info_player_deathmatch
@@ -16,8 +16,8 @@ entityDef info_player_deathmatch
 	"editor_description" "Deathmatch Spawn Point"
 	"editor_color" "1 0 0"
 	"spawnclass" "ncSpawnPoint"
-	"def_precache1"		"weapon_shotgun"
-	"def_precache2"		"weapon_axe"
+	"def_precache1"		"weapon_collier_sidearm"
+	"def_precache2"		"weapon_collier_sidearm"
 }
 
 entityDef info_player_coop

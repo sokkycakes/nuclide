@@ -30,8 +30,8 @@ entityDef player
 	"armorProtection"		"0"
 	"armorBonus"			"1"
 	"ammo_shells"			"25"
-	"weapon"				"weapon_axe,weapon_shotgun,weapon_stiletto_grapple,weapon_stiletto_boot"
-	"current_weapon"		"1"
+	"weapon"				"weapon_collier_sidearm"
+	"current_weapon"		"0"
 	"pm_normalviewheight"	"46"
 	"pm_walkspeed"			"280"
 	"pm_runspeed"			"400"
@@ -50,7 +50,7 @@ entityDef player
 	"act_pain"			"$PLAYER_PAIN"
 	"act_death"			"$PLAYER_DEATH"
 
-	"act_attack"		"$PLAYER_ATTACK_SHOTGUN"
+	"act_attack"		"$PLAYER_ATTACK_NAILGUN"
 
 	"act_walk_axe"		"$PLAYER_RUN_AXE"
 	"act_run_axe"		"$PLAYER_RUN_AXE"
