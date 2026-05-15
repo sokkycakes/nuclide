@@ -21,12 +21,15 @@ entityDef weapon_collier_sidearm
 	"inv_ammo_nails"	"24"
 	"ammoRequired"		"1"
 	"ammoPerShot"		"1"
+	"clipSize"			"6"
+	"clipSizeDefault"	"6"
 
 	"act_fire"			"1"
 	"act_idle"			"0"
 
 	"snd_fire"			"weapon_nailgun.shoot"
 	"snd_empty"			"weapon.empty"
+	"snd_reload"		"weapon.pickup"
 
 	"hudSlot"			"1"
 	"hudSlotPos"		"0"
@@ -37,8 +40,12 @@ entityDef weapon_collier_sidearm
 entityDef fireInfo_collierPrimary
 {
 	"def_onFire"		"projectile_collier"
-	"fireRate"			"0.52"
+	"fireRate"			"0.2"
+	"reloadTime"		"1.4"
+	"semiAuto"			"1"
 	"punchSpring"		"-1.2 0.6 0"
+	"act_reload"		"0"
+	"act_reloadEmpty"	"0"
 }
 
 entityDef projectile_collier
