@@ -8,7 +8,7 @@ entityDef weapon_collier_sidearm
 
 	"spawnclass"		"ncWeapon"
 	"model"				"progs/g_nail.mdl"
-	"model_view"		"progs/v_nail.mdl"
+	"model_view"		"models/v_balrog1.mdl"
 	"snd_acquire"		"weapon.pickup"
 	"snd_respawn"		"item.respawn"
 	"spin"				"1"
