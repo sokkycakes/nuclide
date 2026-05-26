@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<tag xml_format_version="1" group_tag="scn3" group="gui_screen_widget_definition" id="ui\halox\pregame_lobby\pregame_lobby_template" version="2">
+    <field name="flags" value="1" type="long flags">
+    	do not apply old content upscaling
+    </field>
+    <field name="name" value="" type="string id"/>
+    <field name="scaled positioning" value="UNUSED" type="short enum"/>
+    <field name="render depth bias" value="0" type="short integer"/>
+    <field name="bounds 720p" value="-320,-582,320,570" type="rectangle 2d"/>
+    <field name="bounds 480i" value="-232,-330,240,330" type="rectangle 2d"/>
+    <field name="animation collection" value=",ÿÿÿÿ" type="tag reference"/>
+    <field name="string list" value="ui\halox\pregame_lobby\strings,unic" type="tag reference"/>
+    <field name="screen template" value=",ÿÿÿÿ" type="tag reference"/>
+    <field name="initial button key name" value="pregame_lobby_offline" type="string id"/>
+    <block name="debug datasources" value="datasource_definition_block,0">
+    </block>
+    <block name="groups" value="group_widget_block,0">
+    </block>
+    <block name="button key(s)" value="button_key_block,4">
+        <element index="0" name="0. button_key_block">
+            <field name="definition" value="ui\halox\pregame_lobby\pregame_lobby_online,bkey" type="tag reference"/>
+        </element>
+        <element index="1" name="1. button_key_block">
+            <field name="definition" value="ui\halox\pregame_lobby\pregame_lobby_offline,bkey" type="tag reference"/>
+        </element>
+        <element index="2" name="2. button_key_block">
+            <field name="definition" value="ui\halox\pregame_lobby\pregame_lobby_online_team_change,bkey" type="tag reference"/>
+        </element>
+        <element index="3" name="3. button_key_block">
+            <field name="definition" value="ui\halox\pregame_lobby\pregame_lobby_offline_team_change,bkey" type="tag reference"/>
+        </element>
+    </block>
+    <field name="sound overrides" value=",ÿÿÿÿ" type="tag reference"/>
+    <field name="mouse cursors" value=",ÿÿÿÿ" type="tag reference"/>
+    <field name="on load script name" value="" type="string"/>
+    <field name="script index" value="-1" type="short integer"/>
+</tag>

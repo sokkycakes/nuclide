@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<tag xml_format_version="1" group_tag="wtuv" group="gui_widget_texture_coordinate_animation_definition" id="ui\halox\common\roster\animations\partyup" version="1">
+    <field name="flags" value="1" type="long flags">
+    	loop cyclic
+    </field>
+    <block name="keyframes" value="widget_texture_coordinate_animation_keyframe_block,2">
+        <element index="0" name="0. widget_texture_coordinate_animation_keyframe_block">
+            <field name="time offset" value="0" type="long integer"/>
+            <field name="UVs" value="0,0" type="real vector 2d"/>
+            <block name="custom transition fxn" value="keyframe_transition_function_block,0">
+            </block>
+        </element>
+        <element index="1" name="1. widget_texture_coordinate_animation_keyframe_block">
+            <field name="time offset" value="2000" type="long integer"/>
+            <field name="UVs" value="0,-1" type="real vector 2d"/>
+            <block name="custom transition fxn" value="keyframe_transition_function_block,0">
+            </block>
+        </element>
+    </block>
+    <field name="default function" value=" " type="struct"/>
+        <field name="data" value="function_definition_data," type="data"/>
+</tag>

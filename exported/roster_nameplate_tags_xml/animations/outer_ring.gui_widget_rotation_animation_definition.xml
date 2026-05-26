@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<tag xml_format_version="1" group_tag="wrot" group="gui_widget_rotation_animation_definition" id="ui\halox\common\roster\animations\outer_ring" version="1">
+    <field name="flags" value="1" type="long flags">
+    	loop cyclic
+    </field>
+    <block name="keyframes" value="widget_rotation_animation_keyframe_block,2">
+        <element index="0" name="0. widget_rotation_animation_keyframe_block">
+            <field name="time offset" value="0" type="long integer"/>
+            <field name="special local origin" value="UNUSED" type="short enum"/>
+            <field name="local origin" value="12,12" type="real point 2d"/>
+            <field name="angle" value="0" type="real"/>
+            <block name="custom transition fxn" value="keyframe_transition_function_block,0">
+            </block>
+        </element>
+        <element index="1" name="1. widget_rotation_animation_keyframe_block">
+            <field name="time offset" value="2400" type="long integer"/>
+            <field name="special local origin" value="UNUSED" type="short enum"/>
+            <field name="local origin" value="12,12" type="real point 2d"/>
+            <field name="angle" value="360" type="real"/>
+            <block name="custom transition fxn" value="keyframe_transition_function_block,0">
+            </block>
+        </element>
+    </block>
+    <field name="default function" value=" " type="struct"/>
+        <field name="data" value="function_definition_data," type="data"/>
+</tag>

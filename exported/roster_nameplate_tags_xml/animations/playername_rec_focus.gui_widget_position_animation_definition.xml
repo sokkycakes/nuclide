@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<tag xml_format_version="1" group_tag="wpos" group="gui_widget_position_animation_definition" id="ui\halox\common\roster\animations\playername_rec_focus" version="1">
+    <field name="flags" value="0" type="long flags"/>
+    <block name="keyframes" value="widget_position_animation_keyframe_block,2">
+        <element index="0" name="0. widget_position_animation_keyframe_block">
+            <field name="time offset" value="0" type="long integer"/>
+            <field name="position" value="-8,11,0" type="real point 3d"/>
+            <block name="custom transition fxn" value="keyframe_transition_function_block,0">
+            </block>
+        </element>
+        <element index="1" name="1. widget_position_animation_keyframe_block">
+            <field name="time offset" value="64" type="long integer"/>
+            <field name="position" value="0,0,0" type="real point 3d"/>
+            <block name="custom transition fxn" value="keyframe_transition_function_block,0">
+            </block>
+        </element>
+    </block>
+    <field name="default function" value=" " type="struct"/>
+        <field name="data" value="function_definition_data," type="data"/>
+</tag>

@@ -1,0 +1,74 @@
+<?xml version="1.0"?>
+<tag xml_format_version="1" group_tag="dsrc" group="gui_datasource_definition" id="ui\halox\pregame_lobby\pregame_lobby_constants" version="1">
+    <field name="name" value="constants" type="string id"/>
+    <block name="elements" value="datasource_element_block,4">
+        <element index="0" name="0. datasource_element_block">
+            <block name="integer nuggets" value="integer_data_nugget_block,1">
+                <element index="0" name="0. integer_data_nugget_block">
+                    <field name="name" value="value" type="string id"/>
+                    <field name="value" value="1000" type="long integer"/>
+                </element>
+            </block>
+            <block name="string nuggets" value="string_data_nugget_block,0">
+            </block>
+            <block name="string id nuggets" value="string_id_data_nugget_block,1">
+                <element index="0" name="0. string_id_data_nugget_block">
+                    <field name="name" value="name" type="string id"/>
+                    <field name="value" value="team_change_delay" type="string id"/>
+                </element>
+            </block>
+            <field name="submenu control name" value="" type="string id"/>
+        </element>
+        <element index="1" name="1. datasource_element_block">
+            <block name="integer nuggets" value="integer_data_nugget_block,1">
+                <element index="0" name="0. integer_data_nugget_block">
+                    <field name="name" value="value" type="string id"/>
+                    <field name="value" value="1000" type="long integer"/>
+                </element>
+            </block>
+            <block name="string nuggets" value="string_data_nugget_block,0">
+            </block>
+            <block name="string id nuggets" value="string_id_data_nugget_block,1">
+                <element index="0" name="0. string_id_data_nugget_block">
+                    <field name="name" value="name" type="string id"/>
+                    <field name="value" value="team_change_lying_time" type="string id"/>
+                </element>
+            </block>
+            <field name="submenu control name" value="" type="string id"/>
+        </element>
+        <element index="2" name="2. datasource_element_block">
+            <block name="integer nuggets" value="integer_data_nugget_block,1">
+                <element index="0" name="0. integer_data_nugget_block">
+                    <field name="name" value="value" type="string id"/>
+                    <field name="value" value="2" type="long integer"/>
+                </element>
+            </block>
+            <block name="string nuggets" value="string_data_nugget_block,0">
+            </block>
+            <block name="string id nuggets" value="string_id_data_nugget_block,1">
+                <element index="0" name="0. string_id_data_nugget_block">
+                    <field name="name" value="name" type="string id"/>
+                    <field name="value" value="fade" type="string id"/>
+                </element>
+            </block>
+            <field name="submenu control name" value="" type="string id"/>
+        </element>
+        <element index="3" name="3. datasource_element_block">
+            <block name="integer nuggets" value="integer_data_nugget_block,1">
+                <element index="0" name="0. integer_data_nugget_block">
+                    <field name="name" value="value" type="string id"/>
+                    <field name="value" value="3" type="long integer"/>
+                </element>
+            </block>
+            <block name="string nuggets" value="string_data_nugget_block,0">
+            </block>
+            <block name="string id nuggets" value="string_id_data_nugget_block,1">
+                <element index="0" name="0. string_id_data_nugget_block">
+                    <field name="name" value="name" type="string id"/>
+                    <field name="value" value="warn" type="string id"/>
+                </element>
+            </block>
+            <field name="submenu control name" value="" type="string id"/>
+        </element>
+    </block>
+</tag>

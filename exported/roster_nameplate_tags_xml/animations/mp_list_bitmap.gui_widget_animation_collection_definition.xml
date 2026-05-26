@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<tag xml_format_version="1" group_tag="wacd" group="gui_widget_animation_collection_definition" id="ui\halox\common\roster\animations\mp_list_bitmap" version="2">
+    <field name="ambient-focused" value="ui\halox\global_animations\animation_definitions\hidden,wgan" type="tag reference"/>
+    <field name="ambient-unfocused" value=",ÿÿÿÿ" type="tag reference"/>
+    <field name="ambient-disabled-focused" value="ui\halox\global_animations\animation_definitions\hidden,wgan" type="tag reference"/>
+    <field name="ambient-disabled-unfocused" value=",ÿÿÿÿ" type="tag reference"/>
+    <field name="ambient-focused-alt" value="ui\halox\global_animations\animation_definitions\hidden,wgan" type="tag reference"/>
+    <field name="ambient-unfocused-alt" value="ui\halox\global_animations\animation_definitions\flash,wgan" type="tag reference"/>
+    <field name="transition-from" value="ui\halox\global_animations\animation_definitions\delayd_fade_out_250,wgan" type="tag reference"/>
+    <field name="transition-to" value="ui\halox\global_animations\animation_definitions\delayd_fade_in_250,wgan" type="tag reference"/>
+    <field name="transition-back-from" value=",ÿÿÿÿ" type="tag reference"/>
+    <field name="transition-back-to" value=",ÿÿÿÿ" type="tag reference"/>
+    <field name="cycle-in-previous-pane" value=",ÿÿÿÿ" type="tag reference"/>
+    <field name="cycle-in-next-pane" value=",ÿÿÿÿ" type="tag reference"/>
+    <field name="cycle-out-previous-pane" value=",ÿÿÿÿ" type="tag reference"/>
+    <field name="cycle-out-next-pane" value=",ÿÿÿÿ" type="tag reference"/>
+    <field name="display-group-trans-in" value=",ÿÿÿÿ" type="tag reference"/>
+    <field name="display-group-trans-out" value=",ÿÿÿÿ" type="tag reference"/>
+    <field name="control-recv-focus" value=",ÿÿÿÿ" type="tag reference"/>
+    <field name="control-lost-focus" value="ui\halox\common\roster\animations\player_lose_focus,wgan" type="tag reference"/>
+    <field name="indicator-ambient-more-items" value=",ÿÿÿÿ" type="tag reference"/>
+    <field name="indicator-ambient-no-more-items" value=",ÿÿÿÿ" type="tag reference"/>
+    <field name="indicator-activated-more-items" value=",ÿÿÿÿ" type="tag reference"/>
+    <field name="indicator-activated-no-more-items" value=",ÿÿÿÿ" type="tag reference"/>
+    <field name="load-submenu-focused" value=",ÿÿÿÿ" type="tag reference"/>
+    <field name="load-submenu-unfocused" value=",ÿÿÿÿ" type="tag reference"/>
+    <field name="unload-submenu-focused" value=",ÿÿÿÿ" type="tag reference"/>
+    <field name="unload-submenu-unfocused" value=",ÿÿÿÿ" type="tag reference"/>
+    <field name="load-as-submenu" value=",ÿÿÿÿ" type="tag reference"/>
+    <field name="unload-as-submenu" value=",ÿÿÿÿ" type="tag reference"/>
+    <field name="child submenu ambient-focused" value=",ÿÿÿÿ" type="tag reference"/>
+    <field name="child submenu ambient-unfocused" value=",ÿÿÿÿ" type="tag reference"/>
+    <field name="custom 0" value=",ÿÿÿÿ" type="tag reference"/>
+    <field name="custom 1" value=",ÿÿÿÿ" type="tag reference"/>
+    <field name="custom transition in 0" value="ui\halox\global_animations\animation_definitions\fade_in_250,wgan" type="tag reference"/>
+    <field name="custom transition out 0" value="ui\halox\global_animations\animation_definitions\fade_out_250,wgan" type="tag reference"/>
+    <field name="custom transition in 1" value=",ÿÿÿÿ" type="tag reference"/>
+    <field name="custom transition out 1" value=",ÿÿÿÿ" type="tag reference"/>
+    <field name="mouse-enter" value=",ÿÿÿÿ" type="tag reference"/>
+    <field name="mouse-leave" value=",ÿÿÿÿ" type="tag reference"/>
+    <field name="mouse-hover-ambient" value=",ÿÿÿÿ" type="tag reference"/>
+</tag>

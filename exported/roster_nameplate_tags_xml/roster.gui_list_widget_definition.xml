@@ -1,0 +1,211 @@
+<?xml version="1.0"?>
+<tag xml_format_version="1" group_tag="lst3" group="gui_list_widget_definition" id="ui\halox\common\roster\roster" version="2">
+    <field name="flags" value="1" type="long flags">
+    	do not apply old content upscaling
+    </field>
+    <field name="name" value="roster" type="string id"/>
+    <field name="scaled positioning" value="UNUSED" type="short enum"/>
+    <field name="render depth bias" value="0" type="short integer"/>
+    <field name="bounds 720p" value="0,0,0,0" type="rectangle 2d"/>
+    <field name="bounds 480i" value="0,0,0,0" type="rectangle 2d"/>
+    <field name="animation collection" value=",ÿÿÿÿ" type="tag reference"/>
+    <field name="datasource name" value="roster" type="string id"/>
+    <field name="skin" value="ui\halox\common\roster\roster,skn3" type="tag reference"/>
+    <field name="rows" value="0" type="long integer"/>
+    <block name="items" value="list_item_widget_block,16">
+        <element index="0" name="0. list_item_widget_block">
+            <field name="flags" value="1" type="long flags">
+            	do not apply old content upscaling
+            </field>
+            <field name="name" value="" type="string id"/>
+            <field name="scaled positioning" value="UNUSED" type="short enum"/>
+            <field name="render depth bias" value="0" type="short integer"/>
+            <field name="bounds 720p" value="0,0,0,0" type="rectangle 2d"/>
+            <field name="bounds 480i" value="0,0,0,0" type="rectangle 2d"/>
+            <field name="animation collection" value=",ÿÿÿÿ" type="tag reference"/>
+            <field name="item label" value="" type="string id"/>
+        </element>
+        <element index="1" name="1. list_item_widget_block">
+            <field name="flags" value="1" type="long flags">
+            	do not apply old content upscaling
+            </field>
+            <field name="name" value="" type="string id"/>
+            <field name="scaled positioning" value="UNUSED" type="short enum"/>
+            <field name="render depth bias" value="0" type="short integer"/>
+            <field name="bounds 720p" value="32,0,0,0" type="rectangle 2d"/>
+            <field name="bounds 480i" value="0,0,0,0" type="rectangle 2d"/>
+            <field name="animation collection" value=",ÿÿÿÿ" type="tag reference"/>
+            <field name="item label" value="" type="string id"/>
+        </element>
+        <element index="2" name="2. list_item_widget_block">
+            <field name="flags" value="1" type="long flags">
+            	do not apply old content upscaling
+            </field>
+            <field name="name" value="" type="string id"/>
+            <field name="scaled positioning" value="UNUSED" type="short enum"/>
+            <field name="render depth bias" value="0" type="short integer"/>
+            <field name="bounds 720p" value="64,0,0,0" type="rectangle 2d"/>
+            <field name="bounds 480i" value="0,0,0,0" type="rectangle 2d"/>
+            <field name="animation collection" value=",ÿÿÿÿ" type="tag reference"/>
+            <field name="item label" value="" type="string id"/>
+        </element>
+        <element index="3" name="3. list_item_widget_block">
+            <field name="flags" value="1" type="long flags">
+            	do not apply old content upscaling
+            </field>
+            <field name="name" value="" type="string id"/>
+            <field name="scaled positioning" value="UNUSED" type="short enum"/>
+            <field name="render depth bias" value="0" type="short integer"/>
+            <field name="bounds 720p" value="96,0,0,0" type="rectangle 2d"/>
+            <field name="bounds 480i" value="0,0,0,0" type="rectangle 2d"/>
+            <field name="animation collection" value=",ÿÿÿÿ" type="tag reference"/>
+            <field name="item label" value="" type="string id"/>
+        </element>
+        <element index="4" name="4. list_item_widget_block">
+            <field name="flags" value="1" type="long flags">
+            	do not apply old content upscaling
+            </field>
+            <field name="name" value="" type="string id"/>
+            <field name="scaled positioning" value="UNUSED" type="short enum"/>
+            <field name="render depth bias" value="0" type="short integer"/>
+            <field name="bounds 720p" value="128,0,0,0" type="rectangle 2d"/>
+            <field name="bounds 480i" value="0,0,0,0" type="rectangle 2d"/>
+            <field name="animation collection" value=",ÿÿÿÿ" type="tag reference"/>
+            <field name="item label" value="" type="string id"/>
+        </element>
+        <element index="5" name="5. list_item_widget_block">
+            <field name="flags" value="1" type="long flags">
+            	do not apply old content upscaling
+            </field>
+            <field name="name" value="" type="string id"/>
+            <field name="scaled positioning" value="UNUSED" type="short enum"/>
+            <field name="render depth bias" value="0" type="short integer"/>
+            <field name="bounds 720p" value="160,0,0,0" type="rectangle 2d"/>
+            <field name="bounds 480i" value="0,0,0,0" type="rectangle 2d"/>
+            <field name="animation collection" value=",ÿÿÿÿ" type="tag reference"/>
+            <field name="item label" value="" type="string id"/>
+        </element>
+        <element index="6" name="6. list_item_widget_block">
+            <field name="flags" value="1" type="long flags">
+            	do not apply old content upscaling
+            </field>
+            <field name="name" value="" type="string id"/>
+            <field name="scaled positioning" value="UNUSED" type="short enum"/>
+            <field name="render depth bias" value="0" type="short integer"/>
+            <field name="bounds 720p" value="192,0,0,0" type="rectangle 2d"/>
+            <field name="bounds 480i" value="0,0,0,0" type="rectangle 2d"/>
+            <field name="animation collection" value=",ÿÿÿÿ" type="tag reference"/>
+            <field name="item label" value="" type="string id"/>
+        </element>
+        <element index="7" name="7. list_item_widget_block">
+            <field name="flags" value="1" type="long flags">
+            	do not apply old content upscaling
+            </field>
+            <field name="name" value="" type="string id"/>
+            <field name="scaled positioning" value="UNUSED" type="short enum"/>
+            <field name="render depth bias" value="0" type="short integer"/>
+            <field name="bounds 720p" value="224,0,0,0" type="rectangle 2d"/>
+            <field name="bounds 480i" value="0,0,0,0" type="rectangle 2d"/>
+            <field name="animation collection" value=",ÿÿÿÿ" type="tag reference"/>
+            <field name="item label" value="" type="string id"/>
+        </element>
+        <element index="8" name="8. list_item_widget_block">
+            <field name="flags" value="1" type="long flags">
+            	do not apply old content upscaling
+            </field>
+            <field name="name" value="" type="string id"/>
+            <field name="scaled positioning" value="UNUSED" type="short enum"/>
+            <field name="render depth bias" value="0" type="short integer"/>
+            <field name="bounds 720p" value="256,0,0,0" type="rectangle 2d"/>
+            <field name="bounds 480i" value="0,0,0,0" type="rectangle 2d"/>
+            <field name="animation collection" value=",ÿÿÿÿ" type="tag reference"/>
+            <field name="item label" value="" type="string id"/>
+        </element>
+        <element index="9" name="9. list_item_widget_block">
+            <field name="flags" value="1" type="long flags">
+            	do not apply old content upscaling
+            </field>
+            <field name="name" value="" type="string id"/>
+            <field name="scaled positioning" value="UNUSED" type="short enum"/>
+            <field name="render depth bias" value="0" type="short integer"/>
+            <field name="bounds 720p" value="288,0,0,0" type="rectangle 2d"/>
+            <field name="bounds 480i" value="0,0,0,0" type="rectangle 2d"/>
+            <field name="animation collection" value=",ÿÿÿÿ" type="tag reference"/>
+            <field name="item label" value="" type="string id"/>
+        </element>
+        <element index="10" name="10. list_item_widget_block">
+            <field name="flags" value="1" type="long flags">
+            	do not apply old content upscaling
+            </field>
+            <field name="name" value="" type="string id"/>
+            <field name="scaled positioning" value="UNUSED" type="short enum"/>
+            <field name="render depth bias" value="0" type="short integer"/>
+            <field name="bounds 720p" value="320,0,0,0" type="rectangle 2d"/>
+            <field name="bounds 480i" value="0,0,0,0" type="rectangle 2d"/>
+            <field name="animation collection" value=",ÿÿÿÿ" type="tag reference"/>
+            <field name="item label" value="" type="string id"/>
+        </element>
+        <element index="11" name="11. list_item_widget_block">
+            <field name="flags" value="1" type="long flags">
+            	do not apply old content upscaling
+            </field>
+            <field name="name" value="" type="string id"/>
+            <field name="scaled positioning" value="UNUSED" type="short enum"/>
+            <field name="render depth bias" value="0" type="short integer"/>
+            <field name="bounds 720p" value="352,0,0,0" type="rectangle 2d"/>
+            <field name="bounds 480i" value="0,0,0,0" type="rectangle 2d"/>
+            <field name="animation collection" value=",ÿÿÿÿ" type="tag reference"/>
+            <field name="item label" value="" type="string id"/>
+        </element>
+        <element index="12" name="12. list_item_widget_block">
+            <field name="flags" value="1" type="long flags">
+            	do not apply old content upscaling
+            </field>
+            <field name="name" value="" type="string id"/>
+            <field name="scaled positioning" value="UNUSED" type="short enum"/>
+            <field name="render depth bias" value="0" type="short integer"/>
+            <field name="bounds 720p" value="384,0,0,0" type="rectangle 2d"/>
+            <field name="bounds 480i" value="0,0,0,0" type="rectangle 2d"/>
+            <field name="animation collection" value=",ÿÿÿÿ" type="tag reference"/>
+            <field name="item label" value="" type="string id"/>
+        </element>
+        <element index="13" name="13. list_item_widget_block">
+            <field name="flags" value="1" type="long flags">
+            	do not apply old content upscaling
+            </field>
+            <field name="name" value="" type="string id"/>
+            <field name="scaled positioning" value="UNUSED" type="short enum"/>
+            <field name="render depth bias" value="0" type="short integer"/>
+            <field name="bounds 720p" value="416,0,0,0" type="rectangle 2d"/>
+            <field name="bounds 480i" value="0,0,0,0" type="rectangle 2d"/>
+            <field name="animation collection" value=",ÿÿÿÿ" type="tag reference"/>
+            <field name="item label" value="" type="string id"/>
+        </element>
+        <element index="14" name="14. list_item_widget_block">
+            <field name="flags" value="1" type="long flags">
+            	do not apply old content upscaling
+            </field>
+            <field name="name" value="" type="string id"/>
+            <field name="scaled positioning" value="UNUSED" type="short enum"/>
+            <field name="render depth bias" value="0" type="short integer"/>
+            <field name="bounds 720p" value="448,0,0,0" type="rectangle 2d"/>
+            <field name="bounds 480i" value="0,0,0,0" type="rectangle 2d"/>
+            <field name="animation collection" value=",ÿÿÿÿ" type="tag reference"/>
+            <field name="item label" value="" type="string id"/>
+        </element>
+        <element index="15" name="15. list_item_widget_block">
+            <field name="flags" value="1" type="long flags">
+            	do not apply old content upscaling
+            </field>
+            <field name="name" value="" type="string id"/>
+            <field name="scaled positioning" value="UNUSED" type="short enum"/>
+            <field name="render depth bias" value="0" type="short integer"/>
+            <field name="bounds 720p" value="480,0,0,0" type="rectangle 2d"/>
+            <field name="bounds 480i" value="0,0,0,0" type="rectangle 2d"/>
+            <field name="animation collection" value=",ÿÿÿÿ" type="tag reference"/>
+            <field name="item label" value="" type="string id"/>
+        </element>
+    </block>
+    <field name="prev indicator bitmap" value=",ÿÿÿÿ" type="tag reference"/>
+    <field name="next indicator bitmap" value=",ÿÿÿÿ" type="tag reference"/>
+</tag>

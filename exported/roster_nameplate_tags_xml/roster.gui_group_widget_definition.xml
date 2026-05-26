@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<tag xml_format_version="1" group_tag="grup" group="gui_group_widget_definition" id="ui\halox\common\roster\roster" version="2">
+    <field name="flags" value="1" type="long flags">
+    	do not apply old content upscaling
+    </field>
+    <field name="name" value="roster" type="string id"/>
+    <field name="scaled positioning" value="UNUSED" type="short enum"/>
+    <field name="render depth bias" value="100" type="short integer"/>
+    <field name="bounds 720p" value="0,0,0,0" type="rectangle 2d"/>
+    <field name="bounds 480i" value="0,0,0,0" type="rectangle 2d"/>
+    <field name="animation collection" value=",ÿÿÿÿ" type="tag reference"/>
+    <block name="list" value="list_widget_block,1">
+        <element index="0" name="0. list_widget_block">
+            <field name="template reference" value="ui\halox\common\roster\roster,lst3" type="tag reference"/>
+            <field name="flags" value="1" type="long flags">
+            	do not apply old content upscaling
+            </field>
+            <field name="name" value="roster" type="string id"/>
+            <field name="scaled positioning" value="UNUSED" type="short enum"/>
+            <field name="render depth bias" value="0" type="short integer"/>
+            <field name="bounds 720p" value="0,0,0,0" type="rectangle 2d"/>
+            <field name="bounds 480i" value="0,-16,0,0" type="rectangle 2d"/>
+            <field name="animation collection" value=",ÿÿÿÿ" type="tag reference"/>
+            <field name="datasource name" value="" type="string id"/>
+            <field name="skin" value=",ÿÿÿÿ" type="tag reference"/>
+            <field name="rows" value="0" type="long integer"/>
+            <block name="items" value="list_item_widget_block,0">
+            </block>
+            <field name="prev indicator bitmap" value=",ÿÿÿÿ" type="tag reference"/>
+            <field name="next indicator bitmap" value=",ÿÿÿÿ" type="tag reference"/>
+        </element>
+    </block>
+    <block name="text items" value="text_widget_block,0">
+    </block>
+    <block name="bitmaps" value="bitmap_widget_block,0">
+    </block>
+    <block name="models" value="model_widget_block,0">
+    </block>
+</tag>

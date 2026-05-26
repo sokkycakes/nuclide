@@ -1,0 +1,210 @@
+<?xml version="1.0"?>
+<tag xml_format_version="1" group_tag="grup" group="gui_group_widget_definition" id="ui\halox\pregame_lobby\pregame_lobby_template" version="2">
+    <field name="flags" value="1" type="long flags">
+    	do not apply old content upscaling
+    </field>
+    <field name="name" value="lobby_group" type="string id"/>
+    <field name="scaled positioning" value="UNUSED" type="short enum"/>
+    <field name="render depth bias" value="0" type="short integer"/>
+    <field name="bounds 720p" value="0,0,0,0" type="rectangle 2d"/>
+    <field name="bounds 480i" value="0,0,0,0" type="rectangle 2d"/>
+    <field name="animation collection" value=",ÿÿÿÿ" type="tag reference"/>
+    <block name="list" value="list_widget_block,0">
+    </block>
+    <block name="text items" value="text_widget_block,6">
+        <element index="0" name="0. text_widget_block">
+            <field name="template reference" value=",ÿÿÿÿ" type="tag reference"/>
+            <field name="flags" value="65545" type="long flags">
+            	do not apply old content upscaling
+            	left justify
+            	no drop shadow
+            </field>
+            <field name="name" value="title" type="string id"/>
+            <field name="scaled positioning" value="UNUSED" type="short enum"/>
+            <field name="render depth bias" value="0" type="short integer"/>
+            <field name="bounds 720p" value="41,88,111,544" type="rectangle 2d"/>
+            <field name="bounds 480i" value="0,0,0,0" type="rectangle 2d"/>
+            <field name="animation collection" value="ui\halox\main_menu\animations\lobby_slide,wacd" type="tag reference"/>
+            <field name="value override list" value="" type="string id"/>
+            <field name="value identifier" value="header" type="string id"/>
+            <field name="text color preset" value="hilite" type="string id"/>
+            <field name="custom font" value="title" type="short enum"/>
+        </element>
+        <element index="1" name="1. text_widget_block">
+            <field name="template reference" value=",ÿÿÿÿ" type="tag reference"/>
+            <field name="flags" value="65545" type="long flags">
+            	do not apply old content upscaling
+            	left justify
+            	no drop shadow
+            </field>
+            <field name="name" value="players_in_game" type="string id"/>
+            <field name="scaled positioning" value="UNUSED" type="short enum"/>
+            <field name="render depth bias" value="0" type="short integer"/>
+            <field name="bounds 720p" value="36,846,73,1093" type="rectangle 2d"/>
+            <field name="bounds 480i" value="23,444,53,640" type="rectangle 2d"/>
+            <field name="animation collection" value="ui\halox\main_menu\animations\500_fade,wacd" type="tag reference"/>
+            <field name="value override list" value="" type="string id"/>
+            <field name="value identifier" value="" type="string id"/>
+            <field name="text color preset" value="" type="string id"/>
+            <field name="custom font" value="body text" type="short enum"/>
+        </element>
+        <element index="2" name="2. text_widget_block">
+            <field name="template reference" value=",ÿÿÿÿ" type="tag reference"/>
+            <field name="flags" value="65553" type="long flags">
+            	do not apply old content upscaling
+            	no drop shadow
+            	right justify
+            </field>
+            <field name="name" value="change_teams" type="string id"/>
+            <field name="scaled positioning" value="UNUSED" type="short enum"/>
+            <field name="render depth bias" value="0" type="short integer"/>
+            <field name="bounds 720p" value="577,450,612,1018" type="rectangle 2d"/>
+            <field name="bounds 480i" value="421,0,451,580" type="rectangle 2d"/>
+            <field name="animation collection" value="ui\halox\main_menu\animations\500_change_teams,wacd" type="tag reference"/>
+            <field name="value override list" value="" type="string id"/>
+            <field name="value identifier" value="change_teams" type="string id"/>
+            <field name="text color preset" value="" type="string id"/>
+            <field name="custom font" value="body text" type="short enum"/>
+        </element>
+        <element index="3" name="3. text_widget_block">
+            <field name="template reference" value=",ÿÿÿÿ" type="tag reference"/>
+            <field name="flags" value="65545" type="long flags">
+            	do not apply old content upscaling
+            	left justify
+            	no drop shadow
+            </field>
+            <field name="name" value="postgame_stats" type="string id"/>
+            <field name="scaled positioning" value="UNUSED" type="short enum"/>
+            <field name="render depth bias" value="0" type="short integer"/>
+            <field name="bounds 720p" value="551,88,579,537" type="rectangle 2d"/>
+            <field name="bounds 480i" value="0,0,0,0" type="rectangle 2d"/>
+            <field name="animation collection" value="ui\halox\main_menu\animations\lobby_slide_alt_hidden,wacd" type="tag reference"/>
+            <field name="value override list" value="" type="string id"/>
+            <field name="value identifier" value="postgame_stats" type="string id"/>
+            <field name="text color preset" value="" type="string id"/>
+            <field name="custom font" value="body text" type="short enum"/>
+        </element>
+        <element index="4" name="4. text_widget_block">
+            <field name="template reference" value=",ÿÿÿÿ" type="tag reference"/>
+            <field name="flags" value="65545" type="long flags">
+            	do not apply old content upscaling
+            	left justify
+            	no drop shadow
+            </field>
+            <field name="name" value="advanced_options" type="string id"/>
+            <field name="scaled positioning" value="UNUSED" type="short enum"/>
+            <field name="render depth bias" value="0" type="short integer"/>
+            <field name="bounds 720p" value="227,88,377,537" type="rectangle 2d"/>
+            <field name="bounds 480i" value="0,0,0,0" type="rectangle 2d"/>
+            <field name="animation collection" value="ui\halox\main_menu\animations\lobby_slide_alt_hidden,wacd" type="tag reference"/>
+            <field name="value override list" value="" type="string id"/>
+            <field name="value identifier" value="" type="string id"/>
+            <field name="text color preset" value="" type="string id"/>
+            <field name="custom font" value="body text" type="short enum"/>
+        </element>
+        <element index="5" name="5. text_widget_block">
+            <field name="template reference" value=",ÿÿÿÿ" type="tag reference"/>
+            <field name="flags" value="73737" type="long flags">
+            	do not apply old content upscaling
+            	large text buffer (255 chars)
+            	left justify
+            	no drop shadow
+            </field>
+            <field name="name" value="not_squad_leader" type="string id"/>
+            <field name="scaled positioning" value="UNUSED" type="short enum"/>
+            <field name="render depth bias" value="0" type="short integer"/>
+            <field name="bounds 720p" value="195,88,225,537" type="rectangle 2d"/>
+            <field name="bounds 480i" value="0,0,0,0" type="rectangle 2d"/>
+            <field name="animation collection" value="ui\halox\main_menu\animations\lobby_slide,wacd" type="tag reference"/>
+            <field name="value override list" value="" type="string id"/>
+            <field name="value identifier" value="not_squad_leader" type="string id"/>
+            <field name="text color preset" value="orange" type="string id"/>
+            <field name="custom font" value="body text" type="short enum"/>
+        </element>
+    </block>
+    <block name="bitmaps" value="bitmap_widget_block,4">
+        <element index="0" name="0. bitmap_widget_block">
+            <field name="template reference" value=",ÿÿÿÿ" type="tag reference"/>
+            <field name="flags" value="9" type="long flags">
+            	do not apply old content upscaling
+            	scale to fit bounds
+            </field>
+            <field name="name" value="channel" type="string id"/>
+            <field name="scaled positioning" value="UNUSED" type="short enum"/>
+            <field name="render depth bias" value="-50" type="short integer"/>
+            <field name="bounds 720p" value="0,79,640,542" type="rectangle 2d"/>
+            <field name="bounds 480i" value="0,0,0,0" type="rectangle 2d"/>
+            <field name="animation collection" value="ui\halox\main_menu\animations\lobby_slide,wacd" type="tag reference"/>
+            <field name="bitmap tag" value="ui\halox\pregame_lobby\channel_ui,bitm" type="tag reference"/>
+            <field name="custom pixel shader" value=",ÿÿÿÿ" type="tag reference"/>
+            <field name="bitmap blend method" value="alpha blend" type="short enum"/>
+            <field name="initial sprite sequence" value="0" type="short integer"/>
+            <field name="initial_sprite frame" value="0" type="short integer"/>
+            <field name="value override list" value="" type="string id"/>
+            <field name="value identifier" value="" type="string id"/>
+        </element>
+        <element index="1" name="1. bitmap_widget_block">
+            <field name="template reference" value=",ÿÿÿÿ" type="tag reference"/>
+            <field name="flags" value="9" type="long flags">
+            	do not apply old content upscaling
+            	scale to fit bounds
+            </field>
+            <field name="name" value="fade" type="string id"/>
+            <field name="scaled positioning" value="UNUSED" type="short enum"/>
+            <field name="render depth bias" value="1000" type="short integer"/>
+            <field name="bounds 720p" value="-1,-1,641,1300" type="rectangle 2d"/>
+            <field name="bounds 480i" value="0,0,0,0" type="rectangle 2d"/>
+            <field name="animation collection" value="ui\halox\pregame_lobby\animations\fade_to_black,wacd" type="tag reference"/>
+            <field name="bitmap tag" value="ui\halox\common\blackness_ui,bitm" type="tag reference"/>
+            <field name="custom pixel shader" value=",ÿÿÿÿ" type="tag reference"/>
+            <field name="bitmap blend method" value="alpha blend" type="short enum"/>
+            <field name="initial sprite sequence" value="0" type="short integer"/>
+            <field name="initial_sprite frame" value="0" type="short integer"/>
+            <field name="value override list" value="" type="string id"/>
+            <field name="value identifier" value="" type="string id"/>
+        </element>
+        <element index="2" name="2. bitmap_widget_block">
+            <field name="template reference" value=",ÿÿÿÿ" type="tag reference"/>
+            <field name="flags" value="25" type="long flags">
+            	do not apply old content upscaling
+            	render as screen blur
+            	scale to fit bounds
+            </field>
+            <field name="name" value="channel" type="string id"/>
+            <field name="scaled positioning" value="UNUSED" type="short enum"/>
+            <field name="render depth bias" value="-51" type="short integer"/>
+            <field name="bounds 720p" value="0,79,640,542" type="rectangle 2d"/>
+            <field name="bounds 480i" value="0,0,0,0" type="rectangle 2d"/>
+            <field name="animation collection" value="ui\halox\main_menu\animations\lobby_slide,wacd" type="tag reference"/>
+            <field name="bitmap tag" value="ui\halox\pregame_lobby\channel_ui,bitm" type="tag reference"/>
+            <field name="custom pixel shader" value=",ÿÿÿÿ" type="tag reference"/>
+            <field name="bitmap blend method" value="alpha blend" type="short enum"/>
+            <field name="initial sprite sequence" value="0" type="short integer"/>
+            <field name="initial_sprite frame" value="0" type="short integer"/>
+            <field name="value override list" value="" type="string id"/>
+            <field name="value identifier" value="" type="string id"/>
+        </element>
+        <element index="3" name="3. bitmap_widget_block">
+            <field name="template reference" value=",ÿÿÿÿ" type="tag reference"/>
+            <field name="flags" value="9" type="long flags">
+            	do not apply old content upscaling
+            	scale to fit bounds
+            </field>
+            <field name="name" value="full_black_fade_in" type="string id"/>
+            <field name="scaled positioning" value="UNUSED" type="short enum"/>
+            <field name="render depth bias" value="150" type="short integer"/>
+            <field name="bounds 720p" value="-50,-1,681,1300" type="rectangle 2d"/>
+            <field name="bounds 480i" value="0,0,0,0" type="rectangle 2d"/>
+            <field name="animation collection" value="ui\halox\global_animations\animation_collections\black_fade,wacd" type="tag reference"/>
+            <field name="bitmap tag" value="ui\halox\common\common_bitmaps\black_fade_ui,bitm" type="tag reference"/>
+            <field name="custom pixel shader" value=",ÿÿÿÿ" type="tag reference"/>
+            <field name="bitmap blend method" value="alpha blend" type="short enum"/>
+            <field name="initial sprite sequence" value="0" type="short integer"/>
+            <field name="initial_sprite frame" value="0" type="short integer"/>
+            <field name="value override list" value="" type="string id"/>
+            <field name="value identifier" value="" type="string id"/>
+        </element>
+    </block>
+    <block name="models" value="model_widget_block,0">
+    </block>
+</tag>

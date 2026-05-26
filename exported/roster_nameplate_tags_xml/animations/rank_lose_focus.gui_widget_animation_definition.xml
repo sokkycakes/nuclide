@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<tag xml_format_version="1" group_tag="wgan" group="gui_widget_animation_definition" id="ui\halox\common\roster\animations\rank_lose_focus" version="2">
+    <field name="name" value="" type="string id"/>
+    <field name="flags" value="0" type="long flags"/>
+    <field name="color animation" value="ui\halox\common\roster\animations\rank_out_125,wclr" type="tag reference"/>
+    <field name="position animation" value="ui\halox\common\roster\animations\rank_lose_focus,wpos" type="tag reference"/>
+    <field name="rotation animation" value=",ÿÿÿÿ" type="tag reference"/>
+    <field name="scale animation" value=",ÿÿÿÿ" type="tag reference"/>
+    <field name="texture coordinate animation" value=",ÿÿÿÿ" type="tag reference"/>
+    <field name="sprite animation" value=",ÿÿÿÿ" type="tag reference"/>
+    <field name="font animation" value=",ÿÿÿÿ" type="tag reference"/>
+</tag>
