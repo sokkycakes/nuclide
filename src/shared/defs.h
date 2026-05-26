@@ -66,6 +66,7 @@ var bool autocvar_net_showArrivals = false;
 #define NETWORKED_DEFAULT(x, y) x ##_net = x = y;
 
 #define ROLL_BACK(x) x = x ##_net;
+#define ROLL_BACK_FIELD(x, y) x[y] = x ##_net[y];
 #define SAVE_STATE(x) x ##_net = x;
 #define SAVE_STATE_FIELD(x, y) x ##_net[y] = x[y];
 #define ATTR_CHANGED(x) (x ##_net != x)

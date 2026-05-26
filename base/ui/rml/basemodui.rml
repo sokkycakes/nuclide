@@ -1,0 +1,189 @@
+<rml>
+<head>
+	<title>BasemodUI (Alien Swarm Foundation wireframe port)</title>
+	<link type="text/rcss" href="basemodui.rcss" />
+</head>
+<body>
+	<!-- Root container -->
+	<div id="app">
+		
+		<!-- Footer panel (CBaseModFooterPanel) -->
+		<footer id="footer-panel" class="footer-panel">
+			<span data-btn="A" id="footer-a">Select</span>
+			<span data-btn="B" id="footer-b">Back</span>
+			<span data-btn="X" id="footer-x" class="hidden">Kick</span>
+			<span data-btn="Y" id="footer-y" class="hidden">Review</span>
+		</footer>
+
+		<!-- ========== WT_MAINMENU (MainMenu.res) ========== -->
+		<section id="view-mainmenu" class="panel view active" data-wt="WT_MAINMENU" data-res="MainMenu.res">
+			<header class="garnish-top"><span class="garnish-label">MAIN MENU</span></header>
+			<div class="panel-body mainmenu-layout">
+				<nav class="nav-column">
+					<button class="hybrid-btn active" data-cmd="FlmCampaignFlyout" id="BtnCoOp">Co-op Campaign</button>
+					<button class="hybrid-btn" data-cmd="SoloPlay" id="BtnPlaySolo">Offline Practice</button>
+					<button class="hybrid-btn" data-cmd="CreateGame" id="BtnCreateGame">Create Game</button>
+					<button class="hybrid-btn" data-cmd="FlmOptionsFlyout" id="BtnOptions">Options</button>
+					<button class="hybrid-btn" data-cmd="StatsAndAchievements" id="BtnAchievements">Stats & Achievements</button>
+					<button class="hybrid-btn" data-cmd="Addons" id="BtnAddons">Addons</button>
+					<button class="hybrid-btn" data-cmd="QuitGame" id="BtnQuit">Quit</button>
+				</nav>
+				<aside class="quickjoin-block" id="PnlQuickJoin">
+					<div class="block-title">PnlQuickJoin</div>
+					<div class="placeholder-list">
+						<div class="list-item">Friend lobby slot</div>
+						<div class="list-item">Friend lobby slot</div>
+					</div>
+					<button class="text-btn" data-cmd="SeeAll">See All</button>
+				</aside>
+			</div>
+			<!-- Flyout: FlmCampaignFlyout -->
+			<div id="flyout-campaign" class="flyout hidden" data-flyout="FlmCampaignFlyout">
+				<div class="flyout-title">Campaign</div>
+				<button class="hybrid-btn" data-cmd="CustomMatch_coop">Start Campaign</button>
+				<button class="hybrid-btn" data-cmd="CustomMatch_single_mission">Single Mission</button>
+				<button class="hybrid-btn" data-cmd="FriendsMatch_coop">Friends Games</button>
+				<button class="hybrid-btn flyout-close" data-cmd="CloseFlyout">Close</button>
+			</div>
+			<!-- Flyout: FlmOptionsFlyout -->
+			<div id="flyout-options" class="flyout hidden" data-flyout="FlmOptionsFlyout">
+				<div class="flyout-title">Options</div>
+				<button class="hybrid-btn" data-cmd="AudioVideo">Audio / Video</button>
+				<button class="hybrid-btn" data-cmd="KeyboardMouse">Keyboard / Mouse</button>
+				<button class="hybrid-btn" data-cmd="MultiplayerSettings">Multiplayer</button>
+				<button class="hybrid-btn" data-cmd="CloudSettings">Steam Cloud</button>
+				<button class="hybrid-btn flyout-close" data-cmd="CloseFlyout">Close</button>
+			</div>
+			<footer class="garnish-bottom"></footer>
+		</section>
+
+		<!-- ========== WT_GAMESETTINGS (GameSettings.res) ========== -->
+		<section id="view-gamesettings" class="panel view hidden" data-wt="WT_GAMESETTINGS" data-res="GameSettings.res">
+			<header class="garnish-top"><span class="garnish-label" id="Title">Game Settings</span></header>
+			<div class="panel-body settings-layout">
+				<div class="settings-left">
+					<div class="dropdown-row" id="DrpDifficulty"><label>Difficulty</label><select data-setting="game/difficulty"><option>Normal</option><option>Hard</option><option>Insane</option></select></div>
+					<div class="dropdown-row" id="DrpGameType"><label>Game Type</label><select data-setting="game/mode"><option>coop</option><option>single_mission</option></select></div>
+					<div class="dropdown-row" id="DrpFriendlyFire"><label>Friendly Fire</label><select><option>Off</option><option>On</option></select></div>
+					<div class="dropdown-row" id="DrpOnslaught"><label>Onslaught</label><select><option>Off</option><option>On</option></select></div>
+					<div class="dropdown-row" id="DrpGameAccess"><label>Game Access</label><select data-setting="system/access"><option>public</option><option>friends</option><option>private</option></select></div>
+					<div class="dropdown-row" id="DrpServerType"><label>Server Type</label><select><option>listen</option><option>dedicated</option></select></div>
+				</div>
+				<div class="settings-right">
+					<div class="poster" id="ImgLevelImage">Level Image</div>
+					<div class="dropdown-row" id="DrpStartingMission"><label>Starting Mission</label><select data-setting="game/mission"><option>Landing Bay</option><option>Deima Surface</option></select></div>
+					<div id="MissionLabel" class="label-block">Mission: Landing Bay</div>
+					<button class="hybrid-btn" id="BtnSelectMission" data-cmd="SelectMission">Select Mission</button>
+				</div>
+			</div>
+			<div class="action-row">
+				<button class="hybrid-btn primary" id="BtnStartLobby" data-cmd="Create">Start Lobby</button>
+				<button class="hybrid-btn" id="BtnJoinStart" data-cmd="NavigateBack">Back</button>
+			</div>
+			<footer class="garnish-bottom"></footer>
+		</section>
+
+		<!-- ========== WT_GAMELOBBY (GameLobby.res) ========== -->
+		<section id="view-gamelobby" class="panel view hidden" data-wt="WT_GAMELOBBY" data-res="GameLobby.res">
+			<header class="garnish-top"><span class="garnish-label">Game Lobby</span><span class="garnish-minor" id="LblLeaderLine">Leader: Player1</span></header>
+			<div class="panel-body lobby-layout">
+				<div class="lobby-left">
+					<div class="poster" id="ImgLevelImage">Level Image</div>
+					<div class="summary-lines">
+						<div id="LblSummaryLine0" class="summary-line">Jacob's Rest</div>
+						<div id="LblSummaryLine1" class="summary-line">Landing Bay</div>
+						<div id="LblSummaryLine2" class="summary-line">Normal</div>
+					</div>
+					<div class="dropdown-row" id="DrpGameAccess"><label>Game Access</label><select><option>friends</option><option>public</option></select></div>
+					<button class="hybrid-btn" data-cmd="ChangeGameSettings">Change Settings</button>
+				</div>
+				<div class="lobby-right">
+					<div class="player-list" id="PlayersList">
+						<div class="player-slot focused">
+							<div class="slot-name">Player 1 (Host)</div>
+							<div class="slot-meta">Ready · Marine</div>
+						</div>
+						<div class="player-slot">
+							<div class="slot-name">Empty Slot</div>
+							<div class="slot-meta">—</div>
+						</div>
+					</div>
+					<div class="chat-block" id="LobbyChat">
+						<div class="block-title">Chat</div>
+						<div class="chat-log" id="ChatLog"></div>
+						<input type="text" id="ChatInput" placeholder="Say..." />
+					</div>
+				</div>
+			</div>
+			<div class="action-row">
+				<button class="hybrid-btn primary" id="BtnStartGame" data-cmd="StartGame">Start Game</button>
+				<button class="hybrid-btn" id="BtnVoiceButton" data-cmd="VoiceToggle">Voice</button>
+				<button class="hybrid-btn" data-cmd="LeaveLobby">Leave Lobby</button>
+			</div>
+			<footer class="garnish-bottom"></footer>
+		</section>
+
+		<!-- ========== WT_LOADINGPROGRESS (LoadingProgress.res) ========== -->
+		<section id="view-loading" class="panel view hidden" data-wt="WT_LOADINGPROGRESS" data-res="LoadingProgress.res">
+			<div class="panel-body loading-layout">
+				<div class="poster large" id="Poster">Campaign Poster</div>
+				<div class="progress-block">
+					<div id="LoadingText" class="label-block">Loading map...</div>
+					<div class="progress-bar" id="ProTotalProgress"><div class="progress-fill" id="ProgressFill"></div></div>
+				</div>
+				<div id="CampaignFooter" class="footer-caption">Jacob's Rest Campaign</div>
+			</div>
+		</section>
+
+		<!-- ========== WT_INGAMEMAINMENU (InGameMainMenu.res) ========== -->
+		<section id="view-ingame-menu" class="panel view hidden" data-wt="WT_INGAMEMAINMENU" data-res="InGameMainMenu.res">
+			<header class="garnish-top"><span class="garnish-label">PAUSED</span></header>
+			<div class="panel-body ingame-layout">
+				<nav class="nav-column">
+					<button class="hybrid-btn primary" id="BtnReturnToGame" data-cmd="ReturnToGame">Return to Game</button>
+					<button class="hybrid-btn" id="BtnCallAVote" data-cmd="CallVote">Call a Vote</button>
+					<button class="hybrid-btn" data-cmd="ChangeChapter">Change Scenario</button>
+					<button class="hybrid-btn" data-cmd="ChangeDifficulty">Change Difficulty</button>
+					<button class="hybrid-btn" data-cmd="RestartScenario">Restart Scenario</button>
+					<button class="hybrid-btn" data-cmd="ReturnToLobby">Return to Lobby</button>
+					<button class="hybrid-btn" id="BtnInviteFriends" data-cmd="InviteUI_friends">Invite Friends</button>
+					<button class="hybrid-btn" id="BtnGoIdle" data-cmd="GoIdle">Go Idle</button>
+					<button class="hybrid-btn" id="BtnOptions" data-cmd="FlmOptionsFlyout">Options</button>
+					<button class="hybrid-btn" data-cmd="ExitToMainMenu">Exit to Main Menu</button>
+				</nav>
+			</div>
+			<div id="flyout-ingame-options" class="flyout hidden" data-flyout="FlmOptionsFlyout">
+				<div class="flyout-title">Options</div>
+				<button class="hybrid-btn" data-cmd="AudioVideo">Audio / Video</button>
+				<button class="hybrid-btn" data-cmd="KeyboardMouse">Keyboard / Mouse</button>
+				<button class="hybrid-btn flyout-close" data-cmd="CloseFlyout">Close</button>
+			</div>
+			<footer class="garnish-bottom"></footer>
+		</section>
+
+		<!-- ========== WT_VOTEOPTIONS (VoteOptions.res) ========== -->
+		<section id="view-vote" class="panel view hidden" data-wt="WT_VOTEOPTIONS" data-res="VoteOptions.res">
+			<header class="garnish-top"><span class="garnish-label">Vote Options</span></header>
+			<div class="panel-body vote-layout">
+				<button class="hybrid-btn" id="BtnChangeScenario" data-cmd="ChangeScenario">Change Scenario</button>
+				<button class="hybrid-btn" id="BtnChangeDifficulty" data-cmd="ChangeDifficulty">Change Difficulty</button>
+				<button class="hybrid-btn" id="BtnRestartScenario" data-cmd="RestartScenario">Restart Scenario</button>
+			</div>
+			<footer class="garnish-bottom"></footer>
+		</section>
+
+		<!-- ========== WT_GENERICCONFIRMATION overlay ========== -->
+		<div id="view-confirm" class="overlay hidden" data-wt="WT_GENERICCONFIRMATION" data-res="GenericConfirmation.res">
+			<div class="confirm-dialog">
+				<div class="confirm-title" id="ConfirmTitle">Confirm</div>
+				<div class="confirm-message" id="ConfirmMessage">Are you sure?</div>
+				<div class="confirm-actions">
+					<button class="hybrid-btn primary" id="ConfirmOk" data-cmd="ConfirmOk">OK</button>
+					<button class="hybrid-btn" id="ConfirmCancel" data-cmd="ConfirmCancel">Cancel</button>
+				</div>
+			</div>
+		</div>
+
+	</div>
+</body>
+</rml>

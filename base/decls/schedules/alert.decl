@@ -10,6 +10,7 @@ typeInfo alert
 	"task_8"	"ChangeMindset idle"
 
 	"NewEnemy"		"ChangeMindset hunt"
+	"FoundEnemy"		"ChangeMindset hunt"
 	"Damage"		"ChangeMindset hunt"
 	"OccludedEnemy"		"ChangeMindset hunt"
 	"CanRangedAttack1"	"ChangeMindset rangedCombat"

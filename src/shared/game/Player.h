@@ -181,6 +181,8 @@ public:
 	/** Empty & shared between Client and Server. This is run on every player, every frame, to update their animation cycle. */
 	virtual void UpdatePlayerAnimation(float);
 
+	nonvirtual void RefreshPlayerAnimations(void);
+
 	virtual void Damage(entity, entity, ncDict, float, vector, vector);
 	virtual bool CanPickupEntity(ncEntity toPickUp, float massLimit, float sizeLimit);
 
@@ -300,8 +302,11 @@ private:
 	/* vehicle info */
 	NETWORKED_ENT(vehicle)
 	NETWORKED_VECTOR(m_pmoveHookVelocity)
-	NETWORKED_FLOAT(m_stilettoGrappleCharges)
-	NETWORKED_FLOAT(m_stilettoGrappleRechargeAccum)
+	NETWORKED_INT(m_stilettoGrappleCharges)
+	float m_stilettoGrappleChargeTimers[3];
+	float m_stilettoGrappleChargeTimers_net[3];
+	int m_stilettoGrappleUsedInMidair;
+	PREDICTED_INT_N(m_stilettoGrappleUsedInMidair)
 	int m_stilettoGrappleHeld;
 	int m_stilettoGrappleActionHeld;
 	NETWORKED_VECTOR(m_stilettoWallNorm)

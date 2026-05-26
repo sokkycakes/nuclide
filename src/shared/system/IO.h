@@ -113,6 +113,8 @@ public:
 
 	/** Like GetDefAct, but queries a specified def, falling back to reading from our own if it's not defined. */
 	nonvirtual float GetSubDefAct(string, string);
+	/** Like GetSubDefAct; when viewModelIdx is greater than zero, act_* tokens may be model sequence names (frameforname) or numeric indices. */
+	nonvirtual float GetSubDefActVM(string, string, float);
 	/** Like GetDefString, but queries a specified def, falling back to reading from our own if it's not defined. */
 	nonvirtual string GetSubDefString(string, string);
 	/** Like GetDefFloat, but queries a specified def, falling back to reading from our own if it's not defined. */

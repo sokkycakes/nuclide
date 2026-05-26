@@ -75,8 +75,11 @@ ncPlayer::ncPlayer(void)
 	m_pmoveHookVelocity = g_vec_null;
 	m_pmoveVars = 0;
 	m_holdingEntity = 0;
-	m_stilettoGrappleCharges = 3.0f;
-	m_stilettoGrappleRechargeAccum = 0.0f;
+	m_stilettoGrappleCharges = 3;
+	m_stilettoGrappleChargeTimers[0] = 0.0f;
+	m_stilettoGrappleChargeTimers[1] = 0.0f;
+	m_stilettoGrappleChargeTimers[2] = 0.0f;
+	m_stilettoGrappleUsedInMidair = false;
 	m_stilettoWallNorm = g_vec_null;
 	m_stilettoWallJumpCooldown = 0.0f;
 	m_stilettoAirDodgeCharges = 1.0f;
@@ -920,8 +923,20 @@ ncPlayer::UpdateAliveCam(void)
 			veh.UpdateView();
 	} else if (health) {
 		if (autocvar_pm_thirdPerson == TRUE) {
-			vector vStart = [pSeat->m_vecPredictedOrigin[0], pSeat->m_vecPredictedOrigin[1], pSeat->m_vecPredictedOrigin[2] + maxs[2]] + (anglesToRight(view_angles) * 4);
-			vector vEnd = vStart + (anglesToForward(view_angles) * -48) + (anglesToRight(view_angles) * 4);
+			float dist;
+			float side;
+			float lift;
+			vector vStart;
+			vector vEnd;
+
+			dist = autocvar_pm_thirdPersonDist;
+			if (dist < 16)
+				dist = 16;
+			side = autocvar_pm_thirdPersonSide;
+			lift = autocvar_pm_thirdPersonUp;
+
+			vStart = [pSeat->m_vecPredictedOrigin[0], pSeat->m_vecPredictedOrigin[1], pSeat->m_vecPredictedOrigin[2] + maxs[2]] + (anglesToRight(view_angles) * side);
+			vEnd = vStart + (anglesToForward(view_angles) * -dist) + [0, 0, lift] + (anglesToRight(view_angles) * side);
 			traceline(vStart, vEnd, FALSE, this);
 			g_view.SetCameraOrigin(trace_endpos + (anglesToForward(view_angles) * 5));
 		}
@@ -1127,8 +1142,7 @@ ncPlayer::ReceiveEntity(float isNew, float flChanged)
 	READENTITY_BYTE(anim_bottom, PLAYER_BOTTOMFRAME)
 	READENTITY_FLOAT(anim_bottom_time, PLAYER_BOTTOMFRAME)
 
-	READENTITY_FLOAT(m_stilettoGrappleCharges, PLAYER_STILETTO)
-	READENTITY_FLOAT(m_stilettoGrappleRechargeAccum, PLAYER_STILETTO)
+	READENTITY_INT(m_stilettoGrappleCharges, PLAYER_STILETTO)
 	READENTITY_COORD(m_stilettoWallNorm[0], PLAYER_STILETTO)
 	READENTITY_COORD(m_stilettoWallNorm[1], PLAYER_STILETTO)
 	READENTITY_COORD(m_stilettoWallNorm[2], PLAYER_STILETTO)
@@ -1163,11 +1177,7 @@ ncPlayer::ReceiveEntity(float isNew, float flChanged)
 	}
 
 	if (flChanged & PLAYER_WEAPON || flChanged & PLAYER_MODELINDEX) {
-		if (m_activeWeapon) {
-			SetAnimationPrefix(m_activeWeapon.classname);
-		} else {
-			SetAnimationPrefix("");
-		}
+		RefreshPlayerAnimations();
 	}
 
 	PredictPreFrame();
@@ -1240,7 +1250,10 @@ ncPlayer::PredictPreFrame(void)
 	SAVE_STATE(activeweapon)
 	SAVE_STATE(m_animBackend)
 	SAVE_STATE(m_stilettoGrappleCharges)
-	SAVE_STATE(m_stilettoGrappleRechargeAccum)
+	SAVE_STATE_FIELD(m_stilettoGrappleChargeTimers, 0)
+	SAVE_STATE_FIELD(m_stilettoGrappleChargeTimers, 1)
+	SAVE_STATE_FIELD(m_stilettoGrappleChargeTimers, 2)
+	SAVE_STATE(m_stilettoGrappleUsedInMidair)
 	SAVE_STATE(m_stilettoWallNorm)
 	SAVE_STATE(m_stilettoWallJumpCooldown)
 	SAVE_STATE(m_stilettoAirDodgeCharges)
@@ -1303,7 +1316,10 @@ ncPlayer::PredictPostFrame(void)
 	ROLL_BACK(sndindex_idle)
 	ROLL_BACK(m_animBackend)
 	ROLL_BACK(m_stilettoGrappleCharges)
-	ROLL_BACK(m_stilettoGrappleRechargeAccum)
+	ROLL_BACK_FIELD(m_stilettoGrappleChargeTimers, 0)
+	ROLL_BACK_FIELD(m_stilettoGrappleChargeTimers, 1)
+	ROLL_BACK_FIELD(m_stilettoGrappleChargeTimers, 2)
+	ROLL_BACK(m_stilettoGrappleUsedInMidair)
 	ROLL_BACK(m_stilettoWallNorm)
 	ROLL_BACK(m_stilettoWallJumpCooldown)
 	ROLL_BACK(m_stilettoAirDodgeCharges)
@@ -1401,8 +1417,11 @@ ncPlayer::Save(float handle)
 	SaveVector(handle, "m_punchVelocity", m_punchVelocity);
 	SaveVector(handle, "v_angle", v_angle);
 	SaveVector(handle, "view_ofs", view_ofs);
-	SaveFloat(handle, "m_stilettoGrappleCharges", m_stilettoGrappleCharges);
-	SaveFloat(handle, "m_stilettoGrappleRechargeAccum", m_stilettoGrappleRechargeAccum);
+	SaveInt(handle, "m_stilettoGrappleCharges", m_stilettoGrappleCharges);
+	SaveFloat(handle, "m_stilettoGrappleChargeTimer0", m_stilettoGrappleChargeTimers[0]);
+	SaveFloat(handle, "m_stilettoGrappleChargeTimer1", m_stilettoGrappleChargeTimers[1]);
+	SaveFloat(handle, "m_stilettoGrappleChargeTimer2", m_stilettoGrappleChargeTimers[2]);
+	SaveInt(handle, "m_stilettoGrappleUsedInMidair", m_stilettoGrappleUsedInMidair);
 	SaveVector(handle, "m_stilettoWallNorm", m_stilettoWallNorm);
 	SaveFloat(handle, "m_stilettoWallJumpCooldown", m_stilettoWallJumpCooldown);
 	SaveFloat(handle, "m_stilettoAirDodgeCharges", m_stilettoAirDodgeCharges);
@@ -1528,10 +1547,19 @@ ncPlayer::Restore(string keyName, string setValue)
 		view_ofs = ReadVector(setValue);
 		break;
 	case "m_stilettoGrappleCharges":
-		m_stilettoGrappleCharges = ReadFloat(setValue);
+		m_stilettoGrappleCharges = ReadInt(setValue);
 		break;
-	case "m_stilettoGrappleRechargeAccum":
-		m_stilettoGrappleRechargeAccum = ReadFloat(setValue);
+	case "m_stilettoGrappleChargeTimer0":
+		m_stilettoGrappleChargeTimers[0] = ReadFloat(setValue);
+		break;
+	case "m_stilettoGrappleChargeTimer1":
+		m_stilettoGrappleChargeTimers[1] = ReadFloat(setValue);
+		break;
+	case "m_stilettoGrappleChargeTimer2":
+		m_stilettoGrappleChargeTimers[2] = ReadFloat(setValue);
+		break;
+	case "m_stilettoGrappleUsedInMidair":
+		m_stilettoGrappleUsedInMidair = ReadInt(setValue);
 		break;
 	case "m_stilettoWallNorm":
 		m_stilettoWallNorm = ReadVector(setValue);
@@ -1699,6 +1727,11 @@ ncPlayer::MakePlayer(void)
 	Physics_SetViewParms();
 	SetSize(m_pmoveVars.GetStandingMins(), m_pmoveVars.GetStandingMaxs());
 
+	if (m_animBackend == ANIMATIONMODEL_HLMDL_VALVE
+		|| m_animBackend == ANIMATIONMODEL_HLMDL_GOOSE) {
+		RefreshPlayerAnimations();
+	}
+
 	userinfo.SetFloat(this, "*deaths", deaths);
 	userinfo.SetBool(this, "*spectator", false);
 	userinfo.SetBool(this, "*dead", false);
@@ -1793,7 +1826,6 @@ ncPlayer::EvaluateEntity(void)
 	EVALUATE_FIELD(anim_bottom_time, PLAYER_BOTTOMFRAME)
 
 	EVALUATE_FIELD(m_stilettoGrappleCharges, PLAYER_STILETTO)
-	EVALUATE_FIELD(m_stilettoGrappleRechargeAccum, PLAYER_STILETTO)
 	EVALUATE_VECTOR(m_stilettoWallNorm, 0, PLAYER_STILETTO)
 	EVALUATE_VECTOR(m_stilettoWallNorm, 1, PLAYER_STILETTO)
 	EVALUATE_VECTOR(m_stilettoWallNorm, 2, PLAYER_STILETTO)
@@ -1917,8 +1949,7 @@ ncPlayer::SendEntity(entity ePEnt, float flChanged)
 	SENDENTITY_BYTE(anim_bottom, PLAYER_BOTTOMFRAME)
 	SENDENTITY_FLOAT(anim_bottom_time, PLAYER_BOTTOMFRAME)
 
-	SENDENTITY_FLOAT(m_stilettoGrappleCharges, PLAYER_STILETTO)
-	SENDENTITY_FLOAT(m_stilettoGrappleRechargeAccum, PLAYER_STILETTO)
+	SENDENTITY_INT(m_stilettoGrappleCharges, PLAYER_STILETTO)
 	SENDENTITY_COORD(m_stilettoWallNorm[0], PLAYER_STILETTO)
 	SENDENTITY_COORD(m_stilettoWallNorm[1], PLAYER_STILETTO)
 	SENDENTITY_COORD(m_stilettoWallNorm[2], PLAYER_STILETTO)
@@ -2142,6 +2173,21 @@ ncPlayer::Spawned(void)
 	maxs = m_pmoveVars.GetStandingMaxs();
 
 	m_animBackend = GetSpawnFloat("animBackend");
+
+	if (m_animBackend == ANIMATIONMODEL_HLMDL_VALVE
+		|| m_animBackend == ANIMATIONMODEL_HLMDL_GOOSE) {
+		RefreshPlayerAnimations();
+	}
+}
+
+void
+ncPlayer::RefreshPlayerAnimations(void)
+{
+	if (m_activeWeapon) {
+		SetAnimationPrefix(m_activeWeapon.classname);
+	} else {
+		SetAnimationPrefix("");
+	}
 }
 
 float

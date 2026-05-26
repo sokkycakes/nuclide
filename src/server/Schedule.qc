@@ -233,13 +233,20 @@ ncSchedule::CreateSchedule(ncActor targetActor, string scheduleDecl)
 
 	ncLog("Created schedule %S on %s (%d)", scheduleDecl, targetActor.classname, num_for_edict(targetActor));
 
-	if ((newSchedule.m_scheduleDecl.TokenCount() % 2) != 0) {
-		newSchedule.ScheduleThink(Destroy, 0.0f);
-		ncError("Schedule %S has keys set with no specified value!", scheduleDecl);
-		return (__NULL__);
+	/* Only task_N keys are sequential steps; message keys (NewEnemy, Damage, etc.) are not tasks. */
+	newSchedule.m_taskCount = 0i;
+	for (int taskIndex = 1i; ; taskIndex++) {
+		if (!STRING_SET(newSchedule.m_scheduleDecl.GetString(sprintf("task_%i", taskIndex)))) {
+			break;
+		}
+		newSchedule.m_taskCount++;
 	}
 
-	newSchedule.m_taskCount = (newSchedule.m_scheduleDecl.TokenCount() / 2);
+	if (newSchedule.m_taskCount <= 0i) {
+		newSchedule.ScheduleThink(Destroy, 0.0f);
+		ncError("Schedule %S has no task_N entries.", scheduleDecl);
+		return (__NULL__);
+	}
 
 	if (newSchedule.AssignActor(targetActor) == false) {
 		newSchedule.ScheduleThink(Destroy, 0.0f);

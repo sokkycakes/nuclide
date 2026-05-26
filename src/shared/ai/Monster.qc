@@ -922,11 +922,8 @@ ncMonster::SeeThink(void)
 				if (m_eEnemy != m_eLookAt || !m_eLookAt) {
 					SeenEnemy((ncActor)w);
 
-					if (m_eEnemy) {
-						MessageSchedule("NewEnemy");
-					} else {
-						MessageSchedule("FoundEnemy");
-					}
+					/* Schedules only handle NewEnemy; FoundEnemy is for map outputs. */
+					MessageSchedule("NewEnemy");
 
 					m_eEnemy = m_eLookAt = w;
 
@@ -1072,6 +1069,12 @@ ncMonster::AttackThink(void)
 
 	/* the state may have switched */
 	if (m_flAttackThink > time) {
+		return;
+	}
+
+	/* Do not skip hunt/search while still idle-minded; SeeThink drives NewEnemy -> hunt. */
+	if (!STRING_SET(m_mindset) || m_mindset == "idle" || m_mindset == "search") {
+		m_flAttackThink = time + 0.25f;
 		return;
 	}
 
@@ -2381,7 +2384,7 @@ ncMonster::Input( entity entityActivator, string inputName, string dataField )
 		m_flSequenceSpeed = GetRunSpeed();
 
 		if (vlen(runToEnemyPos) > 0.0f) {
-			RouteToPosition(runToEnemyPos);
+			RouteToPositionDenyFlags(runToEnemyPos, LF_JUMP | LF_CROUCH | LF_HAZARDOUS | LF_AIM);
 		} else {
 			CancelSchedule();
 		}
@@ -2391,6 +2394,20 @@ ncMonster::Input( entity entityActivator, string inputName, string dataField )
 
 		if (dist > m_flMeleeRange) {
 			CancelSchedule();
+		}
+		break;
+	case "TaskCheck_FriendlyFire":
+		if (!m_eEnemy) {
+			CancelSchedule();
+			break;
+		}
+
+		traceline(GetEyePos(), m_eEnemy.origin + m_eEnemy.view_ofs, MOVE_OTHERONLY, this);
+
+		if (trace_fraction < 1.0f && trace_ent != m_eEnemy) {
+			if ((trace_ent.flags & FL_MONSTER) && IsFriend(trace_ent.m_iAlliance)) {
+				CancelSchedule();
+			}
 		}
 		break;
 	case "CrouchToTarget":

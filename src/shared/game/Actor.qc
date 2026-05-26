@@ -715,6 +715,8 @@ ncActor::Input(entity eAct, string strInput, string strData)
 		break;
 	case "ChangeMindset":
 		m_mindset = strData;
+		CancelSchedule();
+		SelectNewSchedule();
 		break;
 	case "PerformSchedule":
 		PerformSchedule(strData);

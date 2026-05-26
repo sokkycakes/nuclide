@@ -121,8 +121,9 @@ float Activities_GetSequenceForEntity(ncEntity targetEntity, string actNameCheck
 @param targetEntity the entity to query.
 @param actNameCheck the name of activity to look up for this entity
 @param subDef the name of entityDef in which we'll look it up first
+@param seqLookupModidx when greater than zero, single-token act values are resolved with frameforname on this model index before falling back to stof (use the first-person view model for weapon act_* keys)
 @return The id of this entity's animation sequence that matches said activity. Returns `ACTIVITY_NOTFOUND` when not valid. */
-float Activities_GetSequenceForEntityDef(ncEntity targetEntity, string actNameCheck, string subDef);
+float Activities_GetSequenceForEntityDef(ncEntity targetEntity, string actNameCheck, string subDef, float seqLookupModidx);
 
 #define ACTIVITY_NOTFOUND -1 /**< Activity does not exist. */
 

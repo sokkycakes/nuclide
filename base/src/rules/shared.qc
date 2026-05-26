@@ -25,4 +25,8 @@ void
 Util_SharedPrecaches(void)
 {
 	precache.Entity("player_mp");
+	precache.Model("models/player/alice2/alice2.mdl");
+	precache.Model("models/player/jennifer2/jennifer2.mdl");
+	precache.Model("models/player/natasha2/natasha2.mdl");
+	precache.Model("models/player/yuri2/yuri2.mdl");
 }

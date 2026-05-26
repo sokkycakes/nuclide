@@ -6,8 +6,10 @@
  */
 
 #define STILETTO_GRAPPLE_PULL			600.0f
-#define STILETTO_GRAPPLE_CHARGE_MAX		3.0f
-#define STILETTO_GRAPPLE_RECHARGE_TIME		4.0f
+#define STILETTO_GRAPPLE_CHARGE_MAX		3
+#define STILETTO_GRAPPLE_RECHARGE_GROUNDED	0.6f
+#define STILETTO_GRAPPLE_RECHARGE_AIRBORNE	1.2f
+#define STILETTO_GRAPPLE_RECHARGE_WALL		1.75f
 #define STILETTO_GRAPPLE_HOP_FORWARD		480.0f
 #define STILETTO_GRAPPLE_HOP_UP			315.0f
 
@@ -41,12 +43,9 @@
 #define STILETTO_AIR_MOVE_INPUT_THRESH		8.0f
 
 #define STILETTO_AIR_STALL_TIME			0.2f
-#define STILETTO_AIR_STALL_GRAV_SCALE		0.22f
+#define STILETTO_AIR_STALL_GRAV_SCALE		0.0f
 
 #define STILETTO_PARRY_TIME			0.28f
-
-#define STILETTO_VFL_WALL			(1 << 17)
-#define STILETTO_VFL_PARRY			(1 << 18)
 
 void
 Stiletto_ApplyMoveTuning(entity e)
@@ -55,9 +54,14 @@ Stiletto_ApplyMoveTuning(entity e)
 
 	if (time < pl.m_stilettoAirStallEnd) {
 		pl.gravity *= STILETTO_AIR_STALL_GRAV_SCALE;
+		
+		/* Godot-style: completely nullify downward velocity during stall */
+		if (pl.velocity[2] < 0.0f) {
+			pl.velocity[2] = 0.0f;
+		}
 	}
 
-	if ((pl.m_nuclideFlags & STILETTO_VFL_WALL) && (input_buttons & INPUT_CROUCH)) {
+	if ((pl.m_nuclideFlags & VFL_STILETTO_WALL) && (input_buttons & INPUT_CROUCH)) {
 		pl.gravity *= STILETTO_WALL_CLING_GRAV_SCALE;
 	}
 }
@@ -178,17 +182,96 @@ Stiletto_Server_GrappleRecharge(entity e)
 {
 #ifdef SERVER
 	ncPlayer pl = (ncPlayer)e;
+	float rechargeTime;
+	int i;
+	bool isGrounded;
+	bool isOnWall;
 
+	/* Check if all charges are full */
 	if (pl.m_stilettoGrappleCharges >= STILETTO_GRAPPLE_CHARGE_MAX) {
-		pl.m_stilettoGrappleRechargeAccum = 0.0f;
+		/* Reset all timers when full */
+		for (i = 0; i < STILETTO_GRAPPLE_CHARGE_MAX; i++) {
+			pl.m_stilettoGrappleChargeTimers[i] = 0.0f;
+		}
 		return;
 	}
 
-	pl.m_stilettoGrappleRechargeAccum += input_timelength;
-	while (pl.m_stilettoGrappleRechargeAccum >= STILETTO_GRAPPLE_RECHARGE_TIME) {
-		pl.m_stilettoGrappleRechargeAccum -= STILETTO_GRAPPLE_RECHARGE_TIME;
-		if (pl.m_stilettoGrappleCharges < STILETTO_GRAPPLE_CHARGE_MAX) {
-			pl.m_stilettoGrappleCharges += 1.0f;
+	/* Determine player state */
+	isGrounded = (pl.flags & FL_ONGROUND) ? true : false;
+	isOnWall = (pl.m_nuclideFlags & VFL_STILETTO_WALL) ? true : false;
+
+	/* Wall recharge: only recharge up to 1 charge, takes 1.75 seconds */
+	if (isOnWall) {
+		/* Reset midair flag when touching wall */
+		pl.m_stilettoGrappleUsedInMidair = false;
+
+		/* Only recharge the first charge slot if we have less than 1 charge */
+		if (pl.m_stilettoGrappleCharges < 1) {
+			if (pl.m_stilettoGrappleChargeTimers[0] > 0.0f) {
+				/* Progress existing timer */
+				pl.m_stilettoGrappleChargeTimers[0] -= input_timelength;
+				if (pl.m_stilettoGrappleChargeTimers[0] <= 0.0f) {
+					pl.m_stilettoGrappleChargeTimers[0] = 0.0f;
+					if (pl.m_stilettoGrappleCharges < 1) {
+						pl.m_stilettoGrappleCharges = 1;
+					}
+				}
+			} else if (!pl.m_stilettoGrappleUsedInMidair) {
+				/* Start recharging the first charge */
+				pl.m_stilettoGrappleChargeTimers[0] = STILETTO_GRAPPLE_RECHARGE_WALL;
+			}
+		}
+		/* Don't recharge other charges while on wall */
+		for (i = 1; i < STILETTO_GRAPPLE_CHARGE_MAX; i++) {
+			pl.m_stilettoGrappleChargeTimers[i] = 0.0f;
+		}
+	}
+	/* Ground recharge: recharge each charge one by one */
+	else if (isGrounded) {
+		/* Reset midair flag when touching ground */
+		pl.m_stilettoGrappleUsedInMidair = false;
+
+		rechargeTime = STILETTO_GRAPPLE_RECHARGE_GROUNDED;
+		for (i = 0; i < STILETTO_GRAPPLE_CHARGE_MAX; i++) {
+			if (pl.m_stilettoGrappleChargeTimers[i] > 0.0f) {
+				/* Progress existing timer */
+				pl.m_stilettoGrappleChargeTimers[i] -= input_timelength;
+				if (pl.m_stilettoGrappleChargeTimers[i] <= 0.0f) {
+					pl.m_stilettoGrappleChargeTimers[i] = 0.0f;
+					if (pl.m_stilettoGrappleCharges < STILETTO_GRAPPLE_CHARGE_MAX) {
+						pl.m_stilettoGrappleCharges += 1;
+					}
+				}
+			} else if (pl.m_stilettoGrappleCharges <= i && !pl.m_stilettoGrappleUsedInMidair) {
+				/* Start recharging this charge slot if we need it */
+				bool canStart = false;
+				if (i == 0) {
+					canStart = true;
+				} else if (i > 0) {
+					/* Previous charge must be done and we must have at least i charges */
+					canStart = (pl.m_stilettoGrappleChargeTimers[i - 1] <= 0.0f) && (pl.m_stilettoGrappleCharges >= i);
+				}
+
+				if (canStart) {
+					pl.m_stilettoGrappleChargeTimers[i] = rechargeTime;
+				}
+			}
+		}
+	}
+	/* In midair: progress existing timers but don't start new ones if grapple was used in midair */
+	else {
+		rechargeTime = STILETTO_GRAPPLE_RECHARGE_AIRBORNE;
+		for (i = 0; i < STILETTO_GRAPPLE_CHARGE_MAX; i++) {
+			if (pl.m_stilettoGrappleChargeTimers[i] > 0.0f) {
+				/* Progress existing timer even in midair */
+				pl.m_stilettoGrappleChargeTimers[i] -= input_timelength;
+				if (pl.m_stilettoGrappleChargeTimers[i] <= 0.0f) {
+					pl.m_stilettoGrappleChargeTimers[i] = 0.0f;
+					if (pl.m_stilettoGrappleCharges < STILETTO_GRAPPLE_CHARGE_MAX) {
+						pl.m_stilettoGrappleCharges += 1;
+					}
+				}
+			}
 		}
 	}
 #endif
@@ -211,12 +294,12 @@ Stiletto_ParryWindow(entity e)
 	ncPlayer pl = (ncPlayer)e;
 
 	if (time >= pl.m_stilettoParryEnd) {
-		pl.RemoveVFlags(STILETTO_VFL_PARRY);
+		pl.RemoveVFlags(VFL_STILETTO_PARRY);
 	}
 
 	if ((input_buttons & INPUT_RELOAD) && !(pl.m_stilettoPrevButtons & INPUT_RELOAD)) {
 		pl.m_stilettoParryEnd = time + STILETTO_PARRY_TIME;
-		pl.AddVFlags(STILETTO_VFL_PARRY);
+		pl.AddVFlags(VFL_STILETTO_PARRY);
 	}
 }
 
@@ -238,7 +321,7 @@ Stiletto_UpdateWallState(entity e, vector moveWish)
 	float hitDist;
 	int i;
 
-	pl.RemoveVFlags(STILETTO_VFL_WALL);
+	pl.RemoveVFlags(VFL_STILETTO_WALL);
 	pl.m_stilettoWallNorm = g_vec_null;
 
 	if (pl.GetMovetype() != MOVETYPE_WALK) {
@@ -329,7 +412,7 @@ Stiletto_UpdateWallState(entity e, vector moveWish)
 	}
 
 	pl.m_stilettoWallNorm = bestNorm;
-	pl.AddVFlags(STILETTO_VFL_WALL);
+	pl.AddVFlags(VFL_STILETTO_WALL);
 }
 
 void
@@ -418,7 +501,7 @@ Stiletto_WallJump(entity e, int curButtons)
 	vector away;
 	float along;
 
-	if (!(pl.m_nuclideFlags & STILETTO_VFL_WALL)) {
+	if (!(pl.m_nuclideFlags & VFL_STILETTO_WALL)) {
 		return;
 	}
 
@@ -453,7 +536,7 @@ Stiletto_WallJump(entity e, int curButtons)
 	pl.velocity += away * STILETTO_WALL_JUMP_HORIZ + [0, 0, STILETTO_WALL_JUMP_UP];
 	pl.flags &= ~FL_ONGROUND;
 	pl.m_stilettoWallJumpCooldown = STILETTO_WALL_JUMP_COOLDOWN;
-	pl.RemoveVFlags(STILETTO_VFL_WALL);
+	pl.RemoveVFlags(VFL_STILETTO_WALL);
 	pl.m_stilettoWallNorm = g_vec_null;
 }
 
@@ -462,14 +545,38 @@ Stiletto_WallSlidePostMove(entity e)
 {
 	ncPlayer pl = (ncPlayer)e;
 	float cap;
+	vector wallNorm;
+	vector velFlat;
+	float awayDot;
 
-	if (!(pl.m_nuclideFlags & STILETTO_VFL_WALL)) {
+	if (!(pl.m_nuclideFlags & VFL_STILETTO_WALL)) {
 		return;
 	}
 
 	cap = STILETTO_WALL_SLIDE_MAX_FALL;
 	if (input_buttons & INPUT_CROUCH) {
 		cap = STILETTO_WALL_CLING_MAX_FALL;
+		
+		/* Make player "sticky" to wall when crouching */
+		wallNorm = pl.m_stilettoWallNorm;
+		wallNorm[2] = 0.0f;
+		
+		if (vlen(wallNorm) > 0.125f) {
+			wallNorm = normalize(wallNorm);
+			
+			/* Get horizontal velocity */
+			velFlat = pl.velocity;
+			velFlat[2] = 0.0f;
+			
+			/* Check if moving away from wall */
+			awayDot = (velFlat[0] * wallNorm[0]) + (velFlat[1] * wallNorm[1]);
+			
+			/* If moving away from wall, cancel that component */
+			if (awayDot > 0.0f) {
+				pl.velocity[0] -= wallNorm[0] * awayDot;
+				pl.velocity[1] -= wallNorm[1] * awayDot;
+			}
+		}
 	}
 
 	if (pl.velocity[2] < -cap) {

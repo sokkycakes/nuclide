@@ -74,6 +74,8 @@ void HUD_WeaponSwitched(string weaponName);
 
 This will force that HUD, if implemented within the game's `csprogs.dat`.
 
+When using the FTE fork with RmlUI enabled, an optional **engine-managed** in-game layer may render `ui/rml/hud.rml` after CSQC/HudC each frame when `ui_rmlhud` is set (see the sibling `fteqw/` engine: `engine/client/rml_menu.cpp` and `engine/client/cl_screen.c`). That path is independent of HudC; you can run both while porting widgets. The document expects elements with ids `hud_health`, `hud_armor`, `hud_ammo`, and `hud_kills` (frags) for live stat text. Optional: element id **`hurt-overlay`** (low-health **`hurt.png`** vignette)—starts hidden (`opacity: 0` in `hud.rcss`); raise opacity from engine or extend `Rml_HudSetElemText`-style bindings.
+
 ## Example HudC Progs Code
 
 From `base/src/client/hud.qc`

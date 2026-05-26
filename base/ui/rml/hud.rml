@@ -1,0 +1,140 @@
+<rml>
+
+<head>
+
+	<title>Stiletto HUD (SVG 1440×1080)</title>
+
+	<link type="text/rcss" href="hud.rcss" />
+
+</head>
+
+<body>
+
+	<img id="hurt-overlay" class="hurt-overlay" src="../hurt.png" alt="" />
+
+
+
+	<div id="hud-root">
+
+		<p id="hud-ref" class="ref-line">Reference: base/stilettohudsvg.txt · viewBox 0 0 1440 1080</p>
+
+
+
+		<div id="region-tl" class="hud-region"></div>
+
+		<div id="region-tr" class="hud-region"></div>
+
+		<div id="region-bl" class="hud-region"></div>
+
+		<div id="region-br" class="hud-region"></div>
+
+
+
+		<div id="deco-wrap">
+
+			<img id="deco-ring-outer" src="../placeholder_huddeco-ring1@1x.png" alt="" />
+
+			<img id="deco-bcenter" class="deco-bcenter-img" src="../placeholder_huddeco-bcenter@1x.png" alt="" />
+
+		</div>
+
+
+
+		<div id="infopanelleft">
+
+			<img class="infopanel-art" src="../infopanelleft@1x.png" alt="" />
+
+			<div id="panel-control2">
+
+				<div id="hud_armor" class="infopanel-value">0</div>
+
+			</div>
+
+		</div>
+
+
+
+		<div id="kill-counter">
+
+			<div class="kill-label">kills</div>
+
+			<div id="hud_kills" class="kill-value">0</div>
+
+		</div>
+
+
+
+		<div id="cluster-center">
+
+
+
+			<img id="huddeco-quickinfo" class="sprite-quickinfo" src="../huddeco-quickinfo@1x.png" alt="" />
+
+
+
+			<img id="ammopip1" class="ammopip-img" src="../pip.png" alt="" />
+
+			<img id="ammopip2" class="ammopip-img" src="../pip.png" alt="" />
+
+			<img id="ammopip3" class="ammopip-img" src="../pip.png" alt="" />
+
+			<img id="ammopip4" class="ammopip-img" src="../pip.png" alt="" />
+
+			<img id="ammopip5" class="ammopip-img" src="../pip.png" alt="" />
+
+			<img id="ammopip6" class="ammopip-img" src="../pip.png" alt="" />
+
+
+
+			<img id="abilitypip1" class="abilitypip-img" src="../pip.png" alt="" />
+
+			<img id="abilitypip2" class="abilitypip-img" src="../pip.png" alt="" />
+
+			<img id="abilitypip3" class="abilitypip-img" src="../pip.png" alt="" />
+
+
+
+			<img id="weapon-icon-slot" class="weapon-icon" src="../image_1@1x.png" alt="" />
+
+
+
+			<div id="reloadTimer">
+
+				<img class="reloadTimer-art" src="../reloadTimer@1x.png" alt="" />
+
+				<span id="hud_ammo" class="reload-value">0</span>
+
+			</div>
+
+
+
+			<div id="heart-cluster">
+
+				<img id="heart-frame" src="../heart.png" alt="" />
+
+				<div id="hud_health" class="heart-value">0</div>
+
+			</div>
+
+
+
+			<img id="crosshair-star" src="../Star_1@1x.png" alt="" />
+
+		</div>
+
+
+
+		<div id="speedometer">
+
+			<img class="speedometer-art" src="../favorite@1x.png" alt="" />
+
+			<span class="speed-value">0</span>
+
+		</div>
+
+	</div>
+
+</body>
+
+</rml>
+

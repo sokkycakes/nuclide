@@ -967,12 +967,12 @@ ncWeapon::Draw(void)
 	float drawTime = 0.0f;
 
 	if (m_weaponClipSize > 0 && m_weaponClip == 0) {
-		drawAnimation = GetSubDefAct(m_weaponLastFireInfo, "drawEmpty");
+		drawAnimation = GetSubDefActVM(m_weaponLastFireInfo, "drawEmpty", m_viewModel);
 	}
 
 	/* no empty draw anim exists */
 	if (drawAnimation < 0) {
-		drawAnimation = GetSubDefAct(m_weaponLastFireInfo, "draw");
+		drawAnimation = GetSubDefActVM(m_weaponLastFireInfo, "draw", m_viewModel);
 	}
 
 	/* no draw anim exists at all... */
@@ -1049,7 +1049,7 @@ ncWeapon::UseAmmo(string fireInfo)
 	}
 
 	if (TestFireAbility(fireInfo) == false) {
-		float failAnim = GetSubDefAct(fireInfo, "fireFailed");
+		float failAnim = GetSubDefActVM(fireInfo, "fireFailed", m_viewModel);
 		float failRate = GetSubDefFloat(fireInfo, "failRate");
 		float failDuration = frameduration(m_viewModel, failAnim);
 
@@ -1253,10 +1253,10 @@ ncWeapon::Attack(string fireInfo)
 	/* no real attack, detonate named satchels, pipe bombs, etc. */
 	if (STRING_SET(m_fiDetonateOnFire)) {
 		if (DetonateDef(m_fiDetonateOnFire) == true) {
-			float detonateAct = GetSubDefAct(fireInfo, "detonate");
+			float detonateAct = GetSubDefActVM(fireInfo, "detonate", m_viewModel);
 
 			if (detonateAct >= 0) {
-				SetWeaponFrame(GetSubDefAct(fireInfo, "detonate"));
+				SetWeaponFrame(GetSubDefActVM(fireInfo, "detonate", m_viewModel));
 			}
 
 			return;
@@ -1296,7 +1296,7 @@ ncWeapon::Attack(string fireInfo)
 	if (m_fiChargeTime > 0.0f) {
 		/* we haven't yet tried firing while charging */
 		if ((GetWeaponState() != WEAPONSTATE_RELEASED) && (GetWeaponState() != WEAPONSTATE_CHARGING)) {
-			shotAnim = GetSubDefAct(fireInfo, "delay");
+			shotAnim = GetSubDefActVM(fireInfo, "delay", m_viewModel);
 			SetAttackNext(m_fiChargeTime);
 
 #ifdef SERVER
@@ -1331,8 +1331,9 @@ ncWeapon::Attack(string fireInfo)
 #endif
 	}
 
-	ourOwner.m_punchAngle += m_fiPunchAngle;
-	ourOwner.m_punchVelocity += m_fiPunchSpring * 20.0f;
+	float kickScale = bound(0.0f, autocvar(cg_weaponKickScale, 0.55f), 2.0f);
+	ourOwner.m_punchAngle += m_fiPunchAngle * kickScale;
+	ourOwner.m_punchVelocity += m_fiPunchSpring * 20.0f * kickScale;
 
 #ifdef SERVER
 	string fireSound = m_fiSndFire;
@@ -1358,11 +1359,11 @@ ncWeapon::Attack(string fireInfo)
 
 	if (m_fiLoopingFire == false) {
 		if (m_weaponClipSize > 0 && m_weaponClip == 0) {
-			shotAnim = GetSubDefAct(fireInfo, "fireLast");
+			shotAnim = GetSubDefActVM(fireInfo, "fireLast", m_viewModel);
 		}
 
 		if (shotAnim <= 0) {
-			shotAnim = GetSubDefAct(fireInfo, "fire");
+			shotAnim = GetSubDefActVM(fireInfo, "fire", m_viewModel);
 		}
 
 		SetWeaponFrame(shotAnim);
@@ -1451,11 +1452,11 @@ ncWeapon::_SwitchedWeaponMode(void)
 	float animMode = -1;
 
 	if (m_weaponFireInfoValue) {
-		animMode = GetSubDefAct(m_weaponLastFireInfo, "modeOn");
+		animMode = GetSubDefActVM(m_weaponLastFireInfo, "modeOn", m_viewModel);
 		SwitchFireInfo(m_secondaryFireInfo);
 	} else {
 		SwitchFireInfo(m_primaryFireInfo);
-		animMode = GetSubDefAct(m_weaponLastFireInfo, "modeOff");
+		animMode = GetSubDefActVM(m_weaponLastFireInfo, "modeOff", m_viewModel);
 	}
 
 	if (animMode >= 0) {
@@ -1572,7 +1573,7 @@ ncWeapon::Idle(void)
 	}
 
 	if (m_fiWillRelease) {
-		idleAnim = GetSubDefAct(m_weaponLastFireInfo, "cooking");
+		idleAnim = GetSubDefActVM(m_weaponLastFireInfo, "cooking", m_viewModel);
 
 		if (idleAnim >= 0) {
 			SetWeaponFrame(idleAnim);
@@ -1584,7 +1585,7 @@ ncWeapon::Idle(void)
 	/* handle shotgun style reloads */
 	switch (m_weaponState) {
 	case WEAPONSTATE_RELOAD_START:
-		idleAnim = GetSubDefAct(m_weaponLastFireInfo, "reloadStart");
+		idleAnim = GetSubDefActVM(m_weaponLastFireInfo, "reloadStart", m_viewModel);
 		_SetWeaponState(WEAPONSTATE_RELOAD);
 #ifdef SERVER
 		PlaySound(GetDefString("snd_reloadStart"), CHAN_AUTO, false);
@@ -1594,7 +1595,7 @@ ncWeapon::Idle(void)
 		break;
 	case WEAPONSTATE_RELOAD:
 		float reloadTime;
-		idleAnim = GetSubDefAct(m_weaponLastFireInfo, "reload");
+		idleAnim = GetSubDefActVM(m_weaponLastFireInfo, "reload", m_viewModel);
 		m_weaponClip++;
 		if (m_fiInfiniteReserve == false) {
 			ourOwner.UseAmmo(m_primaryAmmoType, 1);
@@ -1619,7 +1620,7 @@ ncWeapon::Idle(void)
 		return;
 		break;
 	case WEAPONSTATE_RELOAD_END:
-		idleAnim = GetSubDefAct(m_weaponLastFireInfo, "reloadEnd");
+		idleAnim = GetSubDefActVM(m_weaponLastFireInfo, "reloadEnd", m_viewModel);
 		_SetWeaponState(WEAPONSTATE_IDLE);
 #ifdef SERVER
 		PlaySound(GetDefString("snd_reloadEnd"), CHAN_AUTO, false);
@@ -1628,14 +1629,14 @@ ncWeapon::Idle(void)
 		ourOwner.Event_ReloadWeaponEnd();
 		break;
 	case WEAPONSTATE_FIRELOOP:
-		idleAnim = GetSubDefAct(m_weaponLastFireInfo, "loop");
+		idleAnim = GetSubDefActVM(m_weaponLastFireInfo, "loop", m_viewModel);
 		break;
 	case WEAPONSTATE_CHARGING:
-		idleAnim = GetSubDefAct(m_weaponLastFireInfo, "loop");
+		idleAnim = GetSubDefActVM(m_weaponLastFireInfo, "loop", m_viewModel);
 		break;
 	case WEAPONSTATE_COCK:
 		//breakpoint();
-		idleAnim = GetSubDefAct(m_weaponLastFireInfo, "cock");
+		idleAnim = GetSubDefActVM(m_weaponLastFireInfo, "cock", m_viewModel);
 #ifdef SERVER
 		PlaySound(GetDefString("snd_cock"), CHAN_AUTO, false);
 #endif
@@ -1657,7 +1658,7 @@ ncWeapon::Idle(void)
 
 		ReleasedWeaponAttack(m_weaponLastFireInfo);
 		ourOwner.m_nuclideFlags &= ~VFL_PRIMEDFUSE;
-		idleAnim = GetSubDefAct(m_weaponLastFireInfo, "release");
+		idleAnim = GetSubDefActVM(m_weaponLastFireInfo, "release", m_viewModel);
 		SetAttackNext(frameduration(m_viewModel, idleAnim));
 
 		if (m_fiDrawAfterRelease == true) {
@@ -1680,7 +1681,7 @@ ncWeapon::Idle(void)
 	case WEAPONSTATE_IDLE:
 	default:
 		if (m_weaponClipSize > 0 && m_weaponClip == 0) {
-			idleAnim = GetSubDefAct(m_weaponLastFireInfo, "idleEmpty");
+			idleAnim = GetSubDefActVM(m_weaponLastFireInfo, "idleEmpty", m_viewModel);
 
 			/* TODO: may want this? hard to say. */
 			/*if (idleAnim < 0) {
@@ -1690,7 +1691,7 @@ ncWeapon::Idle(void)
 		}
 
 		if (idleAnim < 0) {
-			idleAnim = GetSubDefAct(m_weaponLastFireInfo, "idle");
+			idleAnim = GetSubDefActVM(m_weaponLastFireInfo, "idle", m_viewModel);
 		}
 
 		ourOwner.sndindex_idle = getsoundindex(GetSubDefString(m_weaponLastFireInfo, "snd_idle"));
@@ -1886,7 +1887,7 @@ ncWeapon::Reload(void)
 	if (m_weaponState >= WEAPONSTATE_RELOAD_START && m_weaponState <= WEAPONSTATE_RELOAD_END) {
 		return;
 	}
-	reloadStartAct = GetSubDefAct(m_weaponLastFireInfo, "reloadStart");
+	reloadStartAct = GetSubDefActVM(m_weaponLastFireInfo, "reloadStart", m_viewModel);
 
 	/* we cannot reload this weapon by principle. */
 	if (!m_weaponClipSize) {
@@ -1920,14 +1921,14 @@ ncWeapon::Reload(void)
 	}
 
 	if (m_weaponClipSize > 0 && m_weaponClip == 0) {
-		reloadAnimation = GetSubDefAct(m_weaponLastFireInfo, "reloadEmpty");
+		reloadAnimation = GetSubDefActVM(m_weaponLastFireInfo, "reloadEmpty", m_viewModel);
 	}
 
 	if (reloadAnimation < 0) {
-		reloadAnimation = GetSubDefAct(m_weaponLastFireInfo, "reload");
+		reloadAnimation = GetSubDefActVM(m_weaponLastFireInfo, "reload", m_viewModel);
 
 		/* check if we should schedule a reload-end */
-		if (GetSubDefAct(m_weaponLastFireInfo, "reloadEnd") >= 0) {
+		if (GetSubDefActVM(m_weaponLastFireInfo, "reloadEnd", m_viewModel) >= 0) {
 			_SetWeaponState(WEAPONSTATE_RELOAD_END);
 		}
 	}
@@ -2000,7 +2001,7 @@ ncWeapon::_WeaponStartedFiring(void)
 
 	/* hasn't been fired yet. */
 	if (!(owner.m_nuclideFlags & VFL_FIRING)) {
-		float actFireStart = GetSubDefAct(m_weaponLastFireInfo, "fireStart");
+		float actFireStart = GetSubDefActVM(m_weaponLastFireInfo, "fireStart", m_viewModel);
 
 		/* we may be supposed to be looping */
 		if (m_fiLoopingFire) {
@@ -2048,7 +2049,7 @@ ncWeapon::_WeaponStoppedFiring(void)
 	/* was still registed as firing */
 	if (WeaponIsFiring() == true) {
 		ncPlayer ourOwner = (ncPlayer)GetOwner();
-		float actFireStop = GetSubDefAct(m_weaponLastFireInfo, "fireStop");
+		float actFireStop = GetSubDefActVM(m_weaponLastFireInfo, "fireStop", m_viewModel);
 
 		if (actFireStop >= 0) {
 			SetWeaponFrame(actFireStop);

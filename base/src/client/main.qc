@@ -458,17 +458,17 @@ Viewmodel_ApplyBob(entity gun)
 	int s = (float)getproperty(VF_ACTIVESEAT);
 	pViewBob = &g_viewBobVars[s];
 
+	float mot = bound(0.0f, autocvar(cg_viewmodelMotionScale, 0.5f), 2.0f);
+
 	float sintime;
 	float strength;
-	float kickUp;
 	//gun.angles[2] = pViewBob->m_flBob2 * -2.0f;
-	gun.angles[2] = pViewBob->m_flViewBob * 4.0f;
-	kickUp = pViewBob->m_flViewBob2 * 4.0f;
+	gun.angles[2] = pViewBob->m_flViewBob * 4.0f * mot;
 
 	vector angmod = [0,0,0];
 
-	angmod[0] = pViewBob->m_flViewBob2 + kickUp;
-	angmod[1] = pViewBob->m_flViewBob;
+	angmod[0] = pViewBob->m_flViewBob2 * 5.0f * mot;
+	angmod[1] = pViewBob->m_flViewBob * mot;
 
 	//angmod[2] += pViewBob->m_flBob * 3.0f;
 	gun.angles += angmod;
@@ -482,6 +482,7 @@ Viewmodel_ApplyBob(entity gun)
 
 	strength = 240 - strength;
 	strength *= 0.01f;
+	strength *= mot;
 
 	float sprint;
 	if (pSeat->m_ePlayer.m_nuclideFlags & VFL_SPRINTING) {
@@ -489,7 +490,7 @@ Viewmodel_ApplyBob(entity gun)
 	} else {
 		pSeat->m_flSprintLerp = bound(0.0f, pSeat->m_flSprintLerp - clframetime, 1.0f);
 	}
-	sprint = 20 * pSeat->m_flSprintLerp;
+	sprint = 20 * pSeat->m_flSprintLerp * mot;
 	gun.angles[0] += sprint;
 	gun.angles[1] += sprint + (sprint * pViewBob->m_flBob) * 0.25f;
 
@@ -506,7 +507,7 @@ Viewmodel_ApplyBob(entity gun)
 	gun.angles[0] += strength * sintime;
 	gun.angles[1] += strength * sintime;
 	//gun.angles[2] += strength * sintime;
-	gun.origin += [0,0,-1];
+	gun.origin += [0,0,-1] * mot;
 
 	makevectors(g_view.GetCameraAngle());
 	gun.origin += v_forward * cvar("cl_gunx");
@@ -515,8 +516,8 @@ Viewmodel_ApplyBob(entity gun)
 
 	/* lower gun when moving */
 	if (pViewBob->m_flSpeed > 10.0) {
-		gun.origin += (v_up * -pViewBob->m_flSpeed * 0.005f);
-		gun.origin += (v_right * -pViewBob->m_flSpeed * 0.005f);
+		gun.origin += (v_up * -pViewBob->m_flSpeed * 0.005f * mot);
+		gun.origin += (v_right * -pViewBob->m_flSpeed * 0.005f * mot);
 	}
 }
 

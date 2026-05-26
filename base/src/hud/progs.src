@@ -2,5 +2,6 @@
 
 #includelist
 ../../../src/hud.src
+WeaponSelect.qc
 hud.qc
 #endlist

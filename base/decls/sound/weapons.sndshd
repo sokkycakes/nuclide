@@ -67,6 +67,12 @@ weapon_nailgun.shoot
 	sample weapons/rocket1i.wav
 }
 
+weapon_collier_sidearm.shoot
+{
+	alerts
+	sample weapons/gunshotv4.ogg
+}
+
 weapon_supernailgun.shoot
 {
 	alerts

@@ -143,7 +143,7 @@ defs-nr-q3: netradiant trshaders $(GAME)/scripts/entities.def
 	echo "  modeltypes=\"md3 ase lwo obj 3ds 3d 3mf ac ac3d acc amf ask assbin b3d blend bvh cob csm dae dxf enff fbx glb gltf hmp iqm irr irrmesh lws lxo m3d md2 md5mesh mdc mdl mesh mesh.xml mot ms3d ndo nff off ply pmx prj q3o q3s raw scn sib smd stl ter uc vta x x3d x3db xgl xml zae zgl\"" >> "$(NR_GAME)"
 	echo "  maptypes=\"mapq3\"" >> "$(NR_GAME)"
 	echo "  shaders=\"quake3\"" >> "$(NR_GAME)"
-	echo "  shaderpath=\"texturesrc\"" >> "$(NR_GAME)"
+	echo "  shaderpath=\"scripts\"" >> "$(NR_GAME)"
 	echo "  entityclass=\"quake3\"" >> "$(NR_GAME)"
 	echo "  entityclasstype=\"def xml\"" >> "$(NR_GAME)"
 	echo "  entities=\"quake3\"" >> "$(NR_GAME)"
@@ -151,44 +151,7 @@ defs-nr-q3: netradiant trshaders $(GAME)/scripts/entities.def
 	echo "  patchtypes=\"quake3\"" >> "$(NR_GAME)"
 	echo "/>" >> "$(NR_GAME)"
 	cp "$(GAME)/scripts/entities.def" "$(NR_DEF)"
-	echo "<?xml version=\"1.0\"?>" > $(NR_SYNAPSE)
-	echo "<project version=\"2.0\">" >> $(NR_SYNAPSE)
-	echo "  <var name=\"vmap\">\"[EnginePath]vmap\"</var>" >> $(NR_SYNAPSE)
-	echo "  <build name=\"qbsp\">" >> $(NR_SYNAPSE)
-	echo "    <command>[vmap] -fs_basepath \"[EnginePath]\" -fs_game \"[GameName]\" \"[MapFile]\"</command>" >> $(NR_SYNAPSE)
-	echo "  </build>" >> $(NR_SYNAPSE)
-	echo "  <build name=\"qbsp -onlyents\">" >> $(NR_SYNAPSE)
-	echo "    <command>[vmap] -fs_basepath \"[EnginePath]\" -fs_game \"[GameName]\" -onlyents \"[MapFile]\"</command>" >> $(NR_SYNAPSE)
-	echo "  </build>" >> $(NR_SYNAPSE)
-	echo "  <build name=\"qvis\">" >> $(NR_SYNAPSE)
-	echo "    <command>[vmap] -fs_basepath \"[EnginePath]\" -fs_game \"[GameName]\" \"[MapFile]\"</command>" >> $(NR_SYNAPSE)
-	echo "    <command>[vmap] -fs_basepath \"[EnginePath]\" -fs_game \"[GameName]\" -vis \"[MapFile]\"</command>" >> $(NR_SYNAPSE)
-	echo "  </build>" >> $(NR_SYNAPSE)
-	echo "  <build name=\"qvis -fast\">" >> $(NR_SYNAPSE)
-	echo "    <command>[vmap] -fs_basepath \"[EnginePath]\" -fs_game \"[GameName]\" \"[MapFile]\"</command>" >> $(NR_SYNAPSE)
-	echo "    <command>[vmap] -fs_basepath \"[EnginePath]\" -fs_game \"[GameName]\" -vis -fast \"[MapFile]\"</command>" >> $(NR_SYNAPSE)
-	echo "  </build>" >> $(NR_SYNAPSE)
-	echo "  <build name=\"qrad\">" >> $(NR_SYNAPSE)
-	echo "    <command>[vmap] -fs_basepath \"[EnginePath]\" -fs_game \"[GameName]\" \"[MapFile]\"</command>" >> $(NR_SYNAPSE)
-	echo "    <command>[vmap] -fs_basepath \"[EnginePath]\" -fs_game \"[GameName]\" -light \"[MapFile]\"</command>" >> $(NR_SYNAPSE)
-	echo "  </build>" >> $(NR_SYNAPSE)
-	echo "  <build name=\"qbsp\">" >> $(NR_SYNAPSE)
-	echo "    <command>[vmap] -fs_basepath \"[EnginePath]\" -fs_game \"[GameName]\" \"[MapFile]\"</command>" >> $(NR_SYNAPSE)
-	echo "  </build>" >> $(NR_SYNAPSE)
-	echo "  <build name=\"qbsp, qrad\">" >> $(NR_SYNAPSE)
-	echo "    <command>[vmap] -fs_basepath \"[EnginePath]\" -fs_game \"[GameName]\" \"[MapFile]\"</command>" >> $(NR_SYNAPSE)
-	echo "    <command>[vmap] -fs_basepath \"[EnginePath]\" -fs_game \"[GameName]\" -light \"[MapFile]\"</command>" >> $(NR_SYNAPSE)
-	echo "  </build>" >> $(NR_SYNAPSE)
-	echo "  <build name=\"qbsp, qvis\">" >> $(NR_SYNAPSE)
-	echo "    <command>[vmap] -fs_basepath \"[EnginePath]\" -fs_game \"[GameName]\" \"[MapFile]\"</command>" >> $(NR_SYNAPSE)
-	echo "    <command>[vmap] -fs_basepath \"[EnginePath]\" -fs_game \"[GameName]\" -vis \"[MapFile]\"</command>" >> $(NR_SYNAPSE)
-	echo "  </build>" >> $(NR_SYNAPSE)
-	echo "  <build name=\"qbsp, qvis, qrad\">" >> $(NR_SYNAPSE)
-	echo "    <command>[vmap] -fs_basepath \"[EnginePath]\" -fs_game \"[GameName]\" \"[MapFile]\"</command>" >> $(NR_SYNAPSE)
-	echo "    <command>[vmap] -fs_basepath \"[EnginePath]\" -fs_game \"[GameName]\" -vis \"[MapFile]\"</command>" >> $(NR_SYNAPSE)
-	echo "    <command>[vmap] -fs_basepath \"[EnginePath]\" -fs_game \"[GameName]\" -light \"[MapFile]\"</command>  </build>" >> $(NR_SYNAPSE)
-	echo "  </build>" >> $(NR_SYNAPSE)
-	echo "</project>" >> $(NR_SYNAPSE)
+	cp "$(NUCLIDE_DIR)/Tools/netradiant/gamepacks/$(NAME).game/default_build_menu.xml" "$(NR_SYNAPSE)"
 
 defs-nr-q1: netradiant $(GAME)/scripts/entities.def
 	mkdir -p "$(NR_GAMEDIR)"
@@ -280,7 +243,8 @@ defs-nr-q1: netradiant $(GAME)/scripts/entities.def
 	echo "  <build name=\"qbsp, qvis, qrad\">" >> $(NR_SYNAPSE)
 	echo "    <command>[bsp] \"[MapFile]\"</command>" >> $(NR_SYNAPSE)
 	echo "    <command>[vis] \"[MapFile]\"</command>" >> $(NR_SYNAPSE)
-	echo "    <command>[light] \"[MapFile]\"</command>  </build>" >> $(NR_SYNAPSE)
+	echo "    <command>[light] \"[MapFile]\"</command>" >> $(NR_SYNAPSE)
+	echo "  </build>" >> $(NR_SYNAPSE)
 	echo "  <build name=\"qbsp, qvis, qrad -extra\">" >> $(NR_SYNAPSE)
 	echo "    <command>[bsp] \"[MapFile]\"</command>" >> $(NR_SYNAPSE)
 	echo "    <command>[vis] \"[MapFile]\"</command>" >> $(NR_SYNAPSE)
@@ -336,7 +300,8 @@ defs-nr-q1: netradiant $(GAME)/scripts/entities.def
 	echo "  <build name=\"qbsp, qvis -noambient -fast, qrad\">" >> $(NR_SYNAPSE)
 	echo "    <command>[bsp] \"[MapFile]\"</command>" >> $(NR_SYNAPSE)
 	echo "    <command>[vis] -noambient -fast \"[MapFile]\"</command>" >> $(NR_SYNAPSE)
-	echo "    <command>[light] \"[MapFile]\"</command>  </build>" >> $(NR_SYNAPSE)
+	echo "    <command>[light] \"[MapFile]\"</command>" >> $(NR_SYNAPSE)
+	echo "  </build>" >> $(NR_SYNAPSE)
 	echo "  <build name=\"qbsp, qvis -noambient -fast, qrad -extra\">" >> $(NR_SYNAPSE)
 	echo "    <command>[bsp] \"[MapFile]\"</command>" >> $(NR_SYNAPSE)
 	echo "    <command>[vis] -noambient -fast \"[MapFile]\"</command>" >> $(NR_SYNAPSE)
@@ -372,7 +337,7 @@ defs-nrc-q3: netradiant-custom trshaders $(GAME)/scripts/entities.def
 	echo "  modeltypes=\"md3 ase lwo obj 3ds 3d 3mf ac ac3d acc amf ask assbin b3d blend bvh cob csm dae dxf enff fbx glb gltf hmp iqm irr irrmesh lws lxo m3d md2 md5mesh mdc mdl mesh mesh.xml mot ms3d ndo nff off ply pmx prj q3o q3s raw scn sib smd stl ter uc vta x x3d x3db xgl xml zae zgl\"" >> "$(NRC_GAME)"
 	echo "  maptypes=\"mapq3\"" >> "$(NRC_GAME)"
 	echo "  shaders=\"quake3\"" >> "$(NRC_GAME)"
-	echo "  shaderpath=\"texturesrc\"" >> "$(NRC_GAME)"
+	echo "  shaderpath=\"scripts\"" >> "$(NRC_GAME)"
 	echo "  entityclass=\"quake3\"" >> "$(NRC_GAME)"
 	echo "  entityclasstype=\"def xml\"" >> "$(NRC_GAME)"
 	echo "  entities=\"quake3\"" >> "$(NRC_GAME)"
@@ -380,44 +345,7 @@ defs-nrc-q3: netradiant-custom trshaders $(GAME)/scripts/entities.def
 	echo "  patchtypes=\"quake3\"" >> "$(NRC_GAME)"
 	echo "/>" >> "$(NRC_GAME)"
 	cp "$(GAME)/scripts/entities.def" "$(NRC_DEF)"
-	echo "<?xml version=\"1.0\"?>" > $(NRC_SYNAPSE)
-	echo "<project version=\"2.0\">" >> $(NRC_SYNAPSE)
-	echo "  <var name=\"vmap\">\"[EnginePath]vmap\"</var>" >> $(NRC_SYNAPSE)
-	echo "  <build name=\"qbsp\">" >> $(NRC_SYNAPSE)
-	echo "    <command>[vmap] -fs_basepath \"[EnginePath]\" -fs_game \"[GameName]\" \"[MapFile]\"</command>" >> $(NRC_SYNAPSE)
-	echo "  </build>" >> $(NRC_SYNAPSE)
-	echo "  <build name=\"qbsp -onlyents\">" >> $(NRC_SYNAPSE)
-	echo "    <command>[vmap] -fs_basepath \"[EnginePath]\" -fs_game \"[GameName]\" -onlyents \"[MapFile]\"</command>" >> $(NRC_SYNAPSE)
-	echo "  </build>" >> $(NRC_SYNAPSE)
-	echo "  <build name=\"qvis\">" >> $(NRC_SYNAPSE)
-	echo "    <command>[vmap] -fs_basepath \"[EnginePath]\" -fs_game \"[GameName]\" \"[MapFile]\"</command>" >> $(NRC_SYNAPSE)
-	echo "    <command>[vmap] -fs_basepath \"[EnginePath]\" -fs_game \"[GameName]\" -vis \"[MapFile]\"</command>" >> $(NRC_SYNAPSE)
-	echo "  </build>" >> $(NRC_SYNAPSE)
-	echo "  <build name=\"qvis -fast\">" >> $(NRC_SYNAPSE)
-	echo "    <command>[vmap] -fs_basepath \"[EnginePath]\" -fs_game \"[GameName]\" \"[MapFile]\"</command>" >> $(NRC_SYNAPSE)
-	echo "    <command>[vmap] -fs_basepath \"[EnginePath]\" -fs_game \"[GameName]\" -vis -fast \"[MapFile]\"</command>" >> $(NRC_SYNAPSE)
-	echo "  </build>" >> $(NRC_SYNAPSE)
-	echo "  <build name=\"qrad\">" >> $(NRC_SYNAPSE)
-	echo "    <command>[vmap] -fs_basepath \"[EnginePath]\" -fs_game \"[GameName]\" \"[MapFile]\"</command>" >> $(NRC_SYNAPSE)
-	echo "    <command>[vmap] -fs_basepath \"[EnginePath]\" -fs_game \"[GameName]\" -light \"[MapFile]\"</command>" >> $(NRC_SYNAPSE)
-	echo "  </build>" >> $(NRC_SYNAPSE)
-	echo "  <build name=\"qbsp\">" >> $(NRC_SYNAPSE)
-	echo "    <command>[vmap] -fs_basepath \"[EnginePath]\" -fs_game \"[GameName]\" \"[MapFile]\"</command>" >> $(NRC_SYNAPSE)
-	echo "  </build>" >> $(NRC_SYNAPSE)
-	echo "  <build name=\"qbsp, qrad\">" >> $(NRC_SYNAPSE)
-	echo "    <command>[vmap] -fs_basepath \"[EnginePath]\" -fs_game \"[GameName]\" \"[MapFile]\"</command>" >> $(NRC_SYNAPSE)
-	echo "    <command>[vmap] -fs_basepath \"[EnginePath]\" -fs_game \"[GameName]\" -light \"[MapFile]\"</command>" >> $(NRC_SYNAPSE)
-	echo "  </build>" >> $(NRC_SYNAPSE)
-	echo "  <build name=\"qbsp, qvis\">" >> $(NRC_SYNAPSE)
-	echo "    <command>[vmap] -fs_basepath \"[EnginePath]\" -fs_game \"[GameName]\" \"[MapFile]\"</command>" >> $(NRC_SYNAPSE)
-	echo "    <command>[vmap] -fs_basepath \"[EnginePath]\" -fs_game \"[GameName]\" -vis \"[MapFile]\"</command>" >> $(NRC_SYNAPSE)
-	echo "  </build>" >> $(NRC_SYNAPSE)
-	echo "  <build name=\"qbsp, qvis, qrad\">" >> $(NRC_SYNAPSE)
-	echo "    <command>[vmap] -fs_basepath \"[EnginePath]\" -fs_game \"[GameName]\" \"[MapFile]\"</command>" >> $(NRC_SYNAPSE)
-	echo "    <command>[vmap] -fs_basepath \"[EnginePath]\" -fs_game \"[GameName]\" -vis \"[MapFile]\"</command>" >> $(NRC_SYNAPSE)
-	echo "    <command>[vmap] -fs_basepath \"[EnginePath]\" -fs_game \"[GameName]\" -light \"[MapFile]\"</command>  </build>" >> $(NRC_SYNAPSE)
-	echo "  </build>" >> $(NRC_SYNAPSE)
-	echo "</project>" >> $(NRC_SYNAPSE)
+	cp "$(NUCLIDE_DIR)/Tools/netradiant/gamepacks/$(NAME).game/default_build_menu.xml" "$(NRC_SYNAPSE)"
 
 defs-nrc-q1: netradiant-custom $(GAME)/scripts/entities.def
 	mkdir -p "$(NRC_GAMEDIR)"
@@ -441,6 +369,7 @@ defs-nrc-q1: netradiant-custom $(GAME)/scripts/entities.def
 	echo "  modeltypes=\"mdl\"" >> "$(NRC_GAME)"
 	echo "  maptypes=\"mapq1\"" >> "$(NRC_GAME)"
 	echo "  shaders=\"quake3\"" >> "$(NRC_GAME)"
+	echo "  shaderpath=\"scripts\"" >> "$(NRC_GAME)"
 	echo "  entityclass=\"quake3\"" >> "$(NRC_GAME)"
 	echo "  entityclasstype=\"def xml\"" >> "$(NRC_GAME)"
 	echo "  entities=\"quake3\"" >> "$(NRC_GAME)"
@@ -450,9 +379,9 @@ defs-nrc-q1: netradiant-custom $(GAME)/scripts/entities.def
 	cp "$(GAME)/scripts/entities.def" "$(NRC_DEF)"
 	echo "<?xml version=\"1.0\"?>" > $(NRC_SYNAPSE)
 	echo "<project version=\"2.0\">" >> $(NRC_SYNAPSE)
-	echo "  <var name=\"bsp\">\"[EnginePath]qbsp\"</var>" >> $(NRC_SYNAPSE)
-	echo "  <var name=\"vis\">\"[EnginePath]qvis\"</var>" >> $(NRC_SYNAPSE)
-	echo "  <var name=\"light\">\"[EnginePath]qrad\"</var>" >> $(NRC_SYNAPSE)
+	echo "  <var name=\"bsp\">\"[EnginePath]Tools/ericw-tools-win64/ericw-tools-v0.18.1-win64/bin/qbsp.exe\" -bsp2 -wadpath \"[EnginePath][GameName]\" -wadpath \"[EnginePath]Tools/netradiant/gamepacks/q1.game/install\"</var>" >> $(NRC_SYNAPSE)
+	echo "  <var name=\"vis\">\"[EnginePath]Tools/ericw-tools-win64/ericw-tools-v0.18.1-win64/bin/vis.exe\"</var>" >> $(NRC_SYNAPSE)
+	echo "  <var name=\"light\">\"[EnginePath]Tools/ericw-tools-win64/ericw-tools-v0.18.1-win64/bin/light.exe\"</var>" >> $(NRC_SYNAPSE)
 	echo "  <build name=\"qbsp\">" >> $(NRC_SYNAPSE)
 	echo "    <command>[bsp] \"[MapFile]\"</command>" >> $(NRC_SYNAPSE)
 	echo "  </build>" >> $(NRC_SYNAPSE)

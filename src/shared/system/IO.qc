@@ -172,7 +172,13 @@ ncIO::GetDefInt(string keyName)
 float
 ncIO::GetSubDefAct(string subDef, string activityName)
 {
-	return Activities_GetSequenceForEntityDef((ncEntity)this, activityName, subDef);
+	return Activities_GetSequenceForEntityDef((ncEntity)this, activityName, subDef, 0.0f);
+}
+
+float
+ncIO::GetSubDefActVM(string subDef, string activityName, float viewModelIdx)
+{
+	return Activities_GetSequenceForEntityDef((ncEntity)this, activityName, subDef, viewModelIdx);
 }
 
 float

@@ -99,6 +99,33 @@ CMD_dev_modeltest(void)
 }
 
 static void
+CMD_SetThirdPerson(float enabled)
+{
+	cvar_set("pm_thirdPerson", enabled ? "1" : "0");
+	localcmd(sprintf("seta pm_thirdPerson %i\n", enabled != 0 ? 1i : 0i));
+	print(enabled ? "Thirdperson enabled.\n" : "Thirdperson disabled.\n");
+}
+
+static void
+CMD_thirdperson(void)
+{
+	float enabled;
+
+	if (STRING_SET(argv(1))) {
+		enabled = stof(argv(1)) != 0;
+	} else {
+		enabled = cvar("pm_thirdPerson") == 0;
+	}
+	CMD_SetThirdPerson(enabled);
+}
+
+static void
+CMD_firstperson(void)
+{
+	CMD_SetThirdPerson(0);
+}
+
+static void
 CMD_dev_sunpos(void)
 {
 	vector sunpos, sunang;
@@ -370,6 +397,12 @@ Cmd_Parse(string sCMD)
 		break;
 	case "dev_modeltest":
 		CMD_dev_modeltest();
+		break;
+	case "thirdperson":
+		CMD_thirdperson();
+		break;
+	case "firstperson":
+		CMD_firstperson();
 		break;
 	case "dev_sunpos":
 		CMD_dev_sunpos();
@@ -702,6 +735,8 @@ Cmd_Init(void)
 	registercommand("way_menu");
 	registercommand("dev_explode");
 	registercommand("dev_modeltest");
+	registercommand("thirdperson");
+	registercommand("firstperson");
 
 	/* basic actions */
 	registercommand("+attack");

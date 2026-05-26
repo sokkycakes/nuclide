@@ -1,0 +1,1559 @@
+{
+  "exported_textures_copied": 1,
+  "exported_textures_folder": "arch_nucleus_textures",
+  "exported_textures_virtual_base": "",
+  "image_groups": [
+    {
+      "export_texture_file": "arch_nucleus_textures/missing_beach_dry.png",
+      "source": {
+        "absolute_path": "",
+        "export_file": "arch_nucleus_textures/missing_beach_dry.png",
+        "filepath": "",
+        "name": "missing_beach_dry"
+      },
+      "suggested_target_texture": "textures/arch_nucleus/shared/missing_beach_dry",
+      "tokens": [
+        "blendbeach_to_beach_wvt_patch"
+      ]
+    },
+    {
+      "export_texture_file": "",
+      "source": {
+        "absolute_path": "",
+        "export_file": "",
+        "filepath": "",
+        "name": ""
+      },
+      "suggested_target_texture": "textures/arch_nucleus/shared/COMPUTERWALL003A.png",
+      "tokens": [
+        "COMPUTERWALL003A"
+      ]
+    },
+    {
+      "export_texture_file": "",
+      "source": {
+        "absolute_path": "",
+        "export_file": "",
+        "filepath": "",
+        "name": ""
+      },
+      "suggested_target_texture": "textures/arch_nucleus/shared/COMPUTERWALL003C.png",
+      "tokens": [
+        "COMPUTERWALL003C"
+      ]
+    },
+    {
+      "export_texture_file": "",
+      "source": {
+        "absolute_path": "",
+        "export_file": "",
+        "filepath": "",
+        "name": ""
+      },
+      "suggested_target_texture": "textures/arch_nucleus/shared/COMPUTERWALL003E.png",
+      "tokens": [
+        "COMPUTERWALL003E"
+      ]
+    },
+    {
+      "export_texture_file": "",
+      "source": {
+        "absolute_path": "",
+        "export_file": "",
+        "filepath": "",
+        "name": ""
+      },
+      "suggested_target_texture": "textures/arch_nucleus/shared/COMPUTERWALL004.png",
+      "tokens": [
+        "COMPUTERWALL004"
+      ]
+    },
+    {
+      "export_texture_file": "",
+      "source": {
+        "absolute_path": "",
+        "export_file": "",
+        "filepath": "",
+        "name": ""
+      },
+      "suggested_target_texture": "textures/arch_nucleus/shared/COMPUTERWALL005A.png",
+      "tokens": [
+        "COMPUTERWALL005A"
+      ]
+    },
+    {
+      "export_texture_file": "",
+      "source": {
+        "absolute_path": "",
+        "export_file": "",
+        "filepath": "",
+        "name": ""
+      },
+      "suggested_target_texture": "textures/arch_nucleus/shared/COMPUTERWALL005C.png",
+      "tokens": [
+        "COMPUTERWALL005C"
+      ]
+    },
+    {
+      "export_texture_file": "",
+      "source": {
+        "absolute_path": "",
+        "export_file": "",
+        "filepath": "",
+        "name": ""
+      },
+      "suggested_target_texture": "textures/arch_nucleus/shared/COMPUTERWALL007.png",
+      "tokens": [
+        "COMPUTERWALL007"
+      ]
+    },
+    {
+      "export_texture_file": "",
+      "source": {
+        "absolute_path": "",
+        "export_file": "",
+        "filepath": "",
+        "name": ""
+      },
+      "suggested_target_texture": "textures/arch_nucleus/shared/COMPUTERWALL011.png",
+      "tokens": [
+        "COMPUTERWALL011"
+      ]
+    },
+    {
+      "export_texture_file": "",
+      "source": {
+        "absolute_path": "",
+        "export_file": "",
+        "filepath": "",
+        "name": ""
+      },
+      "suggested_target_texture": "textures/arch_nucleus/shared/CONCRETEFLOOR002B.png",
+      "tokens": [
+        "CONCRETEFLOOR002B"
+      ]
+    },
+    {
+      "export_texture_file": "",
+      "source": {
+        "absolute_path": "",
+        "export_file": "",
+        "filepath": "",
+        "name": ""
+      },
+      "suggested_target_texture": "textures/arch_nucleus/shared/CONCRETEFLOOR003.png",
+      "tokens": [
+        "CONCRETEFLOOR003"
+      ]
+    },
+    {
+      "export_texture_file": "",
+      "source": {
+        "absolute_path": "",
+        "export_file": "",
+        "filepath": "",
+        "name": ""
+      },
+      "suggested_target_texture": "textures/arch_nucleus/shared/CONCRETEFLOOR006.png",
+      "tokens": [
+        "CONCRETEFLOOR006"
+      ]
+    },
+    {
+      "export_texture_file": "",
+      "source": {
+        "absolute_path": "",
+        "export_file": "",
+        "filepath": "",
+        "name": ""
+      },
+      "suggested_target_texture": "textures/arch_nucleus/shared/CONCRETEFLOOR007B.png",
+      "tokens": [
+        "CONCRETEFLOOR007B"
+      ]
+    },
+    {
+      "export_texture_file": "",
+      "source": {
+        "absolute_path": "",
+        "export_file": "",
+        "filepath": "",
+        "name": ""
+      },
+      "suggested_target_texture": "textures/arch_nucleus/shared/CONCRETEWALL001C.png",
+      "tokens": [
+        "CONCRETEWALL001C"
+      ]
+    },
+    {
+      "export_texture_file": "",
+      "source": {
+        "absolute_path": "",
+        "export_file": "",
+        "filepath": "",
+        "name": ""
+      },
+      "suggested_target_texture": "textures/arch_nucleus/shared/CONCRETEWALL011.png",
+      "tokens": [
+        "CONCRETEWALL011"
+      ]
+    },
+    {
+      "export_texture_file": "",
+      "source": {
+        "absolute_path": "",
+        "export_file": "",
+        "filepath": "",
+        "name": ""
+      },
+      "suggested_target_texture": "textures/arch_nucleus/shared/CONCRETEWALL011A.png",
+      "tokens": [
+        "CONCRETEWALL011A"
+      ]
+    },
+    {
+      "export_texture_file": "",
+      "source": {
+        "absolute_path": "",
+        "export_file": "",
+        "filepath": "",
+        "name": ""
+      },
+      "suggested_target_texture": "textures/arch_nucleus/shared/CONCRETEWALL011B.png",
+      "tokens": [
+        "CONCRETEWALL011B"
+      ]
+    },
+    {
+      "export_texture_file": "",
+      "source": {
+        "absolute_path": "",
+        "export_file": "",
+        "filepath": "",
+        "name": ""
+      },
+      "suggested_target_texture": "textures/arch_nucleus/shared/CONCRETEWALL011C.png",
+      "tokens": [
+        "CONCRETEWALL011C"
+      ]
+    },
+    {
+      "export_texture_file": "",
+      "source": {
+        "absolute_path": "",
+        "export_file": "",
+        "filepath": "",
+        "name": ""
+      },
+      "suggested_target_texture": "textures/arch_nucleus/shared/FLOORPLATE01.png",
+      "tokens": [
+        "FLOORPLATE01"
+      ]
+    },
+    {
+      "export_texture_file": "",
+      "source": {
+        "absolute_path": "",
+        "export_file": "",
+        "filepath": "",
+        "name": ""
+      },
+      "suggested_target_texture": "textures/arch_nucleus/shared/FLOOR_TILE_001A.png",
+      "tokens": [
+        "FLOOR_TILE_001A"
+      ]
+    },
+    {
+      "export_texture_file": "",
+      "source": {
+        "absolute_path": "",
+        "export_file": "",
+        "filepath": "",
+        "name": ""
+      },
+      "suggested_target_texture": "textures/arch_nucleus/shared/FLOOR_TILE_002A.png",
+      "tokens": [
+        "FLOOR_TILE_002A"
+      ]
+    },
+    {
+      "export_texture_file": "",
+      "source": {
+        "absolute_path": "",
+        "export_file": "",
+        "filepath": "",
+        "name": ""
+      },
+      "suggested_target_texture": "textures/arch_nucleus/shared/FLOOR_TILE_004D.png",
+      "tokens": [
+        "FLOOR_TILE_004D"
+      ]
+    },
+    {
+      "export_texture_file": "",
+      "source": {
+        "absolute_path": "",
+        "export_file": "",
+        "filepath": "",
+        "name": ""
+      },
+      "suggested_target_texture": "textures/arch_nucleus/shared/GLASSWINDOW001A.png",
+      "tokens": [
+        "GLASSWINDOW001A"
+      ]
+    },
+    {
+      "export_texture_file": "",
+      "source": {
+        "absolute_path": "",
+        "export_file": "",
+        "filepath": "",
+        "name": ""
+      },
+      "suggested_target_texture": "textures/arch_nucleus/shared/GLASSWINDOW004A.png",
+      "tokens": [
+        "GLASSWINDOW004A"
+      ]
+    },
+    {
+      "export_texture_file": "",
+      "source": {
+        "absolute_path": "",
+        "export_file": "",
+        "filepath": "",
+        "name": ""
+      },
+      "suggested_target_texture": "textures/arch_nucleus/shared/HAZARD_YELLOW001.png",
+      "tokens": [
+        "HAZARD_YELLOW001"
+      ]
+    },
+    {
+      "export_texture_file": "",
+      "source": {
+        "absolute_path": "",
+        "export_file": "",
+        "filepath": "",
+        "name": ""
+      },
+      "suggested_target_texture": "textures/arch_nucleus/shared/IBEAM001B.png",
+      "tokens": [
+        "IBEAM001B"
+      ]
+    },
+    {
+      "export_texture_file": "",
+      "source": {
+        "absolute_path": "",
+        "export_file": "",
+        "filepath": "",
+        "name": ""
+      },
+      "suggested_target_texture": "textures/arch_nucleus/shared/IBEAM002.png",
+      "tokens": [
+        "IBEAM002"
+      ]
+    },
+    {
+      "export_texture_file": "",
+      "source": {
+        "absolute_path": "",
+        "export_file": "",
+        "filepath": "",
+        "name": ""
+      },
+      "suggested_target_texture": "textures/arch_nucleus/shared/IBEAM003B.png",
+      "tokens": [
+        "IBEAM003B"
+      ]
+    },
+    {
+      "export_texture_file": "",
+      "source": {
+        "absolute_path": "",
+        "export_file": "",
+        "filepath": "",
+        "name": ""
+      },
+      "suggested_target_texture": "textures/arch_nucleus/shared/IBEAM_LIGHT_01.png",
+      "tokens": [
+        "IBEAM_LIGHT_01"
+      ]
+    },
+    {
+      "export_texture_file": "",
+      "source": {
+        "absolute_path": "",
+        "export_file": "",
+        "filepath": "",
+        "name": ""
+      },
+      "suggested_target_texture": "textures/arch_nucleus/shared/IMETAL001.png",
+      "tokens": [
+        "IMETAL001"
+      ]
+    },
+    {
+      "export_texture_file": "",
+      "source": {
+        "absolute_path": "",
+        "export_file": "",
+        "filepath": "",
+        "name": ""
+      },
+      "suggested_target_texture": "textures/arch_nucleus/shared/IMETAL001B.png",
+      "tokens": [
+        "IMETAL001B"
+      ]
+    },
+    {
+      "export_texture_file": "",
+      "source": {
+        "absolute_path": "",
+        "export_file": "",
+        "filepath": "",
+        "name": ""
+      },
+      "suggested_target_texture": "textures/arch_nucleus/shared/IMETAL002.png",
+      "tokens": [
+        "IMETAL002"
+      ]
+    },
+    {
+      "export_texture_file": "",
+      "source": {
+        "absolute_path": "",
+        "export_file": "",
+        "filepath": "",
+        "name": ""
+      },
+      "suggested_target_texture": "textures/arch_nucleus/shared/IMETAL005.png",
+      "tokens": [
+        "IMETAL005"
+      ]
+    },
+    {
+      "export_texture_file": "",
+      "source": {
+        "absolute_path": "",
+        "export_file": "",
+        "filepath": "",
+        "name": ""
+      },
+      "suggested_target_texture": "textures/arch_nucleus/shared/METALGRATE011B.png",
+      "tokens": [
+        "METALGRATE011B"
+      ]
+    },
+    {
+      "export_texture_file": "",
+      "source": {
+        "absolute_path": "",
+        "export_file": "",
+        "filepath": "",
+        "name": ""
+      },
+      "suggested_target_texture": "textures/arch_nucleus/shared/METALSTAIR001A.png",
+      "tokens": [
+        "METALSTAIR001A"
+      ]
+    },
+    {
+      "export_texture_file": "",
+      "source": {
+        "absolute_path": "",
+        "export_file": "",
+        "filepath": "",
+        "name": ""
+      },
+      "suggested_target_texture": "textures/arch_nucleus/shared/METALTRIM01.png",
+      "tokens": [
+        "METALTRIM01"
+      ]
+    },
+    {
+      "export_texture_file": "",
+      "source": {
+        "absolute_path": "",
+        "export_file": "",
+        "filepath": "",
+        "name": ""
+      },
+      "suggested_target_texture": "textures/arch_nucleus/shared/OFFICEDOOR001.png",
+      "tokens": [
+        "OFFICEDOOR001"
+      ]
+    },
+    {
+      "export_texture_file": "",
+      "source": {
+        "absolute_path": "",
+        "export_file": "",
+        "filepath": "",
+        "name": ""
+      },
+      "suggested_target_texture": "textures/arch_nucleus/shared/REFLECTIVITY_20.png",
+      "tokens": [
+        "REFLECTIVITY_20"
+      ]
+    },
+    {
+      "export_texture_file": "",
+      "source": {
+        "absolute_path": "",
+        "export_file": "",
+        "filepath": "",
+        "name": ""
+      },
+      "suggested_target_texture": "textures/arch_nucleus/shared/REFLECTIVITY_40.png",
+      "tokens": [
+        "REFLECTIVITY_40"
+      ]
+    },
+    {
+      "export_texture_file": "",
+      "source": {
+        "absolute_path": "",
+        "export_file": "",
+        "filepath": "",
+        "name": ""
+      },
+      "suggested_target_texture": "textures/arch_nucleus/shared/ROCKGROUND006.png",
+      "tokens": [
+        "ROCKGROUND006"
+      ]
+    },
+    {
+      "export_texture_file": "",
+      "source": {
+        "absolute_path": "",
+        "export_file": "",
+        "filepath": "",
+        "name": ""
+      },
+      "suggested_target_texture": "textures/arch_nucleus/shared/ROCKWALL012.png",
+      "tokens": [
+        "ROCKWALL012"
+      ]
+    },
+    {
+      "export_texture_file": "",
+      "source": {
+        "absolute_path": "",
+        "export_file": "",
+        "filepath": "",
+        "name": ""
+      },
+      "suggested_target_texture": "textures/arch_nucleus/shared/ROCKWALL013.png",
+      "tokens": [
+        "ROCKWALL013"
+      ]
+    },
+    {
+      "export_texture_file": "",
+      "source": {
+        "absolute_path": "",
+        "export_file": "",
+        "filepath": "",
+        "name": ""
+      },
+      "suggested_target_texture": "textures/arch_nucleus/shared/TILE_CEILING_001A.png",
+      "tokens": [
+        "TILE_CEILING_001A"
+      ]
+    },
+    {
+      "export_texture_file": "",
+      "source": {
+        "absolute_path": "",
+        "export_file": "",
+        "filepath": "",
+        "name": ""
+      },
+      "suggested_target_texture": "textures/arch_nucleus/shared/TOOLSBLACK.png",
+      "tokens": [
+        "TOOLSBLACK"
+      ]
+    },
+    {
+      "export_texture_file": "",
+      "source": {
+        "absolute_path": "",
+        "export_file": "",
+        "filepath": "",
+        "name": ""
+      },
+      "suggested_target_texture": "textures/arch_nucleus/shared/TOOLSSKYBOX.png",
+      "tokens": [
+        "TOOLSSKYBOX"
+      ]
+    },
+    {
+      "export_texture_file": "",
+      "source": {
+        "absolute_path": "",
+        "export_file": "",
+        "filepath": "",
+        "name": ""
+      },
+      "suggested_target_texture": "textures/arch_nucleus/shared/WALL013.png",
+      "tokens": [
+        "WALL013"
+      ]
+    },
+    {
+      "export_texture_file": "",
+      "source": {
+        "absolute_path": "",
+        "export_file": "",
+        "filepath": "",
+        "name": ""
+      },
+      "suggested_target_texture": "textures/arch_nucleus/shared/WALL015G.png",
+      "tokens": [
+        "WALL015G"
+      ]
+    },
+    {
+      "export_texture_file": "",
+      "source": {
+        "absolute_path": "",
+        "export_file": "",
+        "filepath": "",
+        "name": ""
+      },
+      "suggested_target_texture": "textures/arch_nucleus/shared/WALL021.png",
+      "tokens": [
+        "WALL021"
+      ]
+    },
+    {
+      "export_texture_file": "",
+      "source": {
+        "absolute_path": "",
+        "export_file": "",
+        "filepath": "",
+        "name": ""
+      },
+      "suggested_target_texture": "textures/arch_nucleus/shared/WHITE002.png",
+      "tokens": [
+        "WHITE002"
+      ]
+    },
+    {
+      "export_texture_file": "",
+      "source": {
+        "absolute_path": "",
+        "export_file": "",
+        "filepath": "",
+        "name": ""
+      },
+      "suggested_target_texture": "textures/arch_nucleus/shared/skip.png",
+      "tokens": [
+        "skip"
+      ]
+    }
+  ],
+  "map_stem": "arch_nucleus",
+  "materials": {
+    "COMPUTERWALL003A": {
+      "source_images": [
+        {
+          "absolute_path": "",
+          "export_file": "",
+          "filepath": "",
+          "name": ""
+        }
+      ],
+      "source_material_names": [
+        "COMPUTERWALL003A"
+      ],
+      "suggested_target": {
+        "shader_name": "maps/arch_nucleus/COMPUTERWALL003A",
+        "texture_path": "textures/arch_nucleus/shared/COMPUTERWALL003A.png"
+      },
+      "token": "COMPUTERWALL003A"
+    },
+    "COMPUTERWALL003C": {
+      "source_images": [
+        {
+          "absolute_path": "",
+          "export_file": "",
+          "filepath": "",
+          "name": ""
+        }
+      ],
+      "source_material_names": [
+        "COMPUTERWALL003C"
+      ],
+      "suggested_target": {
+        "shader_name": "maps/arch_nucleus/COMPUTERWALL003C",
+        "texture_path": "textures/arch_nucleus/shared/COMPUTERWALL003C.png"
+      },
+      "token": "COMPUTERWALL003C"
+    },
+    "COMPUTERWALL003E": {
+      "source_images": [
+        {
+          "absolute_path": "",
+          "export_file": "",
+          "filepath": "",
+          "name": ""
+        }
+      ],
+      "source_material_names": [
+        "COMPUTERWALL003E"
+      ],
+      "suggested_target": {
+        "shader_name": "maps/arch_nucleus/COMPUTERWALL003E",
+        "texture_path": "textures/arch_nucleus/shared/COMPUTERWALL003E.png"
+      },
+      "token": "COMPUTERWALL003E"
+    },
+    "COMPUTERWALL004": {
+      "source_images": [
+        {
+          "absolute_path": "",
+          "export_file": "",
+          "filepath": "",
+          "name": ""
+        }
+      ],
+      "source_material_names": [
+        "COMPUTERWALL004"
+      ],
+      "suggested_target": {
+        "shader_name": "maps/arch_nucleus/COMPUTERWALL004",
+        "texture_path": "textures/arch_nucleus/shared/COMPUTERWALL004.png"
+      },
+      "token": "COMPUTERWALL004"
+    },
+    "COMPUTERWALL005A": {
+      "source_images": [
+        {
+          "absolute_path": "",
+          "export_file": "",
+          "filepath": "",
+          "name": ""
+        }
+      ],
+      "source_material_names": [
+        "COMPUTERWALL005A"
+      ],
+      "suggested_target": {
+        "shader_name": "maps/arch_nucleus/COMPUTERWALL005A",
+        "texture_path": "textures/arch_nucleus/shared/COMPUTERWALL005A.png"
+      },
+      "token": "COMPUTERWALL005A"
+    },
+    "COMPUTERWALL005C": {
+      "source_images": [
+        {
+          "absolute_path": "",
+          "export_file": "",
+          "filepath": "",
+          "name": ""
+        }
+      ],
+      "source_material_names": [
+        "COMPUTERWALL005C"
+      ],
+      "suggested_target": {
+        "shader_name": "maps/arch_nucleus/COMPUTERWALL005C",
+        "texture_path": "textures/arch_nucleus/shared/COMPUTERWALL005C.png"
+      },
+      "token": "COMPUTERWALL005C"
+    },
+    "COMPUTERWALL007": {
+      "source_images": [
+        {
+          "absolute_path": "",
+          "export_file": "",
+          "filepath": "",
+          "name": ""
+        }
+      ],
+      "source_material_names": [
+        "COMPUTERWALL007"
+      ],
+      "suggested_target": {
+        "shader_name": "maps/arch_nucleus/COMPUTERWALL007",
+        "texture_path": "textures/arch_nucleus/shared/COMPUTERWALL007.png"
+      },
+      "token": "COMPUTERWALL007"
+    },
+    "COMPUTERWALL011": {
+      "source_images": [
+        {
+          "absolute_path": "",
+          "export_file": "",
+          "filepath": "",
+          "name": ""
+        }
+      ],
+      "source_material_names": [
+        "COMPUTERWALL011"
+      ],
+      "suggested_target": {
+        "shader_name": "maps/arch_nucleus/COMPUTERWALL011",
+        "texture_path": "textures/arch_nucleus/shared/COMPUTERWALL011.png"
+      },
+      "token": "COMPUTERWALL011"
+    },
+    "CONCRETEFLOOR002B": {
+      "source_images": [
+        {
+          "absolute_path": "",
+          "export_file": "",
+          "filepath": "",
+          "name": ""
+        }
+      ],
+      "source_material_names": [
+        "CONCRETEFLOOR002B"
+      ],
+      "suggested_target": {
+        "shader_name": "maps/arch_nucleus/CONCRETEFLOOR002B",
+        "texture_path": "textures/arch_nucleus/shared/CONCRETEFLOOR002B.png"
+      },
+      "token": "CONCRETEFLOOR002B"
+    },
+    "CONCRETEFLOOR003": {
+      "source_images": [
+        {
+          "absolute_path": "",
+          "export_file": "",
+          "filepath": "",
+          "name": ""
+        }
+      ],
+      "source_material_names": [
+        "CONCRETEFLOOR003"
+      ],
+      "suggested_target": {
+        "shader_name": "maps/arch_nucleus/CONCRETEFLOOR003",
+        "texture_path": "textures/arch_nucleus/shared/CONCRETEFLOOR003.png"
+      },
+      "token": "CONCRETEFLOOR003"
+    },
+    "CONCRETEFLOOR006": {
+      "source_images": [
+        {
+          "absolute_path": "",
+          "export_file": "",
+          "filepath": "",
+          "name": ""
+        }
+      ],
+      "source_material_names": [
+        "CONCRETEFLOOR006"
+      ],
+      "suggested_target": {
+        "shader_name": "maps/arch_nucleus/CONCRETEFLOOR006",
+        "texture_path": "textures/arch_nucleus/shared/CONCRETEFLOOR006.png"
+      },
+      "token": "CONCRETEFLOOR006"
+    },
+    "CONCRETEFLOOR007B": {
+      "source_images": [
+        {
+          "absolute_path": "",
+          "export_file": "",
+          "filepath": "",
+          "name": ""
+        }
+      ],
+      "source_material_names": [
+        "CONCRETEFLOOR007B"
+      ],
+      "suggested_target": {
+        "shader_name": "maps/arch_nucleus/CONCRETEFLOOR007B",
+        "texture_path": "textures/arch_nucleus/shared/CONCRETEFLOOR007B.png"
+      },
+      "token": "CONCRETEFLOOR007B"
+    },
+    "CONCRETEWALL001C": {
+      "source_images": [
+        {
+          "absolute_path": "",
+          "export_file": "",
+          "filepath": "",
+          "name": ""
+        }
+      ],
+      "source_material_names": [
+        "CONCRETEWALL001C"
+      ],
+      "suggested_target": {
+        "shader_name": "maps/arch_nucleus/CONCRETEWALL001C",
+        "texture_path": "textures/arch_nucleus/shared/CONCRETEWALL001C.png"
+      },
+      "token": "CONCRETEWALL001C"
+    },
+    "CONCRETEWALL011": {
+      "source_images": [
+        {
+          "absolute_path": "",
+          "export_file": "",
+          "filepath": "",
+          "name": ""
+        }
+      ],
+      "source_material_names": [
+        "CONCRETEWALL011"
+      ],
+      "suggested_target": {
+        "shader_name": "maps/arch_nucleus/CONCRETEWALL011",
+        "texture_path": "textures/arch_nucleus/shared/CONCRETEWALL011.png"
+      },
+      "token": "CONCRETEWALL011"
+    },
+    "CONCRETEWALL011A": {
+      "source_images": [
+        {
+          "absolute_path": "",
+          "export_file": "",
+          "filepath": "",
+          "name": ""
+        }
+      ],
+      "source_material_names": [
+        "CONCRETEWALL011A"
+      ],
+      "suggested_target": {
+        "shader_name": "maps/arch_nucleus/CONCRETEWALL011A",
+        "texture_path": "textures/arch_nucleus/shared/CONCRETEWALL011A.png"
+      },
+      "token": "CONCRETEWALL011A"
+    },
+    "CONCRETEWALL011B": {
+      "source_images": [
+        {
+          "absolute_path": "",
+          "export_file": "",
+          "filepath": "",
+          "name": ""
+        }
+      ],
+      "source_material_names": [
+        "CONCRETEWALL011B"
+      ],
+      "suggested_target": {
+        "shader_name": "maps/arch_nucleus/CONCRETEWALL011B",
+        "texture_path": "textures/arch_nucleus/shared/CONCRETEWALL011B.png"
+      },
+      "token": "CONCRETEWALL011B"
+    },
+    "CONCRETEWALL011C": {
+      "source_images": [
+        {
+          "absolute_path": "",
+          "export_file": "",
+          "filepath": "",
+          "name": ""
+        }
+      ],
+      "source_material_names": [
+        "CONCRETEWALL011C"
+      ],
+      "suggested_target": {
+        "shader_name": "maps/arch_nucleus/CONCRETEWALL011C",
+        "texture_path": "textures/arch_nucleus/shared/CONCRETEWALL011C.png"
+      },
+      "token": "CONCRETEWALL011C"
+    },
+    "FLOORPLATE01": {
+      "source_images": [
+        {
+          "absolute_path": "",
+          "export_file": "",
+          "filepath": "",
+          "name": ""
+        }
+      ],
+      "source_material_names": [
+        "FLOORPLATE01"
+      ],
+      "suggested_target": {
+        "shader_name": "maps/arch_nucleus/FLOORPLATE01",
+        "texture_path": "textures/arch_nucleus/shared/FLOORPLATE01.png"
+      },
+      "token": "FLOORPLATE01"
+    },
+    "FLOOR_TILE_001A": {
+      "source_images": [
+        {
+          "absolute_path": "",
+          "export_file": "",
+          "filepath": "",
+          "name": ""
+        }
+      ],
+      "source_material_names": [
+        "FLOOR_TILE_001A"
+      ],
+      "suggested_target": {
+        "shader_name": "maps/arch_nucleus/FLOOR_TILE_001A",
+        "texture_path": "textures/arch_nucleus/shared/FLOOR_TILE_001A.png"
+      },
+      "token": "FLOOR_TILE_001A"
+    },
+    "FLOOR_TILE_002A": {
+      "source_images": [
+        {
+          "absolute_path": "",
+          "export_file": "",
+          "filepath": "",
+          "name": ""
+        }
+      ],
+      "source_material_names": [
+        "FLOOR_TILE_002A"
+      ],
+      "suggested_target": {
+        "shader_name": "maps/arch_nucleus/FLOOR_TILE_002A",
+        "texture_path": "textures/arch_nucleus/shared/FLOOR_TILE_002A.png"
+      },
+      "token": "FLOOR_TILE_002A"
+    },
+    "FLOOR_TILE_004D": {
+      "source_images": [
+        {
+          "absolute_path": "",
+          "export_file": "",
+          "filepath": "",
+          "name": ""
+        }
+      ],
+      "source_material_names": [
+        "FLOOR_TILE_004D"
+      ],
+      "suggested_target": {
+        "shader_name": "maps/arch_nucleus/FLOOR_TILE_004D",
+        "texture_path": "textures/arch_nucleus/shared/FLOOR_TILE_004D.png"
+      },
+      "token": "FLOOR_TILE_004D"
+    },
+    "GLASSWINDOW001A": {
+      "source_images": [
+        {
+          "absolute_path": "",
+          "export_file": "",
+          "filepath": "",
+          "name": ""
+        }
+      ],
+      "source_material_names": [
+        "GLASSWINDOW001A"
+      ],
+      "suggested_target": {
+        "shader_name": "maps/arch_nucleus/GLASSWINDOW001A",
+        "texture_path": "textures/arch_nucleus/shared/GLASSWINDOW001A.png"
+      },
+      "token": "GLASSWINDOW001A"
+    },
+    "GLASSWINDOW004A": {
+      "source_images": [
+        {
+          "absolute_path": "",
+          "export_file": "",
+          "filepath": "",
+          "name": ""
+        }
+      ],
+      "source_material_names": [
+        "GLASSWINDOW004A"
+      ],
+      "suggested_target": {
+        "shader_name": "maps/arch_nucleus/GLASSWINDOW004A",
+        "texture_path": "textures/arch_nucleus/shared/GLASSWINDOW004A.png"
+      },
+      "token": "GLASSWINDOW004A"
+    },
+    "HAZARD_YELLOW001": {
+      "source_images": [
+        {
+          "absolute_path": "",
+          "export_file": "",
+          "filepath": "",
+          "name": ""
+        }
+      ],
+      "source_material_names": [
+        "HAZARD_YELLOW001"
+      ],
+      "suggested_target": {
+        "shader_name": "maps/arch_nucleus/HAZARD_YELLOW001",
+        "texture_path": "textures/arch_nucleus/shared/HAZARD_YELLOW001.png"
+      },
+      "token": "HAZARD_YELLOW001"
+    },
+    "IBEAM001B": {
+      "source_images": [
+        {
+          "absolute_path": "",
+          "export_file": "",
+          "filepath": "",
+          "name": ""
+        }
+      ],
+      "source_material_names": [
+        "IBEAM001B"
+      ],
+      "suggested_target": {
+        "shader_name": "maps/arch_nucleus/IBEAM001B",
+        "texture_path": "textures/arch_nucleus/shared/IBEAM001B.png"
+      },
+      "token": "IBEAM001B"
+    },
+    "IBEAM002": {
+      "source_images": [
+        {
+          "absolute_path": "",
+          "export_file": "",
+          "filepath": "",
+          "name": ""
+        }
+      ],
+      "source_material_names": [
+        "IBEAM002"
+      ],
+      "suggested_target": {
+        "shader_name": "maps/arch_nucleus/IBEAM002",
+        "texture_path": "textures/arch_nucleus/shared/IBEAM002.png"
+      },
+      "token": "IBEAM002"
+    },
+    "IBEAM003B": {
+      "source_images": [
+        {
+          "absolute_path": "",
+          "export_file": "",
+          "filepath": "",
+          "name": ""
+        }
+      ],
+      "source_material_names": [
+        "IBEAM003B"
+      ],
+      "suggested_target": {
+        "shader_name": "maps/arch_nucleus/IBEAM003B",
+        "texture_path": "textures/arch_nucleus/shared/IBEAM003B.png"
+      },
+      "token": "IBEAM003B"
+    },
+    "IBEAM_LIGHT_01": {
+      "source_images": [
+        {
+          "absolute_path": "",
+          "export_file": "",
+          "filepath": "",
+          "name": ""
+        }
+      ],
+      "source_material_names": [
+        "IBEAM_LIGHT_01"
+      ],
+      "suggested_target": {
+        "shader_name": "maps/arch_nucleus/IBEAM_LIGHT_01",
+        "texture_path": "textures/arch_nucleus/shared/IBEAM_LIGHT_01.png"
+      },
+      "token": "IBEAM_LIGHT_01"
+    },
+    "IMETAL001": {
+      "source_images": [
+        {
+          "absolute_path": "",
+          "export_file": "",
+          "filepath": "",
+          "name": ""
+        }
+      ],
+      "source_material_names": [
+        "IMETAL001"
+      ],
+      "suggested_target": {
+        "shader_name": "maps/arch_nucleus/IMETAL001",
+        "texture_path": "textures/arch_nucleus/shared/IMETAL001.png"
+      },
+      "token": "IMETAL001"
+    },
+    "IMETAL001B": {
+      "source_images": [
+        {
+          "absolute_path": "",
+          "export_file": "",
+          "filepath": "",
+          "name": ""
+        }
+      ],
+      "source_material_names": [
+        "IMETAL001B"
+      ],
+      "suggested_target": {
+        "shader_name": "maps/arch_nucleus/IMETAL001B",
+        "texture_path": "textures/arch_nucleus/shared/IMETAL001B.png"
+      },
+      "token": "IMETAL001B"
+    },
+    "IMETAL002": {
+      "source_images": [
+        {
+          "absolute_path": "",
+          "export_file": "",
+          "filepath": "",
+          "name": ""
+        }
+      ],
+      "source_material_names": [
+        "IMETAL002"
+      ],
+      "suggested_target": {
+        "shader_name": "maps/arch_nucleus/IMETAL002",
+        "texture_path": "textures/arch_nucleus/shared/IMETAL002.png"
+      },
+      "token": "IMETAL002"
+    },
+    "IMETAL005": {
+      "source_images": [
+        {
+          "absolute_path": "",
+          "export_file": "",
+          "filepath": "",
+          "name": ""
+        }
+      ],
+      "source_material_names": [
+        "IMETAL005"
+      ],
+      "suggested_target": {
+        "shader_name": "maps/arch_nucleus/IMETAL005",
+        "texture_path": "textures/arch_nucleus/shared/IMETAL005.png"
+      },
+      "token": "IMETAL005"
+    },
+    "METALGRATE011B": {
+      "source_images": [
+        {
+          "absolute_path": "",
+          "export_file": "",
+          "filepath": "",
+          "name": ""
+        }
+      ],
+      "source_material_names": [
+        "METALGRATE011B"
+      ],
+      "suggested_target": {
+        "shader_name": "maps/arch_nucleus/METALGRATE011B",
+        "texture_path": "textures/arch_nucleus/shared/METALGRATE011B.png"
+      },
+      "token": "METALGRATE011B"
+    },
+    "METALSTAIR001A": {
+      "source_images": [
+        {
+          "absolute_path": "",
+          "export_file": "",
+          "filepath": "",
+          "name": ""
+        }
+      ],
+      "source_material_names": [
+        "METALSTAIR001A"
+      ],
+      "suggested_target": {
+        "shader_name": "maps/arch_nucleus/METALSTAIR001A",
+        "texture_path": "textures/arch_nucleus/shared/METALSTAIR001A.png"
+      },
+      "token": "METALSTAIR001A"
+    },
+    "METALTRIM01": {
+      "source_images": [
+        {
+          "absolute_path": "",
+          "export_file": "",
+          "filepath": "",
+          "name": ""
+        }
+      ],
+      "source_material_names": [
+        "METALTRIM01"
+      ],
+      "suggested_target": {
+        "shader_name": "maps/arch_nucleus/METALTRIM01",
+        "texture_path": "textures/arch_nucleus/shared/METALTRIM01.png"
+      },
+      "token": "METALTRIM01"
+    },
+    "OFFICEDOOR001": {
+      "source_images": [
+        {
+          "absolute_path": "",
+          "export_file": "",
+          "filepath": "",
+          "name": ""
+        }
+      ],
+      "source_material_names": [
+        "OFFICEDOOR001"
+      ],
+      "suggested_target": {
+        "shader_name": "maps/arch_nucleus/OFFICEDOOR001",
+        "texture_path": "textures/arch_nucleus/shared/OFFICEDOOR001.png"
+      },
+      "token": "OFFICEDOOR001"
+    },
+    "REFLECTIVITY_20": {
+      "source_images": [
+        {
+          "absolute_path": "",
+          "export_file": "",
+          "filepath": "",
+          "name": ""
+        }
+      ],
+      "source_material_names": [
+        "REFLECTIVITY_20"
+      ],
+      "suggested_target": {
+        "shader_name": "maps/arch_nucleus/REFLECTIVITY_20",
+        "texture_path": "textures/arch_nucleus/shared/REFLECTIVITY_20.png"
+      },
+      "token": "REFLECTIVITY_20"
+    },
+    "REFLECTIVITY_40": {
+      "source_images": [
+        {
+          "absolute_path": "",
+          "export_file": "",
+          "filepath": "",
+          "name": ""
+        }
+      ],
+      "source_material_names": [
+        "REFLECTIVITY_40"
+      ],
+      "suggested_target": {
+        "shader_name": "maps/arch_nucleus/REFLECTIVITY_40",
+        "texture_path": "textures/arch_nucleus/shared/REFLECTIVITY_40.png"
+      },
+      "token": "REFLECTIVITY_40"
+    },
+    "ROCKGROUND006": {
+      "source_images": [
+        {
+          "absolute_path": "",
+          "export_file": "",
+          "filepath": "",
+          "name": ""
+        }
+      ],
+      "source_material_names": [
+        "ROCKGROUND006"
+      ],
+      "suggested_target": {
+        "shader_name": "maps/arch_nucleus/ROCKGROUND006",
+        "texture_path": "textures/arch_nucleus/shared/ROCKGROUND006.png"
+      },
+      "token": "ROCKGROUND006"
+    },
+    "ROCKWALL012": {
+      "source_images": [
+        {
+          "absolute_path": "",
+          "export_file": "",
+          "filepath": "",
+          "name": ""
+        }
+      ],
+      "source_material_names": [
+        "ROCKWALL012"
+      ],
+      "suggested_target": {
+        "shader_name": "maps/arch_nucleus/ROCKWALL012",
+        "texture_path": "textures/arch_nucleus/shared/ROCKWALL012.png"
+      },
+      "token": "ROCKWALL012"
+    },
+    "ROCKWALL013": {
+      "source_images": [
+        {
+          "absolute_path": "",
+          "export_file": "",
+          "filepath": "",
+          "name": ""
+        }
+      ],
+      "source_material_names": [
+        "ROCKWALL013"
+      ],
+      "suggested_target": {
+        "shader_name": "maps/arch_nucleus/ROCKWALL013",
+        "texture_path": "textures/arch_nucleus/shared/ROCKWALL013.png"
+      },
+      "token": "ROCKWALL013"
+    },
+    "TILE_CEILING_001A": {
+      "source_images": [
+        {
+          "absolute_path": "",
+          "export_file": "",
+          "filepath": "",
+          "name": ""
+        }
+      ],
+      "source_material_names": [
+        "TILE_CEILING_001A"
+      ],
+      "suggested_target": {
+        "shader_name": "maps/arch_nucleus/TILE_CEILING_001A",
+        "texture_path": "textures/arch_nucleus/shared/TILE_CEILING_001A.png"
+      },
+      "token": "TILE_CEILING_001A"
+    },
+    "TOOLSBLACK": {
+      "source_images": [
+        {
+          "absolute_path": "",
+          "export_file": "",
+          "filepath": "",
+          "name": ""
+        }
+      ],
+      "source_material_names": [
+        "TOOLSBLACK"
+      ],
+      "suggested_target": {
+        "shader_name": "maps/arch_nucleus/TOOLSBLACK",
+        "texture_path": "textures/arch_nucleus/shared/TOOLSBLACK.png"
+      },
+      "token": "TOOLSBLACK"
+    },
+    "TOOLSSKYBOX": {
+      "source_images": [
+        {
+          "absolute_path": "",
+          "export_file": "",
+          "filepath": "",
+          "name": ""
+        }
+      ],
+      "source_material_names": [
+        "TOOLSSKYBOX"
+      ],
+      "suggested_target": {
+        "shader_name": "maps/arch_nucleus/TOOLSSKYBOX",
+        "texture_path": "textures/arch_nucleus/shared/TOOLSSKYBOX.png"
+      },
+      "token": "TOOLSSKYBOX"
+    },
+    "WALL013": {
+      "source_images": [
+        {
+          "absolute_path": "",
+          "export_file": "",
+          "filepath": "",
+          "name": ""
+        }
+      ],
+      "source_material_names": [
+        "WALL013"
+      ],
+      "suggested_target": {
+        "shader_name": "maps/arch_nucleus/WALL013",
+        "texture_path": "textures/arch_nucleus/shared/WALL013.png"
+      },
+      "token": "WALL013"
+    },
+    "WALL015G": {
+      "source_images": [
+        {
+          "absolute_path": "",
+          "export_file": "",
+          "filepath": "",
+          "name": ""
+        }
+      ],
+      "source_material_names": [
+        "WALL015G"
+      ],
+      "suggested_target": {
+        "shader_name": "maps/arch_nucleus/WALL015G",
+        "texture_path": "textures/arch_nucleus/shared/WALL015G.png"
+      },
+      "token": "WALL015G"
+    },
+    "WALL021": {
+      "source_images": [
+        {
+          "absolute_path": "",
+          "export_file": "",
+          "filepath": "",
+          "name": ""
+        }
+      ],
+      "source_material_names": [
+        "WALL021"
+      ],
+      "suggested_target": {
+        "shader_name": "maps/arch_nucleus/WALL021",
+        "texture_path": "textures/arch_nucleus/shared/WALL021.png"
+      },
+      "token": "WALL021"
+    },
+    "WHITE002": {
+      "source_images": [
+        {
+          "absolute_path": "",
+          "export_file": "",
+          "filepath": "",
+          "name": ""
+        }
+      ],
+      "source_material_names": [
+        "WHITE002"
+      ],
+      "suggested_target": {
+        "shader_name": "maps/arch_nucleus/WHITE002",
+        "texture_path": "textures/arch_nucleus/shared/WHITE002.png"
+      },
+      "token": "WHITE002"
+    },
+    "blendbeach_to_beach_wvt_patch": {
+      "source_images": [
+        {
+          "absolute_path": "",
+          "export_file": "arch_nucleus_textures/missing_beach_dry.png",
+          "filepath": "",
+          "name": "missing_beach_dry"
+        }
+      ],
+      "source_material_names": [
+        "blendbeach_to_beach_wvt_patch"
+      ],
+      "suggested_target": {
+        "shader_name": "maps/arch_nucleus/blendbeach_to_beach_wvt_patch",
+        "texture_path": "textures/arch_nucleus/shared/missing_beach_dry"
+      },
+      "token": "blendbeach_to_beach_wvt_patch"
+    },
+    "skip": {
+      "source_images": [
+        {
+          "absolute_path": "",
+          "export_file": "",
+          "filepath": "",
+          "name": ""
+        }
+      ],
+      "source_material_names": [],
+      "suggested_target": {
+        "shader_name": "maps/arch_nucleus/skip",
+        "texture_path": "textures/arch_nucleus/shared/skip.png"
+      },
+      "token": "skip"
+    }
+  },
+  "version": 1
+}

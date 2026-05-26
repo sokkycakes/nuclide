@@ -55,6 +55,8 @@ public:
 	virtual bool Input(float, float, float, float);
 	virtual void Spawned(void);
 
+	nonvirtual bool RowIsSelectable(int);
+
 private:
 	string m_strTitle;
 	string *m_strItems;
@@ -81,6 +83,13 @@ void vguiList::vguiList(void)
 void vguiList::Spawned(void)
 {
 	SetSize([96,16]);
+}
+
+bool vguiList::RowIsSelectable(int i)
+{
+	if (tmpvguiListRowOk == __NULL__)
+		return TRUE;
+	return tmpvguiListRowOk(i);
 }
 
 void vguiList::Draw(void)
@@ -149,7 +158,7 @@ bool vguiList::Input (float flEVType, float flKey, float flChar, float flDevID)
 					break;
 				}
 				if (Util_MouseAbove(g_vecMousePos, m_parent.m_vecOrigin + m_vecOrigin + vecOffset, [m_vecSize[0] - 16, 20])) {
-					if (!tmpvguiListRowOk || tmpvguiListRowOk(i)) {
+					if (RowIsSelectable(i)) {
 						/* last item as last time */
 						if (m_iSelected == i) {
 							/* double click timer */
@@ -218,18 +227,18 @@ bool vguiList::Input (float flEVType, float flKey, float flChar, float flDevID)
 			if (iNew >= m_iItemCount)
 				iNew = m_iItemCount - 1;
 
-			if (tmpvguiListRowOk) {
+			if (tmpvguiListRowOk != __NULL__) {
 				if (flKey == K_HOME) {
 					iNew = 0;
 					while (iNew < m_iItemCount &&
-					    tmpvguiListRowOk(iNew) == false)
+					    RowIsSelectable(iNew) == false)
 						iNew++;
 					if (iNew >= m_iItemCount)
 						iNew = m_iItemCount - 1;
 				} else if (flKey == K_END) {
 					iNew = m_iItemCount - 1;
 					while (iNew >= 0 &&
-					    tmpvguiListRowOk(iNew) == false)
+					    RowIsSelectable(iNew) == false)
 						iNew--;
 					if (iNew < 0)
 						iNew = 0;
@@ -245,7 +254,7 @@ bool vguiList::Input (float flEVType, float flKey, float flChar, float flDevID)
 
 					guard = 0;
 					while (iNew >= 0 && iNew < m_iItemCount &&
-					    tmpvguiListRowOk(iNew) == false) {
+					    RowIsSelectable(iNew) == false) {
 						if (dir == 0)
 							break;
 						iNew += dir;
@@ -259,10 +268,10 @@ bool vguiList::Input (float flEVType, float flKey, float flChar, float flDevID)
 					}
 
 					if (iNew >= 0 && iNew < m_iItemCount &&
-					    tmpvguiListRowOk(iNew) == false) {
+					    RowIsSelectable(iNew) == false) {
 						iNew = -1;
 						for (int scan = 0; scan < m_iItemCount; scan++) {
-							if (tmpvguiListRowOk(scan)) {
+							if (RowIsSelectable(scan)) {
 								iNew = scan;
 								break;
 							}

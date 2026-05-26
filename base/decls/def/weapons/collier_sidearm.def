@@ -24,10 +24,10 @@ entityDef weapon_collier_sidearm
 	"clipSize"			"6"
 	"clipSizeDefault"	"6"
 
-	"act_fire"			"1"
+	"act_fire"			"shootA"
 	"act_idle"			"0"
 
-	"snd_fire"			"weapon_nailgun.shoot"
+	"snd_fire"			"weapon_collier_sidearm.shoot"
 	"snd_empty"			"weapon.empty"
 	"snd_reload"		"weapon.pickup"
 
@@ -44,13 +44,19 @@ entityDef fireInfo_collierPrimary
 	"reloadTime"		"1.4"
 	"semiAuto"			"1"
 	"punchSpring"		"-1.2 0.6 0"
-	"act_reload"		"0"
-	"act_reloadEmpty"	"0"
+	"act_reload"		"reload"
+	"act_reloadEmpty"	"reload"
+}
+
+entityDef damage_collierDirect
+{
+	"damage"	"2"
 }
 
 entityDef projectile_collier
 {
 	"inherit"		"projectile_nail"
+	"def_damage"	"damage_collierDirect"
 	"offset"		"20 0 -7"
 	"velocity"		"1200"
 }

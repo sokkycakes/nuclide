@@ -54,6 +54,37 @@ Activities_GetActID(string actNameCheck)
 	return (ACTIVITY_NOTFOUND);
 }
 
+static float
+Activities_ResolveActValue(float seqLookupModidx, string rawToken)
+{
+	string r = unpackStringCommand(rawToken);
+	float byname;
+	float bynum;
+
+	if (!STRING_SET(r)) {
+		return (ACTIVITY_NOTFOUND);
+	}
+
+	if (seqLookupModidx > 0) {
+		byname = frameforname(seqLookupModidx, r);
+		if (byname >= 0) {
+			return (byname);
+		}
+	}
+
+	bynum = stof(r);
+
+	if (bynum != 0) {
+		return (bynum);
+	}
+
+	if (r == "0" || r == "-0" || r == "0.0" || r == "+0") {
+		return (0);
+	}
+
+	return (ACTIVITY_NOTFOUND);
+}
+
 float
 Activities_GetSequenceForEntity(ncEntity targetEntity, string activityName)
 {
@@ -82,11 +113,11 @@ Activities_GetSequenceForEntity(ncEntity targetEntity, string activityName)
 		actCount = tokenizebyseparator(fireValue, ",");
 
 		if (actCount == 1) {
-			return stof(fireValue);
+			return Activities_ResolveActValue(targetEntity.modelindex, fireValue);
 		} else {
 			float randomValue = floor(pseudorandom() * actCount);
 			string commandString = argv(randomValue);
-			return stof(Constants_LookUp(commandString,commandString));
+			return Activities_ResolveActValue(targetEntity.modelindex, Constants_LookUp(commandString, commandString));
 		}
 	}
 
@@ -95,7 +126,7 @@ Activities_GetSequenceForEntity(ncEntity targetEntity, string activityName)
 }
 
 float
-Activities_GetSequenceForEntityDef(ncEntity targetEntity, string activityName, string subDef)
+Activities_GetSequenceForEntityDef(ncEntity targetEntity, string activityName, string subDef, float seqLookupModidx)
 {
 	float actCount;
 	string actNameCheck;
@@ -111,15 +142,15 @@ Activities_GetSequenceForEntityDef(ncEntity targetEntity, string activityName, s
 
 	/* not in class decl either. look it up in the model */
 	if (!STRING_SET(fireValue)) {
-		return Activities_GetSequenceForEntity(targetEntity, actNameCheck);
+		return Activities_GetSequenceForEntity(targetEntity, activityName);
 	} else {
 		actCount = tokenizebyseparator(fireValue, ",");
 
 		if (actCount == 1) {
-			return stof(unpackStringCommand(fireValue));
+			return Activities_ResolveActValue(seqLookupModidx, fireValue);
 		} else {
 			float randomValue = floor(pseudorandom() * actCount);
-			return stof(unpackStringCommand(argv(randomValue)));
+			return Activities_ResolveActValue(seqLookupModidx, argv(randomValue));
 		}
 	}
 

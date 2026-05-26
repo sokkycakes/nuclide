@@ -154,7 +154,7 @@ ncAttack::Launch(vector startPos, vector launchDir, float fuseOffset, float powe
 	}
 
 	if (grappleHook) {
-		if (ourOwner.m_stilettoGrappleCharges < 1.0f) {
+		if (ourOwner.m_stilettoGrappleCharges < 1) {
 			Destroy();
 			return;
 		}
@@ -215,7 +215,12 @@ ncAttack::Launch(vector startPos, vector launchDir, float fuseOffset, float powe
 			setsize(ourOwner.m_hook, [-4,-4,-4], [4,4,4]);
 			setmodel(ourOwner.m_hook, GetSpawnString("model"));
 			sound(ourOwner, CHAN_WEAPON, "sound/hook_fire.wav", 1.0f, ATTN_NORM);
-			ourOwner.m_stilettoGrappleCharges -= 1.0f;
+			ourOwner.m_stilettoGrappleCharges -= 1;
+			
+			/* Set midair flag if not on ground or wall */
+			if (!(ourOwner.flags & FL_ONGROUND) && !(ourOwner.m_nuclideFlags & VFL_STILETTO_WALL)) {
+				ourOwner.m_stilettoGrappleUsedInMidair = true;
+			}
 		}
 	} else if (grappleUnhook) {
 		Grapple_Clear(ourOwner);

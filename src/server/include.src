@@ -21,4 +21,7 @@ CapturePoint.qc
 Auth.qc
 ../nav/includes.src
 api.qc
+HLScientist.qc
+HLSuit.qc
+XenDecore.qc
 #endlist

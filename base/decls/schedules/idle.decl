@@ -4,6 +4,7 @@ typeInfo idle
 	"task_2"	"PlayActivity idle"
 	"task_3"	"Wait 2"
 	"NewEnemy"	"ChangeMindset hunt"
+	"FoundEnemy"	"ChangeMindset hunt"
 	"Damage"	"ChangeMindset hunt"
 	"OccludedEnemy"	"ChangeMindset hunt"
 	"CanRangedAttack1"	"ChangeMindset rangedCombat"
