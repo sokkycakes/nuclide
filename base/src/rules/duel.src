@@ -1,0 +1,9 @@
+#pragma target fte_5768
+#pragma PROGS_DAT  "../../progs/duel.dat"
+
+#includelist
+../../../src/rules.src
+shared.qc
+arena.qc
+duel.qc
+#endlist

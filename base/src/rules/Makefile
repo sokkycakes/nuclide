@@ -8,3 +8,4 @@ all:
 	$(QCC) $(CFLAGS) domination.src
 	$(QCC) $(CFLAGS) lastmanstanding.src
 	$(QCC) $(CFLAGS) teamdm.src
+	$(QCC) $(CFLAGS) duel.src
