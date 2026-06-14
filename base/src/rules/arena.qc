@@ -268,6 +268,14 @@ Arena_SpawnCompetitor(entity pl, int slot)
 	game.TeleportToSpawn(pl);
 }
 
+/** Pre-match waiting camera (mirrors teamdm/domination initial spawn). */
+void
+Arena_SpawnWaitingView(entity pl)
+{
+	ents.ChangeToClass(pl, "spectator");
+	game.TeleportToSpawn(pl);
+}
+
 /** Fake-spectator (chase-cam) - eliminated / between-round / non-competitor. */
 void
 Arena_DemoteToFakeSpec(entity pl)
@@ -279,8 +287,7 @@ Arena_DemoteToFakeSpec(entity pl)
 static void
 Arena_MakePureSpectator(entity pl)
 {
-	ents.Input(pl, "SetTeam", itos(TEAM_SPECTATOR), pl);
-	ents.ChangeToClass(pl, "spectator");
+	game.MakePureSpectator(pl);
 	game.TeleportToSpawn(pl);
 }
 
@@ -357,7 +364,7 @@ Arena_EnterWarmup(void)
 	g_arenaTiebreaker = false;
 	g_arenaSuddenNoTimer = false;
 
-	/* return everyone who is not a pure spectator to free-play */
+	/* return everyone who is not a pure spectator to warmup bodies */
 	for (entity p = world; (p = next.Player(p));) {
 		if (Arena_PlayerState(p) == ARENASTATE_SPECTATOR) {
 			continue;
@@ -365,7 +372,11 @@ Arena_EnterWarmup(void)
 		if (p.team == TEAM_SPECTATOR) {
 			continue;
 		}
-		Arena_SpawnFreeplay(p);
+		if (Arena_PlayerState(p) == ARENASTATE_READY) {
+			Arena_SpawnFreeplay(p);
+		} else {
+			Arena_SpawnWaitingView(p);
+		}
 	}
 
 	Arena_BroadcastState();
@@ -895,7 +906,11 @@ Arena_OnPlayerSpawn(entity pl)
 	}
 
 	if (g_arenaState == ARENA_WARMUP) {
-		Arena_SpawnFreeplay(pl);
+		if (Arena_PlayerState(pl) == ARENASTATE_READY) {
+			Arena_SpawnFreeplay(pl);
+		} else {
+			Arena_SpawnWaitingView(pl);
+		}
 	} else {
 		/* joined mid-match -> watch as a fake-spectator until the next match */
 		Arena_DemoteToFakeSpec(pl);

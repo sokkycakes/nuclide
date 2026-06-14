@@ -108,6 +108,8 @@ bool Arena_OnClientCommand(entity pl, string command);
 void Arena_SetReady(entity pl);
 void Arena_SetNotReady(entity pl);
 void Arena_SetSpectator(entity pl);
+void Arena_SpawnWaitingView(entity pl);
+void Arena_DemoteToFakeSpec(entity pl);
 void Arena_BroadcastState(void);
 
 /* --- queries --- */

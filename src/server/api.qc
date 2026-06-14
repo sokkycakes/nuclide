@@ -91,6 +91,21 @@ SVPF_game_TeleportToSpawn(entity targetClient)
 }
 
 void
+SVPF_game_MakePureSpectator(entity targetClient)
+{
+	ncPlayer pl = (ncPlayer)targetClient;
+
+	if (!targetClient) {
+		return;
+	}
+
+	pl.MakeSpectator();
+	pl.m_spectatingMode = SPECMODE_FREE;
+	pl.m_spectatingEntity = 0;
+	pl.m_spectatingFlags = 0;
+}
+
+void
 SVPF_game_SetSpawnPoint(string spawnPoint)
 {
 	forceinfokey(world, sprintf("teamspawn_%d", TEAM_UNASSIGNED), spawnPoint);

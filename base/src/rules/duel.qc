@@ -42,7 +42,7 @@ void
 CodeCallback_StartGameType(void)
 {
 	motd.LoadDefault();
-	game.SetSpawnPoint("info_player_deathmatch");
+	game.SetSpawnPoint("info_intermission");
 
 	teams.SetUp(1, "Duelist 1", [155, 205, 255], false);
 	teams.SetUp(2, "Duelist 2", [255, 64, 64], false);
@@ -109,8 +109,56 @@ CodeCallback_FrameStart(void)
 }
 
 bool
+CodeCallback_CallRequestTeam(entity playerEntity, int teamNum)
+{
+	if (teamNum == TEAM_SPECTATOR) {
+		Arena_SetSpectator(playerEntity);
+		return (true);
+	}
+
+	if (teams.Valid(teamNum) == false) {
+		return (false);
+	}
+
+	ents.Input(playerEntity, "SetTeam", itos(teamNum), playerEntity);
+
+	if (Arena_IsCompetitor(playerEntity)) {
+		return (true);
+	}
+
+	if (g_arenaState == ARENA_WARMUP) {
+		if (is.Alive(playerEntity)) {
+			ents.Input(playerEntity, "Damage", "1000", playerEntity);
+		}
+		Arena_SpawnWaitingView(playerEntity);
+	} else if (is.Alive(playerEntity)) {
+		ents.Input(playerEntity, "Damage", "1000", playerEntity);
+		Arena_DemoteToFakeSpec(playerEntity);
+	}
+
+	return (true);
+}
+
+bool
 CodeCallback_ClientCommand(entity playerEntity, string command)
 {
 	tokenize(command);
+
+	switch (argv(0)) {
+	case "selecthero": {
+		string heroID = argv(1);
+		Hero_TrySelect(playerEntity, heroID);
+		return (true);
+	}
+	case "spectate":
+		if (is.Player(playerEntity)) {
+			Arena_SetSpectator(playerEntity);
+			return (true);
+		}
+		return (false);
+	default:
+		break;
+	}
+
 	return (Arena_OnClientCommand(playerEntity, command));
 }
