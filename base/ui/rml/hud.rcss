@@ -118,6 +118,63 @@ body {
 	height: 25.833%;
 }
 
+/* Arena match-state block (U7). Top-center of the 4:3 HUD safe surface so it
+   does not stretch on widescreen. Hidden by default; an engine-side binding
+   (see hud.rml note) reveals it and pushes the arena_* serverinfo strings into
+   the #arena_state / #arena_round / #arena_ready / #arena_p1 / #arena_p2 ids. */
+#arena-matchstate {
+	position: absolute;
+	left: 30%;
+	top: 1.5%;
+	width: 40%;
+	box-sizing: border-box;
+	display: none;
+	flex-direction: column;
+	align-items: center;
+	gap: 2dp;
+	pointer-events: none;
+	z-index: 50;
+}
+
+.arena-state-label {
+	font-size: 24dp;
+	line-height: 28dp;
+	font-weight: 700;
+	color: #f2f2f2;
+	letter-spacing: 2dp;
+}
+
+.arena-round-line {
+	font-size: 15dp;
+	line-height: 18dp;
+	font-weight: 600;
+	color: #bfc7d1;
+}
+
+.arena-ready-line {
+	font-size: 13dp;
+	line-height: 16dp;
+	font-weight: 400;
+	color: #bfc7d1;
+}
+
+.arena-competitors {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	gap: 8dp;
+	font-size: 15dp;
+	line-height: 18dp;
+	font-weight: 600;
+	color: #f2f2f2;
+}
+
+.arena-vs {
+	font-size: 12dp;
+	font-weight: 400;
+	color: #8893a0;
+}
+
 /* Full-viewport deco: ring under bcenter; both under #cluster-center in DOM paint order */
 #deco-wrap {
 	position: absolute;

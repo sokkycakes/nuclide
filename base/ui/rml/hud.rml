@@ -30,6 +30,35 @@
 
 
 
+		<!-- Arena match-state block (U7). Hidden by default so it never shows in
+		     non-arena gametypes that share this HUD. Element ids mirror the engine
+		     HUD-binding convention (hud_health etc.); an engine-side binding pushes
+		     the arena_* serverinfo strings (published by Arena_BroadcastState) into
+		     these ids and reveals the block for arena modes. Transient prompts
+		     (countdown / FIGHT / SUDDEN DEATH / winner) stay on centerprint. -->
+
+		<div id="arena-matchstate">
+
+			<div id="arena_state" class="arena-state-label">WARMUP</div>
+
+			<div id="arena_round" class="arena-round-line">Round 0 / 0</div>
+
+			<div class="arena-ready-line">Ready: <span id="arena_ready">0</span></div>
+
+			<div class="arena-competitors">
+
+				<span id="arena_p1" class="arena-competitor">&mdash;</span>
+
+				<span class="arena-vs">vs</span>
+
+				<span id="arena_p2" class="arena-competitor">&mdash;</span>
+
+			</div>
+
+		</div>
+
+
+
 		<div id="deco-wrap">
 
 			<img id="deco-ring-outer" src="../placeholder_huddeco-ring1@1x.png" alt="" />
