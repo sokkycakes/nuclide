@@ -96,6 +96,13 @@ CodeCallback_PlayerKilled(entity playerTarget, entity inflictor, entity attacker
 }
 
 void
+CodeCallback_PlayerDamage(entity playerTarget, entity attacker, entity damageDecl)
+{
+	/* sudden-death one-hit kills are applied by the director (U6) */
+	Arena_OnPlayerPain(playerTarget);
+}
+
+void
 CodeCallback_FrameStart(void)
 {
 	Arena_FrameStart();

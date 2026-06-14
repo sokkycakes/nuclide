@@ -701,6 +701,40 @@ Arena_TickSuddenDeath(void)
 		return;
 	}
 
+	/* one-hit kills (R18): a competitor flagged by the pain path this round
+	   dies on the next safe tick - avoids re-entrancy inside the damage call */
+	for (int i = 0i; i < ARENA_MAXSLOTS; i++) {
+		entity c = g_arenaCompetitor[i];
+		if (!c || !is.Alive(c)) {
+			continue;
+		}
+		if (g_arenaSuddenHit[i]) {
+			ents.Input(c, "Damage", "1000", world);
+		}
+	}
+
+	/* reaper (R19): force-kill a competitor whose speed stays below the
+	   threshold for reaperTime; the timer resets the moment they move */
+	for (int i = 0i; i < ARENA_MAXSLOTS; i++) {
+		entity c = g_arenaCompetitor[i];
+		if (!c || !is.Alive(c)) {
+			g_arenaReaperSince[i] = 0.0f;
+			continue;
+		}
+
+		if (vlen(c.velocity) < autocvar_duel_reaperSpeed) {
+			if (g_arenaReaperSince[i] == 0.0f) {
+				g_arenaReaperSince[i] = time;
+			} else if ((time - g_arenaReaperSince[i]) >= autocvar_duel_reaperTime) {
+				centerprint(c, "REAPED");
+				ents.Input(c, "Damage", "1000", world);
+				g_arenaReaperSince[i] = 0.0f;
+			}
+		} else {
+			g_arenaReaperSince[i] = 0.0f;
+		}
+	}
+
 	int result = Arena_EvaluateRound();
 	if (result != 0i) {
 		Arena_ResolveRound(result);
@@ -892,7 +926,19 @@ Arena_OnPlayerKilled(entity victim, entity attacker)
 void
 Arena_OnPlayerPain(entity victim)
 {
-	/* sudden-death one-hit kills are wired in U6 */
+	/* during sudden death, any non-lethal hit on a competitor is flagged so the
+	   tick force-kills them (R18). Lethal hits resolve via PlayerKilled already. */
+	if (g_arenaState != ARENA_SUDDEN_DEATH) {
+		return;
+	}
+	if (!Arena_IsCompetitor(victim) || !is.Alive(victim)) {
+		return;
+	}
+
+	int slot = Arena_SlotForPlayer(victim);
+	if (slot != -1i) {
+		g_arenaSuddenHit[slot] = 1i;
+	}
 }
 
 void

@@ -79,6 +79,11 @@ var float autocvar_arena_roundTime = 60.0f;		/* LIVE timer before sudden death *
 var float autocvar_arena_roundEndTime = 3.0f;	/* ROUND_END pause */
 var float autocvar_arena_matchEndTime = 5.0f;	/* MATCH_END pause before rotation */
 
+/* sudden-death reaper anti-stall (U6). duel_-named per plan, but read by the
+   shared director since the per-frame tick lives here. */
+var float autocvar_duel_reaperSpeed = 100.0f;	/* below this speed = "stalled" */
+var float autocvar_duel_reaperTime = 3.0f;		/* stalled grace before elimination */
+
 /* per-player queue state field (shared across multiprogs by name) */
 .float arena_state;
 
