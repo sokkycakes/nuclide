@@ -624,8 +624,17 @@ Cmd_Parse(string sCMD)
 
 	/* can be overriden as well */
 	case "showClassSelectionMenu":
-		VGUI_ShowClassSelectionMenu(userinfo.GetInteger(pSeat->m_ePlayer, "*team"));
+	case "showHeroSelectionMenu": {
+		int wishTeam = userinfo.GetInteger(pSeat->m_ePlayer, "*team");
+
+		/* duel queue players may lack a team until promoted; roster is shared */
+		if (wishTeam <= 0i && teams.TotalClasses(1) > 0i) {
+			wishTeam = 1i;
+		}
+
+		VGUI_ShowClassSelectionMenu(wishTeam);
 		break;
+	}
 	case "showTeamSelectionMenu":
 		VGUI_ShowTeamSelectionMenu();
 		break;
@@ -664,6 +673,7 @@ Cmd_Init(void)
 {
 	InitStart();
 	registercommand("showClassSelectionMenu");
+	registercommand("showHeroSelectionMenu");
 	registercommand("showTeamSelectionMenu");
 	registercommand("showMOTD");
 	registercommand("showModelSpawner");

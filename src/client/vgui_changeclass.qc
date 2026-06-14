@@ -40,6 +40,7 @@ TFCClass_Init(void)
 	g_classDescrRandomPC = textfile_to_string("classes/short_randompc.txt");
 }
 
+static int g_classMenuTeam;
 static vguiWindow winClassSelection;
 static vguiPic imgClassPreview;
 static vguiLabel lblClassTitle;
@@ -63,10 +64,16 @@ void
 VGUIChangeClassButton::OnMouseUp(void)
 {
 	int classSelection = GetTag();
-	int teamID = player.GetTeam();
-	string classType = teams.ClassForIndex(teamID, classSelection);
+	int teamID = g_classMenuTeam;
 
-	localcmd(sprintf("cmd join %s\n", classType));
+	if (teamID <= 0i) {
+		teamID = player.GetTeam();
+	}
+
+	string heroID = teams.ClassForIndex(teamID, classSelection);
+
+	/* server-authoritative hero pick, validated in CodeCallback_ClientCommand */
+	localcmd(sprintf("cmd selecthero %s\n", heroID));
 	winClassSelection.Hide();
 }
 
@@ -74,21 +81,29 @@ void
 VGUIChangeClassButton::OnMouseEntered(void)
 {
 	int classSelection = GetTag();
-	int teamID = player.GetTeam();
-	string teamName = teams.Name(teamID);
-	string baseName = teams.ClassForIndex(teamID, classSelection);
+	int teamID = g_classMenuTeam;
 
-	lblClassTitle.SetTitle(baseName);
-	imgClassPreview.SetImage(strcat("models/player/", baseName, "/", baseName));
+	if (teamID <= 0i) {
+		teamID = player.GetTeam();
+	}
+
+	string heroID = teams.ClassForIndex(teamID, classSelection);
+
+	lblClassTitle.SetTitle(Titles_GetTextBody(heroID));
+	imgClassPreview.SetImage(strcat("models/player/", heroID, "/", heroID));
 	imgClassPreview.SetSize([170,221]);
-	lblClassDescription.SetTitle(Titles_GetTextBody(strcat("ClassDescription_", baseName)));
-
-	lblClassTitle.SetTitle(Titles_GetTextBody(teams.ClassForIndex(teamID, classSelection)));
+	lblClassDescription.SetTitle(Titles_GetTextBody(strcat("ClassDescription_", heroID)));
 }
 
 void
 VGUI_ShowClassSelectionMenu(int wishTeam)
 {
+	if (wishTeam <= 0i && teams.TotalClasses(1) > 0i) {
+		wishTeam = 1i;
+	}
+
+	g_classMenuTeam = wishTeam;
+
 	static int initialized;
 	static VGUIChangeClassButton *btns;
 	static vguiLabel lblSelectClass;
@@ -105,7 +120,7 @@ VGUI_ShowClassSelectionMenu(int wishTeam)
 		winClassSelection.SetStyleMask(vguiWindowBorderless | vguiWindowFullscreen);
 
 		lblSelectClass = spawn(vguiLabel);
-		lblSelectClass.SetTitle(Titles_GetTextBody("Title_SelectYourClass"));
+		lblSelectClass.SetTitle("SELECT YOUR HERO");
 		lblSelectClass.SetTextSize(19);
 		lblSelectClass.SetPos([40, 38]);
 		lblSelectClass.SetSize([400, 24]);

@@ -52,6 +52,11 @@ CodeCallback_StartGameType(void)
 	teams.SetSpawnPoint(1, "info_player_deathmatch");
 	teams.SetSpawnPoint(2, "info_player_deathmatch");
 
+	/* shared hero roster for both duel slots (team pick is suppressed) */
+	Hero_RegisterRoster(1);
+	Hero_RegisterRoster(2);
+	Hero_SetPolicy(HEROSWAP_ATSPAWN, HEROCOMP_DUPLICATES);
+
 	/* from shared.qc */
 	Util_RemoveAllMonsters();
 	Util_SetItemRespawnTimers();
@@ -59,10 +64,9 @@ CodeCallback_StartGameType(void)
 	/* configure the arena director: 1v1, winner stays, best-of-N */
 	Arena_Configure(ARENASHAPE_1V1, ARENAPROMO_WINNERSTAYS, autocvar_duel_roundLimit);
 
-	/* Q3-faithful: auto-join the queue (no manual "ready") and spawn a fixed
-	   default loadout (no hero/class pick) */
+	/* Q3-faithful: auto-join the queue (no manual "ready"); hero pick is via
+	   the class menu (B / showClassSelectionMenu), not a team picker */
 	Arena_SetAutoJoin(true);
-	Arena_SetSpawnClass("player_mp");
 
 	Arena_SetHooks(__NULL__, __NULL__, __NULL__, __NULL__, Duel_SuddenDeath);
 }
@@ -83,6 +87,12 @@ void
 CodeCallback_PlayerSpawn(entity playerEntity)
 {
 	Arena_OnPlayerSpawn(playerEntity);
+
+	/* no team-select chain in duel; prompt hero pick on first queue spawn */
+	if ((int)userinfo.GetFloat(playerEntity, "*arena_state") != ARENASTATE_SPECTATOR
+		&& STRING_SET(userinfo.GetString(playerEntity, "*hero")) == false) {
+		stuffcmd(playerEntity, "showClassSelectionMenu\n");
+	}
 }
 
 bool
@@ -149,6 +159,17 @@ CodeCallback_ClientCommand(entity playerEntity, string command)
 	tokenize(command);
 
 	switch (argv(0)) {
+	case "selecthero": {
+		string heroID = argv(1);
+
+		/* queue players have no duelist slot yet; anchor roster lookups on team 1 */
+		if (teams.Valid((int)playerEntity.team) == false) {
+			ents.Input(playerEntity, "SetTeam", "1", playerEntity);
+		}
+
+		Hero_TrySelect(playerEntity, heroID);
+		return (true);
+	}
 	case "spectate":
 		if (is.Player(playerEntity)) {
 			Arena_SetSpectator(playerEntity);
