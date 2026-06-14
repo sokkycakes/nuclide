@@ -39,6 +39,8 @@ var bool g_arenaSuddenNoTimer;	/* tiebreaker: suppress the round timer (U6) */
 var bool g_arenaTiebreaker;		/* current round is a tiebreaker (U6) */
 var bool g_arenaMatchNoWinner;	/* current MATCH_END voided (disconnect abort) */
 var int g_arenaWinnerSlot;		/* resolved winner slot (1-based), 0 = none/draw */
+var bool g_arenaAutoJoin;		/* Q3-style auto-ready on spawn (see arena.h) */
+var string g_arenaSpawnClass;	/* fixed competitor class, "" = use hero roster */
 
 /* competitor slots + per-slot bookkeeping */
 entity g_arenaCompetitor[ARENA_MAXSLOTS];
@@ -102,6 +104,10 @@ Arena_Configure(int teamShape, int promotionPolicy, int roundLimit)
 
 	g_arenaMinReady = g_arenaSlotCount;
 
+	/* mode-setup extras default off; the mode opts in after Arena_Configure */
+	g_arenaAutoJoin = false;
+	g_arenaSpawnClass = "";
+
 	/* reset all runtime state */
 	g_arenaQueueCount = 0;
 	g_arenaRound = 0;
@@ -128,6 +134,18 @@ Arena_SetHooks(void() roundStart, void(entity, entity) playerDeath, int() roundW
 	g_arenaHook_RoundWinTest = roundWinTest;
 	g_arenaHook_RoundEnd = roundEnd;
 	g_arenaHook_SuddenDeath = suddenDeath;
+}
+
+void
+Arena_SetAutoJoin(bool enabled)
+{
+	g_arenaAutoJoin = enabled;
+}
+
+void
+Arena_SetSpawnClass(string className)
+{
+	g_arenaSpawnClass = className;
 }
 
 /* =========================================================================
@@ -264,7 +282,14 @@ Arena_SpawnCompetitor(entity pl, int slot)
 	}
 
 	ents.Input(pl, "SetTeam", itos(teamNum), pl);
-	ents.ChangeToClass(pl, Hero_ResolveSpawnHero(pl));
+
+	/* a fixed loadout (Q3-faithful) overrides the hero roster when set */
+	if (STRING_SET(g_arenaSpawnClass)) {
+		ents.ChangeToClass(pl, g_arenaSpawnClass);
+	} else {
+		ents.ChangeToClass(pl, Hero_ResolveSpawnHero(pl));
+	}
+
 	game.TeleportToSpawn(pl);
 }
 
@@ -907,6 +932,11 @@ Arena_OnPlayerSpawn(entity pl)
 
 	if (g_arenaState == ARENA_WARMUP) {
 		if (Arena_PlayerState(pl) == ARENASTATE_READY) {
+			Arena_SpawnFreeplay(pl);
+		} else if (g_arenaAutoJoin && Arena_PlayerState(pl) == ARENASTATE_NOTREADY) {
+			/* Q3-style: auto-ready into the queue and spawn a freeplay body
+			   (SetReady alone does not spawn for a non-spectator team) */
+			Arena_SetReady(pl);
 			Arena_SpawnFreeplay(pl);
 		} else {
 			Arena_SpawnWaitingView(pl);

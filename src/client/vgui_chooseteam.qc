@@ -112,7 +112,15 @@ VGUI_ShowTeamSelectionMenu(void)
 
 		for (int t = 1; t <= teams.TeamCount() ; t++) {
 			VGUITeamSelectButton btnForTeam;
-			string team_name = teams.Name(t);
+			string team_name;
+
+			/* skip closed teams - e.g. Duel marks both duelist slots
+			   closed so no manual "Duelist 1/2" picker appears */
+			if (serverinfo.GetBool(sprintf("teamclosed_%i", t))) {
+				continue;
+			}
+
+			team_name = teams.Name(t);
 
 			btnForTeam = spawn(VGUITeamSelectButton);
 			btnForTeam.SetTitle(strtoupper(localize(team_name)));

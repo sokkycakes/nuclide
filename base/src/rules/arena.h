@@ -95,6 +95,15 @@ var void() g_arenaHook_SuddenDeath;
 /* --- public director API (called by the mode progs) --- */
 void Arena_Configure(int teamShape, int promotionPolicy, int roundLimit);
 void Arena_SetHooks(void() roundStart, void(entity, entity) playerDeath, int() roundWinTest, void() roundEnd, void() suddenDeath);
+
+/* Q3-style auto-join: when enabled, connecting players are auto-readied into
+   the queue during warmup instead of being parked on the waiting camera.
+   Default OFF (manual "ready") so 2v2/Boss modes are untouched. */
+void Arena_SetAutoJoin(bool enabled);
+
+/* Fixed competitor spawn class (Q3-faithful loadout, no hero/class pick).
+   When unset (""), competitors spawn via the hero roster as before. */
+void Arena_SetSpawnClass(string className);
 void Arena_FrameStart(void);
 void Arena_OnPlayerConnect(entity pl);
 void Arena_OnPlayerSpawn(entity pl);
