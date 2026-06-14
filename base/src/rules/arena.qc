@@ -50,6 +50,19 @@ var int g_arenaSuddenHit[ARENA_MAXSLOTS];		/* took damage this sudden-death (U6)
 entity g_arenaQueue[ARENA_MAXQUEUE];
 var int g_arenaQueueCount;
 
+/* per-player queue state lives in userinfo only (see arena.h) */
+static int
+Arena_PlayerState(entity pl)
+{
+	return ((int)userinfo.GetFloat(pl, "*arena_state"));
+}
+
+static void
+Arena_SetPlayerState(entity pl, int state)
+{
+	userinfo.SetFloat(pl, "*arena_state", state);
+}
+
 /* --- forward declarations for internal helpers --- */
 void Arena_EnterWarmup(void);
 void Arena_BeginMatch(void);
@@ -346,7 +359,7 @@ Arena_EnterWarmup(void)
 
 	/* return everyone who is not a pure spectator to free-play */
 	for (entity p = world; (p = next.Player(p));) {
-		if (p.arena_state == ARENASTATE_SPECTATOR) {
+		if (Arena_PlayerState(p) == ARENASTATE_SPECTATOR) {
 			continue;
 		}
 		if (p.team == TEAM_SPECTATOR) {
@@ -371,7 +384,7 @@ Arena_BeginMatch(void)
 		entity pl = Arena_QueuePopFront();
 
 		/* skip stale / spectator entries defensively */
-		while (pl && (pl.team == TEAM_SPECTATOR || pl.arena_state == ARENASTATE_SPECTATOR)) {
+		while (pl && (pl.team == TEAM_SPECTATOR || Arena_PlayerState(pl) == ARENASTATE_SPECTATOR)) {
 			pl = Arena_QueuePopFront();
 		}
 
@@ -382,8 +395,7 @@ Arena_BeginMatch(void)
 		}
 
 		g_arenaCompetitor[slot] = pl;
-		pl.arena_state = ARENASTATE_COMPETITOR;
-		userinfo.SetFloat(pl, "*arena_state", ARENASTATE_COMPETITOR);
+		Arena_SetPlayerState(pl, ARENASTATE_COMPETITOR);
 	}
 
 	g_arenaRound = 1;
@@ -411,7 +423,7 @@ Arena_BeginRound(void)
 		if (Arena_IsCompetitor(p)) {
 			continue;
 		}
-		if (p.arena_state == ARENASTATE_SPECTATOR || p.team == TEAM_SPECTATOR) {
+		if (Arena_PlayerState(p) == ARENASTATE_SPECTATOR || p.team == TEAM_SPECTATOR) {
 			continue;
 		}
 		Arena_DemoteToFakeSpec(p);
@@ -601,8 +613,7 @@ Arena_Promote(void)
 		}
 
 		/* a disconnected competitor was already cleared from the slot */
-		c.arena_state = ARENASTATE_READY;
-		userinfo.SetFloat(c, "*arena_state", ARENASTATE_READY);
+		Arena_SetPlayerState(c, ARENASTATE_READY);
 
 		if (g_arenaMatchNoWinner) {
 			/* voided match: survivors keep their place at the front, no win */
@@ -652,9 +663,8 @@ Arena_TickCountdown(void)
 		for (int i = 0i; i < ARENA_MAXSLOTS; i++) {
 			entity c = g_arenaCompetitor[i];
 			g_arenaCompetitor[i] = __NULL__;
-			if (c && c.arena_state == ARENASTATE_COMPETITOR) {
-				c.arena_state = ARENASTATE_READY;
-				userinfo.SetFloat(c, "*arena_state", ARENASTATE_READY);
+			if (c && Arena_PlayerState(c) == ARENASTATE_COMPETITOR) {
+				Arena_SetPlayerState(c, ARENASTATE_READY);
 				Arena_QueuePushFront(c);
 			}
 		}
@@ -820,7 +830,7 @@ Arena_SetReady(entity pl)
 	}
 
 	/* coming back from pure spectator - rejoin as a live free-play body */
-	if (pl.team == TEAM_SPECTATOR || pl.arena_state == ARENASTATE_SPECTATOR) {
+	if (pl.team == TEAM_SPECTATOR || Arena_PlayerState(pl) == ARENASTATE_SPECTATOR) {
 		if (g_arenaState == ARENA_WARMUP) {
 			Arena_SpawnFreeplay(pl);
 		} else {
@@ -828,8 +838,7 @@ Arena_SetReady(entity pl)
 		}
 	}
 
-	pl.arena_state = ARENASTATE_READY;
-	userinfo.SetFloat(pl, "*arena_state", ARENASTATE_READY);
+	Arena_SetPlayerState(pl, ARENASTATE_READY);
 	Arena_QueueAppend(pl);
 	centerprint(pl, "You are READY");
 }
@@ -849,8 +858,7 @@ Arena_SetNotReady(entity pl)
 	}
 
 	Arena_QueueRemove(pl);
-	pl.arena_state = ARENASTATE_NOTREADY;
-	userinfo.SetFloat(pl, "*arena_state", ARENASTATE_NOTREADY);
+	Arena_SetPlayerState(pl, ARENASTATE_NOTREADY);
 	centerprint(pl, "You are NOT READY");
 }
 
@@ -865,8 +873,7 @@ Arena_SetSpectator(entity pl)
 	}
 
 	Arena_QueueRemove(pl);
-	pl.arena_state = ARENASTATE_SPECTATOR;
-	userinfo.SetFloat(pl, "*arena_state", ARENASTATE_SPECTATOR);
+	Arena_SetPlayerState(pl, ARENASTATE_SPECTATOR);
 	Arena_MakePureSpectator(pl);
 }
 
@@ -876,14 +883,13 @@ Arena_SetSpectator(entity pl)
 void
 Arena_OnPlayerConnect(entity pl)
 {
-	pl.arena_state = ARENASTATE_NOTREADY;
-	userinfo.SetFloat(pl, "*arena_state", ARENASTATE_NOTREADY);
+	Arena_SetPlayerState(pl, ARENASTATE_NOTREADY);
 }
 
 void
 Arena_OnPlayerSpawn(entity pl)
 {
-	if (pl.arena_state == ARENASTATE_SPECTATOR) {
+	if (Arena_PlayerState(pl) == ARENASTATE_SPECTATOR) {
 		Arena_MakePureSpectator(pl);
 		return;
 	}
@@ -900,7 +906,7 @@ bool
 Arena_OnPlayerRequestRespawn(entity pl)
 {
 	/* free respawns only during warmup; the director owns match spawns */
-	if (g_arenaState == ARENA_WARMUP && pl.arena_state != ARENASTATE_SPECTATOR) {
+	if (g_arenaState == ARENA_WARMUP && Arena_PlayerState(pl) != ARENASTATE_SPECTATOR) {
 		Arena_SpawnFreeplay(pl);
 		return (true);
 	}

@@ -63,7 +63,8 @@
 /* promotion policies */
 #define ARENAPROMO_WINNERSTAYS	0
 
-/* per-player queue state, stored on .arena_state and mirrored to userinfo */
+/* per-player queue state, stored in userinfo *arena_state (no entity .field -
+   rules progs load after main progs init and cannot allocate new fields) */
 #define ARENASTATE_NOTREADY		0	/* present, not queued (default) */
 #define ARENASTATE_READY		1	/* in FIFO ready queue */
 #define ARENASTATE_SPECTATOR	2	/* pure spectator, opted out */
@@ -83,9 +84,6 @@ var float autocvar_arena_matchEndTime = 5.0f;	/* MATCH_END pause before rotation
    shared director since the per-frame tick lives here. */
 var float autocvar_duel_reaperSpeed = 100.0f;	/* below this speed = "stalled" */
 var float autocvar_duel_reaperTime = 3.0f;		/* stalled grace before elimination */
-
-/* per-player queue state field (shared across multiprogs by name) */
-.float arena_state;
 
 /* mode hook table (set by the mode via Arena_SetHooks) */
 var void() g_arenaHook_RoundStart;
