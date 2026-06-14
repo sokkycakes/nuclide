@@ -116,6 +116,10 @@ typedef struct
 	/** Teleports an entity to their ideal spawn-point.
 	@param teleportingEntity is the entity to teleport. */
 	void TeleportToSpawn(entity teleportingEntity);
+	/** Teleports an entity to a specific spawn classname, falling back through the
+	    standard spawn chain when the classname is absent from the map.
+	@return `true` when a non-origin placement was found. */
+	bool TeleportToSpawnClass(entity teleportingEntity, string spawnPointClass);
 	/** Puts a client into real free-fly spectator mode (ncPlayer::MakeSpectator). */
 	void MakePureSpectator(entity teleportingEntity);
 	/** Return a random instance of a specified entity class.
@@ -309,6 +313,7 @@ _server_main(void)
 	game.GetNextMap = linkToServerProgs("SVPF_game_GetNextMap");
 	game.SetSpawnPoint = linkToServerProgs("SVPF_game_SetSpawnPoint");
 	game.TeleportToSpawn = linkToServerProgs("SVPF_game_TeleportToSpawn");
+	game.TeleportToSpawnClass = linkToServerProgs("SVPF_game_TeleportToSpawnClass");
 	game.MakePureSpectator = linkToServerProgs("SVPF_game_MakePureSpectator");
 	game.FindRandomClassObject = linkToServerProgs("Spawn_SelectRandom");
 

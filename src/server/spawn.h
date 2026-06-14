@@ -15,5 +15,8 @@
  */
 
 void Spawn_ObserverCam(ncPlayer);
+void Spawn_TeleportToSpawn(entity);
+bool Spawn_TeleportToClassname(entity, string);
+void Spawn_RepositionPlayersAtOrigin(void);
 float Spawn_PlayerRange(entity);
 entity Spawn_SelectRandom(string);

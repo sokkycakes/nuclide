@@ -441,7 +441,6 @@ init(float prevprogs)
 	Constants_Init();
 	MapTweaks_Init();
 	MapC_Init();
-	RuleC_Init();
 
 	ncStats::Init();
 
@@ -475,6 +474,11 @@ init_respawn(void)
 	}
 
 	g_mapEntitiesLoaded = true;
+
+	/* clients can PutClientInServer before map spawnpoints finish Respawn();
+	   re-place anyone still parked at world origin */
+	Spawn_RepositionPlayersAtOrigin();
+
 	ncLog("...%i entities spawned (%i inhibited)", g_mapSpawnEntityCount, g_mapSpawnEntityCount - spawnCounter);
 	Nodes_Init();
 	ncStats::StartGame();
@@ -533,6 +537,7 @@ initents(void)
 
 	precache.Entity("player");
 
+	RuleC_Init();
 	currentRule.LinkProgs();
 	currentMap.LinkProgs();
 

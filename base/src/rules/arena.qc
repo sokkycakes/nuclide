@@ -266,7 +266,11 @@ void
 Arena_SpawnFreeplay(entity pl)
 {
 	ents.ChangeToClass(pl, "player_mp");
-	game.TeleportToSpawn(pl);
+	/* anchor on team 1 so TeleportToSpawn uses DM points, not intermission cam */
+	if (teams.Valid((int)pl.team) == false) {
+		ents.Input(pl, "SetTeam", "1", pl);
+	}
+	game.TeleportToSpawnClass(pl, "info_player_deathmatch");
 }
 
 /** Spawn a competitor for a live round on its assigned team. */
@@ -297,8 +301,12 @@ Arena_SpawnCompetitor(entity pl, int slot)
 void
 Arena_SpawnWaitingView(entity pl)
 {
+	float savedTeam = pl.team;
+
+	ents.Input(pl, "SetTeam", itos(TEAM_UNASSIGNED), pl);
 	ents.ChangeToClass(pl, "spectator");
-	game.TeleportToSpawn(pl);
+	game.TeleportToSpawnClass(pl, "info_intermission");
+	ents.Input(pl, "SetTeam", itos((int)savedTeam), pl);
 }
 
 /** Fake-spectator (chase-cam) - eliminated / between-round / non-competitor. */

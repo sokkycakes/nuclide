@@ -134,20 +134,25 @@ CodeCallback_CallRequestTeam(entity playerEntity, int teamNum)
 		return (false);
 	}
 
-	ents.Input(playerEntity, "SetTeam", itos(teamNum), playerEntity);
-
 	if (Arena_IsCompetitor(playerEntity)) {
 		return (true);
 	}
 
+	/* Auto-Assign enters the duel queue (no duelist slot assignment yet) */
+	Arena_SetReady(playerEntity);
+
 	if (g_arenaState == ARENA_WARMUP) {
+		Arena_SpawnFreeplay(playerEntity);
+	} else {
 		if (is.Alive(playerEntity)) {
 			ents.Input(playerEntity, "Damage", "1000", playerEntity);
 		}
-		Arena_SpawnWaitingView(playerEntity);
-	} else if (is.Alive(playerEntity)) {
-		ents.Input(playerEntity, "Damage", "1000", playerEntity);
 		Arena_DemoteToFakeSpec(playerEntity);
+	}
+
+	if ((int)userinfo.GetFloat(playerEntity, "*arena_state") != ARENASTATE_SPECTATOR
+		&& STRING_SET(userinfo.GetString(playerEntity, "*hero")) == false) {
+		stuffcmd(playerEntity, "showClassSelectionMenu\n");
 	}
 
 	return (true);

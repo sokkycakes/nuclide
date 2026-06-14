@@ -90,6 +90,18 @@ SVPF_game_TeleportToSpawn(entity targetClient)
 	ncStats::Respawn(targetClient);
 }
 
+bool
+SVPF_game_TeleportToSpawnClass(entity targetClient, string spawnClass)
+{
+	bool placed = Spawn_TeleportToClassname(targetClient, spawnClass);
+
+	if (placed) {
+		ncStats::Respawn(targetClient);
+	}
+
+	return (placed);
+}
+
 void
 SVPF_game_MakePureSpectator(entity targetClient)
 {

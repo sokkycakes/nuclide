@@ -32,7 +32,7 @@ VGUI_ShowMOTD(void)
 			teamSelect = true;
 		}
 
-		if ((teams.OpenTeamCount() > 0i) && (teamSelect == true)) {
+		if ((teams.TeamCount() > 0i) && (teamSelect == true)) {
 			printf("Opening Team Selection\n");
 			localcmd("showTeamSelectionMenu\n");
 		}
