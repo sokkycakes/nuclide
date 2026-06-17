@@ -1,0 +1,63 @@
+// Beaumont primary: fast revolver. Prototype cadence (0.07s fire, 10-round
+// clip). Damage normalized to 1 per bullet like every other roster primary
+// (the prototype scene's 25 is intentionally overridden -- 4 HP roster).
+entityDef weapon_beaumont_revolver
+{
+	"editor_color"		".3 .3 1"
+	"editor_mins"		"-16 -16 0"
+	"editor_maxs"		"16 16 32"
+	"editor_usage"		"Beaumont revolver (fast, hitscan)"
+	"editor_rotatable"	"1"
+
+	"spawnclass"		"ncWeapon"
+	"model"				"progs/g_nail.mdl"
+	"model_view"		"models/v_beaumont.iqm"
+	"snd_acquire"		"weapon.pickup"
+	"snd_respawn"		"item.respawn"
+	"spin"				"1"
+	"pickupFlash"		"1"
+	"animPrefix"		"nailgun"
+
+	"def_fireInfo"		"fireInfo_beaumontPrimary"
+	"inv_name"			"Beaumont"
+	"ammoType"			"ammo_nails"
+	"infiniteReserve"	"1"
+	"ammoRequired"		"1"
+	"ammoPerShot"		"1"
+	"clipSize"			"10"
+	"clipSizeDefault"	"10"
+
+	"act_fire"			"shootA"
+	"act_idle"			"idle"
+	"act_draw"			"draw"
+
+	"snd_fire"			"weapon_collier_sidearm.shoot"
+	"snd_empty"			"weapon.empty"
+	"snd_reload"		"weapon.pickup"
+
+	"hudSlot"			"1"
+	"hudSlotPos"		"0"
+	"weight"			"10"
+	"crosshair"			"none"
+}
+
+entityDef fireInfo_beaumontPrimary
+{
+	"def_onFire"		"projectile_beaumont"
+	"fireRate"			"0.07"
+	"reloadTime"		"1.0"
+	"semiAuto"			"1"
+	"punchSpring"		"-0.8 0.3 0"
+	"act_reload"		"reload"
+	"act_reloadEmpty"	"reload"
+}
+
+entityDef projectile_beaumont
+{
+	"inherit"			"projectile_bullet_base"
+	"damage"			"1"
+	"hitscans"			"1"
+	"range"				"8192"
+	"spread"			"0.005 0.005"
+	"fx_path"			"weapon_shotgun.tracer"
+}

@@ -1,0 +1,16 @@
+<svg width="536" height="182" viewBox="0 0 536 182" fill="none" xmlns="http://www.w3.org/2000/svg">
+<!-- map preview overlays - Figma node 19:98, gradients copied verbatim from export -->
+<rect width="536" height="182" fill="url(#paint6)" fill-opacity="0.23"/>
+<rect width="536" height="182" fill="url(#paint7)" fill-opacity="0.24"/>
+<defs>
+<radialGradient id="paint6" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(268 0) rotate(90) scale(54.5 454.502)">
+<stop offset="0.168269"/>
+<stop offset="0.567308" stop-opacity="0.21"/>
+<stop offset="0.860577" stop-opacity="0"/>
+</radialGradient>
+<linearGradient id="paint7" x1="268" y1="11.5" x2="268" y2="64" gradientUnits="userSpaceOnUse">
+<stop/>
+<stop offset="1" stop-color="#666666"/>
+</linearGradient>
+</defs>
+</svg>

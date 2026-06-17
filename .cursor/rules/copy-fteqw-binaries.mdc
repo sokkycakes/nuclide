@@ -1,0 +1,67 @@
+---
+description: Copy compiled FTE engine and CEF plugin binaries from fteqw/engine/release to the nuclide root after building
+alwaysApply: true
+---
+
+# FTE Engine Binary Copy Procedure
+
+After building the FTE engine in the `/fteqw/` directory using `build_m_rel_ccache.sh`, copy the compiled binaries to the **Nuclide root** directory. The nuclide root is the actual runtime location (it sits beside `base/`, `libcef.dll`, `locales/`, etc.), so this is where the binaries must land for the game to use them.
+
+## Build Command
+
+From the fteqw directory, run:
+```bash
+cd fteqw
+bash build_m_rel_ccache.sh
+```
+
+This outputs binaries to: `fteqw/engine/release/`
+
+If `cef.c` (the CEF plugin) was changed, also rebuild the plugin:
+```bash
+cmd /c fteqw\rebuild_cef_plugin.bat
+```
+
+## Binary Copy Procedure
+
+After a successful build, copy these files to the nuclide root:
+
+### Main Engine Binary
+- **Source**: `fteqw/engine/release/fteqw64.exe`
+- **Destination**: `nuclide/fteqw64.exe`
+
+### CEF Plugin (if built)
+- **Source**: `fteqw/engine/release/fteplug_cef_x64.dll`
+- **Destination**: `nuclide/fteplug_cef_x64.dll`
+
+### Copy Commands (PowerShell, run from nuclide root)
+
+```powershell
+$src = "..\fteqw\engine\release"
+Copy-Item -LiteralPath "$src\fteqw64.exe"          -Destination "fteqw64.exe"          -Force
+Copy-Item -LiteralPath "$src\fteplug_cef_x64.dll"  -Destination "fteplug_cef_x64.dll"  -Force
+```
+
+## Directory Structure
+
+```
+nuclide/                          (runtime root - active gamedir is base/)
+├── fteqw64.exe                   (updated)
+├── fteplug_cef_x64.dll           (updated)
+├── libcef.dll, locales/, ...     (CEF runtime)
+└── base/web/h3-main-menu/        (game:// asset content)
+
+fteqw/ (sibling directory)
+└── engine/
+    └── release/
+        ├── fteqw64.exe           (source)
+        └── fteplug_cef_x64.dll   (source)
+```
+
+## Notes
+
+- The nuclide root is what the game actually runs; copy here (NOT into `ThirdParty/`).
+- The `game://` CEF scheme resolves relative to the active gamedir (`base/`), so the
+  binaries must run from the nuclide root for h3-main-menu assets to be found.
+- Always copy after successful builds to keep them in sync.
+- The CEF plugin copy is only needed if `cef.c` (the plugin) changed.

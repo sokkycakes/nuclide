@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>MGS4 Weapons Style</title>
+<style>
+  /* Helvetica-ish fallback stack for a cleaner, MGS4-style sans look. */
+
+  * { 
+    margin: 0; 
+    padding: 0; 
+    box-sizing: border-box; 
+    -webkit-font-smoothing: none;
+    text-rendering: optimizeSpeed;
+    /* Low-res baseline: keep typography rasterization consistent.
+       We'll scale the whole viewport instead of reflowing text sizes. */
+    font-size: 9px !important;
+    font-family: 'Verdana', sans-serif !important;
+    -moz-osx-font-smoothing: auto;
+    font-kerning: none;
+  }
+
+  /* Main UI text spacing was tuned for the original bitmap font metrics.
+     After changing font-family, those large letter-spacing values look wrong. */
+  *:not(.side-rail-text) {
+    letter-spacing: 0 !important;
+  }
+
+  :root {
+    --bg-black:       #000000;
+
+    --glass-top:      rgba(180, 195, 180, 0.18);
+    --glass-mid:      rgba(20, 28, 26, 0.55);
+    --glass-bot:      rgba(140, 160, 145, 0.22);
+
+    --glass-sel-top:  rgba(220, 215, 175, 0.45);
+    --glass-sel-mid:  rgba(120, 115, 80, 0.55);
+    --glass-sel-bot:  rgba(200, 195, 155, 0.55);
+
+    --text-bright:    #f4eed0;
+    --text-main:      #d8d2a8;
+    --text-dim:       #7a7e6a;
+    --text-disabled:  #4a504a;
+
+    --icon-cyan:      #6ad4e8;
+    --icon-red:       #e87060;
+    --icon-cyan-glow: #4a9ab0;
+    --icon-red-glow:  #a04a3a;
+
+    --frame:          #6a7060;
+    --frame-bright:   #9aa088;
+    --frame-dim:      #3a4038;
+
+    --aspect-w: 16;
+    --aspect-h: 9;
+  }
+
+  html, body {
+    height: 100%;
+    width: 100%;
+    background: #000;
+    overflow: hidden;
+    font-family: 'Verdana', sans-serif !important;
+    font-size: 9px;
+    color: var(--text-main);
+    -webkit-font-smoothing: none;
+    -moz-osx-font-smoothing: auto;
+    text-rendering: optimizeSpeed;
+    font-kerning: none;
+  }
+
+  .stage {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #000;
+  }
+
+  .viewport {
+    position: relative;
+    /* Logical base size; cqh/cqw & font rasterization remain stable. */
+    width: 690px;
+    height: 403px;
+    background: var(--bg-black);
+    overflow: hidden;
+    container-type: size;
+    transform: scale(var(--vp-scale, 1));
+    transform-origin: center center;
+  }
+
+  .ui-root {
+    position: absolute;
+    inset: 3cqh 2cqw;
+    filter:
+      drop-shadow(0.5px 0 0 rgba(220, 60, 60, 0.2))
+      drop-shadow(-0.5px 0 0 rgba(60, 200, 220, 0.2));
+  }
+
+  /* =========================================================
+     CORE GLASSY PANEL — every container gets this look
+     ========================================================= */
+  .panel {
+    position: relative;
+    border: 1px solid var(--frame);
+    background:
+      linear-gradient(180deg,
+        var(--glass-top) 0%,
+        var(--glass-top) 6%,
+        transparent 14%,
+        var(--glass-mid) 50%,
+        transparent 86%,
+        var(--glass-bot) 94%,
+        var(--glass-bot) 100%
+      );
+    overflow: hidden;
+  }
+
+  .panel::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 22%;
+    background: linear-gradient(180deg,
+      rgba(220, 230, 210, 0.18) 0%,
+      rgba(180, 195, 175, 0.06) 60%,
+      transparent 100%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .panel::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 20%;
+    background: linear-gradient(0deg,
+      rgba(200, 210, 180, 0.2) 0%,
+      rgba(160, 175, 150, 0.08) 60%,
+      transparent 100%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .panel > * { position: relative; z-index: 1; }
+
+  /* =========================================================
+     SIDE RAILS — now use .panel look too
+     ========================================================= */
+  .side-rail {
+    position: absolute;
+    top: 2cqh;
+    bottom: 2cqh;
+    width: 2.2cqw;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .side-rail.left  { left: 0; }
+  .side-rail.right { right: 0; }
+
+  .side-rail-text {
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    font-family: 'Oswald', sans-serif;
+    font-weight: 400;
+    font-size: 1.3cqh;
+    letter-spacing: 0.45cqh;
+    color: var(--text-dim);
+    text-transform: uppercase;
+  }
+  .side-rail.right .side-rail-text {
+    transform: none;
+  }
+
+  /* =========================================================
+     GLASS ROW — list row variant
+     ========================================================= */
+  .glass-row {
+    position: relative;
+    background:
+      linear-gradient(180deg,
+        var(--glass-top) 0%,
+        var(--glass-top) 8%,
+        transparent 15%,
+        var(--glass-mid) 50%,
+        transparent 85%,
+        var(--glass-bot) 92%,
+        var(--glass-bot) 100%
+      );
+    border-top: 1px solid rgba(200, 210, 190, 0.18);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    padding: 0 0.8cqw;
+    overflow: hidden;
+  }
+
+  .glass-row::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 35%;
+    background: linear-gradient(180deg,
+      rgba(220, 230, 210, 0.22) 0%,
+      rgba(180, 195, 175, 0.08) 50%,
+      transparent 100%);
+    pointer-events: none;
+  }
+  .glass-row::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 30%;
+    background: linear-gradient(0deg,
+      rgba(200, 210, 180, 0.25) 0%,
+      rgba(160, 175, 150, 0.1) 50%,
+      transparent 100%);
+    pointer-events: none;
+  }
+
+  .glass-row.selected {
+    background:
+      linear-gradient(180deg,
+        var(--glass-sel-top) 0%,
+        var(--glass-sel-top) 8%,
+        rgba(180, 170, 120, 0.35) 15%,
+        var(--glass-sel-mid) 50%,
+        rgba(180, 170, 120, 0.35) 85%,
+        var(--glass-sel-bot) 92%,
+        var(--glass-sel-bot) 100%);
+  }
+  .glass-row.selected::before {
+    background: linear-gradient(180deg,
+      rgba(255, 245, 200, 0.5) 0%,
+      rgba(220, 210, 160, 0.2) 50%,
+      transparent 100%);
+  }
+  .glass-row.selected::after {
+    background: linear-gradient(0deg,
+      rgba(240, 225, 170, 0.55) 0%,
+      rgba(200, 185, 130, 0.25) 50%,
+      transparent 100%);
+  }
+
+  /* === Header === */
+  .header {
+    position: absolute;
+    top: 0;
+    left: 3.5cqw;
+    right: 3.5cqw;
+    height: 7cqh;
+    display: flex;
+    align-items: center;
+    padding: 0 1cqw;
+    gap: 1cqw;
+  }
+
+  .header-icon {
+    width: 3cqh;
+    height: 3cqh;
+    position: relative;
+  }
+  .header-icon::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border: 2px solid var(--text-bright);
+    border-radius: 50%;
+  }
+
+  .header-title {
+    font-family: 'Oswald', sans-serif;
+    font-weight: 500;
+    font-size: 4.5cqh;
+    color: var(--text-bright);
+    letter-spacing: 2px;
+    line-height: 1;
+  }
+
+  /* =========================================================
+     MAIN LAYOUT — fixed grid columns L→R
+     ========================================================= */
+  .main-grid {
+    position: absolute;
+    top: 8cqh;
+    left: 3.5cqw;
+    right: 3.5cqw;
+    bottom: 7cqh;
+    display: grid;
+    grid-template-columns: 14cqw 30cqw 6cqw 1fr;
+    grid-template-rows: 1fr 6cqh;
+    gap: 0.5cqw;
+  }
+
+  /* === LEFT col: Equip panel === */
+  .equip-panel {
+    grid-column: 1;
+    grid-row: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 0.4cqh 0.4cqw;
+  }
+
+  .equip-header {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.3cqh 0.6cqw 0.5cqh;
+    font-family: 'Oswald', sans-serif;
+    font-size: 1.6cqh;
+    color: var(--text-main);
+    letter-spacing: 1.5px;
+    border-bottom: 1px solid var(--frame-dim);
+    margin-bottom: 0.3cqh;
+  }
+  .equip-header .kg { color: var(--text-bright); }
+
+  .equip-count {
+    text-align: center;
+    font-family: 'Oswald', sans-serif;
+    font-size: 1.4cqh;
+    color: var(--text-dim);
+    letter-spacing: 1px;
+    padding: 0.3cqh 0 0.5cqh;
+  }
+
+  .equip-slots {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3cqh;
+  }
+
+  .equip-slot {
+    flex: 1;
+    justify-content: center;
+    cursor: pointer;
+    min-height: 0;
+  }
+
+  .equip-slot .ghost-icon {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 4.5cqh;
+    height: 4.5cqh;
+    opacity: 0.3;
+    z-index: 1;
+  }
+  .equip-slot .ghost-icon svg {
+    width: 100%;
+    height: 100%;
+    fill: var(--icon-cyan);
+  }
+  .equip-slot.red .ghost-icon svg { fill: var(--icon-red); }
+
+  .equip-slot .ghost-weight {
+    position: absolute;
+    right: 0.5cqw;
+    top: 0.3cqh;
+    font-family: 'Oswald', sans-serif;
+    font-size: 1.2cqh;
+    color: var(--text-dim);
+    opacity: 0.8;
+    z-index: 2;
+  }
+
+  .equip-slot.selected .slot-label {
+    color: var(--text-bright);
+  }
+
+  .equip-slot .slot-label {
+    font-family: 'Oswald', sans-serif;
+    font-size: 1.7cqh;
+    letter-spacing: 2px;
+    color: var(--text-main);
+  }
+
+  .equip-custom {
+    padding: 0.4cqh 0.6cqw;
+    border-top: 1px solid var(--frame-dim);
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    font-family: 'Oswald', sans-serif;
+    font-size: 1.5cqh;
+    color: var(--text-main);
+    letter-spacing: 1.5px;
+  }
+
+  /* === BACKPACK col === */
+  .backpack-panel {
+    grid-column: 2;
+    grid-row: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .backpack-header {
+    height: 3cqh;
+    display: flex;
+    align-items: center;
+    padding: 0 0.8cqw;
+    font-family: 'Oswald', sans-serif;
+    font-size: 1.5cqh;
+    color: var(--text-main);
+    letter-spacing: 2px;
+    border-bottom: 1px solid var(--frame-dim);
+  }
+
+  .backpack-tabs {
+    height: 3.5cqh;
+    display: flex;
+    align-items: center;
+    padding: 0 0.8cqw;
+    gap: 0.4cqw;
+    border-bottom: 1px solid var(--frame-dim);
+  }
+
+  .tab-title {
+    flex: 1;
+    font-family: 'Oswald', sans-serif;
+    font-size: 1.9cqh;
+    color: var(--text-bright);
+    letter-spacing: 3px;
+    text-align: left;
+  }
+
+  .tab-pip {
+    width: 1.2cqw;
+    height: 0.4cqh;
+    background: var(--text-dim);
+  }
+  .tab-pip.active { background: var(--text-bright); }
+
+  .item-list {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25cqh;
+    padding-top: 0.3cqh;
+  }
+
+  .item-row {
+    flex: 1;
+    gap: 0.6cqw;
+    cursor: pointer;
+    min-height: 0;
+  }
+
+  .item-icon {
+    width: 2.5cqw;
+    height: 3.3cqh;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    z-index: 2;
+  }
+  .item-icon svg {
+    width: 100%;
+    height: 100%;
+    fill: var(--icon-cyan);
+    filter: drop-shadow(0 0 3px var(--icon-cyan-glow));
+  }
+  .item-icon.red svg {
+    fill: var(--icon-red);
+    filter: drop-shadow(0 0 3px var(--icon-red-glow));
+  }
+
+  .item-weight {
+    font-family: 'Oswald', sans-serif;
+    font-size: 1.4cqh;
+    color: var(--text-dim);
+    letter-spacing: 0.5px;
+    width: 2.5cqw;
+    position: relative;
+    z-index: 2;
+    flex-shrink: 0; /* Keep weight column from shrinking into name. */
+  }
+  .item-row.selected .item-weight { color: var(--text-bright); }
+
+  .item-name {
+    flex: 1;
+    font-family: 'Oswald', sans-serif;
+    font-size: 1.9cqh;
+    color: var(--text-main);
+    letter-spacing: 2px;
+    position: relative;
+    z-index: 2;
+    white-space: nowrap;
+    margin-left: 0.2cqw; /* Nudge text right to prevent glyph overlap vs weight. */
+    min-width: 0; /* Allow flexbox shrink so text doesn't intrude into weight. */
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .item-row.selected .item-name { color: var(--text-bright); }
+
+  .item-count {
+    font-family: 'Oswald', sans-serif;
+    font-size: 1.7cqh;
+    color: var(--text-main);
+    letter-spacing: 1px;
+    width: 2.5cqw;
+    text-align: right;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 2;
+  }
+  .item-row.selected .item-count { color: var(--text-bright); }
+
+  /* === BUTTON LEGEND col (3rd) === */
+  .legend-panel {
+    grid-column: 3;
+    grid-row: 1;
+    padding: 0.5cqh 0.4cqw;
+  }
+
+  .legend-grid {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 0.4cqh 0.4cqw;
+    font-family: 'Oswald', sans-serif;
+    font-size: 1.4cqh;
+    letter-spacing: 1.5px;
+    color: var(--text-main);
+    align-items: center;
+  }
+
+  .legend-grid .label {
+    text-align: right;
+    color: var(--text-main);
+  }
+
+  .legend-grid .key {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.8cqh;
+    height: 1.8cqh;
+    border: 1px solid var(--frame-bright);
+    background: rgba(0,0,0,0.5);
+    font-size: 1.1cqh;
+    color: var(--text-bright);
+  }
+
+  /* === DETAIL panel (4th col) === */
+  .detail-panel {
+    grid-column: 4;
+    grid-row: 1;
+    padding: 0.8cqh 1cqw;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6cqh;
+  }
+
+  .detail-header {
+    border-bottom: 1px solid var(--frame-dim);
+    padding-bottom: 0.6cqh;
+  }
+
+  .detail-name {
+    font-family: 'Oswald', sans-serif;
+    font-size: 3.5cqh;
+    color: var(--text-bright);
+    letter-spacing: 2px;
+    line-height: 1;
+  }
+
+  .detail-meta {
+    margin-top: 0.4cqh;
+    font-family: 'Oswald', sans-serif;
+    font-size: 1.5cqh;
+    color: var(--text-main);
+    letter-spacing: 2px;
+    line-height: 1.4;
+  }
+
+  .stats-panel {
+    flex: 1;
+    display: flex;
+    gap: 0.8cqw;
+    padding-top: 0.4cqh;
+  }
+
+  .stats-labels {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    font-family: 'Oswald', sans-serif;
+    font-size: 1.2cqh;
+    color: var(--text-dim);
+    letter-spacing: 1px;
+    padding: 0.3cqh 0;
+    min-width: 1.5cqw;
+  }
+  .stats-labels .top { color: var(--text-main); }
+
+  .stats-graph {
+    flex: 1;
+    border: 1px solid var(--frame-dim);
+    position: relative;
+    background:
+      linear-gradient(180deg,
+        rgba(40, 50, 40, 0.4) 0%,
+        rgba(10, 15, 12, 0.6) 100%);
+  }
+
+  .stats-graph::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(90deg, transparent 49%, rgba(120, 130, 110, 0.2) 50%, transparent 51%),
+      linear-gradient(0deg,  transparent 49%, rgba(120, 130, 110, 0.2) 50%, transparent 51%);
+  }
+
+  .stats-graph svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .stats-graph .range-label {
+    position: absolute;
+    bottom: 0.3cqh;
+    right: 0.6cqw;
+    font-family: 'Oswald', sans-serif;
+    font-size: 1.1cqh;
+    color: var(--text-main);
+    letter-spacing: 1px;
+  }
+
+  .stats-graph .range-axis {
+    position: absolute;
+    bottom: -1.8cqh;
+    right: 0.6cqw;
+    font-family: 'Oswald', sans-serif;
+    font-size: 1.1cqh;
+    color: var(--text-dim);
+    letter-spacing: 1px;
+  }
+
+  /* === FOOTER row === */
+  .footer-viewer {
+    grid-column: 1;
+    grid-row: 2;
+    padding: 0 0.8cqw;
+    display: flex;
+    align-items: center;
+    gap: 0.6cqw;
+    font-family: 'Oswald', sans-serif;
+    font-size: 1.6cqh;
+    letter-spacing: 2px;
+    color: var(--text-bright);
+  }
+
+  .bumper {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.1cqh 0.5cqw;
+    border: 1px solid var(--frame-bright);
+    background: rgba(0,0,0,0.4);
+    font-size: 1.3cqh;
+    color: var(--text-bright);
+    letter-spacing: 1px;
+  }
+
+  .footer-info {
+    grid-column: 2 / 5;
+    grid-row: 2;
+    padding: 0 1cqw;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-family: 'Oswald', sans-serif;
+    font-size: 1.6cqh;
+    letter-spacing: 1.5px;
+    color: var(--text-main);
+  }
+
+  .drebin {
+    color: var(--text-dim);
+    font-size: 1.4cqh;
+    letter-spacing: 1px;
+  }
+
+</style>
+</head>
+<body>
+
+<div class="stage">
+  <div class="viewport">
+
+    <div class="ui-root">
+
+      <!-- Side rails with glass panel look -->
+      <div class="panel side-rail left">
+        <div class="side-rail-text">METAL GEAR MK.III</div>
+      </div>
+      <div class="panel side-rail right">
+        <div class="side-rail-text">MANUFACTURED BY HAL EMMERICH</div>
+      </div>
+
+      <!-- Header -->
+      <div class="header">
+        <div class="header-icon"></div>
+        <div class="header-title">Weapons</div>
+      </div>
+
+      <!-- Main grid: Equip | Backpack | Legend | Detail -->
+      <div class="main-grid">
+
+        <!-- LEFT: Equip -->
+        <div class="panel equip-panel">
+          <div class="equip-header">
+            <span>EQUIP</span>
+            <span class="kg">9.8kg</span>
+          </div>
+          <div class="equip-count">[ 5/5 ]</div>
+
+          <div class="equip-slots">
+            <div class="glass-row equip-slot">
+              <div class="ghost-icon">
+                <svg viewBox="0 0 24 24"><path d="M3 14 L14 14 L14 11 L18 11 L18 9 L21 9 L21 14 L20 16 L14 16 L14 18 L11 18 L11 16 L7 16 L7 18 L3 18 Z" fill="currentColor"/></svg>
+              </div>
+              <div class="ghost-weight">3.2kg</div>
+            </div>
+
+            <div class="glass-row equip-slot">
+              <div class="ghost-icon">
+                <svg viewBox="0 0 24 24"><path d="M2 13 L16 13 L16 11 L20 11 L20 15 L16 15 L16 17 L4 17 Z" fill="currentColor"/></svg>
+              </div>
+              <div class="ghost-weight">2.4kg</div>
+            </div>
+
+            <div class="glass-row equip-slot">
+              <div class="ghost-icon">
+                <svg viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="6" fill="currentColor"/><rect x="8" y="7" width="4" height="3" fill="currentColor"/></svg>
+              </div>
+              <div class="ghost-weight">1.8kg</div>
+            </div>
+
+            <div class="glass-row equip-slot selected">
+              <div class="slot-label">M-CUSTOM</div>
+            </div>
+
+            <div class="glass-row equip-slot red">
+              <div class="ghost-icon">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="13" r="6" fill="currentColor"/><rect x="11" y="5" width="2" height="4" fill="currentColor"/></svg>
+              </div>
+              <div class="ghost-weight">1.5kg</div>
+            </div>
+          </div>
+
+          <div class="equip-custom">
+            <span>158</span>
+          </div>
+        </div>
+
+        <!-- CENTER: Backpack -->
+        <div class="panel backpack-panel">
+          <div class="backpack-header">BACKPACK</div>
+          <div class="backpack-tabs">
+            <div class="tab-title">EXPLOSIVES</div>
+            <div class="tab-pip"></div>
+            <div class="tab-pip active"></div>
+            <div class="tab-pip"></div>
+          </div>
+
+          <div class="item-list">
+            <div class="glass-row item-row">
+              <div class="item-icon red">
+                <svg viewBox="0 0 24 24"><ellipse cx="12" cy="15" rx="6" ry="7" fill="currentColor"/><rect x="10" y="4" width="4" height="4" fill="currentColor"/><rect x="14" y="5" width="3" height="2" fill="currentColor"/></svg>
+              </div>
+              <div class="item-weight">0.3kg</div>
+              <div class="item-name">GRENADE</div>
+              <div class="item-count">10</div>
+            </div>
+
+            <div class="glass-row item-row">
+              <div class="item-icon red">
+                <svg viewBox="0 0 24 24"><path d="M9 4 L15 4 L15 8 L17 12 L17 20 L7 20 L7 12 L9 8 Z" fill="currentColor"/></svg>
+              </div>
+              <div class="item-weight">0.8kg</div>
+              <div class="item-name">PETRO BOMB</div>
+              <div class="item-count">9</div>
+            </div>
+
+            <div class="glass-row item-row">
+              <div class="item-icon">
+                <svg viewBox="0 0 24 24"><ellipse cx="12" cy="15" rx="6" ry="7" fill="currentColor"/><rect x="10" y="4" width="4" height="4" fill="currentColor"/></svg>
+              </div>
+              <div class="item-weight">0.8kg</div>
+              <div class="item-name">WP G.</div>
+              <div class="item-count">10</div>
+            </div>
+
+            <div class="glass-row item-row">
+              <div class="item-icon">
+                <svg viewBox="0 0 24 24"><rect x="8" y="6" width="8" height="14" fill="currentColor"/><rect x="9" y="3" width="6" height="3" fill="currentColor"/></svg>
+              </div>
+              <div class="item-weight">0.8kg</div>
+              <div class="item-name">STUN G.</div>
+              <div class="item-count">10</div>
+            </div>
+
+            <div class="glass-row item-row selected">
+              <div class="item-icon">
+                <svg viewBox="0 0 24 24"><rect x="8" y="6" width="8" height="14" fill="currentColor"/><rect x="9" y="3" width="6" height="3" fill="currentColor"/><line x1="10" y1="10" x2="14" y2="10" stroke="#000" stroke-width="1"/><line x1="10" y1="13" x2="14" y2="13" stroke="#000" stroke-width="1"/></svg>
+              </div>
+              <div class="item-weight">0.8kg</div>
+              <div class="item-name">CHAFF G.</div>
+              <div class="item-count">2</div>
+            </div>
+
+            <div class="glass-row item-row">
+              <div class="item-icon">
+                <svg viewBox="0 0 24 24"><rect x="8" y="6" width="8" height="14" fill="currentColor"/><rect x="9" y="3" width="6" height="3" fill="currentColor"/><circle cx="12" cy="13" r="2" fill="#000"/></svg>
+              </div>
+              <div class="item-weight">0.8kg</div>
+              <div class="item-name">SMOKE G.</div>
+              <div class="item-count">5</div>
+            </div>
+
+            <div class="glass-row item-row">
+              <div class="item-icon red">
+                <svg viewBox="0 0 24 24"><path d="M4 18 L20 18 L18 10 L6 10 Z" fill="currentColor"/><rect x="6" y="18" width="2" height="3" fill="currentColor"/><rect x="16" y="18" width="2" height="3" fill="currentColor"/></svg>
+              </div>
+              <div class="item-weight">1.5kg</div>
+              <div class="item-name">CLAYMORE</div>
+              <div class="item-count">10</div>
+            </div>
+
+            <div class="glass-row item-row">
+              <div class="item-icon">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="14" r="6" fill="currentColor"/><rect x="11" y="5" width="2" height="4" fill="currentColor"/></svg>
+              </div>
+              <div class="item-weight">1.5kg</div>
+              <div class="item-name">S.G. MINE</div>
+              <div class="item-count">8</div>
+            </div>
+
+            <div class="glass-row item-row">
+              <div class="item-icon red">
+                <svg viewBox="0 0 24 24"><rect x="4" y="9" width="16" height="7" fill="currentColor"/><rect x="9" y="6" width="6" height="3" fill="currentColor"/></svg>
+              </div>
+              <div class="item-weight">0.8kg</div>
+              <div class="item-name">C4</div>
+              <div class="item-count">9</div>
+            </div>
+
+            <div class="glass-row item-row">
+              <div class="item-icon">
+                <svg viewBox="0 0 24 24"><rect x="5" y="8" width="14" height="11" fill="currentColor"/><path d="M7 8 Q12 3 17 8" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
+              </div>
+              <div class="item-weight">1.5kg</div>
+              <div class="item-name">S.G.SATCHEL</div>
+              <div class="item-count">0</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- BUTTON LEGEND -->
+        <div class="panel legend-panel">
+          <div class="legend-grid">
+            <span class="label">RTN</span><span class="key">↻</span>
+            <span class="label">B</span><span class="key">B</span>
+            <span class="label">FRT</span><span class="key">▦</span>
+            <span class="label">STR</span><span class="key">↗</span>
+            <span class="label">LED</span><span class="key">●</span>
+          </div>
+        </div>
+
+        <!-- DETAIL panel -->
+        <div class="panel detail-panel">
+          <div class="detail-header">
+            <div class="detail-name">CHAFF G.</div>
+            <div class="detail-meta">
+              PROJECTILE<br>
+              WEIGHT : 0.8kg
+            </div>
+          </div>
+
+          <div class="stats-panel">
+            <div class="stats-labels">
+              <span class="top">F50</span>
+              <span></span>
+              <span></span>
+            </div>
+            <div class="stats-graph">
+              <svg viewBox="0 0 100 50" preserveAspectRatio="none">
+                <polyline
+                  points="0,40 15,38 30,30 50,15 70,8 85,5 100,4"
+                  fill="none"
+                  stroke="#f4eed0"
+                  stroke-width="1"
+                  vector-effect="non-scaling-stroke"/>
+              </svg>
+              <span class="range-label">30.0m</span>
+              <span class="range-axis">Range</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer-viewer">
+          <span class="bumper">L1</span>
+          <span>VIEWER</span>
+        </div>
+
+        <div class="footer-info">
+          <span>Electronic jamming grenade.</span>
+          <span class="drebin">DREBIN 422905 DP / EQUIP 19.9kg</span>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+<script>
+  (function () {
+    const BASE_W = 690;
+    const BASE_H = 403;
+
+    function updateScale() {
+      const vw = window.innerWidth || 1;
+      const vh = window.innerHeight || 1;
+      const scale = Math.min(vw / BASE_W, vh / BASE_H);
+      document.documentElement.style.setProperty('--vp-scale', String(scale));
+    }
+
+    window.addEventListener('resize', updateScale);
+    updateScale();
+  })();
+</script>
+
+</body>
+</html>
+

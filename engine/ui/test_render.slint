@@ -1,0 +1,70 @@
+export component TestRender {
+    width: 1920px;
+    height: 1080px;
+    background: #222222;
+
+    // r1: orange rectangle
+    Rectangle {
+        x: 100px;
+        y: 100px;
+        width: 400px;
+        height: 300px;
+        background: #ff6b35;
+        border-radius: 20px;
+    }
+
+    // r2: orange-to-red with shadow (solid fallback)
+    Rectangle {
+        x: 560px;
+        y: 100px;
+        width: 400px;
+        height: 300px;
+        background: #e64a1e;
+        border-radius: 20px;
+    }
+
+    // r3: green with white border
+    Rectangle {
+        x: 1020px;
+        y: 100px;
+        width: 400px;
+        height: 300px;
+        background: #4caf50;
+        border-color: #ffffff;
+        border-width: 6px;
+        border-radius: 20px;
+    }
+
+    // r4: dark circle
+    Rectangle {
+        x: 150px;
+        y: 460px;
+        width: 200px;
+        height: 200px;
+        background: #1a1a2e;
+        border-color: #ff6b35;
+        border-width: 4px;
+        border-radius: 100px;
+    }
+
+    // r5: wide red-tinted rectangle
+    Rectangle {
+        x: 400px;
+        y: 460px;
+        width: 600px;
+        height: 200px;
+        background: #c832324d;
+        border-color: #c8323299;
+        border-width: 2px;
+        border-radius: 0px;
+    }
+
+    // r6: radial gradient fallback (solid orange)
+    Rectangle {
+        x: 1060px;
+        y: 460px;
+        width: 200px;
+        height: 200px;
+        background: #ff6b35;
+    }
+}

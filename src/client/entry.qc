@@ -149,6 +149,8 @@ CSQC_RendererRestarted(string rstr)
 	Font_Load("fonts/font20.font", FONT_20);
 	Font_Load("fonts/console.font", FONT_CON);
 	Font_Load("fonts/centerprint.font", FONT_CENTERPRINT);
+	Font_Load("fonts/spectatorhud.font", FONT_SPEC);
+	Font_Load("fonts/spectatorhud_hint.font", FONT_SPEC_HINT);
 
 	/* Particles */
 	PART_DUSTMOTE = particleeffectnum("volume.dustmote");
@@ -279,6 +281,69 @@ CSQC_Update2D(float w, float h, bool focus)
 	}
 }
 
+
+/* spectator inset PiP toggle, set by the showSpecInset command (cmd.qc) */
+var bool autocvar_cg_specInset = false;
+
+/** Spectator inset Picture-in-Picture.
+
+Renders a small first-person view of the player the local spectator is
+currently watching, into a bordered rect in the bottom-right corner. Toggled
+by the `showSpecInset` command (cmd.qc) via the cg_specInset cvar. This is a
+lightweight manual render pass (mirroring CSQC_RenderRTEnvSphere) rather than a
+second ncView.UpdateView() so we don't re-run the view target's prediction
+physics. Called from CSQC_UpdateView() after the main scene render and before
+the 2D HUD. */
+void
+View_DrawSpectatorInset(void)
+{
+	if (autocvar_cg_specInset == false) {
+		return;
+	}
+
+	/* local client must be a spectator */
+	if (Client_IsSpectator((ncPlayer)pSeat->m_ePlayer) == false) {
+		return;
+	}
+
+	ncSpectator spec = (ncSpectator)pSeat->m_ePlayer;
+
+	/* if the main view is already first-person, the inset is redundant */
+	if (spec.m_spectatingMode == SPECMODE_FIRSTPERSON) {
+		return;
+	}
+
+	/* need a live player target to mirror in first-person */
+	entity targetEnt = findfloat(world, ::entnum, spec.m_spectatingEntity);
+
+	if (!Spectator_HasChaseTargetEntity(spec, targetEnt)) {
+		return;
+	}
+
+	ncPlayer targetPlayer = (ncPlayer)targetEnt;
+
+	/* bottom-right inset, ~quarter size, with a small margin */
+	vector insetSize = [g_vidsize[0] * 0.25f, g_vidsize[1] * 0.25f];
+	vector insetPos = [g_vidsize[0] - insetSize[0] - 16, g_vidsize[1] - insetSize[1] - 16];
+
+	/* black border behind the inset */
+	drawfill(insetPos - [2, 2], insetSize + [4, 4], [0.0, 0.0, 0.0], 1.0f, DRAWFLAG_NORMAL);
+
+	clearscene();
+	setproperty(VF_DRAWENGINESBAR, (float)0);
+	setproperty(VF_DRAWCROSSHAIR, (float)0);
+	setproperty(VF_DRAWWORLD, (float)1);
+	setproperty(VF_MIN, insetPos);
+	setproperty(VF_SIZE, insetSize);
+	setproperty(VF_AFOV, cvar("fov"));
+	setproperty(VF_VIEWENTITY, targetPlayer.entnum);
+	setproperty(VF_ORIGIN, targetPlayer.GetEyePos());
+	setproperty(VF_ANGLES, targetPlayer.v_angle);
+	setproperty(VF_CL_VIEWANGLES, targetPlayer.v_angle);
+
+	addentities(MASK_ENGINE);
+	CSQC_RenderScene();
+}
 
 var bool autocvar_overview_generate = false;
 var bool autocvar_overview_test = false;
@@ -419,6 +484,9 @@ CSQC_UpdateView(float w, float h, float focus)
 
 			g_view.UpdateView();
 
+			/* spectator Picture-in-Picture: extra 3D pass before the 2D HUD */
+			View_DrawSpectatorInset();
+
 			/* 2D calls happen here, after rendering is done */
 			CSQC_Update2D(w, h, focus);
 
@@ -501,6 +569,18 @@ CSQC_InputEvent(float fEventType, float fKey, float fCharacter, float fDeviceID)
 		setcursormode(FALSE, "gfx/cursor", [0,0,0], 1.0f);
 	}
 
+	/* spectator scroll wheel cycles players (not view modes) */
+	if (!vgui_pressed && fEventType == IE_KEYDOWN
+		&& Client_LocalUsesSpectatorControls()) {
+		if (fKey == K_MWHEELUP) {
+			pSeat->m_iSpecWheelPending = 1;
+			return true;
+		} else if (fKey == K_MWHEELDOWN) {
+			pSeat->m_iSpecWheelPending = -1;
+			return true;
+		}
+	}
+
 	return (vgui_pressed);
 }
 
@@ -544,11 +624,27 @@ CSQC_Input_Frame(void)
 		g_clientInitialized = true;
 		pl.ClientInputFrame();
 
-		if (pSeat->m_flInputBlockTime > time) {
+		if (pSeat->m_flInputBlockTime > time && !pl.IsFakeSpectator()) {
 			input_buttons &= ~INPUT_PRIMARY;
 			input_buttons &= ~INPUT_SECONDARY;
 			pSeat->m_iInputAttack2 = false;
 			return;
+		}
+	} else if (me != world && me.classname == "spectator") {
+		ncSpectator spec = (ncSpectator)me;
+
+		spec.SharedInputFrame();
+		spec.ClientInputFrame();
+	}
+
+	if (Client_LocalUsesSpectatorControls()) {
+		/* relay scroll-wheel target changes via impulse (handled server-side) */
+		if (pSeat->m_iSpecWheelPending > 0) {
+			input_impulse = IMPULSE_SPEC_NEXT;
+			pSeat->m_iSpecWheelPending = 0;
+		} else if (pSeat->m_iSpecWheelPending < 0) {
+			input_impulse = IMPULSE_SPEC_PREV;
+			pSeat->m_iSpecWheelPending = 0;
 		}
 	}
 }

@@ -48,6 +48,39 @@ Cmd_ParseClientCommand(ncClient sender, string cmd, int commandArguments)
 		EntityDef_SpawnClassname("player");
 		PutClientInServer();
 		break;
+	case "specTarget":
+		/* observer list (client VGUI_Observers) picked a player to chase.
+		   Reuses the already-networked spectator target field; no new
+		   protocol, just this command verb on the existing channel. */
+		if (sender.classname != "spectator") {
+			break;
+		}
+
+		float wishEntity = stof(argv(1));
+		entity wishTarget = edict_num(wishEntity);
+
+		/* must be a live in-game player and not our own client slot */
+		if (!wishTarget || wishTarget == sender
+			|| num_for_edict(wishTarget) == num_for_edict(sender)) {
+			break;
+		}
+
+		ncSpectator spec = (ncSpectator)sender;
+
+		if (!spec.IsValidChaseTarget(wishTarget)) {
+			break;
+		}
+
+		spec.m_spectatingEntity = wishEntity;
+
+		/* leaving free-fly: engage a chase camera so tracking kicks in */
+		if (spec.m_spectatingMode == SPECMODE_FREE) {
+			spec.m_spectatingMode = SPECMODE_THIRDPERSON;
+		}
+
+		spec.m_spectatingFlags &= ~(SPECFLAG_MODE_RELEASED | SPECFLAG_TARGET_RELEASED);
+		spec.WarpToTarget();
+		break;
 	case "setpos":
 		printf("%i %S\n", commandArguments, cmd);
 		if (cvar("sv_cheats") == 1) {

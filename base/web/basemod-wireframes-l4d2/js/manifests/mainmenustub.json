@@ -1,0 +1,47 @@
+{
+  "source": "resource/ui/l4d360ui/mainmenustub.res",
+  "viewId": "",
+  "frame": "MainMenu",
+  "viewport": {
+    "wide": 640,
+    "tall": 480
+  },
+  "controls": [
+    {
+      "id": "MainMenu",
+      "name": "MainMenu",
+      "controlName": "Frame",
+      "command": "",
+      "labelText": "",
+      "visible": true,
+      "xpos": 0,
+      "ypos": 0,
+      "wide": 640,
+      "tall": 480
+    },
+    {
+      "id": "BtnStub",
+      "name": "BtnStub",
+      "controlName": "L4D360HybridButton",
+      "command": "BtnStub",
+      "labelText": "NO STEAM",
+      "visible": true,
+      "xpos": 100,
+      "ypos": 175,
+      "wide": 180,
+      "tall": 20
+    },
+    {
+      "id": "BtnQuit",
+      "name": "BtnQuit",
+      "controlName": "L4D360HybridButton",
+      "command": "QuitGame",
+      "labelText": "#L4D360UI_MainMenu_Quit",
+      "visible": true,
+      "xpos": 100,
+      "ypos": 200,
+      "wide": 180,
+      "tall": 20
+    }
+  ]
+}

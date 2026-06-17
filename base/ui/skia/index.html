@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Halo 3 Main Menu (H3EK + ElDewrito-styled)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="style.css?v=46" />
+</head>
+<body>
+  <div id="stage" class="stage stage--fade-in">
+
+    <!-- Logical 1280x720 letterboxed canvas. data-screen tracks the active
+         page so CSS / debug HUD can react to it. Pages live as siblings
+         inside #screen; only one is visible at a time (hidden attribute). -->
+    <div id="screen" class="screen" data-screen="main_menu" data-lobby-mode="">
+
+      <!-- ================================================================
+           PAGE: main_menu
+           Sourced from tags\ui\halox\main_menu\main_menu.gui_screen_widget_definition.
+           ================================================================ -->
+      <!-- The .is-initial class plays the main-menu enter animation
+           one time on first paint (slide_up + companion fade-in for the
+           right group). app.js removes it after the 666 ms intro so it
+           doesn't fight subsequent enter/leave classes. -->
+      <section class="page page--main-menu is-initial" data-page="main_menu">
+
+        <!-- Right group: HALO 3 + Bungie logos -->
+        <div class="group group--right">
+          <img id="title-logo"  class="chrome chrome--title delayd-fade-in"  alt="HALO 3" />
+          <img id="bungie-logo" class="chrome chrome--bungie delayd-fade-in" alt="Bungie" />
+          <div id="build-text"   class="text-widget text-widget--build delayd-fade-in">build 12070.07.10.18.2128.delta</div>
+        </div>
+
+        <!-- Left group: dialog-style menu panel -->
+        <div class="group group--left">
+          <div id="menu-panel" class="menu-panel">
+            <!-- Header doubles as the primary / quick-access slot.
+                 items[0] from data.json is rendered here by app.js. -->
+            <div class="menu-panel__header" role="listbox" aria-label="Quick Access">
+              <ul id="menu-primary" class="mainmenu-list mainmenu-list--primary"></ul>
+            </div>
+            <div class="menu-panel__body">
+              <ul id="mainmenu-list" class="mainmenu-list" role="listbox" aria-label="Main Menu">
+                <!-- items[1..] injected by app.js -->
+              </ul>
+            </div>
+            <div class="menu-panel__footer">
+              <div class="menu-panel__buttonkeys" id="button-keys">
+                <!-- offline/online prompts -->
+              </div>
+              <div class="menu-panel__version" id="version-text">version 1.0</div>
+            </div>
+            <!-- Skirt = bottom_gradient_ui bitmap (bounds 720p="595,78,640,385")
+                 that continues panel chrome past the Settings/version footer
+                 and fades into the screen floor. -->
+            <div class="menu-panel__skirt" aria-hidden="true"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================================================================
+           PAGE: pregame_lobby (shared template for all 5 game modes)
+           Sourced from tags\ui\halox\pregame_lobby\pregame_lobby_template.{scn3,grup}.
+           The mode (campaign / matchmaking / multiplayer / mapeditor /
+           theater) is selected via #screen[data-lobby-mode] and the contents
+           are populated by app.js from data.pregame_lobbies.modes[mode].
+           ================================================================ -->
+      <section class="page page--lobby" data-page="pregame_lobby" hidden>
+
+        <!-- Channel panel structure mirrors ElDewrito's .dialog pattern
+             (D:\Games\ElDewrito\...\screens\dialog\style.css) which is in
+             turn a re-skin of pregame_lobby_template:
+                 .lobby-panel__header   = .dialog-header  (title strip)
+                 .lobby-panel__body     = .dialog-body    (everything else)
+                 ul.lobby-list          = ul.dialog-list  (rows + buttonhover focus)
+             The 720p bounds from pregame_lobby_template.grup are honoured
+             inside the body via flex spacing - see style.css. -->
+        <div class="lobby-panel">
+
+          <div class="lobby-panel__header">
+            <h2 class="lobby-title" id="lobby-title">CUSTOM GAMES</h2>
+          </div>
+
+          <div class="lobby-panel__body">
+
+            <!-- lobby_list rows. Items rendered as inline "LABEL: VALUE"
+                 by app.js. The "primary action" item (start_game / find_game /
+                 edit_map / play_film) automatically renders with a
+                 .lobby-list__item--separated class so it sits below a thin
+                 divider, matching the retail screenshot. -->
+            <ul class="lobby-list" id="lobby-list" role="listbox" aria-label="Lobby Menu"></ul>
+
+            <!-- Status block: retail draws a bold "Ready" header followed
+                 by the lobby_status paragraph (bounds 720p "255,89,377,537"). -->
+            <div class="lobby-status-block" id="lobby-status-block">
+              <div class="lobby-status__heading">Ready</div>
+              <p class="lobby-status" id="lobby-status">Use the menu to select a map and game variant, then START GAME when ready.</p>
+            </div>
+
+            <!-- map_image bitmap (bounds 720p "346,79,498,542") +
+                 gametype_image (bounds "356,90,486,220") -->
+            <div class="lobby-preview" id="lobby-preview">
+              <div class="lobby-preview__map" aria-hidden="true"></div>
+              <div class="lobby-preview__gametype" aria-hidden="true">SLAYER</div>
+              <div class="lobby-preview__shade" aria-hidden="true"></div>
+            </div>
+
+            <!-- multiplayer_game_name (bounds 720p "500,89,530,537"). -->
+            <div class="lobby-game-name" id="lobby-game-name">Slayer on Valhalla</div>
+          </div>
+
+          <!-- Panel footer = button-key prompts from
+               pregame_lobby_template's button_key(s) block. -->
+          <div class="lobby-panel__footer">
+            <div class="menu-panel__buttonkeys" id="lobby-button-keys"></div>
+          </div>
+
+          <!-- Skirt = same idea as .menu-panel__skirt: continues the panel
+               chrome past the footer and fades into the screen floor, so
+               the panel doesn't end with a hard horizontal edge above
+               the bottom of the canvas. -->
+          <div class="lobby-panel__skirt" aria-hidden="true"></div>
+        </div>
+
+        <!-- Player count header: pregame_lobby_template.grup text widget
+             index=1 'players_in_game' at bounds_720p "36,846,73,1093" =
+             body text, left justify, default ice color, sits directly
+             above the roster column. Engine pumps the current/max value
+             at runtime via the roster datasource. -->
+        <div class="lobby-players" id="lobby-players" aria-live="polite">
+          <span class="lobby-players__count" id="lobby-players-count">1</span>
+          <span class="lobby-players__sep">/</span>
+          <span class="lobby-players__max"   id="lobby-players-max">16</span>
+        </div>
+
+        <!-- Roster sidebar: tag-truth = ui\halox\common\roster\roster.grup
+             -> roster.lst3 (16 nameplate slots at 32px pitch, right-edge
+                anchored at bounds_720p "64,843,0,0")
+             -> roster.skn3 (per-slot skin: name, service_tag, emblem,
+                rank_tray, skill_level, experience, party_bar, ring_of_light,
+                press_a_to_join, etc.)
+             Slots are generated by buildRosterSlots() in app.js from
+             data.json#pregame_lobbies.template.roster.skin_elements so the
+             markup matches the skin without 16 hand-copied <li> blocks. -->
+        <aside class="lobby-roster" aria-label="Roster">
+          <ol class="lobby-roster__list" id="lobby-roster-list" role="list">
+            <!-- 16 .roster-slot items injected by buildRosterSlots() -->
+          </ol>
+        </aside>
+      </section>
+
+      <!-- Full-screen intro black fade overlay -->
+      <div id="black-fade" class="black-fade"></div>
+
+      <!-- Debug HUD (toggle with `) -->
+      <div id="debug" class="debug" hidden>
+        <strong>screen:</strong> <span id="dbg-screen">main_menu</span><br/>
+        <strong>focus:</strong>  <span id="dbg-focus">0</span><br/>
+        <strong>online:</strong> <input type="checkbox" id="dbg-online" />
+        <strong>nav:</strong>    <span id="dbg-nav">-</span>
+      </div>
+    </div>
+
+    <!-- Submenu overlay (fallback stub for destinations we don't model yet,
+         e.g. start_menu_settings, start_menu_hq, alpha_locked_down). -->
+    <div id="submenu-overlay" class="overlay" hidden>
+      <div class="overlay__card">
+        <h2 id="overlay-title">Submenu</h2>
+        <p id="overlay-tag" class="overlay__tag"></p>
+        <p class="overlay__hint">B / Esc to return</p>
+      </div>
+    </div>
+  </div>
+
+  <div id="controls-hint" class="controls-hint">
+    <strong>Controls:</strong> Up/Down or W/S &mdash; move &middot; Enter or A &mdash; confirm &middot; Esc or B &mdash; back &middot; X &mdash; Settings &middot; Y &mdash; Friends (online) &middot; ` &mdash; toggle debug
+  </div>
+
+  <script src="app.js?v=34"></script>
+</body>
+</html>

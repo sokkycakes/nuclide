@@ -22,6 +22,9 @@
 
  */
 
+/** Returns if the local client entity uses spectator click/scroll bindings */
+bool Client_LocalUsesSpectatorControls(void);
+
 /** Returns if the specified client is a ncSpectator, doesn't matter if real or fake */
 bool Client_IsSpectator(ncPlayer);
 

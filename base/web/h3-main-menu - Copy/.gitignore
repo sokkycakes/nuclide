@@ -1,0 +1,5 @@
+# tool.exe export noise — keep only the PNGs referenced by style.css
+*invalid*
+*_debug*.png
+exports/
+reports/

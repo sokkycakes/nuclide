@@ -1,0 +1,19 @@
+<svg width="117" height="518" viewBox="-14 62 117 518" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<!-- lobbyPanelBanner stripe overlay - Figma node 19:286 pattern6, copied verbatim from export
+     (rect is defined in the banner's rotated/mirrored local space, exactly as exported) -->
+<defs>
+<clipPath id="clip"><rect width="128" height="128" fill="white"/></clipPath>
+<g id="inner">
+<g clip-path="url(#clip)">
+<rect x="194.561" y="-83.177" width="24" height="401.265" transform="rotate(45 194.561 -83.177)" fill="black"/>
+</g>
+</g>
+<pattern id="pat" patternUnits="userSpaceOnUse" patternTransform="matrix(41.6 0 0 41.6 0 0)" preserveAspectRatio="none" viewBox="0 0 64 64" width="1" height="1">
+<use xlink:href="#inner" transform="translate(-64 -64)"/>
+<use xlink:href="#inner" transform="translate(0 -64)"/>
+<use xlink:href="#inner" transform="translate(-64 0)"/>
+<use xlink:href="#inner"/>
+</pattern>
+</defs>
+<rect width="518" height="117" transform="matrix(4.37114e-08 -1 -1 -4.37114e-08 103 580)" fill="url(#pat)" fill-opacity="0.2"/>
+</svg>

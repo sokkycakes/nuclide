@@ -50,6 +50,10 @@ ncPlayer::ncPlayer(void)
 	pb_player_delta = 0.0f;
 	pb_last_angles = g_vec_null;
 	m_friendlyFireDamageDealt = 0i;
+	m_stilettoInvulnEnd = 0.0f;
+	m_stilettoLastDamageTime = 0.0f;
+	m_stilettoArchBuffer = 0.0f;
+	m_stilettoIsArch = 0i;
 #endif
 
 	health = 0;
@@ -86,6 +90,8 @@ ncPlayer::ncPlayer(void)
 	m_stilettoAirStallCharges = 1.0f;
 	m_stilettoAirStallEnd = 0.0f;
 	m_stilettoParryEnd = 0.0f;
+	m_stilettoPunishState = 0i;
+	m_stilettoPunishEnd = 0.0f;
 	m_stilettoPrevButtons = 0;
 	m_stilettoGrappleHeld = 0;
 	m_stilettoGrappleActionHeld = 0;
@@ -1151,6 +1157,8 @@ ncPlayer::ReceiveEntity(float isNew, float flChanged)
 	READENTITY_FLOAT(m_stilettoAirStallCharges, PLAYER_STILETTO)
 	READENTITY_FLOAT(m_stilettoAirStallEnd, PLAYER_STILETTO)
 	READENTITY_FLOAT(m_stilettoParryEnd, PLAYER_STILETTO)
+	READENTITY_INT(m_stilettoPunishState, PLAYER_STILETTO)
+	READENTITY_FLOAT(m_stilettoPunishEnd, PLAYER_STILETTO)
 
 	/* we only really care about the declclass for decl lookups. */
 	if (flChanged & PLAYER_MODELINDEX) {
@@ -1260,6 +1268,8 @@ ncPlayer::PredictPreFrame(void)
 	SAVE_STATE(m_stilettoAirStallCharges)
 	SAVE_STATE(m_stilettoAirStallEnd)
 	SAVE_STATE(m_stilettoParryEnd)
+	SAVE_STATE(m_stilettoPunishState)
+	SAVE_STATE(m_stilettoPunishEnd)
 
 	for (int i = 0i; i < MAX_AMMO_TYPES; i++) {
 		m_ammoTypes_net[i] = m_ammoTypes[i];
@@ -1326,6 +1336,8 @@ ncPlayer::PredictPostFrame(void)
 	ROLL_BACK(m_stilettoAirStallCharges)
 	ROLL_BACK(m_stilettoAirStallEnd)
 	ROLL_BACK(m_stilettoParryEnd)
+	ROLL_BACK(m_stilettoPunishState)
+	ROLL_BACK(m_stilettoPunishEnd)
 
 	/* make sure to relink these */
 	ROLL_BACK(vehicle_entnum)
@@ -1428,6 +1440,8 @@ ncPlayer::Save(float handle)
 	SaveFloat(handle, "m_stilettoAirStallCharges", m_stilettoAirStallCharges);
 	SaveFloat(handle, "m_stilettoAirStallEnd", m_stilettoAirStallEnd);
 	SaveFloat(handle, "m_stilettoParryEnd", m_stilettoParryEnd);
+	SaveInt(handle, "m_stilettoPunishState", m_stilettoPunishState);
+	SaveFloat(handle, "m_stilettoPunishEnd", m_stilettoPunishEnd);
 	SaveInt(handle, "m_stilettoPrevButtons", m_stilettoPrevButtons);
 }
 
@@ -1578,6 +1592,12 @@ ncPlayer::Restore(string keyName, string setValue)
 		break;
 	case "m_stilettoParryEnd":
 		m_stilettoParryEnd = ReadFloat(setValue);
+		break;
+	case "m_stilettoPunishState":
+		m_stilettoPunishState = ReadInt(setValue);
+		break;
+	case "m_stilettoPunishEnd":
+		m_stilettoPunishEnd = ReadFloat(setValue);
 		break;
 	case "m_stilettoPrevButtons":
 		m_stilettoPrevButtons = ReadInt(setValue);
@@ -1735,6 +1755,11 @@ ncPlayer::MakePlayer(void)
 	userinfo.SetFloat(this, "*deaths", deaths);
 	userinfo.SetBool(this, "*spectator", false);
 	userinfo.SetBool(this, "*dead", false);
+
+#ifdef SERVER
+	/* reset combat-reaction state and read the Arch flag from the hero def */
+	Stiletto_Combat_Respawn(this);
+#endif
 }
 
 void
@@ -1834,6 +1859,8 @@ ncPlayer::EvaluateEntity(void)
 	EVALUATE_FIELD(m_stilettoAirStallCharges, PLAYER_STILETTO)
 	EVALUATE_FIELD(m_stilettoAirStallEnd, PLAYER_STILETTO)
 	EVALUATE_FIELD(m_stilettoParryEnd, PLAYER_STILETTO)
+	EVALUATE_FIELD(m_stilettoPunishState, PLAYER_STILETTO)
+	EVALUATE_FIELD(m_stilettoPunishEnd, PLAYER_STILETTO)
 
 	for (int i = 0i; i < MAX_AMMO_TYPES; i++) {
 		EVALUATE_VECTOR(m_ammoTypes, i, PLAYER_AMMOTYPES)
@@ -1958,6 +1985,8 @@ ncPlayer::SendEntity(entity ePEnt, float flChanged)
 	SENDENTITY_FLOAT(m_stilettoAirStallCharges, PLAYER_STILETTO)
 	SENDENTITY_FLOAT(m_stilettoAirStallEnd, PLAYER_STILETTO)
 	SENDENTITY_FLOAT(m_stilettoParryEnd, PLAYER_STILETTO)
+	SENDENTITY_INT(m_stilettoPunishState, PLAYER_STILETTO)
+	SENDENTITY_FLOAT(m_stilettoPunishEnd, PLAYER_STILETTO)
 
 	for (int i = 0i; i < MAX_AMMO_TYPES; i++) {
 		SENDENTITY_BYTE(m_ammoTypes[i], PLAYER_AMMOTYPES)
@@ -2325,6 +2354,11 @@ ncPlayer::Damage(entity inflictor, entity attacker, ncDict damageDecl, float dam
 		return;
 	}
 
+	/* health pacing: ignore repeat hits inside the post-hit i-frame window */
+	if (Stiletto_Combat_DamageBlocked(this, damageDecl)) {
+		return;
+	}
+
 	/* skip armor */
 	if (damageDecl.GetBool("noArmor") == false) {
 		if (GetArmor() >= 1.0f && damagePoints >= 1.0f) {
@@ -2364,6 +2398,14 @@ ncPlayer::Damage(entity inflictor, entity attacker, ncDict damageDecl, float dam
 
 	damagePoints = rint(damagePoints);
 	SetHealth(GetHealth() - damagePoints);
+
+	/* health pacing + tool punish: stamp the i-frame window and evaluate a
+	 * mid-air tool punish on any registered HP hit (heroes only). */
+	if (damagePoints > 0) {
+		Stiletto_Combat_StampDamage(this);
+		Stiletto_Combat_OnDamaged(this, damagePoints);
+	}
+
 	igniteTime = ReadFloat(damageDecl.GetString("ignite"));
 
 	if (igniteTime > 0.0f) {

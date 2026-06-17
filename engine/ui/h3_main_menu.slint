@@ -1,0 +1,231 @@
+﻿// Halo 3 Main Menu -- rebuilt from actual H3EK tag data
+// References: main_menu.gui_screen_widget_definition.xml, mainmenu_list.lst3, main_menu_list.dsrc
+// Bitmaps: halo3_logo_ui (512x64), bungielogo (123x47), mainmenu_bkd (231x1 gradient)
+// Font: body_text (approximated with system sans-serif)
+// Resolution: 1280x720
+
+export component H3MainMenu inherits Window {
+    callback start-solo-game();
+    callback resume-campaign();
+    callback start-campaign();
+    callback start-matchmaking();
+    callback start-custom-game();
+    callback start-forge();
+    callback start-theater();
+    callback play-beta();
+    callback quit-dashboard();
+    callback button-settings();
+    callback button-friends();
+
+    callback nav-up();
+    callback nav-down();
+    callback nav-activate();
+
+    in-out property <int> selected-index: 0;
+    in-out property <bool> entered: false;
+
+    private property <int> item-count: 9;
+    private property <int> visible-items: 6;
+    private property <int> scroll-offset: 0;
+
+    private property <[string]> menu-labels: [
+        "START SOLO GAME",
+        "RESUME SOLO GAME",
+        "CAMPAIGN",
+        "MATCHMAKING",
+        "CUSTOM GAMES",
+        "FORGE",
+        "THEATER",
+        "PLAY THE BETA",
+        "QUIT TO XBOX DASHBOARD"
+    ];
+
+    // Layout metrics -- panel anchored bottom-left
+    private property <length> item-h: 32px;
+    private property <length> menu-w: 280px;
+    private property <length> menu-panel-h: 310px;
+    private property <length> menu-x: 40px;
+    private property <length> menu-y: 720px - root.menu-panel-h;
+
+    width: 1280px;
+    height: 720px;
+    no-frame: true;
+    background: #000000;
+
+    // LAYER 1: Background
+    Rectangle {
+        width: 100%;
+        height: 100%;
+        background: #05080f;
+    }
+
+    // LAYER 2: Menu panel background (mainmenu_bkd gradient approximation)
+    Rectangle {
+        x: root.menu-x;
+        y: root.menu-y;
+        width: root.menu-w;
+        height: root.menu-panel-h;
+        background: @linear-gradient(180deg, #0f1116, #020408 5%, #000105 60%, #000000 100%);
+    }
+
+    // Screen blur effect (channel_blur replacement with black_25)
+    Rectangle {
+        x: root.menu-x;
+        y: root.menu-y;
+        width: root.menu-w;
+        height: root.menu-panel-h;
+        background: #00000060;
+    }
+
+    // LAYER 3: Menu list with focus highlight
+    // Build number (left-justified, terminal font)
+    Text {
+        x: root.menu-x + 8px;
+        y: root.menu-y + 4px;
+        width: root.menu-w - 16px;
+        height: 14px;
+        vertical-alignment: center;
+        color: #404850;
+        font-size: 10px;
+        font-weight: 400;
+        text: "<build_number/>";
+    }
+
+    // Version number (right-aligned, dim preset)
+    Text {
+        x: root.menu-x;
+        y: root.menu-y + 4px;
+        width: root.menu-w - 8px;
+        height: 14px;
+        horizontal-alignment: right;
+        vertical-alignment: center;
+        color: #404850;
+        font-size: 10px;
+        font-weight: 400;
+        text: "<version_number/>";
+    }
+
+    // Focus highlight bar
+    Rectangle {
+        x: root.menu-x;
+        y: root.menu-y + 22px + root.item-h * (root.selected-index - root.scroll-offset);
+        width: root.menu-w;
+        height: root.item-h;
+        background: #2a3548b3;
+        animate y { duration: 100ms; easing: ease-in-out; }
+    }
+
+    // Menu items (6 visible slots, scrollable)
+    for slot_idx in [0, 1, 2, 3, 4, 5]: Text {
+            x: root.menu-x + 10px;
+            y: root.menu-y + 22px + root.item-h * slot_idx;
+            width: root.menu-w - 20px;
+            height: root.item-h;
+            vertical-alignment: center;
+            text: slot_idx + root.scroll-offset < root.item-count
+                ? root.menu-labels[slot_idx + root.scroll-offset]
+                : "";
+            color: slot_idx == root.selected-index - root.scroll-offset
+                ? #e8eef8
+                : #8090a0;
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            animate color { duration: 100ms; easing: ease-in-out; }
+        }
+
+    // LAYER 4: Logos (Group 1, right edge)
+    Image {
+        source: @image-url("assets/halo3_logo_ui.png");
+        x: 1280px - 380px;
+        y: 720px - 180px;
+        width: 260px;
+        height: 33px;
+        image-fit: contain;
+        opacity: root.entered ? 1.0 : 0.0;
+        animate opacity { duration: 500ms; easing: ease-in-out; }
+    }
+
+    Image {
+        source: @image-url("assets/bungielogo.png");
+        x: 1280px - 360px;
+        y: 720px - 135px;
+        width: 100px;
+        height: 38px;
+        image-fit: contain;
+        opacity: root.entered ? 0.7 : 0.0;
+        animate opacity { duration: 500ms; delay: 200ms; easing: ease-in-out; }
+    }
+
+    // LAYER 5: Button keys at bottom of menu panel
+    // X = Settings (offline)
+    Text {
+        x: root.menu-x + 12px;
+        y: root.menu-y + root.menu-panel-h - 22px;
+        height: 18px;
+        color: #a0a8b0;
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 1px;
+        text: "X  Settings";
+    }
+
+    // Y = Friends (online)
+    Text {
+        x: root.menu-x + root.menu-w - 120px;
+        y: root.menu-y + root.menu-panel-h - 22px;
+        height: 18px;
+        color: #a0a8b0;
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 1px;
+        text: "Y  Friends";
+    }
+
+    // Keyboard input
+    keyboard-focus := FocusScope {
+        init => { keyboard-focus.focus(); }
+
+        key-pressed(event) => {
+            if (event.text == Key.UpArrow) { root.do-nav-up(); return accept; }
+            else if (event.text == Key.DownArrow) { root.do-nav-down(); return accept; }
+            else if (event.text == Key.Return || event.text == Key.Space) { root.do-nav-activate(); return accept; }
+            else if (event.text == Key.Escape) { return accept; }
+            return reject;
+        }
+    }
+
+    function do-nav-up() {
+        if (root.selected-index > 0) {
+            root.selected-index -= 1;
+            if (root.selected-index < root.scroll-offset) {
+                root.scroll-offset = root.selected-index;
+            }
+        }
+    }
+
+    function do-nav-down() {
+        if (root.selected-index < root.item-count - 1) {
+            root.selected-index += 1;
+            if (root.selected-index >= root.scroll-offset + root.visible-items) {
+                root.scroll-offset = root.selected-index - root.visible-items + 1;
+            }
+        }
+    }
+
+    function do-nav-activate() {
+        if (root.selected-index == 0) { root.start-solo-game(); }
+        else if (root.selected-index == 1) { root.resume-campaign(); }
+        else if (root.selected-index == 2) { root.start-campaign(); }
+        else if (root.selected-index == 3) { root.start-matchmaking(); }
+        else if (root.selected-index == 4) { root.start-custom-game(); }
+        else if (root.selected-index == 5) { root.start-forge(); }
+        else if (root.selected-index == 6) { root.start-theater(); }
+        else if (root.selected-index == 7) { root.play-beta(); }
+        else if (root.selected-index == 8) { root.quit-dashboard(); }
+    }
+
+    init => {
+        root.entered = true;
+    }
+}

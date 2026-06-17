@@ -316,6 +316,11 @@ private:
 	NETWORKED_FLOAT(m_stilettoAirStallEnd)
 	NETWORKED_FLOAT(m_stilettoParryEnd)
 
+	/* combat-reaction (stiletto_combat.qc): networked so the shared
+	 * Physics_Run punish movement-lock predicts identically client+server. */
+	NETWORKED_INT(m_stilettoPunishState)
+	NETWORKED_FLOAT(m_stilettoPunishEnd)
+
 	int m_stilettoPrevButtons;
 
 #ifdef CLIENT
@@ -345,6 +350,12 @@ private:
 	vector pb_last_angles;
 
 	int m_friendlyFireDamageDealt;
+
+	/* combat-reaction state (server-authoritative; stiletto_combat.qc) */
+	float m_stilettoInvulnEnd;
+	float m_stilettoLastDamageTime;
+	float m_stilettoArchBuffer;
+	int m_stilettoIsArch;
 #endif
 
 	entity m_holdingEntity;

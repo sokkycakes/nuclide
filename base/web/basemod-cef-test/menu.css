@@ -1,0 +1,158 @@
+/* ============================================================
+   basemod-cef-test/menu.css
+   Values sourced from l4d360uischeme.res + mainmenu_demo.res
+
+   Fonts (l4d360uischeme.res):
+     DefaultMedium  = "Trade Gothic Bold"  tall=16  weight=400  (unselected)
+     MainBold       = "Trade Gothic Bold"  tall=20  weight=800  (selected/armed)
+   Colours (l4d360uischeme.res):
+     MainMenu.TextColor      = 200 200 200 255  →  #c8c8c8
+     MainMenu.ArmedTextColor = "White"          →  231 231 231 255  →  #e7e7e7
+   Sizing (l4d360uischeme.res):
+     MainMenu.MenuItemHeight       = 22  (SD)
+     MainMenu.MenuItemHeight_hidef = 32  (HD / 720p+)
+     MainMenu.Inset                = 32  (left text inset inside the menu frame)
+   Layout (mainmenu_demo.res, 640×480 virtual canvas):
+     xpos=100 → 15.625vw   ypos=100 → 20.833vh
+     tall=20 → 4.167vh     slot=25 → 5.208vh
+     group gap y170→y200 = 30/480 = 6.25vh
+   ============================================================ */
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  width: 100%;
+  height: 100%;
+  /* "Trade Gothic Bold" is a commercial font; best freely-available system
+     equivalents on Windows are Franklin Gothic Heavy / Franklin Gothic Medium.
+     Impact is too extreme — Trade Gothic Bold is a moderate condensed bold. */
+  font-family: "Trade Gothic Bold", "Franklin Gothic Heavy", "Franklin Gothic Medium",
+               "Arial Narrow", Arial, sans-serif;
+  background: transparent;
+  overflow: hidden;
+  user-select: none;
+  cursor: default;
+}
+
+#menu-root {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+/* ---- Nav block ---- */
+/* Direct 1:1 mapping from mainmenu_demo.res coordinates (640x480 canvas).
+   The MainMenu Frame has NO "usetitlesafe" property, meaning it stretches
+   across the full screen. Thus, xpos=100 is exactly 100/640 = 15.625vw. */
+#main-menu {
+  position: absolute;
+  left: 15.625vw;
+  top:  20.833vh;
+}
+
+.btn-group {
+  list-style: none;
+}
+
+/* Small gap between the two groups — tight, not the full .res coordinate gap */
+.btn-group--meta {
+  margin-top: 1.5vh;
+}
+
+/* ---- Menu items ---- */
+.menu-item {
+  display: block;
+  white-space: nowrap;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  line-height: 1.0;
+  /* Slot spacing: 25/480 = 5.208vh per item; item is 22px/480 = 4.583vh (SD height) */
+  margin-bottom: 0.625vh;   /* slot(5.208) - item(4.583) */
+  cursor: pointer;
+
+  /* Unselected — DefaultMedium: Trade Gothic Bold tall=16, weight=400
+     16/480 = 3.333vh  |  colour: MainMenu.TextColor = 200 200 200 = #c8c8c8 */
+  font-size:   3.333vh;
+  font-weight: 400;
+  color: #c8c8c8;
+
+  transition: color 60ms linear, font-size 60ms linear, font-weight 60ms linear;
+}
+
+.menu-item:hover {
+  /* Brighten toward armed colour on hover */
+  color: #d8d8d8;
+}
+
+/* Selected — MainBold: Trade Gothic Bold tall=20, weight=800
+   20/480 = 4.167vh  |  colour: MainMenu.ArmedTextColor = "White" = 231 231 231 = #e7e7e7 */
+.menu-item.selected {
+  font-size:   4.167vh;
+  font-weight: 800;
+  color: #e7e7e7;
+}
+
+/* ---- Bottom bar ---- */
+/* Mapped directly from l4d360ui/footerpanel.res
+   ypos="r100" (starts 100px from bottom out of 480), tall="70"
+   This leaves a gap of exactly 30px (100 - 70) below the bar: 30/480 = 6.25vh
+   Height is 70/480 = 14.583vh. */
+#desc-bar {
+  position: absolute;
+  left:   0;
+  right:  0;
+  bottom: 6.25vh;
+  height: 14.583vh;
+
+  background: rgba(0, 0, 0, 0.55);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+
+  display: flex;
+  align-items: center;
+  padding: 0 15.625vw;
+}
+
+/* Description text — LblHelpText is xpos=0, ypos=0 inside FooterPanel with north alignment */
+#desc-text {
+  position: absolute;
+  top: 1.5vh;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-family: "Arial Narrow", "Helvetica Neue", Arial, sans-serif;
+  font-size:   2vh;
+  font-weight: 400;
+  letter-spacing: 0.03em;
+  color: #d8dde2;
+  text-transform: none;
+}
+
+/* Gamepad hint — bottom-left */
+#hint {
+  position: absolute;
+  /* Aligned to exactly xpos=100 (15.625vw) to match the main menu left edge */
+  left:   15.625vw;
+  bottom: 2.8vh;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: "Arial Narrow", "Helvetica Neue", Arial, sans-serif;
+  font-size:   1.9vh;
+  font-weight: 400;
+  color: #d8dde2;
+  text-transform: none;
+}
+
+.key {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width:  2.4vh;
+  height: 2.4vh;
+  border-radius: 50%;
+  background: #2f8f3a;
+  color: #fff;
+  font-size:   1.4vh;
+  font-weight: bold;
+  flex-shrink: 0;
+}

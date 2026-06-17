@@ -363,6 +363,19 @@ SV_RunClientCommand(void)
 		return;
 	}
 
+	/* real free-fly spectators are not is.Player() — route input here */
+	if (cl.classname == "spectator") {
+		ncSpectator spec = (ncSpectator)cl;
+
+		cl.v_angle = input_angles;
+		if (cl.SharedInputFrame)
+			cl.SharedInputFrame();
+		if (cl.ServerInputFrame)
+			cl.ServerInputFrame();
+		spec.EvaluateEntity();
+		return;
+	}
+
 	if (!is.Player(cl)) {
 		return;
 	}

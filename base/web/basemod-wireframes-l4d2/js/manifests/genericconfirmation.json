@@ -1,0 +1,107 @@
+{
+  "source": "resource/ui/l4d360ui/genericconfirmation.res",
+  "viewId": "view-confirm",
+  "frame": "GenericConfirmation",
+  "viewport": {
+    "wide": 640,
+    "tall": 300
+  },
+  "controls": [
+    {
+      "id": "GenericConfirmation",
+      "name": "GenericConfirmation",
+      "controlName": "Frame",
+      "command": "",
+      "labelText": "",
+      "visible": true,
+      "xpos": 0,
+      "ypos": 0,
+      "wide": 640,
+      "tall": 300
+    },
+    {
+      "id": "LblMessage",
+      "name": "LblMessage",
+      "controlName": "Label",
+      "command": "",
+      "labelText": "",
+      "visible": true,
+      "xpos": 95,
+      "ypos": 100,
+      "wide": 545,
+      "tall": 180
+    },
+    {
+      "id": "IconForwardArrow",
+      "name": "IconForwardArrow",
+      "controlName": "ImagePanel",
+      "command": "",
+      "labelText": "",
+      "visible": false,
+      "xpos": 95,
+      "ypos": 260,
+      "wide": 15,
+      "tall": 15
+    },
+    {
+      "id": "CheckButton",
+      "name": "CheckButton",
+      "controlName": "CvarToggleCheckButton_GameUI",
+      "command": "",
+      "labelText": "",
+      "visible": false,
+      "xpos": 95,
+      "ypos": 210,
+      "wide": 100,
+      "tall": 24
+    },
+    {
+      "id": "LblCheckButton",
+      "name": "LblCheckButton",
+      "controlName": "Label",
+      "command": "",
+      "labelText": "",
+      "visible": false,
+      "xpos": 115,
+      "ypos": 210,
+      "wide": 640,
+      "tall": 24
+    },
+    {
+      "id": "BtnOK",
+      "name": "BtnOK",
+      "controlName": "L4D360HybridButton",
+      "command": "OK",
+      "labelText": "#L4D_btn_OK",
+      "visible": true,
+      "xpos": 110,
+      "ypos": 260,
+      "wide": 200,
+      "tall": 15
+    },
+    {
+      "id": "IconBackArrow",
+      "name": "IconBackArrow",
+      "controlName": "ImagePanel",
+      "command": "",
+      "labelText": "",
+      "visible": true,
+      "xpos": 95,
+      "ypos": 240,
+      "wide": 15,
+      "tall": 15
+    },
+    {
+      "id": "BtnCancel",
+      "name": "BtnCancel",
+      "controlName": "L4D360HybridButton",
+      "command": "cancel",
+      "labelText": "#L4D_btn_cancel",
+      "visible": true,
+      "xpos": 110,
+      "ypos": 240,
+      "wide": 200,
+      "tall": 16
+    }
+  ]
+}

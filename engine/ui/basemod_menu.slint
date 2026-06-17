@@ -1,0 +1,33 @@
+export component BasemodMenu inherits Rectangle {
+    callback close();
+
+    width: 1920px;
+    height: 1080px;
+    background: #111111;
+
+    VerticalLayout {
+        alignment: center;
+
+        Text {
+            text: "Basemod Test";
+            font-size: 36px;
+            font-weight: 800;
+            color: #4caf50;
+            horizontal-alignment: center;
+        }
+
+        Text {
+            text: "Slint rendering is active";
+            font-size: 16px;
+            color: #888888;
+            horizontal-alignment: center;
+        }
+
+        Text {
+            text: "Press Escape to close";
+            font-size: 16px;
+            color: #888888;
+            horizontal-alignment: center;
+        }
+    }
+}

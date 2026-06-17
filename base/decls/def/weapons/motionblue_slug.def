@@ -1,0 +1,92 @@
+// Motionblue primary: explosive slug launcher. 3-round clip, 0.5s fire.
+// Explosive (direct + splash, ~4m radius) with strong self-push for blast
+// jumps. Direct/splash damage kept at 1 to fit the 4 HP roster; radius and
+// push are the playtest-tuning knobs. The mblueGrenade tool is deferred.
+entityDef weapon_motionblue_slug
+{
+	"editor_color"		".3 .3 1"
+	"editor_mins"		"-16 -16 0"
+	"editor_maxs"		"16 16 32"
+	"editor_usage"		"Motionblue slug (explosive)"
+	"editor_rotatable"	"1"
+
+	"spawnclass"		"ncWeapon"
+	"model"				"progs/g_rock2.mdl"
+	"model_view"		"progs/v_rock2.mdl"
+	"snd_acquire"		"weapon.pickup"
+	"snd_respawn"		"item.respawn"
+	"spin"				"1"
+	"pickupFlash"		"1"
+	"animPrefix"		"rocket"
+
+	"def_fireInfo"		"fireInfo_motionbluePrimary"
+	"inv_name"			"Motionblue"
+	"ammoType"			"ammo_rockets"
+	"infiniteReserve"	"1"
+	"ammoRequired"		"1"
+	"ammoPerShot"		"1"
+	"clipSize"			"3"
+	"clipSizeDefault"	"3"
+
+	"act_fire"			"1"
+	"act_idle"			"0"
+
+	"snd_fire"			"weapon_rocketlauncher.shoot"
+	"snd_empty"			"weapon.empty"
+	"snd_reload"		"weapon.pickup"
+
+	"hudSlot"			"6"
+	"hudSlotPos"		"0"
+	"weight"			"10"
+	"crosshair"			"none"
+}
+
+entityDef fireInfo_motionbluePrimary
+{
+	"def_onFire"		"projectile_motionblue_slug"
+	"fireRate"			"0.5"
+	"reloadTime"		"1.5"
+	"semiAuto"			"1"
+	"punchSpring"		"-4 0 0"
+	"act_reload"		"reload"
+	"act_reloadEmpty"	"reload"
+}
+
+entityDef projectile_motionblue_slug
+{
+	"spawnclass"			"ncProjectile"
+	"model"					"progs/missile.mdl"
+	"offset"				"20 0 -7"
+	"velocity"				"1200"
+	"fuse"					"5"
+	"detonate_on_fuse"		"0"
+	"detonate_on_death"		"1"
+	"detonate_on_world"		"1"
+	"detonate_on_actor"		"1"
+	"impact_damage_effect"	"1"
+	"smoke_fly"				"weapon_rocketlauncher.trail"
+	"decal_detonate"		"ExplosionScorch"
+	"model_detonate"		"fx_explosion.main"
+	"light_color"			"0.4 0.6 1"
+	"light_radius"			"160"
+	"snd_explode"			"weapon_rocketlauncher.explode"
+	"detonate_offset"		"24"
+
+	"def_damage"			"damage_motionblueDirect"
+	"def_splash_damage"		"damage_motionblueSplash"
+	"fx_path"				"weapon_nailgun.muzzleflash"
+}
+
+entityDef damage_motionblueDirect
+{
+	"damage"		"1"
+	"knockback"		"100"
+}
+
+entityDef damage_motionblueSplash
+{
+	"damage"		"1"
+	"radius"		"157"
+	"knockback"		"200"
+	"push"			"18000"
+}

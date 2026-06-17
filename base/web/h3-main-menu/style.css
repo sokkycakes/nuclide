@@ -1,0 +1,1252 @@
+﻿/* =====================================================================
+   Halo 3 main menu - re-skinned from ElDewrito CEF UI (D:\Games\ElDewrito\
+   ElDewrito\ui\screens\dialog\style.css + lib\css\style-global-color.css).
+
+   Authoritative refs:
+     - tags\ui\halox\main_menu\main_menu.gui_screen_widget_definition
+     - tags\ui\halox\main_menu\main_menu_list.gui_skin_definition
+     - ElDewrito dialog/style.css (panel gradient, font, focus bar)
+   ===================================================================== */
+
+@font-face {
+  font-family: "Conduit ITC";
+  src: url("assets/Conduit-ITC.woff") format("woff");
+  font-display: block;
+}
+
+:root {
+  /* ElDewrito palette (dialog/style.css + style-global-color.css) */
+  --color-text-default: #f6f6f6;
+  --color-hilite:       #eaeef8;  /* focused row */
+  --color-ice:          #adc4df;  /* unfocused row body text */
+  --color-iceblue:      #a5bedb;
+  --color-dim:          #77879a;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  background: #000;
+  color: var(--color-text-default);
+  font-family: "Conduit ITC", "Bahnschrift", "Eurostile", sans-serif;
+  letter-spacing: 0;
+  overflow: hidden;
+}
+
+/* ---------------------------------------------------------------------
+   Stage: letterbox the 16:9 logical canvas inside the viewport.
+   --------------------------------------------------------------------- */
+.stage {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: #000;
+}
+
+/* Stand-in for the missing 3D mainmenu_cam scene.
+
+   `container-type: size` turns this into the reference for `cqh` / `cqi`
+   units, so every child inside the screen scales with the 16:9 logical
+   canvas rather than the raw viewport. Without this, mixing `%` (relative
+   to .screen) with `vh` (relative to the viewport) caused list items and
+   chrome to drift out of the panel whenever the window wasn't exactly
+   16:9. */
+.screen {
+  position: relative;
+  width: min(100vw, calc(100vh * 16 / 9));
+  aspect-ratio: 16 / 9;
+  container-type: size;
+  container-name: screen;
+  background:
+    radial-gradient(ellipse at 70% 90%, rgba(120, 70, 30, 0.5) 0%, transparent 55%),
+    radial-gradient(ellipse at 30% 30%, rgba(20, 35, 55, 0.4) 0%, transparent 60%),
+    linear-gradient(180deg, #0a131b 0%, #1a1108 70%, #261004 100%);
+  overflow: hidden;
+}
+
+.group { position: absolute; inset: 0; pointer-events: none; }
+
+/* ---------------------------------------------------------------------
+   Pages: main_menu, pregame_lobby (shared template), etc.
+   Each .page is a full-canvas overlay. Only one is visible at a time
+   (the others have the [hidden] attribute set by app.js).
+   --------------------------------------------------------------------- */
+.page { position: absolute; inset: 0; }
+.page[hidden] { display: none; }
+
+/* =====================================================================
+   Right group: HALO 3 + Bungie logos.
+
+   Tag bounds (right-edge-anchored group in main_menu.scn3):
+     - title:  bounds 720p="395,595,0,0", bitmap halo3_logo_ui (512x64)
+       Natural-render math: left = 1280-595 = 685, width = 512.
+         â†’ 685/1280 = 53.52% left, 512/1280 = 40% width
+         â†’ right edge at 1197/1280 = 93.5%, top at 395/720 = 54.86%
+     - bungie: bounds 720p="550,967,0,0", bitmap bungielogo (123x47)
+       The widget is inside a `right edge` anchored group, so the rendered
+       position drifts toward the bottom-right corner. Retail screenshot:
+       bungie sits ~6% inset from the right edge and ~11% above the floor.
+   ===================================================================== */
+/* The XML stamps title at y=54.86% and build at y=63.06%, but in the retail
+   render (image 1) the whole right-group is shifted down ~3% relative to a
+   raw 720pâ†’canvas mapping. Apply the same +3% offset to both to preserve
+   the XML's logo-to-build spacing of 8.2%. */
+.chrome--title {
+  position: absolute;
+  top:    62%;      /* XML 54.86% (= 395/720) + ~3% retail offset */
+  right:   5%;      /* retail: right edge at 95% of canvas */
+  width:  44%;      /* PNG has ~10% transparent margin; widget needs to be
+                       larger than the visible 42% retail measurement.    */
+  height: auto;
+  image-rendering: -webkit-optimize-contrast;
+  filter: drop-shadow(0 2px 12px rgba(0, 0, 0, 0.5));
+}
+
+.chrome--bungie {
+  position: absolute;
+  bottom: 7%;      /* retail: inset further up from bottom edge */
+  right:   6%;      /* retail: brought in from corner */
+  width:   9.6%;    /* 123/1280 */
+  height: auto;
+  opacity: 0.85;
+}
+
+/* build_number bounds 720p="454,580,520,1036" custom font "terminal".
+   XML position is top=63.06%, left=45.31%, width=35.62%. We track the
+   right-group's +3% retail offset, so build sits at 66.2%. Image 1 does
+   not visibly render this text - keep it dim and on-spec, easily togglable
+   to display:none if we want to mirror retail's hidden state exactly. */
+.text-widget--build {
+  position: absolute;
+  top:    66.2%;    /* XML 63.06% + 3% group offset */
+  left:   45.31%;
+  width:  35.62%;
+  font-family: "Consolas", "Lucida Console", monospace;
+  font-size: 1.5cqh;
+  color: rgba(255, 255, 255, 0.22);
+  letter-spacing: 0;
+  white-space: nowrap;
+  text-align: center;
+}
+
+/* =====================================================================
+   Menu panel.
+   XML tag bounds (main_menu.gui_screen_widget_definition):
+     - channel_strip      bounds 720p="364,78,595,385"
+     - bottom_gradient_ui bounds 720p="595,78,640,385"
+     - mainmenu-list      bounds 720p="400,85,0,0" anchor bottom-left
+       â†’ list top = 720-400 = 320 â†’ y = 44.44%
+
+   Retail screenshot (image 1) shows the panel anchored very near the
+   screen floor (~6% margin below the Settings footer) and extending up
+   to y ~52%. The bottom_gradient_ui widget is effectively pinned to the
+   canvas bottom, not at the literal 640/720 = 88.89% the XML would imply
+   at exact 720p. We honour the visual reference for top/bottom.
+
+     top     â‰ˆ 52%               (image 1; close to channel_strip top 50.55%)
+     left    â‰ˆ 3%                (image 1; near the left edge)
+     right   â‰ˆ 31%               (image 1; close to XML right 30.08%)
+     bottom  â‰ˆ 94%               (image 1; floor-anchored)
+     body    = 85.94%            (XML split: (595-320)/(640-320))
+   ===================================================================== */
+.menu-panel {
+  position: absolute;
+  top:     52%;
+  left:     7%;
+  width:   28%;
+  bottom:   0;      /* Panel chrome reaches the screen floor; the .skirt
+                       gradient inside fades it out from the footer down. */
+  overflow: hidden;
+
+  /* Flex column lets header (1 row) / body (rest of list) / footer (button keys)
+     size themselves to content, so adding the primary slot doesn't require us
+     to math out body height percentages by hand. */
+  display: flex;
+  flex-direction: column;
+
+  /* GPU-blur backdrop = engine's `render as screen blur` (black_25.bitmap),
+     bounds 720p="364,78,640,385" - covers body + bottom_gradient + skirt. */
+  backdrop-filter: blur(7px);
+  -webkit-backdrop-filter: blur(7px);
+  pointer-events: auto;
+
+  /* will-change hint for the transform-driven enter/leave keyframes
+     (mm-panel-enter / mm-panel-leave). */
+  will-change: transform;
+}
+
+/* Header doubles as the primary / quick-access slot - it hosts items[0]
+   from data.json (rendered into #menu-primary by app.js). The dark stripe
+   and subtle borders preserve the H3 panel's "lid" feel above the body.
+   Vertical padding gives the primary row breathing room so it doesn't run
+   flush against the panel's top edge or the body's divider line. */
+.menu-panel__header {
+  flex: 0 0 auto;
+  padding: 0.5cqh 0;
+  background: hsl(210deg 30% 10% / 85%);
+  border-top:    2px solid rgba(64, 69, 78, 0.85);
+  border-bottom: 2px solid rgba(64, 69, 78, 0.85);
+}
+
+/* dialog-body: navy gradient panel. With flex layout the body just expands
+   to fill remaining vertical space; no manual height math required. */
+.menu-panel__body {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: 0.5cqh 0 0 0;
+  background: linear-gradient(
+    hsl(216deg 70% 17% / 85%),
+    hsl(219deg 70% 8% / 85%)
+  );
+  color: var(--color-ice);
+  overflow: hidden;
+}
+
+/* Footer = button-key overlay zone (Settings, version_number text widgets
+   from XML). Sits at the bottom of the channel/mainmenu_bkd body. */
+.menu-panel__footer {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.0cqh 1.25cqh;
+  background: linear-gradient(
+    hsl(219deg 70% 6% / 85%),
+    hsl(220deg 70% 4% / 90%)
+  );
+  border-top: 1px solid rgba(64, 69, 78, 0.6);
+  color: var(--color-ice);
+  font-size: 2.0cqh;
+}
+
+/* Skirt = the bottom_gradient_ui bitmap continuing panel chrome below the
+   footer down to the canvas floor. XML strip height is (640-595)/720 =
+   6.25% of canvas, but rendered as a fade-to-transparent so the panel
+   blends into the screen rather than ending with a hard edge. */
+.menu-panel__skirt {
+  flex: 0 0 auto;
+  height: 8cqh;
+  background: linear-gradient(
+    hsl(220deg 70% 4% / 90%) 0%,
+    hsl(220deg 70% 3% / 70%) 35%,
+    hsl(220deg 70% 2% / 35%) 70%,
+    hsl(220deg 70% 0% / 0%)  100%
+  );
+}
+
+.menu-panel__version {
+  color: var(--color-dim);
+  font-size: 1.8cqh;
+  letter-spacing: 0;
+}
+
+/* =====================================================================
+   Menu list - mirrors ul.dialog-list rules from ElDewrito dialog.
+   `.mainmenu-list--primary` lives inside the header and holds items[0]
+   only; same row style, no extra chrome. The header itself provides the
+   strip background, so the list is fully transparent here.
+   ===================================================================== */
+.mainmenu-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  position: relative;
+}
+
+.mainmenu-list--primary {
+  position: relative;
+  isolation: isolate;
+}
+
+.mainmenu-list__item {
+  position: relative;
+  isolation: isolate;          /* keep ::before z-index local */
+  /* row_height_720p = 25 in data.json (gui_list_widget metric)
+     -> 25/720 = 3.47% of canvas height. Plus gutter to match image 2.
+     cqh = % of .screen height, so rows track the 16:9 logical canvas
+     regardless of viewport aspect ratio. */
+  display: flex;
+  align-items: center;
+  height: 4.6cqh;
+  font-size: 3.4cqh;
+  line-height: 1;
+  padding: 0 1.25cqh;
+  margin: 0;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  color: var(--color-ice);     /* unfocused = ice-blue, opaque */
+  cursor: pointer;
+  pointer-events: auto;
+  user-select: none;
+  white-space: nowrap;
+  overflow: hidden;
+  transition: color 100ms linear;
+}
+
+/* The orange highlight bar â€” ElDewrito uses buttonhover.svg on .hilite */
+.mainmenu-list__item::before {
+  content: "";
+  position: absolute;
+  inset: 0 -1.1cqh 0 -1.1cqh;        /* slight outward bleed (skin "-7" inset) */
+  background: url("assets/buttonhover.svg") center/100% 100% no-repeat;
+  opacity: 0;
+  transition: opacity 120ms linear;
+  z-index: -1;
+  will-change: opacity;
+}
+
+.mainmenu-list__item--focused {
+  color: var(--color-hilite);
+}
+.mainmenu-list__item--focused::before {
+  opacity: 1;
+  transition: none;
+}
+
+.mainmenu-list__item--disabled {
+  color: var(--color-dim);
+  font-style: italic;
+}
+
+/* =====================================================================
+   Bottom button-key prompts inside the panel footer
+   ===================================================================== */
+.menu-panel__buttonkeys {
+  display: flex;
+  align-items: center;
+  gap: 1.6cqh;
+}
+
+.button-key {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5cqh;
+  font-size: 3.26cqh;
+  color: var(--color-ice);
+  letter-spacing: 0;
+}
+
+.button-key__glyph {
+  display: inline-grid;
+  place-items: center;
+  width:  2.7cqh;
+  height: 2.7cqh;
+  border-radius: 50%;
+  font-weight: 800;
+  font-family: "Conduit ITC", sans-serif;
+  font-size: 1.9cqh;
+  color: #000;
+  background: #cfd8e6;
+  box-shadow: 0 0 0 0.139cqh rgba(0, 0, 0, 0.5);
+}
+
+/* Xbox glyph colors */
+.button-key__glyph[data-glyph="A"] { background: #2eba3c; color: #fff; }
+.button-key__glyph[data-glyph="B"] { background: #e44b4b; color: #fff; }
+.button-key__glyph[data-glyph="X"] { background: #2e7ad4; color: #fff; }
+.button-key__glyph[data-glyph="Y"] { background: #e2b324; color: #000; }
+
+/* =====================================================================
+   Screen transitions
+
+   Sourced from:
+     - tags\ui\halox\main_menu\animations\mainmenu_slide_up.wacd
+        transition-to   = slide_up   (hold 333 ms, then translate Y 280 -> 0)
+        transition-from = slide_down (hold 333 ms, then translate Y   0 -> 280)
+     - tags\ui\halox\main_menu\animations\lobby_slide.wacd
+        transition-to   = lobby_slide_in  (hold 333 ms at X=-540, then slide to 0)
+        transition-from = lobby_slide_out (slide X 0 -> -540 over 333 ms, then hold)
+
+   720p pixel deltas mapped to container-query units:
+     Y = 280 / 720  = 38.89cqh  (main menu panel slides down)
+     X = 540 / 1280 = 42.19cqw  (lobby panel slides left)
+
+   Engine plays the outgoing screen's `transition-from` and the incoming
+   screen's `transition-to` CONCURRENTLY over 666 ms. The 333 ms holds in
+   the keyframes are what produce the staggered visual:
+     - lobby -> main: lobby slides out (0-333 ms), main slides up (333-666 ms)
+                       => sequential handoff
+     - main -> lobby: both hold (0-333 ms), main slides down + lobby slides in (333-666 ms)
+                       => simultaneous motion
+   ===================================================================== */
+
+/* Main menu panel - vertical slide (drives translateY) */
+@keyframes mm-panel-enter {  /* slide_up - engine pattern: hold then move */
+  0%   { transform: translateY(38.89cqh); }
+  50%  { transform: translateY(38.89cqh); }
+  100% { transform: translateY(0); }
+}
+/* slide_down (engine): hold 0-50%, then move down 50-100%.
+
+   We deliberately diverge here and run the motion in the FIRST half
+   (0-50%) so the outgoing main panel is fully off-screen by the time
+   the incoming lobby panel's slide-in starts at 50%. The engine's raw
+   timing has both screens animate concurrently in the back half, which
+   in retail is masked by the 3D scene camera change (`custom_cam`) and
+   the `fade_to_black` bitmap. We have neither in this flat 2D mockup,
+   so without this swap the two panels visibly overlap mid-transition.
+
+   Net effect on main->lobby: main leaves in first half, lobby enters
+   in second half - clean sequential handoff, same 666 ms total. The
+   reverse direction (lobby->main) is already sequential because
+   lobby_slide_out's tag data legitimately moves in the first half. */
+@keyframes mm-panel-leave {  /* slide_down (re-phased to first half) */
+  0%   { transform: translateY(0); }
+  50%  { transform: translateY(38.89cqh); }
+  100% { transform: translateY(38.89cqh); }
+}
+
+/* Lobby panel - horizontal slide (drives translateX) */
+@keyframes lobby-panel-enter {  /* lobby_slide_in */
+  0%   { transform: translateX(-42.19cqw); }
+  50%  { transform: translateX(-42.19cqw); }
+  100% { transform: translateX(0); }
+}
+@keyframes lobby-panel-leave {  /* lobby_slide_out */
+  0%   { transform: translateX(0); }
+  50%  { transform: translateX(-42.19cqw); }
+  100% { transform: translateX(-42.19cqw); }
+}
+
+/* Companion fades for the surrounding chrome that the tags assign to
+   `custom transition in 0` = fade_in_250 / `out 0` = fade_out_250.
+   Two variants matching the two slide patterns:
+
+     - *-late = motion in the second half (333-666 ms)
+       used when the panel slides in the second half too:
+         main menu slide_up    (enter)
+         main menu slide_down  (leave)
+         lobby lobby_slide_in  (enter)
+
+     - *-early = motion in the first half (0-333 ms)
+       used when the panel slides in the first half:
+         lobby lobby_slide_out (leave)
+
+   Aligning the fade with the slide keeps "page presence" coherent: the
+   page becomes visible / invisible exactly when its panel is moving. */
+@keyframes companion-fade-in {        /* matches second-half slide  */
+  0%   { opacity: 0; }
+  50%  { opacity: 0; }
+  100% { opacity: 1; }
+}
+@keyframes companion-fade-out-late {  /* matches second-half slide  */
+  0%   { opacity: 1; }
+  50%  { opacity: 1; }
+  100% { opacity: 0; }
+}
+@keyframes companion-fade-out {       /* matches first-half slide   */
+  0%   { opacity: 1; }
+  50%  { opacity: 0; }
+  100% { opacity: 0; }
+}
+
+/* Active animations toggled by app.js. A .page in steady state has no
+   animation class; entering plays the matching enter keyframes; leaving
+   plays the leave keyframes. Both pages run their animation concurrently
+   during the 666 ms transition window. */
+/* ---------------------------------------------------------------------
+   Page-level fades. Each page wrapper carries an opacity animation that
+   times-aligns with its panel's slide. Because opacity cascades, this
+   single rule covers:
+     - the page's own background / ::before tint (lobby darkening overlay)
+     - the panel (extra opacity on top of its slide transform)
+     - all chrome inside the page (logos, roster, button keys)
+
+   Pairing rule:
+     fade-late  goes with panels that move in the 2nd half of the window
+     fade-early goes with panels that move in the 1st half of the window
+   --------------------------------------------------------------------- */
+.page--main-menu.is-entering,
+.page--main-menu.is-initial {
+  animation: companion-fade-in 666ms ease-out both;
+}
+/* `companion-fade-out` (front half) - matches the re-phased
+   mm-panel-leave above so the panel and the chrome both vacate the
+   canvas in the first 333 ms. The lobby's entrance then has the back
+   half to itself. */
+.page--main-menu.is-leaving {
+  animation: companion-fade-out 666ms ease-in both;
+}
+
+.page--lobby.is-entering {
+  animation: companion-fade-in 666ms ease-out both;
+}
+.page--lobby.is-leaving {
+  animation: companion-fade-out 666ms ease-in both;
+}
+
+/* Panel transforms layered on top of the page fades. The slide
+   keyframes themselves dictate which half of the 666 ms window the
+   visible motion happens in - the page fades above are matched to those
+   windows so panel + page reach their end states together. */
+.page--main-menu.is-entering .menu-panel,
+.page--main-menu.is-initial   .menu-panel {
+  animation: mm-panel-enter 666ms cubic-bezier(0.16, 0.84, 0.44, 1) both;
+}
+.page--main-menu.is-leaving .menu-panel {
+  animation: mm-panel-leave 666ms cubic-bezier(0.55, 0, 0.85, 0.16) both;
+}
+
+.page--lobby.is-entering .lobby-panel {
+  animation: lobby-panel-enter 666ms cubic-bezier(0.16, 0.84, 0.44, 1) both;
+}
+.page--lobby.is-leaving .lobby-panel {
+  animation: lobby-panel-leave 666ms cubic-bezier(0.55, 0, 0.85, 0.16) both;
+}
+
+/* The `delayd-fade-in` class is still used by .chrome--title etc. for the
+   one-shot logo intro on first load. Same timing as companion-fade-in. */
+.delayd-fade-in {
+  animation: companion-fade-in 666ms ease-out both;
+  animation-delay: 200ms;
+}
+
+.black-fade {
+  position: absolute;
+  inset: 0;
+  background: #000;
+  z-index: 200;
+  animation: black-fade-out 800ms ease-out forwards;
+  pointer-events: none;
+}
+@keyframes black-fade-out {
+  0%   { opacity: 1; }
+  60%  { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* =====================================================================
+   Submenu stub overlay
+   ===================================================================== */
+.overlay {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(7px);
+  z-index: 250;
+  animation: overlay-in 200ms ease-out both;
+}
+.overlay[hidden] { display: none; }
+.debug[hidden]   { display: none; }
+
+.overlay__card {
+  min-width: 40%;
+  padding: 2.5cqh 3cqh;
+  background: linear-gradient(
+    hsl(216deg 70% 17% / 92%),
+    hsl(219deg 70% 8% / 92%)
+  );
+  border-top:    0.139cqh solid rgba(64, 69, 78, 0.85);
+  border-bottom: 0.139cqh solid rgba(64, 69, 78, 0.85);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+  text-align: center;
+}
+
+.overlay__card h2 {
+  margin: 0 0 0.6cqh 0;
+  font-size: 5cqh;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  color: var(--color-hilite);
+}
+
+.overlay__tag {
+  margin: 0 0 1.4cqh 0;
+  font-family: "Consolas", "Lucida Console", monospace;
+  font-size: 1.6cqh;
+  color: rgba(255, 255, 255, 0.5);
+  word-break: break-all;
+}
+
+.overlay__hint {
+  margin: 0;
+  font-size: 2.2cqh;
+  color: var(--color-ice);
+}
+
+@keyframes overlay-in {
+  0%   { opacity: 0; transform: scale(0.98); }
+  100% { opacity: 1; transform: scale(1.00); }
+}
+
+/* =====================================================================
+   Pregame Lobby (shared template for all 5 game modes).
+
+   Authoritative refs:
+     - tags\ui\halox\pregame_lobby\pregame_lobby_template.gui_screen_widget_definition
+     - tags\ui\halox\pregame_lobby\pregame_lobby_template.gui_group_widget_definition
+     - tags\ui\halox\pregame_lobby\lobby_list_<mode>.gui_datasource_definition
+
+   Channel panel widget bounds 720p="0,79,640,542":
+     top    = 0/720         = 0%
+     left   = 79/1280       = 6.17%
+     bottom = (720-640)/720 = 11.11%   (we anchor with `bottom: 11.11%`)
+     width  = (542-79)/1280 = 36.17%
+
+   All inner widget percentages below are panel-relative (i.e. computed
+   against the panel's own 463x640 (1280x720 px) box, not the screen).
+   ===================================================================== */
+/* The lobby template doesn't load a new background tag â€” the engine just
+   keeps the same 3D scene and stamps the channel panel on top, plus an
+   alpha-driven darkening overlay from the `fade` bitmap widget
+   (blackness_ui + ui\halox\pregame_lobby\animations\fade_to_black). In
+   the mockup we approximate that overlay with a tinted layer that lives
+   INSIDE the page so it inherits the page's enter/leave opacity fade.
+   The .screen base gradient (warm orange + halo logo) shows through. */
+.page--lobby::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(ellipse at 70% 40%, rgba(120, 70, 30, 0.3) 0%, transparent 55%),
+    radial-gradient(ellipse at 30% 80%, rgba(20, 35, 55, 0.4)  0%, transparent 60%),
+    linear-gradient(180deg, rgba(8, 17, 26, 0.55) 0%, rgba(20, 22, 12, 0.55) 65%, rgba(31, 12, 4, 0.55) 100%);
+}
+/* Panel + roster + everything else stays above the tint. */
+.page--lobby > * { position: relative; z-index: 1; }
+
+/* =====================================================================
+   Lobby panel - re-skinned from ElDewrito's `.dialog`
+   (D:\Games\ElDewrito\ElDewrito\ui\screens\dialog\style.css) which is
+   itself a CEF re-skin of pregame_lobby_template. The grammar is:
+
+     .lobby-panel             ~ #dialog            (positioning shell)
+     .lobby-panel__header     ~ .dialog-header     (title strip)
+       .lobby-title           ~ .dialog-title      (hilite, large)
+     .lobby-panel__body       ~ .dialog-body       (blue gradient)
+       ul.lobby-list          ~ ul.dialog-list     (rows + focus bar)
+       .lobby-status-block                         (Ready + paragraph)
+       .lobby-preview                              (map_image + gametype)
+       .lobby-game-name                            (multiplayer_game_name)
+     .lobby-panel__footer     ~ .dialog-footer     (button-key prompts)
+
+   Tag bounds (pregame_lobby_template) are honoured in spirit: the
+   channel panel is bounds 720p="0,79,640,542" so it sits in the same
+   left-edge slot as the main menu, but spans the full canvas height. */
+.lobby-panel {
+  position: absolute;
+  top:    0;
+  left:   6.17%;     /* 79/1280 */
+  bottom: 0;         /* extend to canvas floor; .lobby-panel__skirt fades
+                        the panel chrome out below the footer, mirroring
+                        the main menu panel layout. */
+  width:  74.5cqh;    /* (542-79)/1280 = 463/1280 */
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  pointer-events: auto;
+  will-change: transform;   /* lobby-panel-enter / -leave keyframes */
+}
+
+/* Header strip - mirrors .dialog-header: dark navy fill, hairline top/
+   bottom borders, fixed-height ribbon hosting the title. */
+.lobby-panel__header {
+  flex: 0 0 auto;
+  position: relative;
+  height: 12cqh;          /* ElDewrito uses 6.25vh against a 100vh body;
+                              our canvas is 100cqh tall, so ~8 cqh keeps
+                              the proportion against a slightly taller
+                              lobby. */
+  padding: 0 1.25cqh;
+  display: flex;
+  align-items: end;
+  background: hsl(210deg 30% 10% / 85%);
+  border-top:    0px solid rgba(64, 69, 78, 0.85);
+  border-bottom: 1px solid rgba(64, 69, 78, 0.85);
+}
+
+/* .dialog-title: font-size 6.66vh, color hilite. Our 16:9 canvas uses
+   cqh, so 6.6cqh produces the same visual size. */
+.lobby-title {
+  margin: 0;
+  font-family: "Conduit ITC", "Bahnschrift", "Eurostile", sans-serif;
+  font-size: 6.6cqh;
+  font-weight: normal;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  color: var(--color-hilite);
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+  line-height: 1;
+}
+
+/* Body = .dialog-body. Holds the list, status block, preview, and
+   game-name caption stacked vertically inside the dark blue gradient. */
+.lobby-panel__body {
+  flex: 1 1 auto;
+  min-height: 0;
+  position: relative;
+  padding: 0cqh 1.25cqh 0;
+  background: linear-gradient(
+    hsl(216deg 70% 17% / 85%),
+    hsl(219deg 70% 8%  / 85%)
+  );
+  backdrop-filter: blur(7px);
+  -webkit-backdrop-filter: blur(7px);
+  color: var(--color-ice);
+  overflow: hidden;
+}
+
+/* ----- list rows ---------------------------------------------------- */
+/* Matches ElDewrito `ul.dialog-list`:
+     - font-size 3.26vh
+     - uppercase
+     - padding-bottom 0.4vh per row
+     - focus bar = buttonhover.svg, opacity 0 -> 1 on .hilite (here:
+       .lobby-list__item--focused)
+   The list itself bleeds out of the body's horizontal padding with a
+   negative margin so the focus gradient (and the separator hairline)
+   reach the panel edges, while text inside each row is re-indented via
+   the row's own padding.
+
+   The list spans exactly the "controls section" of the panel - from
+   the header strip's bottom border down to the
+   .lobby-list__item--separated's bottom border - so it carries its
+   own background gradient (a slightly brighter blue band over the
+   body's darker base) to visually group the settings + primary action
+   rows as a single block, distinct from the status / preview / caption
+   region below. The focus bar ::before lives in an isolation context
+   on each LI at z-index -1, which sits *above* the LI's own background
+   but *below* this list-level gradient is irrelevant: the gradient is
+   on the parent UL, so it never occludes the focus bar. */
+.lobby-list {
+  list-style: none;
+  margin: 0 -2.25cqh;       /* cancel .lobby-panel__body padding-x */
+  padding: 1cqh 0 0 1cqh;
+  position: relative;
+  isolation: isolate;
+  /* Three-stop gradient sampled directly from the retail / ElDewrito
+     reference. A dense vertical color sweep (x=600 in the reference,
+     y=138 -> y=434) shows the controls section is *not* a linear ramp:
+     it dims from a brighter steel-blue at the top to a darkest point
+     around ~62% down, then bumps back up slightly at the very bottom.
+       y=138 (top, under header bottom border): rgb(47, 66, 96)  0%
+       y=322 (darkest point):                   rgb(31, 45, 72) ~62%
+       y=426 (bottom, at separated row border): rgb(29, 46, 76) 100%
+     Hue stays at ~218 throughout; the curve is in saturation +
+     lightness, giving the band a subtle "trough" of shadow about
+     two-thirds of the way down before lifting at the bottom border. */
+  background: linear-gradient(
+    180deg,
+    rgb(47, 66, 96)  0%,
+    rgb(31, 45, 72) 62%,
+    rgb(29, 46, 76) 100%
+  );
+}
+
+.lobby-list__item {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  align-items: center;
+  font-size: 3.26cqh;
+  line-height: 4cqh;
+  padding: 0 1.25cqh 0.4cqh;  /* re-indent text inside the full-width row */
+  margin: 0;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  color: var(--color-ice);
+  cursor: pointer;
+  pointer-events: auto;
+  user-select: none;
+  white-space: nowrap;
+  overflow: hidden;
+  transition: color 100ms linear;
+}
+
+.lobby-list__item::before {
+  content: "";
+  position: absolute;
+  /* Full-bleed focus bar - extends to panel edges, text stays inside the
+     row's own 1.25cqh horizontal padding. */
+  inset: 0;
+  background: url("assets/buttonhover.svg") center/100% 100% no-repeat;
+  opacity: 0;
+  transition: opacity 120ms linear;
+  z-index: -1;
+  will-change: opacity;
+}
+
+.lobby-list__item--focused {
+  color: var(--color-hilite);
+}
+.lobby-list__item--focused::before {
+  opacity: 1;
+  transition: none;
+}
+
+/* Separator wrapper for the "primary action" row (START GAME /
+   FIND GAME / EDIT MAP / PLAY FILM). app.js tags this class so the
+   row is bracketed by hairlines above + below, matching retail.
+   Mirrors the main menu's .menu-panel__header treatment:
+     - 0.5cqh vertical padding (same as .menu-panel__header)
+     - top + bottom hairline borders using the brighter
+       rgba(64, 69, 78, 0.85) color shared with the title strip
+     - the row is full-bleed (the ul's -1.25cqh margin) so the borders
+       reach the panel edges automatically
+     - the focus ::before is inset top/bottom by the padding so the
+       buttonhover gradient never crowds either separator line, again
+       mirroring how the main menu header keeps its focus bar inside
+       the header's 0.5cqh top/bottom padding. */
+.lobby-list__item--separated {
+  margin-top: 0.4cqh;
+  padding-top:    1cqh;
+  padding-bottom: 1cqh;
+  border-top:    2px solid rgba(64, 69, 78, 0.85);
+  border-bottom: 2px solid rgba(64, 69, 78, 0.85);
+}
+
+.lobby-list__item--separated::before {
+  top:    0.5cqh;
+  bottom: 0.5cqh;
+}
+
+/* Inline LABEL: VALUE - both halves inherit the row color so retail's
+   single-tone unfocused / focused look is preserved. The ": " is drawn
+   by the value's ::before pseudo because flex collapses literal text-
+   node whitespace into anonymous flex items. */
+.lobby-list__name,
+.lobby-list__value {
+  flex: 0 0 auto;
+  color: inherit;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.lobby-list__value::before {
+  content: ": ";
+  white-space: pre;
+}
+
+/* ----- status block ------------------------------------------------- */
+/* "Ready" sub-header in hilite + body-text paragraph in ice. The divider
+   above this block is the bottom border of the .lobby-list__item--
+   separated row above, which already extends edge-to-edge, so no border
+   is needed here. */
+.lobby-status-block {
+  margin-top: 0.8cqh;
+}
+.lobby-status__heading {
+  font-size: 3.26cqh;
+  text-transform: none;
+  color: var(--color-hilite);
+  margin-bottom: 0.2cqh;
+}
+.lobby-status {
+  margin: 0;
+  font-family: "Conduit ITC", "Bahnschrift", "Eurostile", sans-serif;
+  font-size: 3.26cqh;
+  line-height: 1;
+  color: var(--color-ice);
+  overflow: hidden;
+}
+
+/* Modes without a preview hide the preview + game-name rows but keep
+   the status block visible. */
+.page--lobby[data-show-preview="false"] .lobby-preview,
+.page--lobby[data-show-preview="false"] .lobby-game-name {
+  display: none;
+}
+
+/* ----- preview ------------------------------------------------------ */
+/* map_image (346,79,498,542) + gametype_image (356,90,486,220). The
+   map_image bounds span x=79->542, i.e. the entire channel panel width,
+   so the preview is full-bleed: same -1.25cqh / +1.25cqh negative-margin
+   trick used by .lobby-list cancels the body's horizontal padding. The
+   gametype_image percents (2.38% left, 28.07% width) are already
+   panel-relative, so the inner tile keeps its tag-derived position. */
+.lobby-preview {
+  position: relative;
+  margin: 0.8cqh -1.25cqh 0;
+  aspect-ratio: 463 / 152;   /* (542-79) / (498-346) */
+  overflow: hidden;
+  pointer-events: none;
+  border-top:    0px solid rgba(64, 69, 78, 0.85);
+  border-bottom: 0px solid rgba(64, 69, 78, 0.85);
+}
+
+.lobby-preview__map {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 70% 30%, rgba(180, 220, 255, 0.18) 0%, transparent 60%),
+    linear-gradient(135deg, #234d70 0%, #1a2c43 40%, #4a3320 100%);
+}
+
+/* gametype_image: bounds 720p="356,90,486,220" inside the map_image box.
+     top    inside preview = (356-346)/(498-346) =  6.58%
+     left   inside preview = (90 -79 )/(542-79 ) =  2.38%
+     bottom inside preview = (486-346)/(498-346) = 92.11%  -> height = 85.53%
+     right  inside preview = (220-79 )/(542-79 ) = 30.45% */
+.lobby-preview__gametype {
+  position: absolute;
+  top:     6.58%;
+  left:    2.38%;
+  width:  28.07%;     /* 30.45% - 2.38% */
+  height: 85.53%;
+  display: grid;
+  place-items: center;
+  font-family: "Conduit ITC", sans-serif;
+  font-size: 2.4cqh;
+  letter-spacing: 0.08em;
+  color: var(--color-hilite);
+  background: linear-gradient(180deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.75) 100%);
+  border: 1px solid rgba(160, 180, 220, 0.45);
+  box-shadow: 0 0.139cqh 1.4cqh rgba(0, 0, 0, 0.5);
+}
+
+.lobby-preview__shade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.55) 100%);
+}
+
+/* multiplayer_game_name caption: ice color, sits below the preview.
+   In the body flex flow this is a normal block, no absolute offsets. */
+.lobby-game-name {
+  margin-top: 0.6cqh;
+  font-family: "Conduit ITC", sans-serif;
+  font-size: 3.26cqh;
+  letter-spacing: 0;
+  color: var(--color-ice);
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Footer = .dialog-footer in ElDewrito: docked to the panel bottom with
+   the button-key prompts. */
+.lobby-panel__footer {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 1cqh 0 1.0cqh 1.5cqh;
+  background: linear-gradient(
+    hsl(219deg 70% 6% / 60%),
+    hsl(220deg 70% 4% / 90%)
+  );
+  border-top: 1px solid rgba(64, 69, 78, 0.6);
+  color: var(--color-ice);
+  font-size: 2.0cqh;
+}
+
+/* Skirt - same role as .menu-panel__skirt: continues the dark panel
+   chrome past the footer and fades to fully transparent so the lobby
+   doesn't end with a hard horizontal edge above the canvas floor.
+   Uses the same four-stop fade as the main menu skirt so both panels
+   blend into the screen in identical fashion. */
+.lobby-panel__skirt {
+  flex: 0 0 auto;
+  height: 8cqh;
+  background: linear-gradient(
+    hsl(220deg 70% 4% / 90%) 0%,
+    hsl(220deg 70% 3% / 70%) 35%,
+    hsl(220deg 70% 2% / 35%) 70%,
+    hsl(220deg 70% 0% / 0%)  100%
+  );
+}
+
+/* =====================================================================
+   PLAYERS-IN-GAME HEADER (above roster)
+   ---------------------------------------------------------------------
+   Source: pregame_lobby_template.grup -> text_widget_block index=1
+     name="players_in_game"
+     bounds_720p = (top=36, left=846, bottom=73, right=1093)
+     font="body text", justify=left, color_preset="" (default ice)
+   Engine pumps "X / 16" at runtime; value identifier is empty so the
+   text comes directly from the bound roster datasource. We mirror that
+   layout exactly: width/height/top from canvas %, right-anchored to
+   align with the roster column below it.
+   ===================================================================== */
+.lobby-players {
+  position: absolute;
+  top:    4%;            /* 36 / 720 = 5.0%, nudged up to clear the
+                              focused row's 12px hilite bleed (1.67cqh
+                              -> ~2.3% in viewport units) */
+  right:  2.5%;            /* same right inset as .lobby-roster */
+  width: 24.5%;            /* matches .lobby-roster so it sits directly above */
+  height: 5.14%;           /* (73 - 36) / 720 */
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;  /* right-align so the value hugs the roster's right edge */
+  gap: 0.3cqh;
+  padding: 0 0.6cqh;
+  font-family: "Conduit ITC", sans-serif;
+  font-size: 3.0cqh;       /* body text â€” slightly larger because of XML widget height (~37px @ 720p) */
+  color: var(--color-ice);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  pointer-events: none;
+  white-space: nowrap;
+  /* Sit above the focused row's upward hilite bleed */
+  z-index: 10;
+}
+
+.lobby-players__count {
+  color: var(--color-hilite);
+  font-weight: 500;
+}
+
+.lobby-players__sep {
+  opacity: 0.6;
+  margin: 0 0.2cqh;
+}
+
+.lobby-players__max {
+  color: var(--color-ice);
+  opacity: 0.85;
+}
+
+/* =====================================================================
+   ROSTER SIDEBAR
+   ---------------------------------------------------------------------
+   Source: ui\halox\common\roster\roster.grup
+     -> roster.lst3 (16 slot list_widget, vertical, 32px pitch)
+     -> roster.skn3 (per-slot skin: emblem + name + service_tag + rank_tray
+                     + skill_level + experience + party_bar + ring_of_light
+                     + matchmaking rings)
+
+   The slot's local coordinate origin (left=0) is where the PLAYER NAME
+   begins. Sub-elements with negative `left` (emblem at -32, ring_of_light
+   at -63, base_color at -36) protrude to the LEFT of the name anchor.
+   Sub-elements with positive `left` (rank_tray at 193, skill at 200,
+   experience at 226, party_bar at 250) sit to the RIGHT.
+
+   We map the full slot extent (x=-63 .. x=250 = 313px @ 720p) onto the
+   panel content width, and place each child as a percentage of that.
+   ===================================================================== */
+
+/* Panel itself: matches the source widget's right-edge anchor at top=64
+   (8.89%) and a width big enough to hold the 313px @ 720p slot content
+   (313 / 1280 = 24.4%). Bottom is far enough off the floor to clear the
+   16 rows (16 * 32 = 512px = 71.1% of 720) plus a small bottom inset. */
+.lobby-roster {
+  position: absolute;
+  top:    10.9%;     /* 64 / 720 (top of group widget) */
+  right:  8%;
+  width: 24.5%;      /* fits the ~313 @ 720p slot extent */
+  bottom: 8%;        /* 16 * 4.44 cqh = ~71.1 + 8.89 top + 8 bottom < 100 */
+  padding: 0;
+  color: var(--color-ice);
+  font-family: "Conduit ITC", sans-serif;
+  pointer-events: auto;
+  /* No background of its own â€” each slot draws its own .roster-slot__base
+     so empty slots stay transparent (matching retail, where unused slots
+     show their dim 'roster_unfocused_ui' strip but no panel chrome). */
+}
+
+.lobby-roster__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  /* No gap â€” slot pitch comes from .roster-slot's fixed height. */
+}
+
+/* -- A single nameplate slot ------------------------------------------
+   Slot box = full panel width (the 313px @ 720p extent) x 32px tall.
+   Sub-elements are absolute-positioned with percentages so the layout
+   scales cleanly with .lobby-roster's width. All %s are sampled from
+   the bounds in roster.skn3 by mapping xâˆˆ[-63, 250] -> 0..100%. */
+.roster-slot {
+  position: relative;
+  width: 100%;
+  height: 4.44cqh;            /* 32 / 720 */
+  /* The hilite bitmaps in roster.skn3 (base_color_hilite at top=-12,
+     name_hilite at top=-7) bleed above the slot. overflow: visible lets
+     them paint upward into the row above without clipping. */
+  overflow: visible;
+  font-size: 2.4cqh;
+  line-height: 1;
+  color: var(--color-ice);
+  white-space: nowrap;
+}
+
+/* Hide unused slots entirely. The roster.lst3 always defines 16 slot
+   templates, but in retail the engine only paints the rows backed by an
+   actual player; press_a_to_join is reserved for split-screen guest
+   prompts the engine drives separately. The .lobby-players header still
+   tells the user how many seats exist (X / 16). */
+.roster-slot[data-state="empty"] {
+  display: none;
+}
+
+/* ---- base_color / base_color_hilite ---------------------------------
+   Source: roster.skn3 bitmap_widget_block 0 (base_color, top=0, left=-36)
+   and 1 (base_color_hilite, top=-12, left=-36). Both reference white-
+   alpha-mask bitmaps that the engine tints at runtime â€” see
+   assets/roster/roster_unfocused_ui.png (284x31, RGBA white mask) and
+   assets/roster/roster_focused_ui.png (286x228, RGBA black halo).
+
+   Native bitmap is 284px wide @ 720p, mapped to (284/313 = 90.74%) of
+   slot extent. Left edge at slot x=-36 -> (-36 - -63)/313 = 8.63%.
+
+   The mask is BRIGHTEST AT TOP, FADES TO TRANSPARENT AT THE BOTTOM,
+   so the strip has the angled-bottom look retail H3 nameplates have.
+   Identical for empty AND filled slots â€” the engine's base_color is
+   unconditional. Only "PRESS A TO JOIN" overlays for empty slots. */
+.roster-slot__base {
+  position: absolute;
+  left: 8.63%;                /* (-36 - -63) / 313 */
+  top: 0;
+  width: 90.74%;              /* 284 / 313 (real bitmap width) */
+  height: 100%;
+  /* Tint underneath = engine's ice/blue recolor of the white mask */
+  background: linear-gradient(
+    180deg,
+    hsl(212deg 55% 38% / 0.85) 0%,
+    hsl(214deg 55% 22% / 0.85) 100%
+  );
+  /* The mask carves the strip's signature top-bright/bottom-fade shape */
+  -webkit-mask: url("assets/roster/roster_unfocused_ui.png") left top / 100% 100% no-repeat;
+          mask: url("assets/roster/roster_unfocused_ui.png") left top / 100% 100% no-repeat;
+  transition: background 120ms linear;
+  z-index: 1;
+}
+
+.roster-slot[data-focused="true"] .roster-slot__base {
+  /* base_color_hilite swap: bleeds 12px (1.67cqh) above the row,
+     brighter blue tint, plus the roster_focused_ui halo behind it. */
+  top: -1.67cqh;
+  height: calc(100% + 1.67cqh);
+  background: linear-gradient(
+    180deg,
+    hsl(206deg 75% 55% / 0.95) 0%,
+    hsl(208deg 75% 32% / 0.95) 100%
+  );
+}
+
+/* base_color is unconditional in the XML, so empty slots get the SAME
+   strip â€” no [data-state="empty"] override here. */
+
+/* ---- name (text) ----------------------------------------------------
+   Tag bounds: top=3, left=0, bottom=33, right=202 -> 202x30 text box.
+   In slot %: left=(0 - -63)/313=20.13%, width=202/313=64.54%,
+   top=3/32=9.38%, height=30/32=93.75%. */
+.roster-slot__name {
+  position: absolute;
+  left: 20.13%;
+  top: 9.38%;
+  width: 64.54%;
+  height: 93.75%;
+  font-size: 2.6cqh;          /* body text @ 720p ~ 2.6cqh */
+  font-family: "Conduit ITC", sans-serif;
+  color: var(--color-ice);
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  z-index: 4;
+  transition: color 120ms linear, transform 120ms ease-out;
+}
+
+.roster-slot[data-focused="true"] .roster-slot__name {
+  /* name_hilite at top=-7, left=7 means it slides up + right when focused. */
+  top: -21.88%;               /* -7 / 32 */
+  left: 22.36%;               /* (7 - -63) / 313 */
+  color: var(--color-hilite);
+  font-weight: 500;
+}
+
+.roster-slot[data-state="empty"] .roster-slot__name { display: none; }
+
+/* ---- service_tag (text) ---------------------------------------------
+   Tag bounds: top=15, left=7, bottom=46, right=209 -> 202x31 box.
+   In slot %: left=(7 - -63)/313=22.36%, top=15/32=46.88%, width=64.54%,
+   height=31/32=96.88%. The box overflows the slot (extends to 144%),
+   which retail uses to render the tag slightly into the next row's
+   negative-space â€” overflow: visible on .roster-slot lets that work. */
+.roster-slot__service-tag {
+  position: absolute;
+  left: 22.36%;
+  top: 46.88%;
+  width: 64.54%;
+  font-size: 1.6cqh;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-dim);
+  z-index: 4;
+  transition: color 120ms linear;
+}
+
+.roster-slot[data-focused="true"] .roster-slot__service-tag {
+  color: var(--color-iceblue);
+}
+
+.roster-slot[data-state="empty"] .roster-slot__service-tag { display: none; }
+
+/* ---- empty_prompt (press_a_to_join) ---------------------------------
+   Shown only when data-state="empty". Tag bounds: top=3, left=-27,
+   bottom=35, right=240 -> spans most of the slot width.
+   In slot %: left=(-27 - -63)/313=11.50%, width=(240 - -27)/313=85.30%. */
+.roster-slot__empty-prompt {
+  position: absolute;
+  left: 11.50%;
+  top: 9.38%;
+  width: 85.30%;
+  height: 93.75%;
+  display: none;
+  align-items: center;
+  font-size: 2.2cqh;          /* body text @ 720p */
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  /* XML color preset = "" -> default ice */
+  color: var(--color-ice);
+  opacity: 0.75;
+  z-index: 4;
+}
+
+.roster-slot[data-state="empty"] .roster-slot__empty-prompt {
+  display: flex;
+}
+
+/* NOTE: emblem / rank_tray / skill_level / experience / party_bar /
+   ring_of_light / matchmaking rings (outer_ring + middle_ring) all map
+   to bitmap-driven widgets in roster.skn3 â€” see
+   data.json#pregame_lobbies.template.roster.skin_elements for their
+   bounds_720p and CSS class assignments. Their DOM nodes are intentionally
+   omitted from buildRosterSlots() until real artwork is wired in from the
+   exported sprite sheets in assets/roster/. */
+
+/* =====================================================================
+   Debug + controls hint
+   ===================================================================== */
+.debug {
+  position: absolute;
+  top: 1em;
+  left: 1em;
+  padding: 0.6em 0.9em;
+  font-family: "Consolas", "Lucida Console", monospace;
+  font-size: 12px;
+  background: rgba(0, 0, 0, 0.7);
+  border: 1px solid rgba(120, 220, 255, 0.4);
+  color: #cfeefb;
+  letter-spacing: 0;
+  z-index: 999;
+}
+
+.controls-hint {
+  position: fixed;
+  bottom: 0.6em;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.4);
+  font-family: "Consolas", "Lucida Console", monospace;
+  z-index: 999;
+  pointer-events: none;
+  white-space: nowrap;
+  letter-spacing: 0;
+}

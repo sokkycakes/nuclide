@@ -1,0 +1,109 @@
+Opened log file 'C:\Users\sokky\Documents\Godot\bulwark_proto_funny\nuclide\dmp2_analysis.txt'
+
+Microsoft (R) Windows Debugger Version 10.0.17763.132 AMD64
+Copyright (c) Microsoft Corporation. All rights reserved.
+
+NatVis script successfully loaded from 'C:\Program Files\Windows Kits\10\Debuggers\x64\Visualizers\atlmfc.natvis'
+NatVis script successfully loaded from 'C:\Program Files\Windows Kits\10\Debuggers\x64\Visualizers\concurrency.natvis'
+NatVis script successfully loaded from 'C:\Program Files\Windows Kits\10\Debuggers\x64\Visualizers\cpp_rest.natvis'
+NatVis script successfully loaded from 'C:\Program Files\Windows Kits\10\Debuggers\x64\Visualizers\stl.natvis'
+NatVis script successfully loaded from 'C:\Program Files\Windows Kits\10\Debuggers\x64\Visualizers\Windows.Data.Json.natvis'
+NatVis script successfully loaded from 'C:\Program Files\Windows Kits\10\Debuggers\x64\Visualizers\Windows.Devices.Geolocation.natvis'
+NatVis script successfully loaded from 'C:\Program Files\Windows Kits\10\Debuggers\x64\Visualizers\Windows.Devices.Sensors.natvis'
+NatVis script successfully loaded from 'C:\Program Files\Windows Kits\10\Debuggers\x64\Visualizers\Windows.Media.natvis'
+NatVis script successfully loaded from 'C:\Program Files\Windows Kits\10\Debuggers\x64\Visualizers\windows.natvis'
+NatVis script successfully loaded from 'C:\Program Files\Windows Kits\10\Debuggers\x64\Visualizers\winrt.natvis'
+
+Loading Dump File [C:\Users\sokky\AppData\Local\CrashDumps\fteqw64.exe.373176.dmp]
+User Mini Dump File: Only registers, stack and portions of memory are available
+
+
+************* Path validation summary **************
+Response                         Time (ms)     Location
+OK                                             C:\bld\fteqw_src2\build
+OK                                             C:\Users\sokky\Documents\Godot\bulwark_proto_funny\nuclide
+Symbol search path is: C:\bld\fteqw_src2\build;C:\Users\sokky\Documents\Godot\bulwark_proto_funny\nuclide
+Executable search path is: 
+Windows 10 Version 22631 MP (16 procs) Free x64
+Product: WinNt, suite: SingleUserTS
+22621.1.amd64fre.ni_release.220506-1250
+Machine Name:
+Debug session time: Wed Jun 17 09:15:20.000 2026 (UTC - 5:00)
+System Uptime: not available
+Process Uptime: 0 days 0:00:05.000
+................................................................
+.............................................................
+Loading unloaded module list
+......
+This dump file has an exception of interest stored in it.
+The stored exception information can be accessed via .ecxr.
+(5b1b8.5b254): Access violation - code c0000005 (first/second chance not available)
+*** ERROR: Symbol file could not be found.  Defaulted to export symbols for ntdll.dll - 
+*** ERROR: Symbol file could not be found.  Defaulted to export symbols for KERNELBASE.dll - 
+ntdll!ZwWaitForMultipleObjects+0x14:
+00007ffc`369d1954 c3              ret
+0:000> .ecxr; .echo ===STACK===; kP 100; .echo ===EXCEPTION===; .exr -1; .echo ===REGS===; r; .echo done; q
+*** WARNING: Unable to verify checksum for fteqw64.exe
+*** ERROR: Symbol file could not be found.  Defaulted to export symbols for fteqw64.exe - 
+rax=00000081cc0fd510 rbx=00000081cc0fd470 rcx=0000022dbcf32118
+rdx=0000000000000003 rsi=0000000000000009 rdi=0000022dbcf32118
+rip=00007ff76573ff53 rsp=00000081cc0fd450 rbp=0000000000000001
+ r8=0000000000000008  r9=0000022c261cde44 r10=0000022c261cde40
+r11=00000081cc0fd29c r12=0000022d32bd3701 r13=0000000000000000
+r14=ff232323ff272727 r15=0000000000000003
+iopl=0         nv up ei ng nz na po nc
+cs=0033  ss=002b  ds=002b  es=002b  fs=0053  gs=002b             efl=00010286
+fteqw64+0x3ff53:
+00007ff7`6573ff53 418b4610        mov     eax,dword ptr [r14+10h] ds:ff232323`ff272737=????????
+===STACK===
+Child-SP          RetAddr           Call Site
+00000081`cc0fd450 00007ff7`65742674 fteqw64+0x3ff53
+00000081`cc0fd4e0 00007ff7`6572f123 fteqw64+0x42674
+00000081`cc0fd5d0 00007ff7`6574be25 fteqw64+0x2f123
+00000081`cc0fd670 00007ff7`65749afc fteqw64+0x4be25
+00000081`cc0fd790 00007ff7`6574ade1 fteqw64+0x49afc
+00000081`cc0fd890 00007ff7`65930194 fteqw64+0x4ade1
+00000081`cc0fd9c0 00007ff7`65a627e2 fteqw64+0x230194
+00000081`cc0fda20 00007ff7`65a5b40f fteqw64+0x3627e2
+00000081`cc0fdaf0 00007ff7`65a5af87 fteqw64+0x35b40f
+00000081`cc0fdb90 00007ff7`6592b734 fteqw64+0x35af87
+00000081`cc0fdbd0 00007ff7`6574d928 fteqw64+0x22b734
+00000081`cc0fdc60 00007ff7`658f9049 fteqw64+0x4d928
+00000081`cc0fdca0 00007ff7`65791cdd fteqw64+0x1f9049
+00000081`cc0fdd40 00007ff7`66ae739a fteqw64+0x91cdd
+*** ERROR: Symbol file could not be found.  Defaulted to export symbols for kernel32.dll - 
+00000081`cc0ff740 00007ffc`3664259d fteqw64+0x13e739a
+00000081`cc0ff780 00007ffc`3698af78 kernel32!BaseThreadInitThunk+0x1d
+00000081`cc0ff7b0 00000000`00000000 ntdll!RtlUserThreadStart+0x28
+===EXCEPTION===
+ExceptionAddress: 00007ff76573ff53 (fteqw64+0x000000000003ff53)
+   ExceptionCode: c0000005 (Access violation)
+  ExceptionFlags: 00000000
+NumberParameters: 2
+   Parameter[0]: 0000000000000000
+   Parameter[1]: ffffffffffffffff
+Attempt to read from address ffffffffffffffff
+===REGS===
+Last set context:
+rax=00000081cc0fd510 rbx=00000081cc0fd470 rcx=0000022dbcf32118
+rdx=0000000000000003 rsi=0000000000000009 rdi=0000022dbcf32118
+rip=00007ff76573ff53 rsp=00000081cc0fd450 rbp=0000000000000001
+ r8=0000000000000008  r9=0000022c261cde44 r10=0000022c261cde40
+r11=00000081cc0fd29c r12=0000022d32bd3701 r13=0000000000000000
+r14=ff232323ff272727 r15=0000000000000003
+iopl=0         nv up ei ng nz na po nc
+cs=0033  ss=002b  ds=002b  es=002b  fs=0053  gs=002b             efl=00010286
+fteqw64+0x3ff53:
+00007ff7`6573ff53 418b4610        mov     eax,dword ptr [r14+10h] ds:ff232323`ff272737=????????
+done
+quit:
+NatVis script unloaded from 'C:\Program Files\Windows Kits\10\Debuggers\x64\Visualizers\atlmfc.natvis'
+NatVis script unloaded from 'C:\Program Files\Windows Kits\10\Debuggers\x64\Visualizers\concurrency.natvis'
+NatVis script unloaded from 'C:\Program Files\Windows Kits\10\Debuggers\x64\Visualizers\cpp_rest.natvis'
+NatVis script unloaded from 'C:\Program Files\Windows Kits\10\Debuggers\x64\Visualizers\stl.natvis'
+NatVis script unloaded from 'C:\Program Files\Windows Kits\10\Debuggers\x64\Visualizers\Windows.Data.Json.natvis'
+NatVis script unloaded from 'C:\Program Files\Windows Kits\10\Debuggers\x64\Visualizers\Windows.Devices.Geolocation.natvis'
+NatVis script unloaded from 'C:\Program Files\Windows Kits\10\Debuggers\x64\Visualizers\Windows.Devices.Sensors.natvis'
+NatVis script unloaded from 'C:\Program Files\Windows Kits\10\Debuggers\x64\Visualizers\Windows.Media.natvis'
+NatVis script unloaded from 'C:\Program Files\Windows Kits\10\Debuggers\x64\Visualizers\windows.natvis'
+NatVis script unloaded from 'C:\Program Files\Windows Kits\10\Debuggers\x64\Visualizers\winrt.natvis'

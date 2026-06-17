@@ -1,0 +1,131 @@
+<?xml version="1.0"?>
+<project version="2.0">
+  <var name="bsp">"[EnginePath]Tools/ericw-tools-win64/ericw-tools-v0.18.1-win64/bin/qbsp.exe" -bsp2 -wadpath "[EnginePath][GameName]" -wadpath "[EnginePath]Tools/netradiant/gamepacks/q1.game/install"</var>
+  <var name="vis">"[EnginePath]Tools/ericw-tools-win64/ericw-tools-v0.18.1-win64/bin/vis.exe"</var>
+  <var name="light">"[EnginePath]Tools/ericw-tools-win64/ericw-tools-v0.18.1-win64/bin/light.exe"</var>
+  <build name="qbsp">
+    <command>[bsp] "[MapFile]"</command>
+  </build>
+  <build name="qbsp -onlyents">
+    <command>[bsp] -onlyents "[MapFile]"</command>
+  </build>
+  <build name="qvis">
+    <command>[bsp] "[MapFile]"</command>
+    <command>[vis] "[MapFile]"</command>
+  </build>
+  <build name="qvis -fast">
+    <command>[bsp] "[MapFile]"</command>
+    <command>[vis] -fast "[MapFile]"</command>
+  </build>
+  <build name="qvis -noambient">
+    <command>[bsp] "[MapFile]"</command>
+    <command>[vis] -noambient "[MapFile]"</command>
+  </build>
+  <build name="qvis -noambient -fast">
+    <command>[bsp] "[MapFile]"</command>
+    <command>[vis] -noambient -fast "[MapFile]"</command>
+  </build>
+  <build name="qrad">
+    <command>[bsp] "[MapFile]"</command>
+    <command>[light] "[MapFile]"</command>
+  </build>
+  <build name="qrad -extra">
+    <command>[bsp] "[MapFile]"</command>
+    <command>[light] -extra "[MapFile]"</command>
+  </build>
+  <build name="qrad -extra4x4">
+    <command>[bsp] "[MapFile]"</command>
+    <command>[light] -extra4x4 "[MapFile]"</command>
+  </build>
+  <build name="qbsp">
+    <command>[bsp] "[MapFile]"</command>
+  </build>
+  <build name="qbsp, qrad">
+    <command>[bsp] "[MapFile]"</command>
+    <command>[light] "[MapFile]"</command>
+  </build>
+  <build name="qbsp, qrad -extra">
+    <command>[bsp] "[MapFile]"</command>
+    <command>[light] -extra "[MapFile]"</command>
+  </build>
+  <build name="qbsp, qrad -extra4x4">
+    <command>[bsp] "[MapFile]"</command>
+    <command>[light] -extra4x4 "[MapFile]"</command>
+  </build>
+  <build name="qbsp, qvis">
+    <command>[bsp] "[MapFile]"</command>
+    <command>[vis] "[MapFile]"</command>
+  </build>
+  <build name="qbsp, qvis, qrad">
+    <command>[bsp] "[MapFile]"</command>
+    <command>[vis] "[MapFile]"</command>
+    <command>[light] "[MapFile]"</command>
+  </build>
+  <build name="qbsp, qvis, qrad -extra">
+    <command>[bsp] "[MapFile]"</command>
+    <command>[vis] "[MapFile]"</command>
+    <command>[light] -extra "[MapFile]"</command>
+  </build>
+  <build name="qbsp, qvis, qrad -extra4x4">
+    <command>[bsp] "[MapFile]"</command>
+    <command>[vis] "[MapFile]"</command>
+    <command>[light] -extra4x4 "[MapFile]"</command>
+  </build>
+  <build name="qbsp, qvis -fast">
+    <command>[bsp] "[MapFile]"</command>
+    <command>[vis] -fast "[MapFile]"</command>
+  </build>
+  <build name="qbsp, qvis -fast, qrad">
+    <command>[bsp] "[MapFile]"</command>
+    <command>[vis] -fast "[MapFile]"</command>
+    <command>[light] "[MapFile]"</command>
+  </build>
+  <build name="qbsp, qvis -fast, qrad -extra">
+    <command>[bsp] "[MapFile]"</command>
+    <command>[vis] -fast "[MapFile]"</command>
+    <command>[light] -extra "[MapFile]"</command>
+  </build>
+  <build name="qbsp, qvis -fast, qrad -extra4x4">
+    <command>[bsp] "[MapFile]"</command>
+    <command>[vis] -fast "[MapFile]"</command>
+    <command>[light] -extra4x4 "[MapFile]"</command>
+  </build>
+  <build name="qbsp, qvis -noambient">
+    <command>[bsp] "[MapFile]"</command>
+    <command>[vis] -noambient "[MapFile]"</command>
+  </build>
+  <build name="qbsp, qvis -noambient, qrad">
+    <command>[bsp] "[MapFile]"</command>
+    <command>[vis] -noambient "[MapFile]"</command>
+    <command>[light] "[MapFile]"</command>
+  </build>
+  <build name="qbsp, qvis -noambient, qrad -extra">
+    <command>[bsp] "[MapFile]"</command>
+    <command>[vis] -noambient "[MapFile]"</command>
+    <command>[light] -extra "[MapFile]"</command>
+  </build>
+  <build name="qbsp, qvis -noambient, qrad -extra4x4">
+    <command>[bsp] "[MapFile]"</command>
+    <command>[vis] -noambient "[MapFile]"</command>
+    <command>[light] -extra4x4 "[MapFile]"</command>
+  </build>
+  <build name="qbsp, qvis -noambient -fast">
+    <command>[bsp] "[MapFile]"</command>
+    <command>[vis] -noambient -fast "[MapFile]"</command>
+  </build>
+  <build name="qbsp, qvis -noambient -fast, qrad">
+    <command>[bsp] "[MapFile]"</command>
+    <command>[vis] -noambient -fast "[MapFile]"</command>
+    <command>[light] "[MapFile]"</command>
+  </build>
+  <build name="qbsp, qvis -noambient -fast, qrad -extra">
+    <command>[bsp] "[MapFile]"</command>
+    <command>[vis] -noambient -fast "[MapFile]"</command>
+    <command>[light] -extra "[MapFile]"</command>
+  </build>
+  <build name="qbsp, qvis -noambient -fast, qrad -extra4x4">
+    <command>[bsp] "[MapFile]"</command>
+    <command>[vis] -noambient -fast "[MapFile]"</command>
+    <command>[light] -extra4x4 "[MapFile]"</command>
+  </build>
+</project>

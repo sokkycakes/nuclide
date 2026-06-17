@@ -1,0 +1,635 @@
+/* RmlUI-compliant H3 Main Menu Stylesheet
+   Rules followed:
+   - All div/p/img/ul/ol/li/h* have display: block
+   - body background never paints; root wrapper uses 100vw/100vh
+   - rgba() alpha is 0-255 integer
+   - box-shadow: color first
+   - border: width + color only (no 'solid')
+   - decorator: image() for backgrounds, not url()
+   - no gradients in background
+   - padding: 1px on empty containers that need backgrounds
+   - box-sizing: border-box on root
+*/
+
+/* ========== Reset: explicit display ========== */
+body, div, p, ul, ol, li, h1, h2, h3, h4, h5, h6 { display: block; }
+span { display: inline; }
+img { display: block; }
+
+/* ========== Root: viewport-filling container ========== */
+.root {
+  width: 100vw;
+  height: 100vh;
+  padding: 1px;
+  box-sizing: border-box;
+  background-color: #1a2c43;
+  overflow: hidden;
+  font-family: LatoLatin;
+  color: #f6f6f6;
+  position: relative;
+}
+
+/* ========== Screen: absolute full canvas ========== */
+.screen {
+  position: absolute;
+  top: 0; right: 0; bottom: 0; left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* ========== Pages ========== */
+.page {
+  position: absolute;
+  top: 0; right: 0; bottom: 0; left: 0;
+}
+.page--main-menu { display: block; }
+.page--lobby { display: none; }
+
+/* ========== Chrome (logos) ========== */
+.chrome {
+  position: absolute;
+  display: block;
+}
+
+.chrome--title {
+  top: 5%;
+  right: 5%;
+  width: 44%;
+  height: auto;
+}
+
+.chrome--bungie {
+  bottom: 7%;
+  right: 6%;
+  width: 9.6%;
+  height: auto;
+  opacity: 0.85;
+}
+
+.build-text {
+  position: absolute;
+  top: 66.2%;
+  left: 45.31%;
+  width: 35.62%;
+  font-size: 1.5vh;
+  color: rgba(255, 255, 255, 56);
+  text-align: center;
+  white-space: nowrap;
+}
+
+/* ========== Menu Panel ========== */
+.menu-panel {
+  position: absolute;
+  top: 52%;
+  left: 7%;
+  width: 28%;
+  bottom: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  pointer-events: auto;
+}
+
+.menu-panel__header {
+  flex: 0 0 auto;
+  padding: 0.5vh 0;
+  background-color: #1a2733;
+  border-top-width: 2px;
+  border-top-color: #40454e;
+  border-bottom-width: 2px;
+  border-bottom-color: #40454e;
+  display: flex;
+}
+
+.menu-panel__body {
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: 0.5vh 0 0 0;
+  background-color: #14222e;
+  color: #adc4df;
+  overflow: hidden;
+  display: flex;
+}
+
+.menu-panel__footer {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.0vh 1.25vh;
+  background-color: #14222e;
+  border-top-width: 1px;
+  border-top-color: #40454e;
+  color: #adc4df;
+  font-size: 2.0vh;
+}
+
+.menu-panel__skirt {
+  flex: 0 0 auto;
+  height: 8vh;
+  background-color: #0f1a24;
+  padding: 1px; /* force paint */
+  display: flex;
+}
+
+.menu-panel__version {
+  color: #77879a;
+  font-size: 1.8vh;
+  letter-spacing: 0;
+}
+
+.menu-panel__buttonkeys {
+  display: flex;
+  align-items: center;
+}
+
+.menu-panel__primary-row {
+  display: flex;
+  align-items: center;
+}
+
+/* ========== Menu List ========== */
+.mainmenu-list {
+  margin: 0;
+  padding: 0;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.mainmenu-list__item {
+  display: flex;
+  align-items: center;
+  height: 4.6vh;
+  font-size: 3.4vh;
+  line-height: 1;
+  padding: 0 1.25vh;
+  margin: 0;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  color: #adc4df;
+  pointer-events: auto;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.mainmenu-list__item--focused {
+  color: #eaeef8;
+}
+
+.mainmenu-list__item--disabled {
+  color: #77879a;
+  font-style: italic;
+}
+
+/* ========== Button Keys ========== */
+.button-key {
+  display: flex;
+  align-items: center;
+  font-size: 3.26vh;
+  color: #adc4df;
+  letter-spacing: 0;
+}
+
+.button-key__glyph {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.7vh;
+  height: 2.7vh;
+  font-weight: 800;
+  font-family: LatoLatin;
+  font-size: 1.9vh;
+  color: #000;
+  background-color: #cfd8e6;
+  box-shadow: rgba(0, 0, 0, 128) 0 0 0 0.139vh;
+}
+
+.button-key__glyph[data-glyph="A"] { background-color: #2eba3c; color: #fff; }
+.button-key__glyph[data-glyph="B"] { background-color: #e44b4b; color: #fff; }
+.button-key__glyph[data-glyph="X"] { background-color: #2e7ad4; color: #fff; }
+.button-key__glyph[data-glyph="Y"] { background-color: #e2b324; color: #000; }
+
+/* ========== Lobby Panel ========== */
+.lobby-panel {
+  position: absolute;
+  top: 0;
+  left: 6.17%;
+  bottom: 0;
+  width: 74.5vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  pointer-events: auto;
+}
+
+.lobby-panel__header {
+  flex: 0 0 auto;
+  position: relative;
+  height: 12vh;
+  padding: 0 1.25vh;
+  display: flex;
+  align-items: flex-end;
+  background-color: #1a2733;
+  border-top-width: 0;
+  border-bottom-width: 1px;
+  border-bottom-color: #40454e;
+}
+
+.lobby-title {
+  margin: 0;
+  font-family: LatoLatin;
+  font-size: 6.6vh;
+  font-weight: normal;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  color: #eaeef8;
+  line-height: 1;
+}
+
+.lobby-panel__body {
+  flex: 1 1 auto;
+  min-height: 0;
+  position: relative;
+  padding: 0 1.25vh 0;
+  background-color: #14222e;
+  color: #adc4df;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.lobby-list {
+  margin: 0 -2.25vh;
+  padding: 1vh 0 0 1vh;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.lobby-list__item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  font-size: 3.26vh;
+  line-height: 4vh;
+  padding: 0 1.25vh 0.4vh;
+  margin: 0;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  color: #adc4df;
+  pointer-events: auto;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.lobby-list__item--focused {
+  color: #eaeef8;
+}
+
+.lobby-list__item--separated {
+  margin-top: 0.4vh;
+  padding-top: 1vh;
+  padding-bottom: 1vh;
+  border-top-width: 2px;
+  border-top-color: #40454e;
+  border-bottom-width: 2px;
+  border-bottom-color: #40454e;
+}
+
+.lobby-list__name,
+.lobby-list__value {
+  flex: 0 0 auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: flex;
+}
+
+.lobby-status-block {
+  margin-top: 0.8vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.lobby-status__heading {
+  font-size: 3.26vh;
+  text-transform: none;
+  color: #eaeef8;
+  margin-bottom: 0.2vh;
+}
+
+.lobby-status {
+  margin: 0;
+  font-family: LatoLatin;
+  font-size: 3.26vh;
+  line-height: 1;
+  color: #adc4df;
+  overflow: hidden;
+}
+
+.lobby-preview {
+  position: relative;
+  margin: 0.8vh -1.25vh 0;
+  overflow: hidden;
+  pointer-events: none;
+  border-top-width: 0;
+  border-bottom-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.lobby-preview__map {
+  position: absolute;
+  top: 0; right: 0; bottom: 0; left: 0;
+  background-color: #1a2c43;
+}
+
+.lobby-preview__gametype {
+  position: absolute;
+  top: 6.58%;
+  left: 2.38%;
+  width: 28.07%;
+  height: 85.53%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: LatoLatin;
+  font-size: 2.4vh;
+  letter-spacing: 0.08em;
+  color: #eaeef8;
+  background-color: #000000;
+  border-width: 1px;
+  border-color: #a0b4dc;
+  box-shadow: rgba(0, 0, 0, 128) 0 0.139vh 1.4vh;
+}
+
+.lobby-preview__shade {
+  position: absolute;
+  top: 0; right: 0; bottom: 0; left: 0;
+  background-color: #000000;
+}
+
+.lobby-game-name {
+  margin-top: 0.6vh;
+  font-family: LatoLatin;
+  font-size: 3.26vh;
+  letter-spacing: 0;
+  color: #adc4df;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.lobby-panel__footer {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 1vh 0 1.0vh 1.5vh;
+  background-color: #14222e;
+  border-top-width: 1px;
+  border-top-color: #40454e;
+  color: #adc4df;
+  font-size: 2.0vh;
+}
+
+.lobby-panel__skirt {
+  flex: 0 0 auto;
+  height: 8vh;
+  background-color: #0f1a24;
+  padding: 1px;
+  display: flex;
+}
+
+/* ========== Lobby Players / Roster ========== */
+.lobby-players {
+  position: absolute;
+  top: 4%;
+  right: 2.5%;
+  width: 24.5%;
+  height: 5.14%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 0 0.6vh;
+  font-family: LatoLatin;
+  font-size: 3.0vh;
+  color: #adc4df;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  pointer-events: none;
+  white-space: nowrap;
+  z-index: 10;
+}
+
+.lobby-players__count { color: #eaeef8; font-weight: 500; display: flex; }
+.lobby-players__sep { opacity: 0.6; margin: 0 0.2vh; display: flex; }
+.lobby-players__max { color: #adc4df; opacity: 0.85; display: flex; }
+
+.lobby-roster {
+  position: absolute;
+  top: 10.9%;
+  right: 8%;
+  width: 24.5%;
+  bottom: 8%;
+  padding: 0;
+  color: #adc4df;
+  font-family: LatoLatin;
+  pointer-events: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.lobby-roster__list {
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.roster-slot {
+  position: relative;
+  width: 100%;
+  height: 4.44vh;
+  overflow: visible;
+  font-size: 2.4vh;
+  line-height: 1;
+  color: #adc4df;
+  white-space: nowrap;
+  display: flex;
+}
+
+.roster-slot[data-state="empty"] { display: none; }
+
+.roster-slot__name {
+  position: absolute;
+  left: 20.13%;
+  top: 9.38%;
+  width: 64.54%;
+  height: 93.75%;
+  font-size: 2.6vh;
+  font-family: LatoLatin;
+  color: #adc4df;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  z-index: 4;
+}
+
+.roster-slot[data-focused="true"] .roster-slot__name {
+  top: -21.88%;
+  left: 22.36%;
+  color: #eaeef8;
+  font-weight: 500;
+}
+
+.roster-slot[data-state="empty"] .roster-slot__name { display: none; }
+
+.roster-slot__service-tag {
+  position: absolute;
+  left: 22.36%;
+  top: 46.88%;
+  width: 64.54%;
+  font-size: 1.6vh;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #77879a;
+  z-index: 4;
+  display: flex;
+}
+
+.roster-slot[data-focused="true"] .roster-slot__service-tag { color: #a5bedb; }
+.roster-slot[data-state="empty"] .roster-slot__service-tag { display: none; }
+
+.roster-slot__empty-prompt {
+  position: absolute;
+  left: 11.50%;
+  top: 9.38%;
+  width: 85.30%;
+  height: 93.75%;
+  display: none;
+  align-items: center;
+  font-size: 2.2vh;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #adc4df;
+  opacity: 0.75;
+  z-index: 4;
+}
+
+.roster-slot[data-state="empty"] .roster-slot__empty-prompt { display: flex; }
+
+/* ========== Overlay ========== */
+.overlay {
+  position: absolute;
+  top: 0; right: 0; bottom: 0; left: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(0, 0, 0, 184);
+  z-index: 250;
+}
+
+.overlay__card {
+  min-width: 40%;
+  padding: 2.5vh 3vh;
+  background-color: #14222e;
+  border-top-width: 0.139vh;
+  border-top-color: #40454e;
+  border-bottom-width: 0.139vh;
+  border-bottom-color: #40454e;
+  box-shadow: rgba(0, 0, 0, 153) 0 8px 32px;
+  text-align: center;
+}
+
+.overlay__card h2 {
+  margin: 0 0 0.6vh 0;
+  font-size: 5vh;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  color: #eaeef8;
+}
+
+.overlay__tag {
+  margin: 0 0 1.4vh 0;
+  font-family: LatoLatin;
+  font-size: 1.6vh;
+  color: rgba(255, 255, 255, 128);
+  word-break: break-all;
+}
+
+.overlay__hint {
+  margin: 0;
+  font-size: 2.2vh;
+  color: #adc4df;
+}
+
+/* ========== Debug / Controls ========== */
+.debug {
+  position: absolute;
+  top: 1em;
+  left: 1em;
+  padding: 0.6em 0.9em;
+  font-family: LatoLatin;
+  font-size: 12px;
+  background-color: rgba(0, 0, 0, 179);
+  border-width: 1px;
+  border-color: #78dcff;
+  color: #cfeefb;
+  letter-spacing: 0;
+  z-index: 999;
+}
+
+.controls-hint {
+  position: absolute;
+  bottom: 0.6em;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 11px;
+  color: rgba(255, 255, 255, 102);
+  font-family: LatoLatin;
+  z-index: 999;
+  pointer-events: none;
+  white-space: nowrap;
+  letter-spacing: 0;
+}
+
+/* ========== Black fade ========== */
+.black-fade {
+  position: absolute;
+  top: 0; right: 0; bottom: 0; left: 0;
+  background-color: #000;
+  z-index: 200;
+  pointer-events: none;
+}
+
+/* ========== Lobby tint ========== */
+.lobby-tint {
+  position: absolute;
+  top: 0; right: 0; bottom: 0; left: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ========== Lobby players header ========== */
+.lobby-players {
+  position: absolute;
+  top: 4%;
+  right: 2.5%;
+  width: 24.5%;
+  height: 5.14%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 0 0.6vh;
+  font-family: LatoLatin;
+  font-size: 3.0vh;
+  color: #adc4df;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  pointer-events: none;
+  white-space: nowrap;
+  z-index: 10;
+}

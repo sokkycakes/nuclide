@@ -1,0 +1,18 @@
+<svg width="282" height="326" viewBox="894 197 282 326" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<!-- fine diagonal stripe overlay - Figma node 19:234 pattern5, copied verbatim from export -->
+<defs>
+<clipPath id="clip"><rect width="128" height="128" fill="white"/></clipPath>
+<g id="inner">
+<g clip-path="url(#clip)">
+<rect x="194.561" y="-83.177" width="24" height="401.265" transform="rotate(45 194.561 -83.177)" fill="black"/>
+</g>
+</g>
+<pattern id="pat" patternUnits="userSpaceOnUse" patternTransform="matrix(3.84 0 0 3.84 894 197)" preserveAspectRatio="none" viewBox="0 0 64 64" width="1" height="1">
+<use xlink:href="#inner" transform="translate(-64 -64)"/>
+<use xlink:href="#inner" transform="translate(0 -64)"/>
+<use xlink:href="#inner" transform="translate(-64 0)"/>
+<use xlink:href="#inner"/>
+</pattern>
+</defs>
+<rect x="894" y="197" width="282" height="326" fill="url(#pat)" fill-opacity="0.2"/>
+</svg>

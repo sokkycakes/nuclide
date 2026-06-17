@@ -1,0 +1,63 @@
+// Angel primary: sniper. Prototype cadence (1.5s fire, 2.75s reload).
+// 1 damage hitscan. Flechette/triangle-detonation secondary and the Drive
+// gauge are deferred (prototype scene partially disabled them anyway).
+entityDef weapon_angel_sniper
+{
+	"editor_color"		".3 .3 1"
+	"editor_mins"		"-16 -16 0"
+	"editor_maxs"		"16 16 32"
+	"editor_usage"		"Angel sniper (hitscan)"
+	"editor_rotatable"	"1"
+
+	"spawnclass"		"ncWeapon"
+	"model"				"progs/g_nail.mdl"
+	"model_view"		"models/v_angel.iqm"
+	"snd_acquire"		"weapon.pickup"
+	"snd_respawn"		"item.respawn"
+	"spin"				"1"
+	"pickupFlash"		"1"
+	"animPrefix"		"nailgun"
+
+	"def_fireInfo"		"fireInfo_angelPrimary"
+	"inv_name"			"Angel"
+	"ammoType"			"ammo_nails"
+	"infiniteReserve"	"1"
+	"ammoRequired"		"1"
+	"ammoPerShot"		"1"
+	"clipSize"			"5"
+	"clipSizeDefault"	"5"
+
+	"act_fire"			"shootA"
+	"act_idle"			"idle"
+	"act_draw"			"draw"
+
+	"snd_fire"			"weapon_collier_sidearm.shoot"
+	"snd_empty"			"weapon.empty"
+	"snd_reload"		"weapon.pickup"
+
+	"hudSlot"			"1"
+	"hudSlotPos"		"0"
+	"weight"			"10"
+	"crosshair"			"none"
+}
+
+entityDef fireInfo_angelPrimary
+{
+	"def_onFire"		"projectile_angel"
+	"fireRate"			"1.5"
+	"reloadTime"		"2.75"
+	"semiAuto"			"1"
+	"punchSpring"		"-2.0 0 0"
+	"act_reload"		"reload"
+	"act_reloadEmpty"	"reload"
+}
+
+entityDef projectile_angel
+{
+	"inherit"			"projectile_bullet_base"
+	"damage"			"1"
+	"hitscans"			"1"
+	"range"				"16384"
+	"spread"			"0 0"
+	"fx_path"			"weapon_shotgun.tracer"
+}

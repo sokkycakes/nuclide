@@ -40,8 +40,19 @@ string g_specmodes[] = {
 
 enumflags
 {
-	SPECFLAG_BUTTON_RELEASED,
+	SPECFLAG_MODE_RELEASED,
+	SPECFLAG_TARGET_RELEASED,
 };
+
+/* client scroll-wheel impulses relayed through input_impulse (see entry.qc) */
+#define IMPULSE_SPEC_NEXT	210
+#define IMPULSE_SPEC_PREV	211
+
+/** True when target is an alive in-game ncPlayer (not an observer or round-spectator). */
+bool Spectator_TargetIsPlayablePlayer(entity target);
+/** True when target matches the spectator's server-chosen chase slot and is drawable. */
+bool Spectator_HasChaseTargetEntity(entity spec, entity target);
+bool Spectator_IsValidChaseTarget(entity spectator, entity target);
 
 /** This entity class represents every spectator client.
 
@@ -77,6 +88,8 @@ public:
 	virtual void InputPrevious(void);
 	/** Call to change the spectating mode. */
 	virtual void InputMode(void);
+	/** Call to cycle spectating mode backward. */
+	virtual void InputModePrevious(void);
 	/** Call to forcefully un-spectate a thing. */
 	nonvirtual void Unspectate(void);
 	virtual void OnRemoveEntity(void);
@@ -85,6 +98,8 @@ public:
 	/** Re-teleport to the target we're spectating. 
 	Called once by InputNext/Previous. */
 	virtual void WarpToTarget(void);
+
+	nonvirtual bool IsValidChaseTarget(entity target);
 
 	/** Called every frame to track with our target player. */
 	virtual void SpectatorTrackPlayer(void);

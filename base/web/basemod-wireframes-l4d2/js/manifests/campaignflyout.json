@@ -1,0 +1,71 @@
+{
+  "source": "resource/ui/l4d360ui/campaignflyout.res",
+  "viewId": "flyout-campaign",
+  "frame": null,
+  "viewport": {
+    "wide": 640,
+    "tall": 480
+  },
+  "controls": [
+    {
+      "id": "PnlBackground",
+      "name": "PnlBackground",
+      "controlName": "Panel",
+      "command": "",
+      "labelText": "",
+      "visible": true,
+      "xpos": 0,
+      "ypos": 0,
+      "wide": 270,
+      "tall": 85
+    },
+    {
+      "id": "BtnQuickMatch",
+      "name": "BtnQuickMatch",
+      "controlName": "L4D360HybridButton",
+      "command": "QuickMatch_coop",
+      "labelText": "#L4D360UI_QuickMatch",
+      "visible": true,
+      "xpos": 0,
+      "ypos": 0,
+      "wide": 150,
+      "tall": 20
+    },
+    {
+      "id": "BtnPlayCoopWithAnyone",
+      "name": "BtnPlayCoopWithAnyone",
+      "controlName": "L4D360HybridButton",
+      "command": "CustomMatch_coop",
+      "labelText": "#L4D360UI_MainMenu_PlayOnline",
+      "visible": true,
+      "xpos": 0,
+      "ypos": 20,
+      "wide": 150,
+      "tall": 20
+    },
+    {
+      "id": "BtnPlayCoopWithFriends",
+      "name": "BtnPlayCoopWithFriends",
+      "controlName": "L4D360HybridButton",
+      "command": "FriendsMatch_coop",
+      "labelText": "#L4D360UI_MainMenu_PlayCoopWithFriends",
+      "visible": true,
+      "xpos": 0,
+      "ypos": 40,
+      "wide": 150,
+      "tall": 20
+    },
+    {
+      "id": "BtnPlayOnGroupServer",
+      "name": "BtnPlayOnGroupServer",
+      "controlName": "L4D360HybridButton",
+      "command": "GroupServer_coop",
+      "labelText": "#L4D360UI_MainMenu_PlayOnGroupServer",
+      "visible": true,
+      "xpos": 0,
+      "ypos": 60,
+      "wide": 150,
+      "tall": 20
+    }
+  ]
+}

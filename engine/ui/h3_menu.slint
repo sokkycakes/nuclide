@@ -1,0 +1,114 @@
+export component H3Menu {
+    callback singleplayer();
+    callback multiplayer();
+    callback options();
+    callback quit();
+
+    width: 1920px;
+    height: 1080px;
+    background: #0a0a0a;
+
+    Text {
+        x: 810px;
+        y: 380px;
+        width: 300px;
+        height: 60px;
+        text: "FTEQW";
+        font-size: 48px;
+        font-weight: 800;
+        color: #ff6b35;
+        horizontal-alignment: center;
+    }
+
+    // ─── Buttons ──────────────────────────────────────────
+
+    spacer1 := Empty { }
+
+    t1 := TouchArea {
+        x: 810px;
+        y: 480px;
+        width: 300px;
+        height: 50px;
+        clicked => { root.singleplayer(); }
+
+        Rectangle {
+            background: #ffffff0c;
+            border-color: #ffffff26;
+            border-width: 1px;
+            border-radius: 4px;
+        }
+        Text {
+            text: "SINGLE PLAYER";
+            color: #e0e0e0;
+            font-size: 18px;
+            horizontal-alignment: center;
+            vertical-alignment: center;
+        }
+    }
+
+    t2 := TouchArea {
+        x: 810px;
+        y: 546px;
+        width: 300px;
+        height: 50px;
+        clicked => { root.multiplayer(); }
+
+        Rectangle {
+            background: #ffffff0c;
+            border-color: #ffffff26;
+            border-width: 1px;
+            border-radius: 4px;
+        }
+        Text {
+            text: "MULTIPLAYER";
+            color: #e0e0e0;
+            font-size: 18px;
+            horizontal-alignment: center;
+            vertical-alignment: center;
+        }
+    }
+
+    t3 := TouchArea {
+        x: 810px;
+        y: 612px;
+        width: 300px;
+        height: 50px;
+        clicked => { root.options(); }
+
+        Rectangle {
+            background: #ffffff0c;
+            border-color: #ffffff26;
+            border-width: 1px;
+            border-radius: 4px;
+        }
+        Text {
+            text: "OPTIONS";
+            color: #e0e0e0;
+            font-size: 18px;
+            horizontal-alignment: center;
+            vertical-alignment: center;
+        }
+    }
+
+    t4 := TouchArea {
+        x: 810px;
+        y: 678px;
+        width: 300px;
+        height: 50px;
+        clicked => { root.quit(); }
+
+        Rectangle {
+            background: #ffffff0c;
+            border-color: #ffffff26;
+            border-width: 1px;
+            border-radius: 4px;
+        }
+        Text {
+            text: "QUIT";
+            color: #e0e0e0;
+            font-size: 18px;
+            horizontal-alignment: center;
+            vertical-alignment: center;
+        }
+    }
+}

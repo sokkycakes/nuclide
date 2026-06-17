@@ -1,0 +1,167 @@
+{
+  "source": "resource/ui/l4d360ui/loadingprogress.res",
+  "viewId": "view-loading",
+  "frame": "LoadingProgress",
+  "viewport": {
+    "wide": 640,
+    "tall": 480
+  },
+  "controls": [
+    {
+      "id": "LoadingProgress",
+      "name": "LoadingProgress",
+      "controlName": "Frame",
+      "command": "",
+      "labelText": "",
+      "visible": true,
+      "xpos": 0,
+      "ypos": 0,
+      "wide": 640,
+      "tall": 480
+    },
+    {
+      "id": "ProTotalProgress",
+      "name": "ProTotalProgress",
+      "controlName": "ContinuousProgressBar",
+      "command": "",
+      "labelText": "",
+      "visible": true,
+      "xpos": 0,
+      "ypos": 0,
+      "wide": 120,
+      "tall": 30
+    },
+    {
+      "id": "WorkingAnim",
+      "name": "WorkingAnim",
+      "controlName": "ImagePanel",
+      "command": "",
+      "labelText": "",
+      "visible": false,
+      "xpos": 0,
+      "ypos": 0,
+      "wide": 40,
+      "tall": 40
+    },
+    {
+      "id": "LoadingText",
+      "name": "LoadingText",
+      "controlName": "Label",
+      "command": "",
+      "labelText": "#L4D360UI_Loading",
+      "visible": true,
+      "xpos": 0,
+      "ypos": 0,
+      "wide": 200,
+      "tall": 20
+    },
+    {
+      "id": "BGImage",
+      "name": "BGImage",
+      "controlName": "ImagePanel",
+      "command": "",
+      "labelText": "",
+      "visible": false,
+      "xpos": 0,
+      "ypos": 0,
+      "wide": 640,
+      "tall": 480
+    },
+    {
+      "id": "Poster",
+      "name": "Poster",
+      "controlName": "ImagePanel",
+      "command": "",
+      "labelText": "",
+      "visible": false,
+      "xpos": 0,
+      "ypos": 0,
+      "wide": 480,
+      "tall": 480
+    },
+    {
+      "id": "LocalizedCampaignName",
+      "name": "LocalizedCampaignName",
+      "controlName": "Label",
+      "command": "",
+      "labelText": "",
+      "visible": true,
+      "xpos": 22,
+      "ypos": 0,
+      "wide": 640,
+      "tall": 20
+    },
+    {
+      "id": "LocalizedCampaignTagline",
+      "name": "LocalizedCampaignTagline",
+      "controlName": "Label",
+      "command": "",
+      "labelText": "",
+      "visible": true,
+      "xpos": 0,
+      "ypos": 0,
+      "wide": 640,
+      "tall": 20
+    },
+    {
+      "id": "GameModeLabel",
+      "name": "GameModeLabel",
+      "controlName": "Label",
+      "command": "",
+      "labelText": "",
+      "visible": false,
+      "xpos": 22,
+      "ypos": 0,
+      "wide": 640,
+      "tall": 20
+    },
+    {
+      "id": "StarringLabel",
+      "name": "StarringLabel",
+      "controlName": "Label",
+      "command": "",
+      "labelText": "#L4D360UI_Loading_Starring",
+      "visible": false,
+      "xpos": 22,
+      "ypos": 0,
+      "wide": 50,
+      "tall": 16
+    },
+    {
+      "id": "LoadingTipPanel",
+      "name": "LoadingTipPanel",
+      "controlName": "EditablePanel",
+      "command": "",
+      "labelText": "",
+      "visible": false,
+      "xpos": 0,
+      "ypos": 17,
+      "wide": 450,
+      "tall": 80
+    },
+    {
+      "id": "PlayerNames",
+      "name": "PlayerNames",
+      "controlName": "Label",
+      "command": "",
+      "labelText": "",
+      "visible": false,
+      "xpos": 0,
+      "ypos": 0,
+      "wide": 350,
+      "tall": 32
+    },
+    {
+      "id": "CampaignFooter",
+      "name": "CampaignFooter",
+      "controlName": "EditablePanel",
+      "command": "",
+      "labelText": "",
+      "visible": false,
+      "xpos": 0,
+      "ypos": 0,
+      "wide": 640,
+      "tall": 200
+    }
+  ]
+}

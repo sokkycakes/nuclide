@@ -1,0 +1,103 @@
+<rml>
+<head>
+  <title>Halo 3 Main Menu (RmlUI)</title>
+  <link type="text/rcss" href="style.rcss"/>
+</head>
+<body>
+  <div class="root">
+
+    <div class="screen">
+
+      <!-- PAGE: main_menu -->
+      <div id="page-main" class="page page--main-menu" data-page="main_menu">
+
+        <div class="chrome chrome--title">
+          <img id="title-logo" src="assets/halo3_logo.png" alt="HALO 3"/>
+        </div>
+
+        <div class="chrome chrome--bungie">
+          <img id="bungie-logo" src="assets/bungielogo.png" alt="Bungie"/>
+        </div>
+
+        <div class="build-text">build 12070.07.10.18.2128.delta</div>
+
+        <div class="menu-panel">
+          <div class="menu-panel__header">
+            <div class="menu-panel__primary-row" id="menu-primary"></div>
+          </div>
+          <div class="menu-panel__body">
+            <ul class="mainmenu-list" id="mainmenu-list"></ul>
+          </div>
+          <div class="menu-panel__footer">
+            <div class="menu-panel__buttonkeys" id="button-keys"></div>
+            <div class="menu-panel__version" id="version-text">version 1.0</div>
+          </div>
+          <div class="menu-panel__skirt"></div>
+        </div>
+
+        <div class="black-fade"></div>
+
+      </div>
+
+      <!-- PAGE: pregame_lobby -->
+      <div id="page-lobby" class="page page--lobby" data-page="pregame_lobby" hidden>
+
+        <div class="lobby-tint"></div>
+
+        <div class="lobby-panel">
+          <div class="lobby-panel__header">
+            <h2 class="lobby-title" id="lobby-title">CUSTOM GAMES</h2>
+          </div>
+          <div class="lobby-panel__body">
+            <ul class="lobby-list" id="lobby-list"></ul>
+            <div class="lobby-status-block" id="lobby-status-block">
+              <div class="lobby-status__heading">Ready</div>
+              <p class="lobby-status" id="lobby-status">Use the menu to select a map and game variant, then START GAME when ready.</p>
+            </div>
+            <div class="lobby-preview" id="lobby-preview">
+              <div class="lobby-preview__map"></div>
+              <div class="lobby-preview__gametype" id="lobby-preview-gametype">SLAYER</div>
+              <div class="lobby-preview__shade"></div>
+            </div>
+            <div class="lobby-game-name" id="lobby-game-name">Slayer on Valhalla</div>
+          </div>
+          <div class="lobby-panel__footer">
+            <div class="menu-panel__buttonkeys" id="lobby-button-keys"></div>
+          </div>
+          <div class="lobby-panel__skirt"></div>
+        </div>
+
+        <div class="lobby-players" id="lobby-players">
+          <span class="lobby-players__count" id="lobby-players-count">1</span>
+          <span class="lobby-players__sep">/</span>
+          <span class="lobby-players__max" id="lobby-players-max">16</span>
+        </div>
+
+        <div class="lobby-roster">
+          <ol class="lobby-roster__list" id="lobby-roster-list"></ol>
+        </div>
+
+      </div>
+
+      <!-- OVERLAY: submenu stub -->
+      <div id="submenu-overlay" class="overlay" hidden>
+        <div class="overlay__card">
+          <h2 id="overlay-title">Submenu</h2>
+          <p id="overlay-tag" class="overlay__tag"></p>
+          <p class="overlay__hint">B / Esc to return</p>
+        </div>
+      </div>
+
+      <!-- DEBUG -->
+      <div id="debug" class="debug" hidden>
+        <strong>screen:</strong> <span id="dbg-screen">main_menu</span><br/>
+        <strong>focus:</strong> <span id="dbg-focus">0</span><br/>
+        <strong>online:</strong> <span id="dbg-online-label">off</span><br/>
+        <strong>nav:</strong> <span id="dbg-nav">-</span>
+      </div>
+
+    </div>
+
+  </div>
+</body>
+</rml>

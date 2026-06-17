@@ -40,6 +40,30 @@ TFCClass_Init(void)
 	g_classDescrRandomPC = textfile_to_string("classes/short_randompc.txt");
 }
 
+/* Friendly display names for the Stiletto roster. Falls back to the title
+ * system (then the raw id) for any class without an entry here. */
+static string
+Hero_DisplayName(string heroID)
+{
+	if (heroID == "hero_collier") {
+		return ("Collier");
+	} else if (heroID == "hero_beaumont") {
+		return ("Beaumont");
+	} else if (heroID == "hero_vagrant") {
+		return ("Vagrant");
+	} else if (heroID == "hero_skipstream") {
+		return ("Skipstream");
+	} else if (heroID == "hero_angel") {
+		return ("Angel");
+	} else if (heroID == "hero_motionblue") {
+		return ("Motionblue");
+	} else if (heroID == "hero_archstiletto") {
+		return ("Archstiletto");
+	}
+
+	return (Titles_GetTextBody(heroID));
+}
+
 static int g_classMenuTeam;
 static vguiWindow winClassSelection;
 static vguiPic imgClassPreview;
@@ -89,7 +113,7 @@ VGUIChangeClassButton::OnMouseEntered(void)
 
 	string heroID = teams.ClassForIndex(teamID, classSelection);
 
-	lblClassTitle.SetTitle(Titles_GetTextBody(heroID));
+	lblClassTitle.SetTitle(Hero_DisplayName(heroID));
 	imgClassPreview.SetImage(strcat("models/player/", heroID, "/", heroID));
 	imgClassPreview.SetSize([170,221]);
 	lblClassDescription.SetTitle(Titles_GetTextBody(strcat("ClassDescription_", heroID)));
@@ -157,7 +181,7 @@ VGUI_ShowClassSelectionMenu(int wishTeam)
 		btns = memalloc(sizeof(VGUIChangeClassButton) * classCount);
 		for (int i = 0; i < classCount; i++) {
 			btns[i] = spawn(VGUIChangeClassButton);
-			btns[i].SetTitle(Titles_GetTextBody(teams.ClassForIndex(wishTeam, i)));
+			btns[i].SetTitle(Hero_DisplayName(teams.ClassForIndex(wishTeam, i)));
 			btns[i].SetSize([124, 24]);
 			btns[i].SetPos(btnpos);
 			btns[i].SetTag(i);

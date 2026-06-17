@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>L4D2 BaseMod Wireframe (hybrid)</title>
+  <link rel="stylesheet" href="css/wireframe.css">
+  <link rel="stylesheet" href="css/manifest-hints.css">
+</head>
+<body>
+  <div id="app">
+    <footer id="footer-panel" class="footer-panel" aria-label="Footer hints">
+      <span data-btn="A" id="footer-a">Select</span>
+      <span data-btn="B" id="footer-b">Back</span>
+      <span data-btn="X" id="footer-x" class="hidden">Kick</span>
+      <span data-btn="Y" id="footer-y" class="hidden">Review</span>
+    </footer>
+
+    <div id="bkgnd-screen" class="bkgnd-screen hidden"></div>
+
+    <!-- WT_MAINMENU — layout/behavior authored; positions from mainmenu.res manifest -->
+    <section id="view-mainmenu" class="panel view hidden" data-wt="WT_MAINMENU" data-manifest="mainmenu.res">
+      <header class="garnish-top"><span class="garnish-label">MAIN MENU</span></header>
+      <div class="panel-body mainmenu-layout manifest-surface" data-view-id="view-mainmenu">
+        <div class="gamemodes-block" id="BtnGameModes">
+          <div class="block-title">BtnGameModes · GameModes carousel</div>
+          <button class="hybrid-btn active" id="BtnCoOp" data-cmd="FlmCampaignFlyout">Co-op Campaign</button>
+          <button class="hybrid-btn" id="BtnPlayRealism" data-cmd="FlmRealismFlyout">Realism</button>
+          <button class="hybrid-btn" id="BtnVersus" data-cmd="VersusSoftLock">Versus</button>
+          <button class="hybrid-btn" id="BtnSurvival" data-cmd="SurvivalCheck">Survival</button>
+          <button class="hybrid-btn" id="BtnScavenge" data-cmd="ScavengeCheck">Scavenge</button>
+          <button class="hybrid-btn" id="BtnPlaySolo" data-cmd="SoloPlay">Play Solo / Offline</button>
+        </div>
+        <nav class="nav-column side-nav" aria-label="Main menu actions">
+          <button class="hybrid-btn" id="BtnStatsAndAchievements" data-cmd="StatsAndAchievements">Stats &amp; Achievements</button>
+          <button class="hybrid-btn" id="BtnOptions" data-cmd="FlmOptionsFlyout">Options</button>
+          <button class="hybrid-btn" id="BtnExtras" data-cmd="FlmExtrasFlyoutCheck">Extras</button>
+          <button class="hybrid-btn" id="BtnQuit" data-cmd="QuitGame">Quit</button>
+        </nav>
+        <aside class="quickjoin-block" id="PnlQuickJoin">
+          <div class="block-title">PnlQuickJoin</div>
+          <div class="placeholder-list">
+            <div class="list-item">Friend lobby</div>
+            <div class="list-item">Friend lobby</div>
+          </div>
+          <button class="text-btn" data-cmd="SeeAll">See All</button>
+        </aside>
+      </div>
+      <div id="flyout-campaign" class="flyout hidden" data-flyout="FlmCampaignFlyout" data-manifest="campaignflyout.res">
+        <div class="flyout-title">FlmCampaignFlyout</div>
+        <button class="hybrid-btn" id="BtnQuickMatch" data-cmd="QuickMatch_coop">Quick Match</button>
+        <button class="hybrid-btn" id="BtnPlayCoopWithAnyone" data-cmd="CustomMatch_coop">Play Online</button>
+        <button class="hybrid-btn" id="BtnPlayCoopWithFriends" data-cmd="FriendsMatch_coop">Friends Games</button>
+        <button class="hybrid-btn" id="BtnPlayOnGroupServer" data-cmd="GroupServer_coop">Steam Group Server</button>
+        <button class="hybrid-btn flyout-close" data-cmd="CloseFlyout">Close</button>
+      </div>
+      <div id="flyout-options" class="flyout hidden" data-flyout="FlmOptionsFlyout" data-manifest="optionsflyout.res">
+        <div class="flyout-title">FlmOptionsFlyout</div>
+        <button class="hybrid-btn" id="BtnAudioVideo" data-cmd="AudioVideo">Audio / Video</button>
+        <button class="hybrid-btn" id="BtnVideo" data-cmd="Video">Video</button>
+        <button class="hybrid-btn" id="BtnAudio" data-cmd="Audio">Audio</button>
+        <button class="hybrid-btn" id="BtnKeyboardMouse" data-cmd="KeyboardMouse">Keyboard / Mouse</button>
+        <button class="hybrid-btn" id="BtnMultiplayer" data-cmd="MultiplayerSettings">Multiplayer</button>
+        <button class="hybrid-btn" id="BtnCloud" data-cmd="CloudSettings">Steam Cloud</button>
+        <button class="hybrid-btn flyout-close" data-cmd="CloseFlyout">Close</button>
+      </div>
+      <div id="flyout-realism" class="flyout hidden" data-flyout="FlmRealismFlyout">
+        <div class="flyout-title">FlmRealismFlyout</div>
+        <button class="hybrid-btn" data-cmd="QuickMatch_realism">Quick Match</button>
+        <button class="hybrid-btn" data-cmd="CustomMatch_realism">Play Online</button>
+        <button class="hybrid-btn" data-cmd="FriendsMatch_realism">Friends Games</button>
+        <button class="hybrid-btn flyout-close" data-cmd="CloseFlyout">Close</button>
+      </div>
+      <div id="flyout-versus" class="flyout hidden" data-flyout="FlmVersusFlyout">
+        <div class="flyout-title">FlmVersusFlyout</div>
+        <button class="hybrid-btn" data-cmd="QuickMatch_versus">Quick Match</button>
+        <button class="hybrid-btn" data-cmd="CustomMatch_versus">Play Online</button>
+        <button class="hybrid-btn" data-cmd="FriendsMatch_versus">Friends Games</button>
+        <button class="hybrid-btn flyout-close" data-cmd="CloseFlyout">Close</button>
+      </div>
+      <div id="flyout-survival" class="flyout hidden" data-flyout="FlmSurvivalFlyout">
+        <div class="flyout-title">FlmSurvivalFlyout</div>
+        <button class="hybrid-btn" data-cmd="QuickMatch_survival">Quick Match</button>
+        <button class="hybrid-btn" data-cmd="CustomMatch_survival">Play Online</button>
+        <button class="hybrid-btn" data-cmd="Leaderboards_survival">Leaderboards</button>
+        <button class="hybrid-btn flyout-close" data-cmd="CloseFlyout">Close</button>
+      </div>
+      <div id="flyout-scavenge" class="flyout hidden" data-flyout="FlmScavengeFlyout">
+        <div class="flyout-title">FlmScavengeFlyout</div>
+        <button class="hybrid-btn" data-cmd="QuickMatch_scavenge">Quick Match</button>
+        <button class="hybrid-btn" data-cmd="CustomMatch_scavenge">Play Online</button>
+        <button class="hybrid-btn flyout-close" data-cmd="CloseFlyout">Close</button>
+      </div>
+      <div id="flyout-quickmatch" class="flyout hidden" data-flyout="FlmQuickMatchFlyout">
+        <div class="flyout-title">FlmQuickMatchFlyout</div>
+        <button class="hybrid-btn" data-cmd="QuickMatchServer_any">Any server</button>
+        <button class="hybrid-btn" data-cmd="QuickMatchServer_dedicated">Dedicated only</button>
+        <button class="hybrid-btn flyout-close" data-cmd="CloseFlyout">Close</button>
+      </div>
+      <div id="flyout-extras" class="flyout hidden" data-flyout="FlmExtrasFlyout_Simple">
+        <div class="flyout-title">FlmExtrasFlyout_Simple</div>
+        <button class="hybrid-btn" data-cmd="PlayChallenge">Mutation / Challenge</button>
+        <button class="hybrid-btn" data-cmd="DeveloperCommentary">Developer Commentary</button>
+        <button class="hybrid-btn" data-cmd="Credits">Credits</button>
+        <button class="hybrid-btn flyout-close" data-cmd="CloseFlyout">Close</button>
+      </div>
+      <footer class="garnish-bottom"></footer>
+    </section>
+
+    <section id="view-gamesettings" class="panel view hidden" data-wt="WT_GAMESETTINGS" data-manifest="gamesettings_coopcreate.res">
+      <header class="garnish-top"><span class="garnish-label">Game Settings</span></header>
+      <div class="panel-body settings-layout manifest-surface" data-view-id="view-gamesettings">
+        <div class="settings-left">
+          <div class="dropdown-row" id="DrpDifficulty"><label>DrpDifficulty</label><select data-setting="game/difficulty"><option value="normal">Normal</option><option value="hard">Hard</option><option value="impossible">Expert</option></select></div>
+          <div class="dropdown-row" id="DrpGameAccess"><label>DrpGameAccess</label><select data-setting="system/access"><option value="public">public</option><option value="friends">friends</option><option value="private">private</option></select></div>
+          <div class="dropdown-row" id="DrpServerType"><label>DrpServerType</label><select><option>listen</option></select></div>
+        </div>
+        <div class="settings-right">
+          <div class="poster" id="ImgLevelImage">ImgLevelImage</div>
+          <div class="dropdown-row" id="DrpStartingMission"><label>DrpStartingMission</label><select data-setting="game/mission"><option value="c1m1_hotel">c1m1_hotel</option><option value="c2m1_highway">c2m1_highway</option></select></div>
+          <div id="MissionLabel" class="label-block">MissionLabel</div>
+        </div>
+      </div>
+      <div class="action-row">
+        <button class="hybrid-btn primary" id="BtnStartLobby" data-cmd="Create">Start Lobby</button>
+        <button class="hybrid-btn" id="BtnCancel" data-cmd="NavigateBack">Back</button>
+      </div>
+      <footer class="garnish-bottom"></footer>
+    </section>
+
+    <section id="view-gamelobby" class="panel view hidden" data-wt="WT_GAMELOBBY" data-manifest="gamelobby.res">
+      <header class="garnish-top"><span class="garnish-label">Game Lobby</span><span class="garnish-minor" id="LblLeaderLine">LblLeaderLine</span></header>
+      <div class="panel-body lobby-layout manifest-surface" data-view-id="view-gamelobby">
+        <div class="lobby-left">
+          <div class="poster" id="ImgLevelImage">ImgLevelImage</div>
+          <div class="summary-lines">
+            <div id="LblSummaryLine0" class="summary-line">Campaign</div>
+            <div id="LblSummaryLine1" class="summary-line">Mission</div>
+            <div id="LblSummaryLine2" class="summary-line">Difficulty</div>
+          </div>
+          <div class="dropdown-row" id="DrpGameAccess"><label>DrpGameAccess</label><select><option>friends</option></select></div>
+          <div class="dropdown-row" id="DrpInviteFriends"><label>DrpInviteFriends</label><button class="text-btn" data-cmd="InviteFriends">Invite</button></div>
+          <button class="hybrid-btn" id="BtnChangeGameSettings" data-cmd="ChangeGameSettings">Change Settings</button>
+        </div>
+        <div class="lobby-right">
+          <div class="player-list" id="GplPlayers"></div>
+          <div class="chat-block" id="LobbyChat">
+            <div class="block-title">LobbyChat</div>
+            <div class="chat-log" id="ChatLog"></div>
+            <input type="text" id="ChatInput" placeholder="Say..." />
+          </div>
+          <div class="spinner" id="WorkingAnim">WorkingAnim</div>
+        </div>
+      </div>
+      <div class="action-row">
+        <button class="hybrid-btn primary" id="BtnStartGame" data-cmd="StartGame">Start Game</button>
+        <button class="hybrid-btn" id="BtnVoiceButton" data-cmd="VoiceToggle">Voice</button>
+        <button class="hybrid-btn" data-cmd="LeaveLobby">Leave Lobby</button>
+      </div>
+      <footer class="garnish-bottom"></footer>
+    </section>
+
+    <section id="view-loading" class="panel view hidden" data-wt="WT_LOADINGPROGRESS" data-manifest="loadingprogress.res">
+      <div class="panel-body loading-layout manifest-surface" data-view-id="view-loading">
+        <div class="poster large" id="Poster">Poster</div>
+        <div class="progress-block">
+          <div id="LoadingText" class="label-block">LoadingText</div>
+          <div class="progress-bar" id="ProTotalProgress"><div class="progress-fill" id="ProgressFill"></div></div>
+          <div class="spinner" id="WorkingAnim">WorkingAnim</div>
+        </div>
+        <div id="CampaignFooter" class="footer-caption">CampaignFooter</div>
+      </div>
+    </section>
+
+    <section id="view-ingame-menu" class="panel view hidden" data-wt="WT_INGAMEMAINMENU" data-manifest="ingamemainmenu.res">
+      <header class="garnish-top"><span class="garnish-label">PAUSED</span></header>
+      <div class="panel-body ingame-layout manifest-surface" data-view-id="view-ingame-menu">
+        <nav class="nav-column">
+          <button class="hybrid-btn primary" id="BtnReturnToGame" data-cmd="ReturnToGame">Return to Game</button>
+          <button class="hybrid-btn" id="BtnCallAVote" data-cmd="CallVote">Call a Vote</button>
+          <button class="hybrid-btn" id="BtnChangeChapter" data-cmd="ChangeChapter">Change Scenario</button>
+          <button class="hybrid-btn" id="BtnChangeDifficulty" data-cmd="ChangeDifficulty">Change Difficulty</button>
+          <button class="hybrid-btn" id="BtnRestartScenario" data-cmd="RestartScenario">Restart Scenario</button>
+          <button class="hybrid-btn" id="BtnReturnToLobby" data-cmd="ReturnToLobby">Return to Lobby</button>
+          <button class="hybrid-btn" id="BtnInviteFriends" data-cmd="InviteUI_friends">Invite Friends</button>
+          <button class="hybrid-btn" id="BtnGoIdle" data-cmd="GoIdle">Go Idle</button>
+          <button class="hybrid-btn" id="BtnOptions" data-cmd="FlmOptionsFlyout">Options</button>
+          <button class="hybrid-btn" id="BtnExitToMainMenu" data-cmd="ExitToMainMenu">Exit to Main Menu</button>
+        </nav>
+      </div>
+      <div id="flyout-ingame-options" class="flyout hidden" data-flyout="FlmOptionsFlyout">
+        <div class="flyout-title">FlmOptionsFlyout</div>
+        <button class="hybrid-btn" data-cmd="AudioVideo">Audio / Video</button>
+        <button class="hybrid-btn" data-cmd="KeyboardMouse">Keyboard / Mouse</button>
+        <button class="hybrid-btn flyout-close" data-cmd="CloseFlyout">Close</button>
+      </div>
+      <footer class="garnish-bottom"></footer>
+    </section>
+
+    <section id="view-vote" class="panel view hidden" data-wt="WT_VOTEOPTIONS" data-manifest="voteoptions.res">
+      <header class="garnish-top"><span class="garnish-label">Vote Options</span></header>
+      <div class="panel-body vote-layout manifest-surface" data-view-id="view-vote">
+        <button class="hybrid-btn" id="BtnChangeScenario" data-cmd="ChangeScenario">Change Scenario</button>
+        <button class="hybrid-btn" id="BtnChangeDifficulty" data-cmd="ChangeDifficulty">Change Difficulty</button>
+        <button class="hybrid-btn" id="BtnRestartScenario" data-cmd="RestartScenario">Restart Scenario</button>
+      </div>
+      <footer class="garnish-bottom"></footer>
+    </section>
+
+    <section id="view-chapter-select" class="panel view hidden" data-wt="WT_INGAMECHAPTERSELECT" data-manifest="ingamechapterselect.res">
+      <header class="garnish-top"><span class="garnish-label">Change Scenario</span></header>
+      <div class="panel-body list-layout manifest-surface" data-view-id="view-chapter-select">
+        <button class="list-select" data-cmd="VoteChapter" data-value="c1m1_hotel">c1m1_hotel</button>
+        <button class="list-select" data-cmd="VoteChapter" data-value="c2m1_highway">c2m1_highway</button>
+        <button class="list-select" data-cmd="VoteChapter" data-value="c3m1_plankcountry">c3m1_plankcountry</button>
+      </div>
+      <footer class="garnish-bottom"></footer>
+    </section>
+
+    <section id="view-difficulty-select" class="panel view hidden" data-wt="WT_INGAMEDIFFICULTYSELECT" data-manifest="ingamedifficultyselect.res">
+      <header class="garnish-top"><span class="garnish-label">Change Difficulty</span></header>
+      <div class="panel-body list-layout manifest-surface" data-view-id="view-difficulty-select">
+        <button class="list-select" data-cmd="VoteDifficulty" data-value="normal">Normal</button>
+        <button class="list-select" data-cmd="VoteDifficulty" data-value="hard">Advanced</button>
+        <button class="list-select" data-cmd="VoteDifficulty" data-value="impossible">Expert</button>
+      </div>
+      <footer class="garnish-bottom"></footer>
+    </section>
+
+    <div id="view-confirm" class="overlay hidden" data-wt="WT_GENERICCONFIRMATION" data-manifest="genericconfirmation.res">
+      <div class="confirm-dialog">
+        <div class="confirm-title" id="ConfirmTitle">Confirm</div>
+        <div class="confirm-message" id="ConfirmMessage"></div>
+        <div class="confirm-actions">
+          <button class="hybrid-btn primary" id="ConfirmOk" data-cmd="ConfirmOk">OK</button>
+          <button class="hybrid-btn" id="ConfirmCancel" data-cmd="ConfirmCancel">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="hud-stub" class="hud-stub hidden">
+      <span>IN GAME — press ESC for pause menu</span>
+      <button class="text-btn" id="BtnEsc" data-cmd="TogglePause">ESC</button>
+    </div>
+
+    <aside id="debug-panel" class="debug-panel">
+      <div class="debug-title">Hybrid · L4D2 manifests</div>
+      <label class="debug-toggle"><input type="checkbox" id="ToggleResOverlay"> Show .res position overlay</label>
+      <div id="debug-manifest"></div>
+      <div id="debug-state">WT_MAINMENU</div>
+      <div id="debug-stack"></div>
+      <div id="debug-log" class="debug-log"></div>
+      <button class="text-btn" data-cmd="ResetDemo">Reset demo</button>
+    </aside>
+  </div>
+
+  <script src="js/state-machine.js"></script>
+  <script src="js/manifest-hints.js"></script>
+  <script src="js/panels.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

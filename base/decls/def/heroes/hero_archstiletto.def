@@ -1,0 +1,34 @@
+// Archstiletto -- the namesake. Selectable like the other six in normal play
+// at 8 HP, but runs DIFFERENT tool-punish rules (see U6 / stiletto_arch flag):
+// a 2 HP super-armor buffer before punish applies, then a trajectory-preserving
+// punish (momentum kept, control lost until landing) instead of the standard
+// freeze. The 100 HP "Archstiletto mode" boss promotion + double-mid-air-damage
+// rule live in the arena-gamemodes plan, not here.
+//
+// Primary is an axe-derived melee swing (weapon_archstiletto) using the
+// v_archstiletto IQM viewmodel -- placeholder until the boss kit is designed.
+// Placeholder third-person model is the enforcer (with its own animation set,
+// like the old hero_bravo heavy).
+entityDef hero_archstiletto
+{
+	"inherit"				"hero_base"
+
+	"model"					"progs/enforcer.mdl"
+
+	"act_idle"				"$ENFORCER_IDLE"
+	"act_walk"				"$ENFORCER_WALK"
+	"act_run"				"$ENFORCER_RUN"
+	"act_smallFlinch"		"$ENFORCER_PAIN1,$ENFORCER_PAIN2"
+	"act_bigFlinch"			"$ENFORCER_PAIN3,$ENFORCER_PAIN4"
+	"act_dieSimple"			"$ENFORCER_DEATH,$ENFORCER_FDEATH"
+	"act_attack"			"$ENFORCER_ATTACK"
+
+	"health"				"8"
+	"max_health"			"8"
+
+	"stiletto_arch"			"1"
+
+	// Axe-derived melee placeholder (weapon_archstiletto) until the boss kit is designed.
+	"weapon"				"weapon_archstiletto"
+	"current_weapon"		"0"
+}

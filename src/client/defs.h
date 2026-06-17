@@ -150,6 +150,8 @@ font_s FONT_16;
 font_s FONT_20;
 font_s FONT_CON;
 font_s FONT_CENTERPRINT;
+font_s FONT_SPEC;		/* spectator HUD bar text (Trade Gothic) */
+font_s FONT_SPEC_HINT;	/* spectator HUD key hints (smaller) */
 
 //var string g_shellchrome;
 var float g_shellchromeshader;
@@ -417,6 +419,7 @@ struct
 
 	bool m_bInterfaceFocused;
 	bool m_bSpecInput;
+	int m_iSpecWheelPending;	/* 1=next target, -1=prev, set by scroll wheel */
 
 	int m_iLeanDir;
 	float m_flLeaning;

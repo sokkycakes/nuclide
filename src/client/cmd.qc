@@ -647,6 +647,18 @@ Cmd_Parse(string sCMD)
 	case "showPlayerList":
 		VGUI_PlayerList();
 		break;
+	case "showObservers":
+		VGUI_Observers();
+		break;
+	case "showSpecInset":
+		/* toggle the spectator first-person inset (PiP); cvar-backed so
+		   View_DrawSpectatorInset() (entry.qc) can read it via autocvar */
+		if (STRING_SET(argv(1))) {
+			cvar_set("cg_specInset", (stof(argv(1)) != 0) ? "1" : "0");
+		} else {
+			cvar_set("cg_specInset", (cvar("cg_specInset") != 0) ? "0" : "1");
+		}
+		break;
 	case "showServerInfo":
 		VGUI_ShowServerInfo();
 		break;
@@ -678,6 +690,8 @@ Cmd_Init(void)
 	registercommand("showMOTD");
 	registercommand("showModelSpawner");
 	registercommand("showPlayerList");
+	registercommand("showObservers");
+	registercommand("showSpecInset");
 	registercommand("showServerInfo");
 	registercommand("showEditor");
 	registercommand("showSunEditor");

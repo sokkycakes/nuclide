@@ -1,0 +1,131 @@
+{
+  "source": "resource/ui/l4d360ui/optionsflyout.res",
+  "viewId": "flyout-options",
+  "frame": null,
+  "viewport": {
+    "wide": 640,
+    "tall": 480
+  },
+  "controls": [
+    {
+      "id": "PnlBackground",
+      "name": "PnlBackground",
+      "controlName": "Panel",
+      "command": "",
+      "labelText": "",
+      "visible": true,
+      "xpos": 0,
+      "ypos": 0,
+      "wide": 156,
+      "tall": 125
+    },
+    {
+      "id": "BtnAudioVideo",
+      "name": "BtnAudioVideo",
+      "controlName": "L4D360HybridButton",
+      "command": "AudioVideo",
+      "labelText": "#L4D360UI_AudioVideo",
+      "visible": true,
+      "xpos": 0,
+      "ypos": 0,
+      "wide": 150,
+      "tall": 20
+    },
+    {
+      "id": "BtnController",
+      "name": "BtnController",
+      "controlName": "L4D360HybridButton",
+      "command": "KeyboardMouse",
+      "labelText": "#L4D360UI_KeyboardMouse",
+      "visible": true,
+      "xpos": 0,
+      "ypos": 80,
+      "wide": 150,
+      "tall": 20
+    },
+    {
+      "id": "BtnStorage",
+      "name": "BtnStorage",
+      "controlName": "L4D360HybridButton",
+      "command": "Storage",
+      "labelText": "#L4D360UI_Storage",
+      "visible": true,
+      "xpos": 0,
+      "ypos": 40,
+      "wide": 150,
+      "tall": 20
+    },
+    {
+      "id": "BtnVideo",
+      "name": "BtnVideo",
+      "controlName": "L4D360HybridButton",
+      "command": "Video",
+      "labelText": "#GameUI_Video",
+      "visible": true,
+      "xpos": 0,
+      "ypos": 0,
+      "wide": 150,
+      "tall": 20
+    },
+    {
+      "id": "BtnBrightness",
+      "name": "BtnBrightness",
+      "controlName": "L4D360HybridButton",
+      "command": "Brightness",
+      "labelText": "#GameUI_Brightness",
+      "visible": true,
+      "xpos": 0,
+      "ypos": 20,
+      "wide": 150,
+      "tall": 20
+    },
+    {
+      "id": "BtnAudio",
+      "name": "BtnAudio",
+      "controlName": "L4D360HybridButton",
+      "command": "Audio",
+      "labelText": "#GameUI_Audio",
+      "visible": true,
+      "xpos": 0,
+      "ypos": 40,
+      "wide": 150,
+      "tall": 20
+    },
+    {
+      "id": "BtnSteamController",
+      "name": "BtnSteamController",
+      "controlName": "L4D360HybridButton",
+      "command": "SteamController",
+      "labelText": "#GameUI_SteamController",
+      "visible": true,
+      "xpos": 0,
+      "ypos": 60,
+      "wide": 150,
+      "tall": 20
+    },
+    {
+      "id": "BtnMultiplayer",
+      "name": "BtnMultiplayer",
+      "controlName": "L4D360HybridButton",
+      "command": "MultiplayerSettings",
+      "labelText": "#GameUI_Multiplayer",
+      "visible": true,
+      "xpos": 0,
+      "ypos": 100,
+      "wide": 150,
+      "tall": 20
+    },
+    {
+      "id": "BtnCloud",
+      "name": "BtnCloud",
+      "controlName": "L4D360HybridButton",
+      "command": "CloudSettings",
+      "labelText": "#L4D360UI_Cloud_Title",
+      "visible": true,
+      "xpos": 0,
+      "ypos": 120,
+      "wide": 150,
+      "tall": 20
+    }
+  ]
+}

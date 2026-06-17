@@ -1,0 +1,15 @@
+// Collier -- revolver duelist. Roster baseline: 4 HP, shared movement kit and
+// shared speeds (inherited from player). Single primary weapon (v1 scope).
+// Placeholder model (jennifer2) + inherited alice2-family animations.
+entityDef hero_collier
+{
+	"inherit"				"hero_base"
+
+	"model"					"models/player/jennifer2/jennifer2.mdl"
+
+	"health"				"4"
+	"max_health"			"4"
+
+	"weapon"				"weapon_collier_sidearm"
+	"current_weapon"		"0"
+}

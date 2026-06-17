@@ -1,0 +1,9 @@
+default
+{
+	castShadows 1
+	receiveShadows 1
+	sampleSize 16
+	ambientColor ( 0.000000 0.000000 0.000000 )
+	longestCurve 0.000000
+}
+

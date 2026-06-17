@@ -1,0 +1,408 @@
+// In-Game Pause Menu — 1:1 port of Figma node 25:393 "in-game menu" (1280 × 720)
+// https://www.figma.com/design/zPN8CD2bkg3IHbvJsTcNfA/?node-id=25-393
+//
+// Coordinates/sizes/colors taken from the Figma node tree; element order
+// matches the frame's paint order, grouping matches the layer tree (node ids
+// in comments). Shares structure and styling with lobby_draft.slint.
+//
+// Platform notes (baked equivalents, no liberties):
+//  - bgtest (node 25:395) is a game screenshot with a #B70043 *multiply*
+//    blend overlay. Slint has no blend modes, so the multiply was applied
+//    per-channel (ColorMatrix, exact math) and baked into bgtest_pause.png.
+//    In-game this layer would be the live game framebuffer tinted the same way.
+//  - menuHeader (node 25:561) has a tiled diagonal stripe fill (41.6px tile,
+//    black @ 0.26) baked verbatim into stripes_pause_banner.svg.
+//  - focus bar uses the same flat approximation of the "color" blend as the
+//    lobby/title menus.
+//
+// Responsive: viewport-w / viewport-h are set from C each frame; everything
+// scales proportionally from the 1280×720 reference, like title_menu.slint.
+
+// keyStripe — nodes 25:397 / 25:446 (#5B5B5B + 20% #666→#000 overlay,
+// 2px #AFAFAF top/bottom edges)
+component KeyStripeBG inherits Rectangle {
+    in property <length> edge;
+
+    background: #5B5B5B;
+
+    Rectangle {
+        x: 0;
+        y: 0;
+        width: parent.width;
+        height: parent.height;
+        background: @linear-gradient(180deg, #53535333 0%, #00000033 100%);
+    }
+
+    Rectangle {
+        x: 0;
+        y: 0;
+        width: parent.width;
+        height: root.edge;
+        background: #AFAFAF;
+    }
+
+    Rectangle {
+        x: 0;
+        y: parent.height - root.edge;
+        width: parent.width;
+        height: root.edge;
+        background: #AFAFAF;
+    }
+}
+
+component PauseMenuItemRow inherits TouchArea {
+    in property <int> index;
+    in property <string> label;
+    in property <length> row-y;
+    in property <length> panel-x;
+    in property <length> panel-w;
+    in property <length> row-h;
+    in property <length> label-x;
+    in property <length> label-y;
+    in property <length> label-size;
+    in property <length> touch-pad;
+
+    callback pick();
+    callback scroll-up();
+    callback scroll-down();
+
+    x: root.panel-x - root.touch-pad;
+    y: root.row-y - root.touch-pad;
+    width: root.panel-w;
+    height: root.row-h;
+
+    clicked => {
+        root.pick();
+    }
+
+    scroll-event(event) => {
+        if (event.delta-y > 0) {
+            root.scroll-down();
+            return accept;
+        }
+        if (event.delta-y < 0) {
+            root.scroll-up();
+            return accept;
+        }
+        return reject;
+    }
+
+    Text {
+        x: root.label-x;
+        y: root.label-y;
+        text: root.label;
+        font-family: "Trade Gothic Next LT Pro BdCn";
+        font-size: root.label-size;
+        font-weight: 700;
+        letter-spacing: -1.2px;
+        color: #ADADAD;
+    }
+}
+
+component PauseFocusBar inherits Rectangle {
+    in property <length> bar-y;
+    in property <length> panel-x;
+    in property <length> panel-w;
+    in property <length> bar-h;
+    in property <length> accent-h;
+
+    y: root.bar-y;
+    x: root.panel-x;
+    width: root.panel-w;
+    height: root.bar-h;
+    clip: true;
+
+    background: @linear-gradient(90deg, #b70043 32%, #34343400 100%);
+
+    Rectangle {
+        y: 0px;
+        width: parent.width;
+        height: root.accent-h;
+        background: @linear-gradient(90deg, #ff8c8c 32%, #ff8c8c00 100%);
+    }
+
+    Rectangle {
+        y: parent.height - root.accent-h;
+        width: parent.width;
+        height: root.accent-h;
+        background: @linear-gradient(90deg, #ff8c8c 32%, #ff8c8c00 100%);
+    }
+}
+
+export component PauseMenu inherits Window {
+    callback resume();
+    callback host-menu();
+    callback change-team();
+    callback call-vote();
+    callback settings();
+    callback leave-game();
+    callback back();
+
+    callback key-up();
+    callback key-down();
+    callback key-activate();
+
+    in-out property <int> selected-index: 0;
+
+    // Set from FTEQW each frame to match vid.width / vid.height
+    in-out property <int> viewport-w: 1280;
+    in-out property <int> viewport-h: 720;
+
+    // Figma reference dimensions
+    private property <int> ref-w: 1280;
+    private property <int> ref-h: 720;
+    private property <int> item-count: 6;
+    private property <[string]> menu-labels: ["RETURN TO GAME", "HOST MENU", "CHANGE TEAM", "CALL A VOTE", "SETTINGS", "LEAVE GAME"];
+
+    pure function sx(v: float) -> length {
+        return v * root.viewport-w * 1px / root.ref-w;
+    }
+    pure function sy(v: float) -> length {
+        return v * root.viewport-h * 1px / root.ref-h;
+    }
+
+    width: root.viewport-w * 1px;
+    height: root.viewport-h * 1px;
+    no-frame: true;
+    background: #000000;
+
+    // Scaled metrics for interactive menu
+    private property <length> panel-x: root.sx(155);
+    private property <length> panel-y: root.sy(59.391);
+    private property <length> panel-w: root.sx(452);
+    private property <length> panel-h: root.sy(529.616);
+    private property <length> focus-bar-h: root.sy(31.672);
+    private property <length> focus-offset: root.sy(0);
+    private property <length> row-h: root.sy(31.672);
+    private property <length> touch-pad: root.sy(5);
+    private property <length> label-x: root.sx(9.03);
+    private property <length> label-y: root.sy(4);
+    private property <length> label-size: root.sy(23.472);
+    private property <length> accent-h: max(1px, root.sy(2));
+
+    private property <[length]> item-y: [
+        root.sy(7.61),
+        root.sy(39.28),
+        root.sy(70.96),
+        root.sy(102.63),
+        root.sy(134.30),
+        root.sy(165.97),
+    ];
+
+    function nav-up() {
+        if (root.selected-index > 0) {
+            root.selected-index -= 1;
+        }
+    }
+
+    function nav-down() {
+        if (root.selected-index < root.item-count - 1) {
+            root.selected-index += 1;
+        }
+    }
+
+    function activate-at(index: int) {
+        if (index == 0) {
+            root.resume();
+        } else if (index == 1) {
+            root.host-menu();
+        } else if (index == 2) {
+            root.change-team();
+        } else if (index == 3) {
+            root.call-vote();
+        } else if (index == 4) {
+            root.settings();
+        } else if (index == 5) {
+            root.leave-game();
+        }
+    }
+
+    function activate-selection() {
+        root.activate-at(root.selected-index);
+    }
+
+    function pick-item(index: int) {
+        root.selected-index = index;
+        root.activate-at(index);
+    }
+
+    // ── lobbypanelbg — node 25:396 ──
+    Rectangle {
+        x: root.sx(149);
+        y: root.sy(53);
+        width: root.sx(1131);
+        height: root.sy(666);
+        background: @linear-gradient(180deg, #272727C9 0%, #494949C9 89.9%);
+    }
+
+    // ── keyStripe — node 25:397 (short stub behind the panel stripe) ──
+    KeyStripeBG {
+        x: root.sx(150);
+        y: root.sy(589);
+        width: root.sx(61);
+        height: root.sy(46.4);
+        edge: max(1px, root.sy(2));
+    }
+
+    // ── focus — animated selection bar ──
+    PauseFocusBar {
+        panel-x: root.panel-x;
+        panel-w: root.panel-w;
+        bar-h: root.focus-bar-h;
+        accent-h: root.accent-h;
+        bar-y: root.panel-y + root.item-y[root.selected-index] - root.focus-offset;
+    }
+
+    // ── menuLeft — node 25:400 ───────────────────────────────────────────────
+
+    // Container 25:404 — clipped content column with interactive menu items
+    panel-content := Rectangle {
+        x: root.panel-x;
+        y: root.panel-y;
+        width: root.panel-w;
+        height: root.panel-h;
+        clip: true;
+
+        for label[index] in root.menu-labels: PauseMenuItemRow {
+            index: index;
+            label: label;
+            row-y: root.item-y[index];
+            panel-x: 0px;
+            panel-w: parent.width;
+            row-h: root.row-h;
+            label-x: root.label-x;
+            label-y: root.label-y;
+            label-size: root.label-size;
+            touch-pad: root.touch-pad;
+            pick => {
+                root.pick-item(index);
+            }
+            scroll-up => {
+                root.nav-up();
+            }
+            scroll-down => {
+                root.nav-down();
+            }
+        }
+    }
+
+    // keyStripe — node 25:446 (panel-width stripe with the button hints)
+    KeyStripeBG {
+        x: root.sx(155);
+        y: root.sy(589.006);
+        width: root.sx(1125);
+        height: root.sy(46.4);
+        edge: max(1px, root.sy(2));
+
+        // keyA — node 25:448
+        Image {
+            x: root.sx(10.8);
+            y: root.sy(9.2);
+            width: root.sx(28);
+            height: root.sy(28);
+            source: @image-url("../assets/360_b_1.png");
+            image-fit: fill;
+        }
+
+        Text {
+            x: root.sx(42.4);
+            y: root.sy(9.2);
+            text: "Select";
+            color: #ADADAD;
+            font-family: "Trade Gothic Next LT Pro BdCn";
+            font-size: root.sy(23.472);
+            font-weight: 700;
+        }
+
+        // keyB — node 25:454
+        Image {
+            x: root.sx(110.32);
+            y: root.sy(9.2);
+            width: root.sx(28);
+            height: root.sy(28);
+            source: @image-url("../assets/360_b_2.png");
+            image-fit: fill;
+        }
+
+        Text {
+            x: root.sx(141.92);
+            y: root.sy(9.2);
+            text: "Back";
+            color: #ADADAD;
+            font-family: "Trade Gothic Next LT Pro BdCn";
+            font-size: root.sy(23.472);
+            font-weight: 700;
+        }
+    }
+
+    // ── menuHeader — node 25:561 ──
+    // Stripe overlay: diagonal black stripes at 45deg, 41.6px spacing
+    Image {
+        x: root.sx(0);
+        y: root.sy(53);
+        width: root.sx(146);
+        height: root.sy(667);
+        source: @image-url("../assets/stripes_pause_banner.svg");
+        image-fit: fill;
+    }
+
+    // PAUSE label — node 25:563, reads bottom→top in the banner.
+    // Uses a pre-rotated SVG image to avoid Slint transform-rotation issues.
+    Image {
+        x: root.sx(101) - root.sx(106) / 2;
+        y: root.sy(307.5) - root.sy(509) / 2;
+        width: root.sx(106);
+        height: root.sy(509);
+        source: @image-url("../assets/pause_label.svg");
+        image-fit: contain;
+    }
+
+    // ── frame top border (1px #C9C9C9) — node 25:393 ──
+    Rectangle {
+        x: 0;
+        y: 0;
+        width: parent.width;
+        height: max(1px, root.sy(1));
+        background: #C9C9C9;
+    }
+
+    keyboard-focus := FocusScope {
+        x: 0px;
+        y: 0px;
+        width: 0px;
+        height: 0px;
+
+        init => {
+            keyboard-focus.focus();
+        }
+
+        key-pressed(event) => {
+            if (event.text == Key.UpArrow) {
+                root.nav-up();
+                return accept;
+            } else if (event.text == Key.DownArrow) {
+                root.nav-down();
+                return accept;
+            } else if (event.text == Key.Return || event.text == Key.Space) {
+                root.activate-selection();
+                return accept;
+            } else if (event.text == Key.Escape) {
+                root.back();
+                return accept;
+            }
+            return reject;
+        }
+    }
+
+    key-up => {
+        root.nav-up();
+    }
+
+    key-down => {
+        root.nav-down();
+    }
+
+    key-activate => {
+        root.activate-selection();
+    }
+}

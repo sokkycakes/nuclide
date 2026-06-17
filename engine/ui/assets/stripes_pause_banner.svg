@@ -1,0 +1,9 @@
+<svg width="146" height="667" viewBox="0 0 146 667" xmlns="http://www.w3.org/2000/svg">
+  <!-- Simplified stripe overlay - diagonal lines at 45deg, 41.6px spacing -->
+  <defs>
+    <pattern id="stripes" patternUnits="userSpaceOnUse" width="41.6" height="41.6" patternTransform="rotate(45)">
+      <rect width="12" height="41.6" fill="black" opacity="0.26"/>
+    </pattern>
+  </defs>
+  <rect width="146" height="667" fill="url(#stripes)"/>
+</svg>

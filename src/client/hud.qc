@@ -1,4 +1,7 @@
 
+/* framework spectator chrome, defined in src/client/spectatorhud.qc */
+void Spectator_DrawHUD(void);
+
 var bool autocvar_g_showHud = true;
 var float g_flHUDProgs;
 var void(void) g_hudMain;
@@ -228,6 +231,10 @@ HUD_DrawSpectator(void)
 		return;
 	}
 
+	/* framework always-on spectator chrome (R1-R5) */
+	Spectator_DrawHUD();
+
+	/* let the game's hud.dat extend/override on top */
 	HUDProgs_DrawSpectator();
 }
 

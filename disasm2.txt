@@ -1,0 +1,1143 @@
+Opened log file 'C:\Users\sokky\Documents\Godot\bulwark_proto_funny\nuclide\disasm2.txt'
+
+Microsoft (R) Windows Debugger Version 10.0.17763.132 AMD64
+Copyright (c) Microsoft Corporation. All rights reserved.
+
+NatVis script successfully loaded from 'C:\Program Files\Windows Kits\10\Debuggers\x64\Visualizers\atlmfc.natvis'
+NatVis script successfully loaded from 'C:\Program Files\Windows Kits\10\Debuggers\x64\Visualizers\concurrency.natvis'
+NatVis script successfully loaded from 'C:\Program Files\Windows Kits\10\Debuggers\x64\Visualizers\cpp_rest.natvis'
+NatVis script successfully loaded from 'C:\Program Files\Windows Kits\10\Debuggers\x64\Visualizers\stl.natvis'
+NatVis script successfully loaded from 'C:\Program Files\Windows Kits\10\Debuggers\x64\Visualizers\Windows.Data.Json.natvis'
+NatVis script successfully loaded from 'C:\Program Files\Windows Kits\10\Debuggers\x64\Visualizers\Windows.Devices.Geolocation.natvis'
+NatVis script successfully loaded from 'C:\Program Files\Windows Kits\10\Debuggers\x64\Visualizers\Windows.Devices.Sensors.natvis'
+NatVis script successfully loaded from 'C:\Program Files\Windows Kits\10\Debuggers\x64\Visualizers\Windows.Media.natvis'
+NatVis script successfully loaded from 'C:\Program Files\Windows Kits\10\Debuggers\x64\Visualizers\windows.natvis'
+NatVis script successfully loaded from 'C:\Program Files\Windows Kits\10\Debuggers\x64\Visualizers\winrt.natvis'
+
+Loading Dump File [C:\Users\sokky\AppData\Local\CrashDumps\fteqw64.exe.375564.dmp]
+User Mini Dump File: Only registers, stack and portions of memory are available
+
+
+************* Path validation summary **************
+Response                         Time (ms)     Location
+OK                                             C:\bld\fteqw_src2\build
+OK                                             C:\Users\sokky\Documents\Godot\bulwark_proto_funny\nuclide
+Symbol search path is: C:\bld\fteqw_src2\build;C:\Users\sokky\Documents\Godot\bulwark_proto_funny\nuclide
+Executable search path is: 
+Windows 10 Version 22631 MP (16 procs) Free x64
+Product: WinNt, suite: SingleUserTS
+22621.1.amd64fre.ni_release.220506-1250
+Machine Name:
+Debug session time: Wed Jun 17 09:39:20.000 2026 (UTC - 5:00)
+System Uptime: not available
+Process Uptime: 0 days 0:00:05.000
+................................................................
+.............................................................
+Loading unloaded module list
+......
+This dump file has an exception of interest stored in it.
+The stored exception information can be accessed via .ecxr.
+(5bb0c.5b9f0): Access violation - code c0000005 (first/second chance not available)
+*** ERROR: Symbol file could not be found.  Defaulted to export symbols for ntdll.dll - 
+*** ERROR: Symbol file could not be found.  Defaulted to export symbols for KERNELBASE.dll - 
+ntdll!ZwWaitForMultipleObjects+0x14:
+00007ffc`369d1954 c3              ret
+0:000> .ecxr; u fteqw64+0x3fe00 L400; u fteqw64+0x40000 L30; q
+*** WARNING: Unable to verify checksum for fteqw64.exe
+*** ERROR: Symbol file could not be found.  Defaulted to export symbols for fteqw64.exe - 
+rax=0000009b64afdc70 rbx=0000009b64afdbd0 rcx=000001a8a8b9d118
+rdx=0000000000000003 rsi=0000000000000009 rdi=000001a8a8b9d118
+rip=00007ff681b7ff53 rsp=0000009b64afdbb0 rbp=0000000000000001
+ r8=0000000000000008  r9=000001a711c0de44 r10=000001a711c0de40
+r11=0000009b64afd9fc r12=000001a81e6ab701 r13=0000000000000000
+r14=ff0a0a00ff0b0b00 r15=0000000000000003
+iopl=0         nv up ei ng nz na po nc
+cs=0033  ss=002b  ds=002b  es=002b  fs=0053  gs=002b             efl=00010286
+fteqw64+0x3ff53:
+00007ff6`81b7ff53 418b4610        mov     eax,dword ptr [r14+10h] ds:ff0a0a00`ff0b0b10=????????
+fteqw64+0x3fe00:
+00007ff6`81b7fe00 488b08          mov     rcx,qword ptr [rax]
+00007ff6`81b7fe03 e8dbe4ffff      call    fteqw64+0x3e2e3 (00007ff6`81b7e2e3)
+00007ff6`81b7fe08 488b7e18        mov     rdi,qword ptr [rsi+18h]
+00007ff6`81b7fe0c 488b87e8010000  mov     rax,qword ptr [rdi+1E8h]
+00007ff6`81b7fe13 4889056e48e001  mov     qword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x517224 (00007ff6`83984688)],rax
+00007ff6`81b7fe1a 8b4658          mov     eax,dword ptr [rsi+58h]
+00007ff6`81b7fe1d 89055148e001    mov     dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x517210 (00007ff6`83984674)],eax
+00007ff6`81b7fe23 488b056648e001  mov     rax,qword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x51722c (00007ff6`83984690)]
+00007ff6`81b7fe2a 488b4e28        mov     rcx,qword ptr [rsi+28h]
+00007ff6`81b7fe2e 4839c8          cmp     rax,rcx
+00007ff6`81b7fe31 740c            je      fteqw64+0x3fe3f (00007ff6`81b7fe3f)
+00007ff6`81b7fe33 e81adeffff      call    fteqw64+0x3dc52 (00007ff6`81b7dc52)
+00007ff6`81b7fe38 488b055148e001  mov     rax,qword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x51722c (00007ff6`83984690)]
+00007ff6`81b7fe3f f30f10057548e001 movss   xmm0,dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x517258 (00007ff6`839846bc)]
+00007ff6`81b7fe47 f30f104850      movss   xmm1,dword ptr [rax+50h]
+00007ff6`81b7fe4c f30f588ff0010000 addss   xmm1,dword ptr [rdi+1F0h]
+00007ff6`81b7fe54 f30f5cc1        subss   xmm0,xmm1
+00007ff6`81b7fe58 f30f11055848e001 movss   dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x517254 (00007ff6`839846b8)],xmm0
+00007ff6`81b7fe60 488b4e68        mov     rcx,qword ptr [rsi+68h]
+00007ff6`81b7fe64 4885c9          test    rcx,rcx
+00007ff6`81b7fe67 752e            jne     fteqw64+0x3fe97 (00007ff6`81b7fe97)
+00007ff6`81b7fe69 448b879c000000  mov     r8d,dword ptr [rdi+9Ch]
+00007ff6`81b7fe70 488b8fa8000000  mov     rcx,qword ptr [rdi+0A8h]
+00007ff6`81b7fe77 4585c0          test    r8d,r8d
+00007ff6`81b7fe7a 741b            je      fteqw64+0x3fe97 (00007ff6`81b7fe97)
+00007ff6`81b7fe7c f30f5987a0000000 mulss   xmm0,dword ptr [rdi+0A0h]
+00007ff6`81b7fe84 f30f2cc0        cvttss2si eax,xmm0
+00007ff6`81b7fe88 31d2            xor     edx,edx
+00007ff6`81b7fe8a 41f7f0          div     eax,r8d
+00007ff6`81b7fe8d 4869c2e8000000  imul    rax,rdx,0E8h
+00007ff6`81b7fe94 4801c1          add     rcx,rax
+00007ff6`81b7fe97 48890d0248e001  mov     qword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x51723c (00007ff6`839846a0)],rcx
+00007ff6`81b7fe9e 8b4610          mov     eax,dword ptr [rsi+10h]
+00007ff6`81b7fea1 2b4614          sub     eax,dword ptr [rsi+14h]
+00007ff6`81b7fea4 89052e42e001    mov     dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x516c74 (00007ff6`839840d8)],eax
+00007ff6`81b7feaa 8b4614          mov     eax,dword ptr [rsi+14h]
+00007ff6`81b7fead 48c1e003        shl     rax,3
+00007ff6`81b7feb1 480306          add     rax,qword ptr [rsi]
+00007ff6`81b7feb4 4889051542e001  mov     qword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x516c6c (00007ff6`839840d0)],rax
+00007ff6`81b7febb 4883c428        add     rsp,28h
+00007ff6`81b7febf 5f              pop     rdi
+00007ff6`81b7fec0 5e              pop     rsi
+00007ff6`81b7fec1 e95ae9ffff      jmp     fteqw64+0x3e820 (00007ff6`81b7e820)
+00007ff6`81b7fec6 4157            push    r15
+00007ff6`81b7fec8 4156            push    r14
+00007ff6`81b7feca 4155            push    r13
+00007ff6`81b7fecc 4154            push    r12
+00007ff6`81b7fece 56              push    rsi
+00007ff6`81b7fecf 57              push    rdi
+00007ff6`81b7fed0 55              push    rbp
+00007ff6`81b7fed1 53              push    rbx
+00007ff6`81b7fed2 4883ec48        sub     rsp,48h
+00007ff6`81b7fed6 0f29742430      movaps  xmmword ptr [rsp+30h],xmm6
+00007ff6`81b7fedb 4439c2          cmp     edx,r8d
+00007ff6`81b7fede 0f8f8c010000    jg      fteqw64+0x40070 (00007ff6`81b80070)
+00007ff6`81b7fee4 4489c6          mov     esi,r8d
+00007ff6`81b7fee7 4889cf          mov     rdi,rcx
+00007ff6`81b7feea 8b2d94ee9201    mov     ebp,dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x41920 (00007ff6`834aed84)]
+00007ff6`81b7fef0 4c63fa          movsxd  r15,edx
+00007ff6`81b7fef3 ffc6            inc     esi
+00007ff6`81b7fef5 488d5c2420      lea     rbx,[rsp+20h]
+00007ff6`81b7fefa 4885ff          test    rdi,rdi
+00007ff6`81b7fefd 0f8451010000    je      fteqw64+0x40054 (00007ff6`81b80054)
+00007ff6`81b7ff03 4983ff03        cmp     r15,3
+00007ff6`81b7ff07 0f853e010000    jne     fteqw64+0x4004b (00007ff6`81b8004b)
+00007ff6`81b7ff0d 392df5809803    cmp     dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x209aba4 (00007ff6`85508008)],ebp
+00007ff6`81b7ff13 0f8d32010000    jge     fteqw64+0x4004b (00007ff6`81b8004b)
+00007ff6`81b7ff19 488b054847e001  mov     rax,qword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x517204 (00007ff6`83984668)]
+00007ff6`81b7ff20 4c8b6818        mov     r13,qword ptr [rax+18h]
+00007ff6`81b7ff24 4d85ed          test    r13,r13
+00007ff6`81b7ff27 750b            jne     fteqw64+0x3ff34 (00007ff6`81b7ff34)
+00007ff6`81b7ff29 48837f1800      cmp     qword ptr [rdi+18h],0
+00007ff6`81b7ff2e 0f8405010000    je      fteqw64+0x40039 (00007ff6`81b80039)
+00007ff6`81b7ff34 833d3547e00100  cmp     dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x51720c (00007ff6`83984670)],0
+00007ff6`81b7ff3b 0f85f8000000    jne     fteqw64+0x40039 (00007ff6`81b80039)
+00007ff6`81b7ff41 41b401          mov     r12b,1
+00007ff6`81b7ff44 4d89ee          mov     r14,r13
+00007ff6`81b7ff47 41f6c401        test    r12b,1
+00007ff6`81b7ff4b 7461            je      fteqw64+0x3ffae (00007ff6`81b7ffae)
+00007ff6`81b7ff4d 4c8b7718        mov     r14,qword ptr [rdi+18h]
+00007ff6`81b7ff51 eb5b            jmp     fteqw64+0x3ffae (00007ff6`81b7ffae)
+00007ff6`81b7ff53 418b4610        mov     eax,dword ptr [r14+10h]
+00007ff6`81b7ff57 413b4614        cmp     eax,dword ptr [r14+14h]
+00007ff6`81b7ff5b 744d            je      fteqw64+0x3ffaa (00007ff6`81b7ffaa)
+00007ff6`81b7ff5d 498b4670        mov     rax,qword ptr [r14+70h]
+00007ff6`81b7ff61 4885c0          test    rax,rax
+00007ff6`81b7ff64 7405            je      fteqw64+0x3ff6b (00007ff6`81b7ff6b)
+00007ff6`81b7ff66 4c89f1          mov     rcx,r14
+00007ff6`81b7ff69 ffd0            call    rax
+00007ff6`81b7ff6b f30f1035c546e001 movss   xmm6,dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x5171d4 (00007ff6`83984638)]
+00007ff6`81b7ff73 488b4718        mov     rax,qword ptr [rdi+18h]
+00007ff6`81b7ff77 4889442420      mov     qword ptr [rsp+20h],rax
+00007ff6`81b7ff7c 4c896c2428      mov     qword ptr [rsp+28h],r13
+00007ff6`81b7ff81 4c89f1          mov     rcx,r14
+00007ff6`81b7ff84 4889fa          mov     rdx,rdi
+00007ff6`81b7ff87 4989d8          mov     r8,rbx
+00007ff6`81b7ff8a 4531c9          xor     r9d,r9d
+00007ff6`81b7ff8d e8ab7f0000      call    fteqw64+0x47f3d (00007ff6`81b87f3d)
+00007ff6`81b7ff92 f30f11359e46e001 movss   dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x5171d4 (00007ff6`83984638)],xmm6
+00007ff6`81b7ff9a e835b0ffff      call    fteqw64+0x3afd4 (00007ff6`81b7afd4)
+00007ff6`81b7ff9f b900010000      mov     ecx,100h
+00007ff6`81b7ffa4 ff153e3c8102    call    qword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0xf26784 (00007ff6`84393be8)]
+00007ff6`81b7ffaa 4d8b7608        mov     r14,qword ptr [r14+8]
+00007ff6`81b7ffae 4d85f6          test    r14,r14
+00007ff6`81b7ffb1 75a0            jne     fteqw64+0x3ff53 (00007ff6`81b7ff53)
+00007ff6`81b7ffb3 41f6c401        test    r12b,1
+00007ff6`81b7ffb7 41bc00000000    mov     r12d,0
+00007ff6`81b7ffbd 7585            jne     fteqw64+0x3ff44 (00007ff6`81b7ff44)
+00007ff6`81b7ffbf 833de629810200  cmp     dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0xf25548 (00007ff6`843929ac)],0
+00007ff6`81b7ffc6 740b            je      fteqw64+0x3ffd3 (00007ff6`81b7ffd3)
+00007ff6`81b7ffc8 b94f860000      mov     ecx,864Fh
+00007ff6`81b7ffcd ff15653c8102    call    qword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0xf267d4 (00007ff6`84393c38)]
+00007ff6`81b7ffd3 b901000000      mov     ecx,1
+00007ff6`81b7ffd8 e88bd5ffff      call    fteqw64+0x3d568 (00007ff6`81b7d568)
+00007ff6`81b7ffdd 41b401          mov     r12b,1
+00007ff6`81b7ffe0 4d89ee          mov     r14,r13
+00007ff6`81b7ffe3 41f6c401        test    r12b,1
+00007ff6`81b7ffe7 7412            je      fteqw64+0x3fffb (00007ff6`81b7fffb)
+00007ff6`81b7ffe9 4c8b7718        mov     r14,qword ptr [rdi+18h]
+00007ff6`81b7ffed eb0c            jmp     fteqw64+0x3fffb (00007ff6`81b7fffb)
+00007ff6`81b7ffef 4c89f1          mov     rcx,r14
+00007ff6`81b7fff2 e8bbfdffff      call    fteqw64+0x3fdb2 (00007ff6`81b7fdb2)
+00007ff6`81b7fff7 4d8b7608        mov     r14,qword ptr [r14+8]
+00007ff6`81b7fffb 4d85f6          test    r14,r14
+00007ff6`81b7fffe 75ef            jne     fteqw64+0x3ffef (00007ff6`81b7ffef)
+00007ff6`81b80000 41f6c401        test    r12b,1
+00007ff6`81b80004 41bc00000000    mov     r12d,0
+00007ff6`81b8000a 75d4            jne     fteqw64+0x3ffe0 (00007ff6`81b7ffe0)
+00007ff6`81b8000c 833d5d46e00100  cmp     dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x51720c (00007ff6`83984670)],0
+00007ff6`81b80013 7410            je      fteqw64+0x40025 (00007ff6`81b80025)
+00007ff6`81b80015 31c0            xor     eax,eax
+00007ff6`81b80017 4889055246e001  mov     qword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x51720c (00007ff6`83984670)],rax
+00007ff6`81b8001e 4889051b46e001  mov     qword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x5171dc (00007ff6`83984640)],rax
+00007ff6`81b80025 833d8029810200  cmp     dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0xf25548 (00007ff6`843929ac)],0
+00007ff6`81b8002c 740b            je      fteqw64+0x40039 (00007ff6`81b80039)
+00007ff6`81b8002e b94f860000      mov     ecx,864Fh
+00007ff6`81b80033 ff15f73b8102    call    qword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0xf267cc (00007ff6`84393c30)]
+00007ff6`81b80039 833dc87f980300  cmp     dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x209aba4 (00007ff6`85508008)],0
+00007ff6`81b80040 7509            jne     fteqw64+0x4004b (00007ff6`81b8004b)
+00007ff6`81b80042 833d2bee920100  cmp     dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x41a10 (00007ff6`834aee74)],0
+00007ff6`81b80049 7525            jne     fteqw64+0x40070 (00007ff6`81b80070)
+00007ff6`81b8004b 4a8b0cff        mov     rcx,qword ptr [rdi+r15*8]
+00007ff6`81b8004f e832000000      call    fteqw64+0x40086 (00007ff6`81b80086)
+00007ff6`81b80054 488b050d46e001  mov     rax,qword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x517204 (00007ff6`83984668)]
+00007ff6`81b8005b 4a8b0cf8        mov     rcx,qword ptr [rax+r15*8]
+00007ff6`81b8005f e822000000      call    fteqw64+0x40086 (00007ff6`81b80086)
+00007ff6`81b80064 49ffc7          inc     r15
+00007ff6`81b80067 4439fe          cmp     esi,r15d
+00007ff6`81b8006a 0f858afeffff    jne     fteqw64+0x3fefa (00007ff6`81b7fefa)
+00007ff6`81b80070 0f28742430      movaps  xmm6,xmmword ptr [rsp+30h]
+00007ff6`81b80075 4883c448        add     rsp,48h
+00007ff6`81b80079 5b              pop     rbx
+00007ff6`81b8007a 5d              pop     rbp
+00007ff6`81b8007b 5f              pop     rdi
+00007ff6`81b8007c 5e              pop     rsi
+00007ff6`81b8007d 415c            pop     r12
+00007ff6`81b8007f 415d            pop     r13
+00007ff6`81b80081 415e            pop     r14
+00007ff6`81b80083 415f            pop     r15
+00007ff6`81b80085 c3              ret
+00007ff6`81b80086 4157            push    r15
+00007ff6`81b80088 4156            push    r14
+00007ff6`81b8008a 4155            push    r13
+00007ff6`81b8008c 4154            push    r12
+00007ff6`81b8008e 56              push    rsi
+00007ff6`81b8008f 57              push    rdi
+00007ff6`81b80090 55              push    rbp
+00007ff6`81b80091 53              push    rbx
+00007ff6`81b80092 4881ece8000000  sub     rsp,0E8h
+00007ff6`81b80099 440f299c24d0000000 movaps xmmword ptr [rsp+0D0h],xmm11
+00007ff6`81b800a2 440f299424c0000000 movaps xmmword ptr [rsp+0C0h],xmm10
+00007ff6`81b800ab 440f298c24b0000000 movaps xmmword ptr [rsp+0B0h],xmm9
+00007ff6`81b800b4 66440f298424a0000000 movapd xmmword ptr [rsp+0A0h],xmm8
+00007ff6`81b800be 660f29bc2490000000 movapd xmmword ptr [rsp+90h],xmm7
+00007ff6`81b800c7 0f29b42480000000 movaps  xmmword ptr [rsp+80h],xmm6
+00007ff6`81b800cf 4885c9          test    rcx,rcx
+00007ff6`81b800d2 0f84550f0000    je      fteqw64+0x4102d (00007ff6`81b8102d)
+00007ff6`81b800d8 4889ce          mov     rsi,rcx
+00007ff6`81b800db 488d3d44528601  lea     rdi,[fteqw64+0x18a5326 (00007ff6`833e5326)]
+00007ff6`81b800e2 4531ff          xor     r15d,r15d
+00007ff6`81b800e5 488d1d0f568301  lea     rbx,[fteqw64+0x18756fb (00007ff6`833b56fb)]
+00007ff6`81b800ec 4c8d2d0d37e001  lea     r13,[fteqw64!AmdPowerXpressRequestHighPerformance+0x51639c (00007ff6`83983800)]
+00007ff6`81b800f3 660f57ff        xorpd   xmm7,xmm7
+00007ff6`81b800f7 66440f280520e53d01 movapd xmm8,xmmword ptr [fteqw64+0x141e620 (00007ff6`82f5e620)]
+00007ff6`81b80100 440f280d68e43d01 movaps  xmm9,xmmword ptr [fteqw64+0x141e570 (00007ff6`82f5e570)]
+00007ff6`81b80108 f30f103570e43d01 movss   xmm6,dword ptr [fteqw64+0x141e580 (00007ff6`82f5e580)]
+00007ff6`81b80110 41bc28050000    mov     r12d,528h
+00007ff6`81b80116 8b4610          mov     eax,dword ptr [rsi+10h]
+00007ff6`81b80119 3b4614          cmp     eax,dword ptr [rsi+14h]
+00007ff6`81b8011c 0f84fe0e0000    je      fteqw64+0x41020 (00007ff6`81b81020)
+00007ff6`81b80122 8b4658          mov     eax,dword ptr [rsi+58h]
+00007ff6`81b80125 89c2            mov     edx,eax
+00007ff6`81b80127 c0ea06          shr     dl,6
+00007ff6`81b8012a 8b0d4045e001    mov     ecx,dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x51720c (00007ff6`83984670)]
+00007ff6`81b80130 83f908          cmp     ecx,8
+00007ff6`81b80133 410f94c0        sete    r8b
+00007ff6`81b80137 4484c2          test    dl,r8b
+00007ff6`81b8013a 0f85e00e0000    jne     fteqw64+0x41020 (00007ff6`81b81020)
+00007ff6`81b80140 84c0            test    al,al
+00007ff6`81b80142 0f98c0          sets    al
+00007ff6`81b80145 83e1fd          and     ecx,0FFFFFFFDh
+00007ff6`81b80148 83f901          cmp     ecx,1
+00007ff6`81b8014b 0f94c1          sete    cl
+00007ff6`81b8014e 84c8            test    al,cl
+00007ff6`81b80150 0f85ca0e0000    jne     fteqw64+0x41020 (00007ff6`81b81020)
+00007ff6`81b80156 488b4670        mov     rax,qword ptr [rsi+70h]
+00007ff6`81b8015a 4885c0          test    rax,rax
+00007ff6`81b8015d 7405            je      fteqw64+0x40164 (00007ff6`81b80164)
+00007ff6`81b8015f 4889f1          mov     rcx,rsi
+00007ff6`81b80162 ffd0            call    rax
+00007ff6`81b80164 488b6e18        mov     rbp,qword ptr [rsi+18h]
+00007ff6`81b80168 4885ed          test    rbp,rbp
+00007ff6`81b8016b 7523            jne     fteqw64+0x40190 (00007ff6`81b80190)
+00007ff6`81b8016d 4889f9          mov     rcx,rdi
+00007ff6`81b80170 e816701f00      call    fteqw64+0x23718b (00007ff6`81d7718b)
+00007ff6`81b80175 488b5660        mov     rdx,qword ptr [rsi+60h]
+00007ff6`81b80179 4885d2          test    rdx,rdx
+00007ff6`81b8017c 0f849e0e0000    je      fteqw64+0x41020 (00007ff6`81b81020)
+00007ff6`81b80182 31c9            xor     ecx,ecx
+00007ff6`81b80184 e8f60e2700      call    fteqw64+0x2b107f (00007ff6`81df107f)
+00007ff6`81b80189 488ba888000000  mov     rbp,qword ptr [rax+88h]
+00007ff6`81b80190 4889e8          mov     rax,rbp
+00007ff6`81b80193 48c1e82f        shr     rax,2Fh
+00007ff6`81b80197 7427            je      fteqw64+0x401c0 (00007ff6`81b801c0)
+00007ff6`81b80199 8b4610          mov     eax,dword ptr [rsi+10h]
+00007ff6`81b8019c 488b4e08        mov     rcx,qword ptr [rsi+8]
+00007ff6`81b801a0 4c8b4e60        mov     r9,qword ptr [rsi+60h]
+00007ff6`81b801a4 89442428        mov     dword ptr [rsp+28h],eax
+00007ff6`81b801a8 48894c2420      mov     qword ptr [rsp+20h],rcx
+00007ff6`81b801ad 4889d9          mov     rcx,rbx
+00007ff6`81b801b0 4889f2          mov     rdx,rsi
+00007ff6`81b801b3 4989e8          mov     r8,rbp
+00007ff6`81b801b6 e8d06f1f00      call    fteqw64+0x23718b (00007ff6`81d7718b)
+00007ff6`81b801bb e9600e0000      jmp     fteqw64+0x41020 (00007ff6`81b81020)
+00007ff6`81b801c0 8b8550030000    mov     eax,dword ptr [rbp+350h]
+00007ff6`81b801c6 0fbae00e        bt      eax,0Eh
+00007ff6`81b801ca 0f82500e0000    jb      fteqw64+0x41020 (00007ff6`81b81020)
+00007ff6`81b801d0 837e1000        cmp     dword ptr [rsi+10h],0
+00007ff6`81b801d4 0f84460e0000    je      fteqw64+0x41020 (00007ff6`81b81020)
+00007ff6`81b801da 6685c0          test    ax,ax
+00007ff6`81b801dd 0f98c1          sets    cl
+00007ff6`81b801e0 448b358944e001  mov     r14d,dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x51720c (00007ff6`83984670)]
+00007ff6`81b801e7 4183fe08        cmp     r14d,8
+00007ff6`81b801eb 0f94c2          sete    dl
+00007ff6`81b801ee 84d1            test    cl,dl
+00007ff6`81b801f0 0f852a0e0000    jne     fteqw64+0x41020 (00007ff6`81b81020)
+00007ff6`81b801f6 89c1            mov     ecx,eax
+00007ff6`81b801f8 c1e919          shr     ecx,19h
+00007ff6`81b801fb 4489f2          mov     edx,r14d
+00007ff6`81b801fe 83e2fd          and     edx,0FFFFFFFDh
+00007ff6`81b80201 83fa01          cmp     edx,1
+00007ff6`81b80204 0f94c2          sete    dl
+00007ff6`81b80207 84d1            test    cl,dl
+00007ff6`81b80209 0f85110e0000    jne     fteqw64+0x41020 (00007ff6`81b81020)
+00007ff6`81b8020f a801            test    al,1
+00007ff6`81b80211 0f851e020000    jne     fteqw64+0x40435 (00007ff6`81b80435)
+*** ERROR: Symbol file could not be found.  Defaulted to export symbols for wrap_oal.dll - 
+00007ff6`81b80217 a900009800      test    eax,offset wrap_oal!alcCreateContext+0x3f6590 (00000000`00980000)
+00007ff6`81b8021c 0f95c1          setne   cl
+00007ff6`81b8021f 4183fe02        cmp     r14d,2
+00007ff6`81b80223 0f95c2          setne   dl
+00007ff6`81b80226 20ca            and     dl,cl
+00007ff6`81b80228 80fa01          cmp     dl,1
+00007ff6`81b8022b 0f85e70d0000    jne     fteqw64+0x41018 (00007ff6`81b81018)
+00007ff6`81b80231 48630dd07d9803  movsxd  rcx,dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x209aba4 (00007ff6`85508008)]
+00007ff6`81b80238 3b0d46eb9201    cmp     ecx,dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x41920 (00007ff6`834aed84)]
+00007ff6`81b8023e 0f9cc2          setl    dl
+00007ff6`81b80241 83f906          cmp     ecx,6
+00007ff6`81b80244 410f95c0        setne   r8b
+00007ff6`81b80248 41f7c6fbffffff  test    r14d,0FFFFFFFBh
+00007ff6`81b8024f 410f94c1        sete    r9b
+00007ff6`81b80253 4520c1          and     r9b,r8b
+00007ff6`81b80256 4120d1          and     r9b,dl
+00007ff6`81b80259 4180f901        cmp     r9b,1
+00007ff6`81b8025d 0f85bd0d0000    jne     fteqw64+0x41020 (00007ff6`81b81020)
+00007ff6`81b80263 f3440f1015cc43e001 movss xmm10,dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x5171d4 (00007ff6`83984638)]
+00007ff6`81b8026c 0fbae013        bt      eax,13h
+00007ff6`81b80270 0f8342040000    jae     fteqw64+0x406b8 (00007ff6`81b806b8)
+00007ff6`81b80276 833d1327810200  cmp     dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0xf2552c (00007ff6`84392990)],0
+00007ff6`81b8027d 0f8435040000    je      fteqw64+0x406b8 (00007ff6`81b806b8)
+00007ff6`81b80283 f3440f109d00020000 movss xmm11,dword ptr [rbp+200h]
+00007ff6`81b8028c 0f1005857a9803  movups  xmm0,xmmword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x209a8b4 (00007ff6`85507d18)]
+00007ff6`81b80293 0f29442470      movaps  xmmword ptr [rsp+70h],xmm0
+00007ff6`81b80298 8b05627d9803    mov     eax,dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x209ab9c (00007ff6`85508000)]
+00007ff6`81b8029e 89442460        mov     dword ptr [rsp+60h],eax
+00007ff6`81b802a2 0f1005477d9803  movups  xmm0,xmmword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x209ab8c (00007ff6`85507ff0)]
+00007ff6`81b802a9 0f29442450      movaps  xmmword ptr [rsp+50h],xmm0
+00007ff6`81b802ae 498b84cde0030000 mov     rax,qword ptr [r13+rcx*8+3E0h]
+00007ff6`81b802b6 4885c0          test    rax,rax
+00007ff6`81b802b9 7547            jne     fteqw64+0x40302 (00007ff6`81b80302)
+00007ff6`81b802bb 488d0de29c7f01  lea     rcx,[fteqw64+0x1839fa4 (00007ff6`83379fa4)]
+00007ff6`81b802c2 31d2            xor     edx,edx
+00007ff6`81b802c4 4531c0          xor     r8d,r8d
+00007ff6`81b802c7 e88ef02000      call    fteqw64+0x24f35a (00007ff6`81d8f35a)
+00007ff6`81b802cc 48630d357d9803  movsxd  rcx,dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x209aba4 (00007ff6`85508008)]
+00007ff6`81b802d3 498984cde0030000 mov     qword ptr [r13+rcx*8+3E0h],rax
+00007ff6`81b802db 83784000        cmp     dword ptr [rax+40h],0
+00007ff6`81b802df 7521            jne     fteqw64+0x40302 (00007ff6`81b80302)
+00007ff6`81b802e1 4883c040        add     rax,40h
+00007ff6`81b802e5 b901000000      mov     ecx,1
+00007ff6`81b802ea 4889c2          mov     rdx,rax
+00007ff6`81b802ed ff155d398102    call    qword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0xf267ec (00007ff6`84393c50)]
+00007ff6`81b802f3 48630d0e7d9803  movsxd  rcx,dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x209aba4 (00007ff6`85508008)]
+00007ff6`81b802fa 498b84cde0030000 mov     rax,qword ptr [r13+rcx*8+3E0h]
+00007ff6`81b80302 f20f1005c6dd7d03 movsd   xmm0,mmword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x1ef0c6c (00007ff6`8535e0d0)]
+00007ff6`81b8030a 0f14c7          unpcklps xmm0,xmm7
+00007ff6`81b8030d 66410f56c0      orpd    xmm0,xmm8
+00007ff6`81b80312 66410f5cc0      subpd   xmm0,xmm8
+00007ff6`81b80317 660f5ac0        cvtpd2ps xmm0,xmm0
+00007ff6`81b8031b 450fc6db00      shufps  xmm11,xmm11,0
+00007ff6`81b80320 410f59c3        mulps   xmm0,xmm11
+00007ff6`81b80324 410f28c9        movaps  xmm1,xmm9
+00007ff6`81b80328 0f5fc8          maxps   xmm1,xmm0
+00007ff6`81b8032b 0f57c0          xorps   xmm0,xmm0
+00007ff6`81b8032e 0f16c1          movlhps xmm0,xmm1
+00007ff6`81b80331 0f1105e0799803  movups  xmmword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x209a8b4 (00007ff6`85507d18)],xmm0
+00007ff6`81b80338 48c705ad7c980300000000 mov qword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x209ab8c (00007ff6`85507ff0)],0
+00007ff6`81b80343 f20f10058ddd7d03 movsd   xmm0,mmword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x1ef0c74 (00007ff6`8535e0d8)]
+00007ff6`81b8034b 0f14c7          unpcklps xmm0,xmm7
+00007ff6`81b8034e 66410f56c0      orpd    xmm0,xmm8
+00007ff6`81b80353 66410f5cc0      subpd   xmm0,xmm8
+00007ff6`81b80358 660f5ac0        cvtpd2ps xmm0,xmm0
+00007ff6`81b8035c 410f59c3        mulps   xmm0,xmm11
+00007ff6`81b80360 410f28c9        movaps  xmm1,xmm9
+00007ff6`81b80364 0f5fc8          maxps   xmm1,xmm0
+00007ff6`81b80367 f30f5bc1        cvttps2dq xmm0,xmm1
+00007ff6`81b8036b 660f7ec2        movd    edx,xmm0
+00007ff6`81b8036f 660fd605817c9803 movq    mmword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x209ab94 (00007ff6`85507ff8)],xmm0
+00007ff6`81b80377 395014          cmp     dword ptr [rax+14h],edx
+00007ff6`81b8037a 7514            jne     fteqw64+0x40390 (00007ff6`81b80390)
+00007ff6`81b8037c 660f70c855      pshufd  xmm1,xmm0,55h
+00007ff6`81b80381 66410f7ec8      movd    r8d,xmm1
+00007ff6`81b80386 44394018        cmp     dword ptr [rax+18h],r8d
+00007ff6`81b8038a 0f84fa010000    je      fteqw64+0x4058a (00007ff6`81b8058a)
+00007ff6`81b80390 895014          mov     dword ptr [rax+14h],edx
+00007ff6`81b80393 8b05637c9803    mov     eax,dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x209ab98 (00007ff6`85507ffc)]
+00007ff6`81b80399 48630d687c9803  movsxd  rcx,dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x209aba4 (00007ff6`85508008)]
+00007ff6`81b803a0 498b8ccde0030000 mov     rcx,qword ptr [r13+rcx*8+3E0h]
+00007ff6`81b803a8 894118          mov     dword ptr [rcx+18h],eax
+00007ff6`81b803ab 486305567c9803  movsxd  rax,dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x209aba4 (00007ff6`85508008)]
+00007ff6`81b803b2 4d8b84c5e0030000 mov     r8,qword ptr [r13+rax*8+3E0h]
+00007ff6`81b803ba 31c9            xor     ecx,ecx
+00007ff6`81b803bc bae10d0000      mov     edx,0DE1h
+00007ff6`81b803c1 e896adffff      call    fteqw64+0x3b15c (00007ff6`81b7b15c)
+00007ff6`81b803c6 8b0d28dd7d03    mov     ecx,dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x1ef0c90 (00007ff6`8535e0f4)]
+00007ff6`81b803cc f6c110          test    cl,10h
+00007ff6`81b803cf 0f84b6000000    je      fteqw64+0x4048b (00007ff6`81b8048b)
+00007ff6`81b803d5 833d0895d70100  cmp     dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x48c480 (00007ff6`838f98e4)],0
+00007ff6`81b803dc 0f84a9000000    je      fteqw64+0x4048b (00007ff6`81b8048b)
+00007ff6`81b803e2 4863051f7c9803  movsxd  rax,dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x209aba4 (00007ff6`85508008)]
+00007ff6`81b803e9 498b84c5e0030000 mov     rax,qword ptr [r13+rax*8+3E0h]
+00007ff6`81b803f1 448b4814        mov     r9d,dword ptr [rax+14h]
+00007ff6`81b803f5 8b4018          mov     eax,dword ptr [rax+18h]
+00007ff6`81b803f8 89442420        mov     dword ptr [rsp+20h],eax
+00007ff6`81b803fc 48c744244000000000 mov   qword ptr [rsp+40h],0
+00007ff6`81b80405 c744243801140000 mov     dword ptr [rsp+38h],1401h
+00007ff6`81b8040d c744243008190000 mov     dword ptr [rsp+30h],1908h
+00007ff6`81b80415 c744242800000000 mov     dword ptr [rsp+28h],0
+00007ff6`81b8041d b9e10d0000      mov     ecx,0DE1h
+00007ff6`81b80422 31d2            xor     edx,edx
+00007ff6`81b80424 41b81a880000    mov     r8d,881Ah
+00007ff6`81b8042a ff1558388102    call    qword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0xf26824 (00007ff6`84393c88)]
+00007ff6`81b80430 e9e9000000      jmp     fteqw64+0x4051e (00007ff6`81b8051e)
+00007ff6`81b80435 41f7c6fbffffff  test    r14d,0FFFFFFFBh
+00007ff6`81b8043c 7419            je      fteqw64+0x40457 (00007ff6`81b80457)
+00007ff6`81b8043e 4183fe05        cmp     r14d,5
+00007ff6`81b80442 0f84cffdffff    je      fteqw64+0x40217 (00007ff6`81b80217)
+00007ff6`81b80448 4183fe02        cmp     r14d,2
+00007ff6`81b8044c 0f84c5fdffff    je      fteqw64+0x40217 (00007ff6`81b80217)
+00007ff6`81b80452 e9c90b0000      jmp     fteqw64+0x41020 (00007ff6`81b81020)
+00007ff6`81b80457 f3440f1015d841e001 movss xmm10,dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x5171d4 (00007ff6`83984638)]
+00007ff6`81b80460 4889f1          mov     rcx,rsi
+00007ff6`81b80463 e8c960feff      call    fteqw64+0x26531 (00007ff6`81b66531)
+00007ff6`81b80468 f3440f1115c741e001 movss dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x5171d4 (00007ff6`83984638)],xmm10
+00007ff6`81b80471 85c0            test    eax,eax
+00007ff6`81b80473 0f85a70b0000    jne     fteqw64+0x41020 (00007ff6`81b81020)
+00007ff6`81b80479 8b8550030000    mov     eax,dword ptr [rbp+350h]
+00007ff6`81b8047f 448b35ea41e001  mov     r14d,dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x51720c (00007ff6`83984670)]
+00007ff6`81b80486 e98cfdffff      jmp     fteqw64+0x40217 (00007ff6`81b80217)
+00007ff6`81b8048b 488b05f6378102  mov     rax,qword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0xf26824 (00007ff6`84393c88)]
+00007ff6`81b80492 4863156f7b9803  movsxd  rdx,dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x209aba4 (00007ff6`85508008)]
+00007ff6`81b80499 498b94d5e0030000 mov     rdx,qword ptr [r13+rdx*8+3E0h]
+00007ff6`81b804a1 448b4a14        mov     r9d,dword ptr [rdx+14h]
+00007ff6`81b804a5 8b5218          mov     edx,dword ptr [rdx+18h]
+00007ff6`81b804a8 f6c111          test    cl,11h
+00007ff6`81b804ab 743d            je      fteqw64+0x404ea (00007ff6`81b804ea)
+00007ff6`81b804ad 833dd893d70100  cmp     dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x48c428 (00007ff6`838f988c)],0
+00007ff6`81b804b4 7434            je      fteqw64+0x404ea (00007ff6`81b804ea)
+00007ff6`81b804b6 89542420        mov     dword ptr [rsp+20h],edx
+00007ff6`81b804ba 48c744244000000000 mov   qword ptr [rsp+40h],0
+00007ff6`81b804c3 c744243801140000 mov     dword ptr [rsp+38h],1401h
+00007ff6`81b804cb c744243008190000 mov     dword ptr [rsp+30h],1908h
+00007ff6`81b804d3 c744242800000000 mov     dword ptr [rsp+28h],0
+00007ff6`81b804db b9e10d0000      mov     ecx,0DE1h
+00007ff6`81b804e0 31d2            xor     edx,edx
+00007ff6`81b804e2 41b8438c0000    mov     r8d,8C43h
+00007ff6`81b804e8 eb32            jmp     fteqw64+0x4051c (00007ff6`81b8051c)
+00007ff6`81b804ea 89542420        mov     dword ptr [rsp+20h],edx
+00007ff6`81b804ee 48c744244000000000 mov   qword ptr [rsp+40h],0
+00007ff6`81b804f7 c744243801140000 mov     dword ptr [rsp+38h],1401h
+00007ff6`81b804ff c744243008190000 mov     dword ptr [rsp+30h],1908h
+00007ff6`81b80507 c744242800000000 mov     dword ptr [rsp+28h],0
+00007ff6`81b8050f b9e10d0000      mov     ecx,0DE1h
+00007ff6`81b80514 31d2            xor     edx,edx
+00007ff6`81b80516 41b808190000    mov     r8d,1908h
+00007ff6`81b8051c ffd0            call    rax
+00007ff6`81b8051e b9e10d0000      mov     ecx,0DE1h
+00007ff6`81b80523 ba00280000      mov     edx,2800h
+00007ff6`81b80528 41b801260000    mov     r8d,2601h
+00007ff6`81b8052e ff1564378102    call    qword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0xf26834 (00007ff6`84393c98)]
+00007ff6`81b80534 b9e10d0000      mov     ecx,0DE1h
+00007ff6`81b80539 ba01280000      mov     edx,2801h
+00007ff6`81b8053e 41b801260000    mov     r8d,2601h
+00007ff6`81b80544 ff154e378102    call    qword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0xf26834 (00007ff6`84393c98)]
+00007ff6`81b8054a b9e10d0000      mov     ecx,0DE1h
+00007ff6`81b8054f ba02280000      mov     edx,2802h
+00007ff6`81b80554 41b82f810000    mov     r8d,812Fh
+00007ff6`81b8055a ff1538378102    call    qword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0xf26834 (00007ff6`84393c98)]
+00007ff6`81b80560 b9e10d0000      mov     ecx,0DE1h
+00007ff6`81b80565 ba03280000      mov     edx,2803h
+00007ff6`81b8056a 41b82f810000    mov     r8d,812Fh
+00007ff6`81b80570 ff1522378102    call    qword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0xf26834 (00007ff6`84393c98)]
+00007ff6`81b80576 48630d8b7a9803  movsxd  rcx,dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x209aba4 (00007ff6`85508008)]
+00007ff6`81b8057d 498b84cde0030000 mov     rax,qword ptr [r13+rcx*8+3E0h]
+00007ff6`81b80585 f30f7e4014      movq    xmm0,mmword ptr [rax+14h]
+00007ff6`81b8058a 4c8d04cde0030000 lea     r8,[rcx*8+3E0h]
+00007ff6`81b80592 4d01e8          add     r8,r13
+00007ff6`81b80595 488d0489        lea     rax,[rcx+rcx*4]
+00007ff6`81b80599 498d8cc5c8020000 lea     rcx,[r13+rax*8+2C8h]
+00007ff6`81b805a1 660f70c855      pshufd  xmm1,xmm0,55h
+00007ff6`81b805a6 660f7e4c2430    movd    dword ptr [rsp+30h],xmm1
+00007ff6`81b805ac 660f7e442428    movd    dword ptr [rsp+28h],xmm0
+00007ff6`81b805b2 c744243800000000 mov     dword ptr [rsp+38h],0
+00007ff6`81b805ba 48c744242000000000 mov   qword ptr [rsp+20h],0
+00007ff6`81b805c3 ba02000000      mov     edx,2
+00007ff6`81b805c8 41b901000000    mov     r9d,1
+00007ff6`81b805ce e8a8100000      call    fteqw64+0x4167b (00007ff6`81b8167b)
+00007ff6`81b805d3 4189c7          mov     r15d,eax
+00007ff6`81b805d6 4863052b7a9803  movsxd  rax,dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x209aba4 (00007ff6`85508008)]
+00007ff6`81b805dd 488d0480        lea     rax,[rax+rax*4]
+00007ff6`81b805e1 418b94c5d0020000 mov     edx,dword ptr [r13+rax*8+2D0h]
+00007ff6`81b805e9 8915117a9803    mov     dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x209ab9c (00007ff6`85508000)],edx
+00007ff6`81b805ef 448b0d067a9803  mov     r9d,dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x209ab98 (00007ff6`85507ffc)]
+00007ff6`81b805f6 448b05fb799803  mov     r8d,dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x209ab94 (00007ff6`85507ff8)]
+00007ff6`81b805fd 8b05f1799803    mov     eax,dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x209ab90 (00007ff6`85507ff4)]
+00007ff6`81b80603 4401c8          add     eax,r9d
+00007ff6`81b80606 29c2            sub     edx,eax
+00007ff6`81b80608 8b0de2799803    mov     ecx,dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x209ab8c (00007ff6`85507ff0)]
+00007ff6`81b8060e ff15a4368102    call    qword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0xf26854 (00007ff6`84393cb8)]
+00007ff6`81b80614 e8bba9ffff      call    fteqw64+0x3afd4 (00007ff6`81b7afd4)
+00007ff6`81b80619 660fefc0        pxor    xmm0,xmm0
+00007ff6`81b8061d 660fefc9        pxor    xmm1,xmm1
+00007ff6`81b80621 0f57d2          xorps   xmm2,xmm2
+00007ff6`81b80624 0f28de          movaps  xmm3,xmm6
+00007ff6`81b80627 ff15c3358102    call    qword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0xf2678c (00007ff6`84393bf0)]
+00007ff6`81b8062d b900410000      mov     ecx,4100h
+00007ff6`81b80632 ff15b0358102    call    qword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0xf26784 (00007ff6`84393be8)]
+00007ff6`81b80638 488b15311a6d03  mov     rdx,qword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x1de4c0c (00007ff6`85252070)]
+00007ff6`81b8063f 4c01e2          add     rdx,r12
+00007ff6`81b80642 4889f1          mov     rcx,rsi
+00007ff6`81b80645 4531c0          xor     r8d,r8d
+00007ff6`81b80648 41b901000000    mov     r9d,1
+00007ff6`81b8064e e8ea780000      call    fteqw64+0x47f3d (00007ff6`81b87f3d)
+00007ff6`81b80653 b9408d0000      mov     ecx,8D40h
+00007ff6`81b80658 4489fa          mov     edx,r15d
+00007ff6`81b8065b ff15af388102    call    qword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0xf26aac (00007ff6`84393f10)]
+00007ff6`81b80661 44893d1834e001  mov     dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x51661c (00007ff6`83983a80)],r15d
+00007ff6`81b80668 0f28442470      movaps  xmm0,xmmword ptr [rsp+70h]
+00007ff6`81b8066d 0f1105a4769803  movups  xmmword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x209a8b4 (00007ff6`85507d18)],xmm0
+00007ff6`81b80674 0f28442450      movaps  xmm0,xmmword ptr [rsp+50h]
+00007ff6`81b80679 0f110570799803  movups  xmmword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x209ab8c (00007ff6`85507ff0)],xmm0
+00007ff6`81b80680 8b542460        mov     edx,dword ptr [rsp+60h]
+00007ff6`81b80684 891576799803    mov     dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x209ab9c (00007ff6`85508000)],edx
+00007ff6`81b8068a 448b0d6b799803  mov     r9d,dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x209ab98 (00007ff6`85507ffc)]
+00007ff6`81b80691 448b0560799803  mov     r8d,dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x209ab94 (00007ff6`85507ff8)]
+00007ff6`81b80698 8b0556799803    mov     eax,dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x209ab90 (00007ff6`85507ff4)]
+00007ff6`81b8069e 4401c8          add     eax,r9d
+00007ff6`81b806a1 29c2            sub     edx,eax
+00007ff6`81b806a3 8b0d47799803    mov     ecx,dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x209ab8c (00007ff6`85507ff0)]
+00007ff6`81b806a9 ff1509368102    call    qword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0xf26854 (00007ff6`84393cb8)]
+00007ff6`81b806af 8b8550030000    mov     eax,dword ptr [rbp+350h]
+00007ff6`81b806b5 4531ff          xor     r15d,r15d
+00007ff6`81b806b8 a900003000      test    eax,300000h
+00007ff6`81b806bd 0f84cc050000    je      fteqw64+0x40c8f (00007ff6`81b80c8f)
+00007ff6`81b806c3 833dc622810200  cmp     dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0xf2552c (00007ff6`84392990)],0
+00007ff6`81b806ca 0f94c1          sete    cl
+00007ff6`81b806cd 833d0097920100  cmp     dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x3c970 (00007ff6`834a9dd4)],0
+00007ff6`81b806d4 0f94c2          sete    dl
+00007ff6`81b806d7 0fbae01e        bt      eax,1Eh
+00007ff6`81b806db 7224            jb      fteqw64+0x40701 (00007ff6`81b80701)
+00007ff6`81b806dd 08d1            or      cl,dl
+00007ff6`81b806df 7420            je      fteqw64+0x40701 (00007ff6`81b80701)
+00007ff6`81b806e1 488b1588196d03  mov     rdx,qword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x1de4c0c (00007ff6`85252070)]
+00007ff6`81b806e8 4c01e2          add     rdx,r12
+00007ff6`81b806eb 4889f1          mov     rcx,rsi
+00007ff6`81b806ee 4531c0          xor     r8d,r8d
+00007ff6`81b806f1 41b903000000    mov     r9d,3
+00007ff6`81b806f7 e841780000      call    fteqw64+0x47f3d (00007ff6`81b87f3d)
+00007ff6`81b806fc e98e050000      jmp     fteqw64+0x40c8f (00007ff6`81b80c8f)
+00007ff6`81b80701 0f28c6          movaps  xmm0,xmm6
+00007ff6`81b80704 f30f5d8500020000 minss   xmm0,dword ptr [rbp+200h]
+00007ff6`81b8070c 0f100d05769803  movups  xmm1,xmmword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x209a8b4 (00007ff6`85507d18)]
+00007ff6`81b80713 0f294c2470      movaps  xmmword ptr [rsp+70h],xmm1
+00007ff6`81b80718 8b05e2789803    mov     eax,dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x209ab9c (00007ff6`85508000)]
+00007ff6`81b8071e 89442460        mov     dword ptr [rsp+60h],eax
+00007ff6`81b80722 0f100dc7789803  movups  xmm1,xmmword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x209ab8c (00007ff6`85507ff0)]
+00007ff6`81b80729 0f294c2450      movaps  xmmword ptr [rsp+50h],xmm1
+00007ff6`81b8072e f20f100d9ad97d03 movsd   xmm1,mmword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x1ef0c6c (00007ff6`8535e0d0)]
+00007ff6`81b80736 0f14cf          unpcklps xmm1,xmm7
+00007ff6`81b80739 66410f56c8      orpd    xmm1,xmm8
+00007ff6`81b8073e 66410f5cc8      subpd   xmm1,xmm8
+00007ff6`81b80743 660f5ac9        cvtpd2ps xmm1,xmm1
+00007ff6`81b80747 0fc6c000        shufps  xmm0,xmm0,0
+00007ff6`81b8074b 0f59c8          mulps   xmm1,xmm0
+00007ff6`81b8074e 410f28d1        movaps  xmm2,xmm9
+00007ff6`81b80752 0f5fd1          maxps   xmm2,xmm1
+00007ff6`81b80755 0f57c9          xorps   xmm1,xmm1
+00007ff6`81b80758 0f16ca          movlhps xmm1,xmm2
+00007ff6`81b8075b 0f110db6759803  movups  xmmword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x209a8b4 (00007ff6`85507d18)],xmm1
+00007ff6`81b80762 48c7058378980300000000 mov qword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x209ab8c (00007ff6`85507ff0)],0
+00007ff6`81b8076d f20f100d63d97d03 movsd   xmm1,mmword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x1ef0c74 (00007ff6`8535e0d8)]
+00007ff6`81b80775 0f14cf          unpcklps xmm1,xmm7
+00007ff6`81b80778 66410f56c8      orpd    xmm1,xmm8
+00007ff6`81b8077d 66410f5cc8      subpd   xmm1,xmm8
+00007ff6`81b80782 660f5ac9        cvtpd2ps xmm1,xmm1
+00007ff6`81b80786 0f59c8          mulps   xmm1,xmm0
+00007ff6`81b80789 410f28c1        movaps  xmm0,xmm9
+00007ff6`81b8078d 0f5fc1          maxps   xmm0,xmm1
+00007ff6`81b80790 f30f5bc0        cvttps2dq xmm0,xmm0
+00007ff6`81b80794 0f13055d789803  movlps  qword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x209ab94 (00007ff6`85507ff8)],xmm0
+00007ff6`81b8079b 48630566789803  movsxd  rax,dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x209aba4 (00007ff6`85508008)]
+00007ff6`81b807a2 498b84c510040000 mov     rax,qword ptr [r13+rax*8+410h]
+00007ff6`81b807aa 4885c0          test    rax,rax
+00007ff6`81b807ad 7547            jne     fteqw64+0x407f6 (00007ff6`81b807f6)
+00007ff6`81b807af 488d0d03987f01  lea     rcx,[fteqw64+0x1839fb9 (00007ff6`83379fb9)]
+00007ff6`81b807b6 31d2            xor     edx,edx
+00007ff6`81b807b8 4531c0          xor     r8d,r8d
+00007ff6`81b807bb e89aeb2000      call    fteqw64+0x24f35a (00007ff6`81d8f35a)
+00007ff6`81b807c0 48630d41789803  movsxd  rcx,dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x209aba4 (00007ff6`85508008)]
+00007ff6`81b807c7 498984cd10040000 mov     qword ptr [r13+rcx*8+410h],rax
+00007ff6`81b807cf 83784000        cmp     dword ptr [rax+40h],0
+00007ff6`81b807d3 7521            jne     fteqw64+0x407f6 (00007ff6`81b807f6)
+00007ff6`81b807d5 4883c040        add     rax,40h
+00007ff6`81b807d9 b901000000      mov     ecx,1
+00007ff6`81b807de 4889c2          mov     rdx,rax
+00007ff6`81b807e1 ff1569348102    call    qword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0xf267ec (00007ff6`84393c50)]
+00007ff6`81b807e7 4863051a789803  movsxd  rax,dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x209aba4 (00007ff6`85508008)]
+00007ff6`81b807ee 498b84c510040000 mov     rax,qword ptr [r13+rax*8+410h]
+00007ff6`81b807f6 8b0dfc779803    mov     ecx,dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x209ab94 (00007ff6`85507ff8)]
+00007ff6`81b807fc 394814          cmp     dword ptr [rax+14h],ecx
+00007ff6`81b807ff 750f            jne     fteqw64+0x40810 (00007ff6`81b80810)
+00007ff6`81b80801 8b5018          mov     edx,dword ptr [rax+18h]
+00007ff6`81b80804 3b15f2779803    cmp     edx,dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x209ab98 (00007ff6`85507ffc)]
+00007ff6`81b8080a 0f8485010000    je      fteqw64+0x40995 (00007ff6`81b80995)
+00007ff6`81b80810 894814          mov     dword ptr [rax+14h],ecx
+00007ff6`81b80813 8b05e3779803    mov     eax,dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x209ab98 (00007ff6`85507ffc)]
+00007ff6`81b80819 48630de8779803  movsxd  rcx,dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x209aba4 (00007ff6`85508008)]
+00007ff6`81b80820 498b8ccd10040000 mov     rcx,qword ptr [r13+rcx*8+410h]
+00007ff6`81b80828 894118          mov     dword ptr [rcx+18h],eax
+00007ff6`81b8082b 486305d6779803  movsxd  rax,dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x209aba4 (00007ff6`85508008)]
+00007ff6`81b80832 4d8b84c510040000 mov     r8,qword ptr [r13+rax*8+410h]
+00007ff6`81b8083a 31c9            xor     ecx,ecx
+00007ff6`81b8083c bae10d0000      mov     edx,0DE1h
+00007ff6`81b80841 e816a9ffff      call    fteqw64+0x3b15c (00007ff6`81b7b15c)
+00007ff6`81b80846 8b05a8d87d03    mov     eax,dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x1ef0c90 (00007ff6`8535e0f4)]
+00007ff6`81b8084c 89c2            mov     edx,eax
+00007ff6`81b8084e c0ea04          shr     dl,4
+00007ff6`81b80851 8b0d8d90d701    mov     ecx,dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x48c480 (00007ff6`838f98e4)]
+00007ff6`81b80857 85c9            test    ecx,ecx
+00007ff6`81b80859 410f95c0        setne   r8b
+00007ff6`81b8085d 4120d0          and     r8b,dl
+00007ff6`81b80860 4180f801        cmp     r8b,1
+00007ff6`81b80864 754a            jne     fteqw64+0x408b0 (00007ff6`81b808b0)
+00007ff6`81b80866 8b0590779803    mov     eax,dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x209ab98 (00007ff6`85507ffc)]
+00007ff6`81b8086c 448b0d85779803  mov     r9d,dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x209ab94 (00007ff6`85507ff8)]
+00007ff6`81b80873 89442420        mov     dword ptr [rsp+20h],eax
+00007ff6`81b80877 48c744244000000000 mov   qword ptr [rsp+40h],0
+00007ff6`81b80880 c744243801140000 mov     dword ptr [rsp+38h],1401h
+00007ff6`81b80888 c744243008190000 mov     dword ptr [rsp+30h],1908h
+00007ff6`81b80890 c744242800000000 mov     dword ptr [rsp+28h],0
+00007ff6`81b80898 b9e10d0000      mov     ecx,0DE1h
+00007ff6`81b8089d 31d2            xor     edx,edx
+00007ff6`81b8089f 41b81a880000    mov     r8d,881Ah
+00007ff6`81b808a5 ff15dd338102    call    qword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0xf26824 (00007ff6`84393c88)]
+00007ff6`81b808ab e98d000000      jmp     fteqw64+0x4093d (00007ff6`81b8093d)
+00007ff6`81b808b0 85c9            test    ecx,ecx
+00007ff6`81b808b2 0f95c1          setne   cl
+00007ff6`81b808b5 a811            test    al,11h
+00007ff6`81b808b7 0f95c2          setne   dl
+00007ff6`81b808ba 20ca            and     dl,cl
+00007ff6`81b808bc 488b05c5338102  mov     rax,qword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0xf26824 (00007ff6`84393c88)]
+00007ff6`81b808c3 8b0d33779803    mov     ecx,dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x209ab98 (00007ff6`85507ffc)]
+00007ff6`81b808c9 448b0d28779803  mov     r9d,dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x209ab94 (00007ff6`85507ff8)]
+00007ff6`81b808d0 80fa01          cmp     dl,1
+00007ff6`81b808d3 7534            jne     fteqw64+0x40909 (00007ff6`81b80909)
+00007ff6`81b808d5 894c2420        mov     dword ptr [rsp+20h],ecx
+00007ff6`81b808d9 48c744244000000000 mov   qword ptr [rsp+40h],0
+00007ff6`81b808e2 c744243801140000 mov     dword ptr [rsp+38h],1401h
+00007ff6`81b808ea c744243008190000 mov     dword ptr [rsp+30h],1908h
+00007ff6`81b808f2 c744242800000000 mov     dword ptr [rsp+28h],0
+00007ff6`81b808fa b9e10d0000      mov     ecx,0DE1h
+00007ff6`81b808ff 31d2            xor     edx,edx
+00007ff6`81b80901 41b8438c0000    mov     r8d,8C43h
+00007ff6`81b80907 eb32            jmp     fteqw64+0x4093b (00007ff6`81b8093b)
+00007ff6`81b80909 894c2420        mov     dword ptr [rsp+20h],ecx
+00007ff6`81b8090d 48c744244000000000 mov   qword ptr [rsp+40h],0
+00007ff6`81b80916 c744243801140000 mov     dword ptr [rsp+38h],1401h
+00007ff6`81b8091e c744243008190000 mov     dword ptr [rsp+30h],1908h
+00007ff6`81b80926 c744242800000000 mov     dword ptr [rsp+28h],0
+00007ff6`81b8092e b9e10d0000      mov     ecx,0DE1h
+00007ff6`81b80933 31d2            xor     edx,edx
+00007ff6`81b80935 41b808190000    mov     r8d,1908h
+00007ff6`81b8093b ffd0            call    rax
+00007ff6`81b8093d b9e10d0000      mov     ecx,0DE1h
+00007ff6`81b80942 ba00280000      mov     edx,2800h
+00007ff6`81b80947 41b801260000    mov     r8d,2601h
+00007ff6`81b8094d ff1545338102    call    qword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0xf26834 (00007ff6`84393c98)]
+00007ff6`81b80953 b9e10d0000      mov     ecx,0DE1h
+00007ff6`81b80958 ba01280000      mov     edx,2801h
+00007ff6`81b8095d 41b801260000    mov     r8d,2601h
+00007ff6`81b80963 ff152f338102    call    qword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0xf26834 (00007ff6`84393c98)]
+00007ff6`81b80969 b9e10d0000      mov     ecx,0DE1h
+00007ff6`81b8096e ba02280000      mov     edx,2802h
+00007ff6`81b80973 41b82f810000    mov     r8d,812Fh
+00007ff6`81b80979 ff1519338102    call    qword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0xf26834 (00007ff6`84393c98)]
+00007ff6`81b8097f b9e10d0000      mov     ecx,0DE1h
+00007ff6`81b80984 ba03280000      mov     edx,2803h
+00007ff6`81b80989 41b82f810000    mov     r8d,812Fh
+00007ff6`81b8098f ff1503338102    call    qword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0xf26834 (00007ff6`84393c98)]
+00007ff6`81b80995 f6855203000020  test    byte ptr [rbp+352h],20h
+00007ff6`81b8099c 754d            jne     fteqw64+0x409eb (00007ff6`81b809eb)
+00007ff6`81b8099e 8b0558769803    mov     eax,dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x209ab98 (00007ff6`85507ffc)]
+00007ff6`81b809a4 8b154e769803    mov     edx,dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x209ab94 (00007ff6`85507ff8)]
+00007ff6`81b809aa 48630d57769803  movsxd  rcx,dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x209aba4 (00007ff6`85508008)]
+00007ff6`81b809b1 4c8d04cd10040000 lea     r8,[rcx*8+410h]
+00007ff6`81b809b9 4d01e8          add     r8,r13
+00007ff6`81b809bc 488d0c89        lea     rcx,[rcx+rcx*4]
+00007ff6`81b809c0 498d8ccdc8020000 lea     rcx,[r13+rcx*8+2C8h]
+00007ff6`81b809c8 89442430        mov     dword ptr [rsp+30h],eax
+00007ff6`81b809cc 89542428        mov     dword ptr [rsp+28h],edx
+00007ff6`81b809d0 c744243800000000 mov     dword ptr [rsp+38h],0
+00007ff6`81b809d8 48c744242000000000 mov   qword ptr [rsp+20h],0
+00007ff6`81b809e1 ba02000000      mov     edx,2
+00007ff6`81b809e6 e99d010000      jmp     fteqw64+0x40b88 (00007ff6`81b80b88)
+00007ff6`81b809eb 48630d16769803  movsxd  rcx,dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x209aba4 (00007ff6`85508008)]
+00007ff6`81b809f2 498b84cd40040000 mov     rax,qword ptr [r13+rcx*8+440h]
+00007ff6`81b809fa 4885c0          test    rax,rax
+00007ff6`81b809fd 7547            jne     fteqw64+0x40a46 (00007ff6`81b80a46)
+00007ff6`81b809ff 488d0d1a967f01  lea     rcx,[fteqw64+0x183a020 (00007ff6`8337a020)]
+00007ff6`81b80a06 31d2            xor     edx,edx
+00007ff6`81b80a08 4531c0          xor     r8d,r8d
+00007ff6`81b80a0b e84ae92000      call    fteqw64+0x24f35a (00007ff6`81d8f35a)
+00007ff6`81b80a10 48630df1759803  movsxd  rcx,dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x209aba4 (00007ff6`85508008)]
+00007ff6`81b80a17 498984cd40040000 mov     qword ptr [r13+rcx*8+440h],rax
+00007ff6`81b80a1f 83784000        cmp     dword ptr [rax+40h],0
+00007ff6`81b80a23 7521            jne     fteqw64+0x40a46 (00007ff6`81b80a46)
+00007ff6`81b80a25 4883c040        add     rax,40h
+00007ff6`81b80a29 b901000000      mov     ecx,1
+00007ff6`81b80a2e 4889c2          mov     rdx,rax
+00007ff6`81b80a31 ff1519328102    call    qword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0xf267ec (00007ff6`84393c50)]
+00007ff6`81b80a37 48630dca759803  movsxd  rcx,dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x209aba4 (00007ff6`85508008)]
+00007ff6`81b80a3e 498b84cd40040000 mov     rax,qword ptr [r13+rcx*8+440h]
+00007ff6`81b80a46 8b5014          mov     edx,dword ptr [rax+14h]
+00007ff6`81b80a49 448b05a8759803  mov     r8d,dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x209ab94 (00007ff6`85507ff8)]
+00007ff6`81b80a50 4439c2          cmp     edx,r8d
+00007ff6`81b80a53 7511            jne     fteqw64+0x40a66 (00007ff6`81b80a66)
+00007ff6`81b80a55 448b4818        mov     r9d,dword ptr [rax+18h]
+00007ff6`81b80a59 443b0d9c759803  cmp     r9d,dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x209ab98 (00007ff6`85507ffc)]
+00007ff6`81b80a60 0f84f0000000    je      fteqw64+0x40b56 (00007ff6`81b80b56)
+00007ff6`81b80a66 44894014        mov     dword ptr [rax+14h],r8d
+00007ff6`81b80a6a 8b058c759803    mov     eax,dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x209ab98 (00007ff6`85507ffc)]
+00007ff6`81b80a70 48630d91759803  movsxd  rcx,dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x209aba4 (00007ff6`85508008)]
+00007ff6`81b80a77 498b8ccd40040000 mov     rcx,qword ptr [r13+rcx*8+440h]
+00007ff6`81b80a7f 894118          mov     dword ptr [rcx+18h],eax
+00007ff6`81b80a82 4863057f759803  movsxd  rax,dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x209aba4 (00007ff6`85508008)]
+00007ff6`81b80a89 4d8b84c540040000 mov     r8,qword ptr [r13+rax*8+440h]
+00007ff6`81b80a91 31c9            xor     ecx,ecx
+00007ff6`81b80a93 bae10d0000      mov     edx,0DE1h
+00007ff6`81b80a98 e8bfa6ffff      call    fteqw64+0x3b15c (00007ff6`81b7b15c)
+00007ff6`81b80a9d 8b0559759803    mov     eax,dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x209ab98 (00007ff6`85507ffc)]
+00007ff6`81b80aa3 448b0d4e759803  mov     r9d,dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x209ab94 (00007ff6`85507ff8)]
+00007ff6`81b80aaa 89442420        mov     dword ptr [rsp+20h],eax
+00007ff6`81b80aae 48c744244000000000 mov   qword ptr [rsp+40h],0
+00007ff6`81b80ab7 c744243801140000 mov     dword ptr [rsp+38h],1401h
+00007ff6`81b80abf c744243002190000 mov     dword ptr [rsp+30h],1902h
+00007ff6`81b80ac7 c744242800000000 mov     dword ptr [rsp+28h],0
+00007ff6`81b80acf b9e10d0000      mov     ecx,0DE1h
+00007ff6`81b80ad4 31d2            xor     edx,edx
+00007ff6`81b80ad6 41b8a6810000    mov     r8d,81A6h
+00007ff6`81b80adc ff15a6318102    call    qword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0xf26824 (00007ff6`84393c88)]
+00007ff6`81b80ae2 b9e10d0000      mov     ecx,0DE1h
+00007ff6`81b80ae7 ba00280000      mov     edx,2800h
+00007ff6`81b80aec 41b800260000    mov     r8d,2600h
+00007ff6`81b80af2 ff15a0318102    call    qword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0xf26834 (00007ff6`84393c98)]
+00007ff6`81b80af8 b9e10d0000      mov     ecx,0DE1h
+00007ff6`81b80afd ba01280000      mov     edx,2801h
+00007ff6`81b80b02 41b800260000    mov     r8d,2600h
+00007ff6`81b80b08 ff158a318102    call    qword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0xf26834 (00007ff6`84393c98)]
+00007ff6`81b80b0e b9e10d0000      mov     ecx,0DE1h
+00007ff6`81b80b13 ba02280000      mov     edx,2802h
+00007ff6`81b80b18 41b82f810000    mov     r8d,812Fh
+00007ff6`81b80b1e ff1574318102    call    qword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0xf26834 (00007ff6`84393c98)]
+00007ff6`81b80b24 b9e10d0000      mov     ecx,0DE1h
+00007ff6`81b80b29 ba03280000      mov     edx,2803h
+00007ff6`81b80b2e 41b82f810000    mov     r8d,812Fh
+00007ff6`81b80b34 ff155e318102    call    qword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0xf26834 (00007ff6`84393c98)]
+00007ff6`81b80b3a 448b0dbb749803  mov     r9d,dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x209ab98 (00007ff6`85507ffc)]
+00007ff6`81b80b41 8b15b1749803    mov     edx,dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x209ab94 (00007ff6`85507ff8)]
+00007ff6`81b80b47 48630dba749803  movsxd  rcx,dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x209aba4 (00007ff6`85508008)]
+00007ff6`81b80b4e 498b84cd40040000 mov     rax,qword ptr [r13+rcx*8+440h]
+00007ff6`81b80b56 4c8d04cd10040000 lea     r8,[rcx*8+410h]
+00007ff6`81b80b5e 4d01e8          add     r8,r13
+00007ff6`81b80b61 488d0c89        lea     rcx,[rcx+rcx*4]
+00007ff6`81b80b65 498d8ccdc8020000 lea     rcx,[r13+rcx*8+2C8h]
+00007ff6`81b80b6d 44894c2430      mov     dword ptr [rsp+30h],r9d
+00007ff6`81b80b72 89542428        mov     dword ptr [rsp+28h],edx
+00007ff6`81b80b76 4889442420      mov     qword ptr [rsp+20h],rax
+00007ff6`81b80b7b c744243800000000 mov     dword ptr [rsp+38h],0
+00007ff6`81b80b83 ba20000000      mov     edx,20h
+00007ff6`81b80b88 41b901000000    mov     r9d,1
+00007ff6`81b80b8e e8e80a0000      call    fteqw64+0x4167b (00007ff6`81b8167b)
+00007ff6`81b80b93 8944244c        mov     dword ptr [rsp+4Ch],eax
+00007ff6`81b80b97 4863056a749803  movsxd  rax,dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x209aba4 (00007ff6`85508008)]
+00007ff6`81b80b9e 488d0480        lea     rax,[rax+rax*4]
+00007ff6`81b80ba2 418b94c5d0020000 mov     edx,dword ptr [r13+rax*8+2D0h]
+00007ff6`81b80baa 891550749803    mov     dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x209ab9c (00007ff6`85508000)],edx
+00007ff6`81b80bb0 448b0d45749803  mov     r9d,dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x209ab98 (00007ff6`85507ffc)]
+00007ff6`81b80bb7 448b053a749803  mov     r8d,dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x209ab94 (00007ff6`85507ff8)]
+00007ff6`81b80bbe 8b0530749803    mov     eax,dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x209ab90 (00007ff6`85507ff4)]
+00007ff6`81b80bc4 4401c8          add     eax,r9d
+00007ff6`81b80bc7 29c2            sub     edx,eax
+00007ff6`81b80bc9 8b0d21749803    mov     ecx,dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x209ab8c (00007ff6`85507ff0)]
+00007ff6`81b80bcf ff15e3308102    call    qword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0xf26854 (00007ff6`84393cb8)]
+00007ff6`81b80bd5 e8faa3ffff      call    fteqw64+0x3afd4 (00007ff6`81b7afd4)
+00007ff6`81b80bda 0f57c0          xorps   xmm0,xmm0
+00007ff6`81b80bdd 0f57c9          xorps   xmm1,xmm1
+00007ff6`81b80be0 0f57d2          xorps   xmm2,xmm2
+00007ff6`81b80be3 0f28de          movaps  xmm3,xmm6
+00007ff6`81b80be6 ff1504308102    call    qword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0xf2678c (00007ff6`84393bf0)]
+00007ff6`81b80bec b900410000      mov     ecx,4100h
+00007ff6`81b80bf1 ff15f12f8102    call    qword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0xf26784 (00007ff6`84393be8)]
+00007ff6`81b80bf7 8b8550030000    mov     eax,dword ptr [rbp+350h]
+00007ff6`81b80bfd 0fbae015        bt      eax,15h
+00007ff6`81b80c01 41b900000000    mov     r9d,0
+00007ff6`81b80c07 4183d102        adc     r9d,2
+00007ff6`81b80c0b 0fbae01e        bt      eax,1Eh
+00007ff6`81b80c0f 450f42cf        cmovb   r9d,r15d
+00007ff6`81b80c13 488b1556146d03  mov     rdx,qword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x1de4c0c (00007ff6`85252070)]
+00007ff6`81b80c1a 4c01e2          add     rdx,r12
+00007ff6`81b80c1d 4889f1          mov     rcx,rsi
+00007ff6`81b80c20 4531c0          xor     r8d,r8d
+00007ff6`81b80c23 e815730000      call    fteqw64+0x47f3d (00007ff6`81b87f3d)
+00007ff6`81b80c28 b9408d0000      mov     ecx,8D40h
+00007ff6`81b80c2d 448b64244c      mov     r12d,dword ptr [rsp+4Ch]
+00007ff6`81b80c32 4489e2          mov     edx,r12d
+00007ff6`81b80c35 ff15d5328102    call    qword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0xf26aac (00007ff6`84393f10)]
+00007ff6`81b80c3b 4489253e2ee001  mov     dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x51661c (00007ff6`83983a80)],r12d
+00007ff6`81b80c42 41bc28050000    mov     r12d,528h
+00007ff6`81b80c48 0f28442470      movaps  xmm0,xmmword ptr [rsp+70h]
+00007ff6`81b80c4d 0f1105c4709803  movups  xmmword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x209a8b4 (00007ff6`85507d18)],xmm0
+00007ff6`81b80c54 0f28442450      movaps  xmm0,xmmword ptr [rsp+50h]
+00007ff6`81b80c59 0f110590739803  movups  xmmword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x209ab8c (00007ff6`85507ff0)],xmm0
+00007ff6`81b80c60 8b542460        mov     edx,dword ptr [rsp+60h]
+00007ff6`81b80c64 891596739803    mov     dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x209ab9c (00007ff6`85508000)],edx
+00007ff6`81b80c6a 448b0d8b739803  mov     r9d,dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x209ab98 (00007ff6`85507ffc)]
+00007ff6`81b80c71 448b0580739803  mov     r8d,dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x209ab94 (00007ff6`85507ff8)]
+00007ff6`81b80c78 8b0576739803    mov     eax,dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x209ab90 (00007ff6`85507ff4)]
+00007ff6`81b80c7e 4401c8          add     eax,r9d
+00007ff6`81b80c81 29c2            sub     edx,eax
+00007ff6`81b80c83 8b0d67739803    mov     ecx,dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x209ab8c (00007ff6`85507ff0)]
+00007ff6`81b80c89 ff1529308102    call    qword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0xf26854 (00007ff6`84393cb8)]
+00007ff6`81b80c8f f6855203000080  test    byte ptr [rbp+352h],80h
+00007ff6`81b80c96 0f8428030000    je      fteqw64+0x40fc4 (00007ff6`81b80fc4)
+00007ff6`81b80c9c 833ded1c810200  cmp     dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0xf2552c (00007ff6`84392990)],0
+00007ff6`81b80ca3 0f841b030000    je      fteqw64+0x40fc4 (00007ff6`81b80fc4)
+00007ff6`81b80ca9 f30f108500020000 movss   xmm0,dword ptr [rbp+200h]
+00007ff6`81b80cb1 0f100d60709803  movups  xmm1,xmmword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x209a8b4 (00007ff6`85507d18)]
+00007ff6`81b80cb8 0f294c2470      movaps  xmmword ptr [rsp+70h],xmm1
+00007ff6`81b80cbd 8b053d739803    mov     eax,dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x209ab9c (00007ff6`85508000)]
+00007ff6`81b80cc3 89442460        mov     dword ptr [rsp+60h],eax
+00007ff6`81b80cc7 0f100d22739803  movups  xmm1,xmmword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x209ab8c (00007ff6`85507ff0)]
+00007ff6`81b80cce 0f294c2450      movaps  xmmword ptr [rsp+50h],xmm1
+00007ff6`81b80cd3 f20f100df5d37d03 movsd   xmm1,mmword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x1ef0c6c (00007ff6`8535e0d0)]
+00007ff6`81b80cdb 0f14cf          unpcklps xmm1,xmm7
+00007ff6`81b80cde 66410f56c8      orpd    xmm1,xmm8
+00007ff6`81b80ce3 66410f5cc8      subpd   xmm1,xmm8
+00007ff6`81b80ce8 660f5ac9        cvtpd2ps xmm1,xmm1
+00007ff6`81b80cec 0fc6c000        shufps  xmm0,xmm0,0
+00007ff6`81b80cf0 0f59c8          mulps   xmm1,xmm0
+00007ff6`81b80cf3 410f28d1        movaps  xmm2,xmm9
+00007ff6`81b80cf7 0f5fd1          maxps   xmm2,xmm1
+00007ff6`81b80cfa 0f57c9          xorps   xmm1,xmm1
+00007ff6`81b80cfd 0f16ca          movlhps xmm1,xmm2
+00007ff6`81b80d00 0f110d11709803  movups  xmmword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x209a8b4 (00007ff6`85507d18)],xmm1
+00007ff6`81b80d07 48c705de72980300000000 mov qword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x209ab8c (00007ff6`85507ff0)],0
+00007ff6`81b80d12 f20f100dbed37d03 movsd   xmm1,mmword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x1ef0c74 (00007ff6`8535e0d8)]
+00007ff6`81b80d1a 0f14cf          unpcklps xmm1,xmm7
+00007ff6`81b80d1d 66410f56c8      orpd    xmm1,xmm8
+00007ff6`81b80d22 66410f5cc8      subpd   xmm1,xmm8
+00007ff6`81b80d27 660f5ac9        cvtpd2ps xmm1,xmm1
+00007ff6`81b80d2b 0f59c8          mulps   xmm1,xmm0
+00007ff6`81b80d2e 410f28c1        movaps  xmm0,xmm9
+00007ff6`81b80d32 0f5fc1          maxps   xmm0,xmm1
+00007ff6`81b80d35 f30f5bc0        cvttps2dq xmm0,xmm0
+00007ff6`81b80d39 0f1305b8729803  movlps  qword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x209ab94 (00007ff6`85507ff8)],xmm0
+00007ff6`81b80d40 48630dc1729803  movsxd  rcx,dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x209aba4 (00007ff6`85508008)]
+00007ff6`81b80d47 498b84cd70040000 mov     rax,qword ptr [r13+rcx*8+470h]
+00007ff6`81b80d4f 4885c0          test    rax,rax
+00007ff6`81b80d52 7547            jne     fteqw64+0x40d9b (00007ff6`81b80d9b)
+00007ff6`81b80d54 488d0d35927f01  lea     rcx,[fteqw64+0x1839f90 (00007ff6`83379f90)]
+00007ff6`81b80d5b 31d2            xor     edx,edx
+00007ff6`81b80d5d 4531c0          xor     r8d,r8d
+00007ff6`81b80d60 e8f5e52000      call    fteqw64+0x24f35a (00007ff6`81d8f35a)
+00007ff6`81b80d65 48630d9c729803  movsxd  rcx,dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x209aba4 (00007ff6`85508008)]
+00007ff6`81b80d6c 498984cd70040000 mov     qword ptr [r13+rcx*8+470h],rax
+00007ff6`81b80d74 83784000        cmp     dword ptr [rax+40h],0
+00007ff6`81b80d78 7521            jne     fteqw64+0x40d9b (00007ff6`81b80d9b)
+00007ff6`81b80d7a 4883c040        add     rax,40h
+00007ff6`81b80d7e b901000000      mov     ecx,1
+00007ff6`81b80d83 4889c2          mov     rdx,rax
+00007ff6`81b80d86 ff15c42e8102    call    qword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0xf267ec (00007ff6`84393c50)]
+00007ff6`81b80d8c 48630d75729803  movsxd  rcx,dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x209aba4 (00007ff6`85508008)]
+00007ff6`81b80d93 498b84cd70040000 mov     rax,qword ptr [r13+rcx*8+470h]
+00007ff6`81b80d9b 8b5014          mov     edx,dword ptr [rax+14h]
+00007ff6`81b80d9e 448b0553729803  mov     r8d,dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x209ab94 (00007ff6`85507ff8)]
+00007ff6`81b80da5 4439c2          cmp     edx,r8d
+00007ff6`81b80da8 7511            jne     fteqw64+0x40dbb (00007ff6`81b80dbb)
+00007ff6`81b80daa 448b4818        mov     r9d,dword ptr [rax+18h]
+00007ff6`81b80dae 443b0d47729803  cmp     r9d,dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x209ab98 (00007ff6`85507ffc)]
+00007ff6`81b80db5 0f84e8000000    je      fteqw64+0x40ea3 (00007ff6`81b80ea3)
+00007ff6`81b80dbb 44894014        mov     dword ptr [rax+14h],r8d
+00007ff6`81b80dbf 8b0537729803    mov     eax,dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x209ab98 (00007ff6`85507ffc)]
+00007ff6`81b80dc5 48630d3c729803  movsxd  rcx,dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x209aba4 (00007ff6`85508008)]
+00007ff6`81b80dcc 498b8ccd70040000 mov     rcx,qword ptr [r13+rcx*8+470h]
+00007ff6`81b80dd4 894118          mov     dword ptr [rcx+18h],eax
+00007ff6`81b80dd7 4863052a729803  movsxd  rax,dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x209aba4 (00007ff6`85508008)]
+00007ff6`81b80dde 4d8b84c570040000 mov     r8,qword ptr [r13+rax*8+470h]
+00007ff6`81b80de6 31c9            xor     ecx,ecx
+00007ff6`81b80de8 bae10d0000      mov     edx,0DE1h
+00007ff6`81b80ded e86aa3ffff      call    fteqw64+0x3b15c (00007ff6`81b7b15c)
+00007ff6`81b80df2 8b0504729803    mov     eax,dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x209ab98 (00007ff6`85507ffc)]
+00007ff6`81b80df8 448b0df9719803  mov     r9d,dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x209ab94 (00007ff6`85507ff8)]
+00007ff6`81b80dff 89442420        mov     dword ptr [rsp+20h],eax
+00007ff6`81b80e03 48c744244000000000 mov   qword ptr [rsp+40h],0
+00007ff6`81b80e0c c74424380b140000 mov     dword ptr [rsp+38h],140Bh
+00007ff6`81b80e14 c744243008190000 mov     dword ptr [rsp+30h],1908h
+00007ff6`81b80e1c c744242800000000 mov     dword ptr [rsp+28h],0
+00007ff6`81b80e24 b9e10d0000      mov     ecx,0DE1h
+00007ff6`81b80e29 31d2            xor     edx,edx
+00007ff6`81b80e2b 41b81a880000    mov     r8d,881Ah
+00007ff6`81b80e31 ff15512e8102    call    qword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0xf26824 (00007ff6`84393c88)]
+00007ff6`81b80e37 b9e10d0000      mov     ecx,0DE1h
+00007ff6`81b80e3c ba00280000      mov     edx,2800h
+00007ff6`81b80e41 41b801260000    mov     r8d,2601h
+00007ff6`81b80e47 ff154b2e8102    call    qword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0xf26834 (00007ff6`84393c98)]
+00007ff6`81b80e4d b9e10d0000      mov     ecx,0DE1h
+00007ff6`81b80e52 ba01280000      mov     edx,2801h
+00007ff6`81b80e57 41b801260000    mov     r8d,2601h
+00007ff6`81b80e5d ff15352e8102    call    qword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0xf26834 (00007ff6`84393c98)]
+00007ff6`81b80e63 b9e10d0000      mov     ecx,0DE1h
+00007ff6`81b80e68 ba02280000      mov     edx,2802h
+00007ff6`81b80e6d 41b82f810000    mov     r8d,812Fh
+00007ff6`81b80e73 ff151f2e8102    call    qword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0xf26834 (00007ff6`84393c98)]
+00007ff6`81b80e79 b9e10d0000      mov     ecx,0DE1h
+00007ff6`81b80e7e ba03280000      mov     edx,2803h
+00007ff6`81b80e83 41b82f810000    mov     r8d,812Fh
+00007ff6`81b80e89 ff15092e8102    call    qword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0xf26834 (00007ff6`84393c98)]
+00007ff6`81b80e8f 448b0d66719803  mov     r9d,dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x209ab98 (00007ff6`85507ffc)]
+00007ff6`81b80e96 8b155c719803    mov     edx,dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x209ab94 (00007ff6`85507ff8)]
+00007ff6`81b80e9c 48630d65719803  movsxd  rcx,dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x209aba4 (00007ff6`85508008)]
+00007ff6`81b80ea3 4c8d04cd70040000 lea     r8,[rcx*8+470h]
+00007ff6`81b80eab 4d01e8          add     r8,r13
+00007ff6`81b80eae 488d0489        lea     rax,[rcx+rcx*4]
+00007ff6`81b80eb2 498d8cc5c8020000 lea     rcx,[r13+rax*8+2C8h]
+00007ff6`81b80eba 44894c2430      mov     dword ptr [rsp+30h],r9d
+00007ff6`81b80ebf 89542428        mov     dword ptr [rsp+28h],edx
+00007ff6`81b80ec3 c744243800000000 mov     dword ptr [rsp+38h],0
+00007ff6`81b80ecb 48c744242000000000 mov   qword ptr [rsp+20h],0
+00007ff6`81b80ed4 31d2            xor     edx,edx
+00007ff6`81b80ed6 41b901000000    mov     r9d,1
+00007ff6`81b80edc e89a070000      call    fteqw64+0x4167b (00007ff6`81b8167b)
+00007ff6`81b80ee1 4189c7          mov     r15d,eax
+00007ff6`81b80ee4 4863051d719803  movsxd  rax,dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x209aba4 (00007ff6`85508008)]
+00007ff6`81b80eeb 488d0480        lea     rax,[rax+rax*4]
+00007ff6`81b80eef 418b94c5d0020000 mov     edx,dword ptr [r13+rax*8+2D0h]
+00007ff6`81b80ef7 891503719803    mov     dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x209ab9c (00007ff6`85508000)],edx
+00007ff6`81b80efd 448b0df8709803  mov     r9d,dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x209ab98 (00007ff6`85507ffc)]
+00007ff6`81b80f04 448b05ed709803  mov     r8d,dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x209ab94 (00007ff6`85507ff8)]
+00007ff6`81b80f0b 8b05e3709803    mov     eax,dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x209ab90 (00007ff6`85507ff4)]
+00007ff6`81b80f11 4401c8          add     eax,r9d
+00007ff6`81b80f14 29c2            sub     edx,eax
+00007ff6`81b80f16 8b0dd4709803    mov     ecx,dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x209ab8c (00007ff6`85507ff0)]
+00007ff6`81b80f1c ff15962d8102    call    qword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0xf26854 (00007ff6`84393cb8)]
+00007ff6`81b80f22 0f57c0          xorps   xmm0,xmm0
+00007ff6`81b80f25 0f57c9          xorps   xmm1,xmm1
+00007ff6`81b80f28 0f57d2          xorps   xmm2,xmm2
+00007ff6`81b80f2b 0f28de          movaps  xmm3,xmm6
+00007ff6`81b80f2e ff15bc2c8102    call    qword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0xf2678c (00007ff6`84393bf0)]
+00007ff6`81b80f34 b900400000      mov     ecx,4000h
+00007ff6`81b80f39 ff15a92c8102    call    qword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0xf26784 (00007ff6`84393be8)]
+00007ff6`81b80f3f ff05c3709803    inc     dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x209aba4 (00007ff6`85508008)]
+00007ff6`81b80f45 488b0d24116d03  mov     rcx,qword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x1de4c0c (00007ff6`85252070)]
+00007ff6`81b80f4c 4c01e1          add     rcx,r12
+00007ff6`81b80f4f ba01000000      mov     edx,1
+00007ff6`81b80f54 41b801000000    mov     r8d,1
+00007ff6`81b80f5a e867efffff      call    fteqw64+0x3fec6 (00007ff6`81b7fec6)
+00007ff6`81b80f5f ff0da3709803    dec     dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x209aba4 (00007ff6`85508008)]
+00007ff6`81b80f65 b9408d0000      mov     ecx,8D40h
+00007ff6`81b80f6a 4489fa          mov     edx,r15d
+00007ff6`81b80f6d ff159d2f8102    call    qword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0xf26aac (00007ff6`84393f10)]
+00007ff6`81b80f73 44893d062be001  mov     dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x51661c (00007ff6`83983a80)],r15d
+00007ff6`81b80f7a 0f28442470      movaps  xmm0,xmmword ptr [rsp+70h]
+00007ff6`81b80f7f 0f1105926d9803  movups  xmmword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x209a8b4 (00007ff6`85507d18)],xmm0
+00007ff6`81b80f86 0f28442450      movaps  xmm0,xmmword ptr [rsp+50h]
+00007ff6`81b80f8b 0f11055e709803  movups  xmmword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x209ab8c (00007ff6`85507ff0)],xmm0
+00007ff6`81b80f92 8b542460        mov     edx,dword ptr [rsp+60h]
+00007ff6`81b80f96 891564709803    mov     dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x209ab9c (00007ff6`85508000)],edx
+00007ff6`81b80f9c 448b0d59709803  mov     r9d,dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x209ab98 (00007ff6`85507ffc)]
+00007ff6`81b80fa3 448b054e709803  mov     r8d,dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x209ab94 (00007ff6`85507ff8)]
+00007ff6`81b80faa 8b0544709803    mov     eax,dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x209ab90 (00007ff6`85507ff4)]
+00007ff6`81b80fb0 4401c8          add     eax,r9d
+00007ff6`81b80fb3 29c2            sub     edx,eax
+00007ff6`81b80fb5 8b0d35709803    mov     ecx,dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x209ab8c (00007ff6`85507ff0)]
+00007ff6`81b80fbb ff15f72c8102    call    qword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0xf26854 (00007ff6`84393cb8)]
+00007ff6`81b80fc1 4531ff          xor     r15d,r15d
+00007ff6`81b80fc4 488b05955b9803  mov     rax,qword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x20996fc (00007ff6`85506b60)]
+00007ff6`81b80fcb 4489f1          mov     ecx,r14d
+00007ff6`81b80fce ff90c8000000    call    qword ptr [rax+0C8h]
+00007ff6`81b80fd4 f3440f11155b36e001 movss dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x5171d4 (00007ff6`83984638)],xmm10
+00007ff6`81b80fdd f6855303000040  test    byte ptr [rbp+353h],40h
+00007ff6`81b80fe4 7432            je      fteqw64+0x41018 (00007ff6`81b81018)
+00007ff6`81b80fe6 833d8336e00101  cmp     dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x51720c (00007ff6`83984670)],1
+00007ff6`81b80fed 7429            je      fteqw64+0x41018 (00007ff6`81b81018)
+00007ff6`81b80fef 833db619810200  cmp     dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0xf25548 (00007ff6`843929ac)],0
+00007ff6`81b80ff6 7420            je      fteqw64+0x41018 (00007ff6`81b81018)
+00007ff6`81b80ff8 b94f860000      mov     ecx,864Fh
+00007ff6`81b80ffd ff15352c8102    call    qword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0xf267d4 (00007ff6`84393c38)]
+00007ff6`81b81003 4889f1          mov     rcx,rsi
+00007ff6`81b81006 e8a7edffff      call    fteqw64+0x3fdb2 (00007ff6`81b7fdb2)
+00007ff6`81b8100b b94f860000      mov     ecx,864Fh
+00007ff6`81b81010 ff151a2c8102    call    qword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0xf267cc (00007ff6`84393c30)]
+00007ff6`81b81016 eb08            jmp     fteqw64+0x41020 (00007ff6`81b81020)
+00007ff6`81b81018 4889f1          mov     rcx,rsi
+00007ff6`81b8101b e892edffff      call    fteqw64+0x3fdb2 (00007ff6`81b7fdb2)
+00007ff6`81b81020 488b7608        mov     rsi,qword ptr [rsi+8]
+00007ff6`81b81024 4885f6          test    rsi,rsi
+00007ff6`81b81027 0f85e9f0ffff    jne     fteqw64+0x40116 (00007ff6`81b80116)
+00007ff6`81b8102d 0f28b42480000000 movaps  xmm6,xmmword ptr [rsp+80h]
+00007ff6`81b81035 0f28bc2490000000 movaps  xmm7,xmmword ptr [rsp+90h]
+00007ff6`81b8103d 440f288424a0000000 movaps xmm8,xmmword ptr [rsp+0A0h]
+00007ff6`81b81046 440f288c24b0000000 movaps xmm9,xmmword ptr [rsp+0B0h]
+00007ff6`81b8104f 440f289424c0000000 movaps xmm10,xmmword ptr [rsp+0C0h]
+00007ff6`81b81058 440f289c24d0000000 movaps xmm11,xmmword ptr [rsp+0D0h]
+00007ff6`81b81061 4881c4e8000000  add     rsp,0E8h
+00007ff6`81b81068 5b              pop     rbx
+00007ff6`81b81069 5d              pop     rbp
+00007ff6`81b8106a 5f              pop     rdi
+00007ff6`81b8106b 5e              pop     rsi
+00007ff6`81b8106c 415c            pop     r12
+00007ff6`81b8106e 415d            pop     r13
+00007ff6`81b81070 415e            pop     r14
+00007ff6`81b81072 415f            pop     r15
+00007ff6`81b81074 c3              ret
+00007ff6`81b81075 4157            push    r15
+00007ff6`81b81077 4156            push    r14
+00007ff6`81b81079 4155            push    r13
+00007ff6`81b8107b 4154            push    r12
+00007ff6`81b8107d 56              push    rsi
+00007ff6`81b8107e 57              push    rdi
+00007ff6`81b8107f 55              push    rbp
+00007ff6`81b81080 53              push    rbx
+00007ff6`81b81081 4883ec68        sub     rsp,68h
+00007ff6`81b81085 0f29742450      movaps  xmmword ptr [rsp+50h],xmm6
+00007ff6`81b8108a 8b0570eadf01    mov     eax,dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x51269c (00007ff6`8397fb00)]
+00007ff6`81b81090 83f803          cmp     eax,3
+00007ff6`81b81093 0f8429040000    je      fteqw64+0x414c2 (00007ff6`81b814c2)
+00007ff6`81b81099 83c802          or      eax,2
+00007ff6`81b8109c 89055eeadf01    mov     dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x51269c (00007ff6`8397fb00)],eax
+00007ff6`81b810a2 e818dc0400      call    fteqw64+0x8ecbf (00007ff6`81bcecbf)
+00007ff6`81b810a7 0f28f0          movaps  xmm6,xmm0
+00007ff6`81b810aa 8b0540eadf01    mov     eax,dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x51268c (00007ff6`8397faf0)]
+00007ff6`81b810b0 85c0            test    eax,eax
+00007ff6`81b810b2 0f8ef1030000    jle     fteqw64+0x414a9 (00007ff6`81b814a9)
+00007ff6`81b810b8 4531f6          xor     r14d,r14d
+00007ff6`81b810bb 4c8d3d8e188102  lea     r15,[fteqw64!AmdPowerXpressRequestHighPerformance+0xf254ec (00007ff6`84392950)]
+00007ff6`81b810c2 4c8d25a7f73d01  lea     r12,[fteqw64+0x1420870 (00007ff6`82f60870)]
+00007ff6`81b810c9 31ff            xor     edi,edi
+00007ff6`81b810cb 488b0d16eadf01  mov     rcx,qword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x512684 (00007ff6`8397fae8)]
+00007ff6`81b810d2 4c8b2cf9        mov     r13,qword ptr [rcx+rdi*8]
+00007ff6`81b810d6 4d85ed          test    r13,r13
+00007ff6`81b810d9 0f8461030000    je      fteqw64+0x41440 (00007ff6`81b81440)
+00007ff6`81b810df 41837d0800      cmp     dword ptr [r13+8],0
+00007ff6`81b810e4 0f8456030000    je      fteqw64+0x41440 (00007ff6`81b81440)
+00007ff6`81b810ea 410fb75d26      movzx   ebx,word ptr [r13+26h]
+00007ff6`81b810ef 410fb7752a      movzx   esi,word ptr [r13+2Ah]
+00007ff6`81b810f4 4d8b4500        mov     r8,qword ptr [r13]
+00007ff6`81b810f8 4d85c0          test    r8,r8
+00007ff6`81b810fb 0f8483000000    je      fteqw64+0x41184 (00007ff6`81b81184)
+00007ff6`81b81101 31c9            xor     ecx,ecx
+00007ff6`81b81103 bae10d0000      mov     edx,0DE1h
+00007ff6`81b81108 e84fa0ffff      call    fteqw64+0x3b15c (00007ff6`81b7b15c)
+00007ff6`81b8110d 418b5540        mov     edx,dword ptr [r13+40h]
+00007ff6`81b81111 29de            sub     esi,ebx
+00007ff6`81b81113 85d2            test    edx,edx
+00007ff6`81b81115 0f849b010000    je      fteqw64+0x412b6 (00007ff6`81b812b6)
+00007ff6`81b8111b b9ec880000      mov     ecx,88ECh
+00007ff6`81b81120 ff159a2d8102    call    qword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0xf26a5c (00007ff6`84393ec0)]
+00007ff6`81b81126 418b451c        mov     eax,dword ptr [r13+1Ch]
+00007ff6`81b8112a 89c1            mov     ecx,eax
+00007ff6`81b8112c 0fafcb          imul    ecx,ebx
+00007ff6`81b8112f 410fb65518      movzx   edx,byte ptr [r13+18h]
+00007ff6`81b81134 0fafd1          imul    edx,ecx
+00007ff6`81b81137 49634d14        movsxd  rcx,dword ptr [r13+14h]
+00007ff6`81b8113b 488d0cc9        lea     rcx,[rcx+rcx*8]
+00007ff6`81b8113f 458b448f70      mov     r8d,dword ptr [r15+rcx*4+70h]
+00007ff6`81b81144 418b4c8f74      mov     ecx,dword ptr [r15+rcx*4+74h]
+00007ff6`81b81149 4889542440      mov     qword ptr [rsp+40h],rdx
+00007ff6`81b8114e 894c2438        mov     dword ptr [rsp+38h],ecx
+00007ff6`81b81152 4489442430      mov     dword ptr [rsp+30h],r8d
+00007ff6`81b81157 89742428        mov     dword ptr [rsp+28h],esi
+00007ff6`81b8115b 89442420        mov     dword ptr [rsp+20h],eax
+00007ff6`81b8115f b9e10d0000      mov     ecx,0DE1h
+00007ff6`81b81164 31d2            xor     edx,edx
+00007ff6`81b81166 4531c0          xor     r8d,r8d
+00007ff6`81b81169 4189d9          mov     r9d,ebx
+fteqw64+0x40000:
+00007ff6`81b80000 41f6c401        test    r12b,1
+00007ff6`81b80004 41bc00000000    mov     r12d,0
+00007ff6`81b8000a 75d4            jne     fteqw64+0x3ffe0 (00007ff6`81b7ffe0)
+00007ff6`81b8000c 833d5d46e00100  cmp     dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x51720c (00007ff6`83984670)],0
+00007ff6`81b80013 7410            je      fteqw64+0x40025 (00007ff6`81b80025)
+00007ff6`81b80015 31c0            xor     eax,eax
+00007ff6`81b80017 4889055246e001  mov     qword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x51720c (00007ff6`83984670)],rax
+00007ff6`81b8001e 4889051b46e001  mov     qword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x5171dc (00007ff6`83984640)],rax
+00007ff6`81b80025 833d8029810200  cmp     dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0xf25548 (00007ff6`843929ac)],0
+00007ff6`81b8002c 740b            je      fteqw64+0x40039 (00007ff6`81b80039)
+00007ff6`81b8002e b94f860000      mov     ecx,864Fh
+00007ff6`81b80033 ff15f73b8102    call    qword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0xf267cc (00007ff6`84393c30)]
+00007ff6`81b80039 833dc87f980300  cmp     dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x209aba4 (00007ff6`85508008)],0
+00007ff6`81b80040 7509            jne     fteqw64+0x4004b (00007ff6`81b8004b)
+00007ff6`81b80042 833d2bee920100  cmp     dword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x41a10 (00007ff6`834aee74)],0
+00007ff6`81b80049 7525            jne     fteqw64+0x40070 (00007ff6`81b80070)
+00007ff6`81b8004b 4a8b0cff        mov     rcx,qword ptr [rdi+r15*8]
+00007ff6`81b8004f e832000000      call    fteqw64+0x40086 (00007ff6`81b80086)
+00007ff6`81b80054 488b050d46e001  mov     rax,qword ptr [fteqw64!AmdPowerXpressRequestHighPerformance+0x517204 (00007ff6`83984668)]
+00007ff6`81b8005b 4a8b0cf8        mov     rcx,qword ptr [rax+r15*8]
+00007ff6`81b8005f e822000000      call    fteqw64+0x40086 (00007ff6`81b80086)
+00007ff6`81b80064 49ffc7          inc     r15
+00007ff6`81b80067 4439fe          cmp     esi,r15d
+00007ff6`81b8006a 0f858afeffff    jne     fteqw64+0x3fefa (00007ff6`81b7fefa)
+00007ff6`81b80070 0f28742430      movaps  xmm6,xmmword ptr [rsp+30h]
+00007ff6`81b80075 4883c448        add     rsp,48h
+00007ff6`81b80079 5b              pop     rbx
+00007ff6`81b8007a 5d              pop     rbp
+00007ff6`81b8007b 5f              pop     rdi
+00007ff6`81b8007c 5e              pop     rsi
+00007ff6`81b8007d 415c            pop     r12
+00007ff6`81b8007f 415d            pop     r13
+00007ff6`81b80081 415e            pop     r14
+00007ff6`81b80083 415f            pop     r15
+00007ff6`81b80085 c3              ret
+00007ff6`81b80086 4157            push    r15
+00007ff6`81b80088 4156            push    r14
+00007ff6`81b8008a 4155            push    r13
+00007ff6`81b8008c 4154            push    r12
+00007ff6`81b8008e 56              push    rsi
+00007ff6`81b8008f 57              push    rdi
+00007ff6`81b80090 55              push    rbp
+00007ff6`81b80091 53              push    rbx
+00007ff6`81b80092 4881ece8000000  sub     rsp,0E8h
+00007ff6`81b80099 440f299c24d0000000 movaps xmmword ptr [rsp+0D0h],xmm11
+00007ff6`81b800a2 440f299424c0000000 movaps xmmword ptr [rsp+0C0h],xmm10
+00007ff6`81b800ab 440f298c24b0000000 movaps xmmword ptr [rsp+0B0h],xmm9
+00007ff6`81b800b4 66440f298424a0000000 movapd xmmword ptr [rsp+0A0h],xmm8
+quit:
+NatVis script unloaded from 'C:\Program Files\Windows Kits\10\Debuggers\x64\Visualizers\atlmfc.natvis'
+NatVis script unloaded from 'C:\Program Files\Windows Kits\10\Debuggers\x64\Visualizers\concurrency.natvis'
+NatVis script unloaded from 'C:\Program Files\Windows Kits\10\Debuggers\x64\Visualizers\cpp_rest.natvis'
+NatVis script unloaded from 'C:\Program Files\Windows Kits\10\Debuggers\x64\Visualizers\stl.natvis'
+NatVis script unloaded from 'C:\Program Files\Windows Kits\10\Debuggers\x64\Visualizers\Windows.Data.Json.natvis'
+NatVis script unloaded from 'C:\Program Files\Windows Kits\10\Debuggers\x64\Visualizers\Windows.Devices.Geolocation.natvis'
+NatVis script unloaded from 'C:\Program Files\Windows Kits\10\Debuggers\x64\Visualizers\Windows.Devices.Sensors.natvis'
+NatVis script unloaded from 'C:\Program Files\Windows Kits\10\Debuggers\x64\Visualizers\Windows.Media.natvis'
+NatVis script unloaded from 'C:\Program Files\Windows Kits\10\Debuggers\x64\Visualizers\windows.natvis'
+NatVis script unloaded from 'C:\Program Files\Windows Kits\10\Debuggers\x64\Visualizers\winrt.natvis'

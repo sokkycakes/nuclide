@@ -3,6 +3,10 @@
 - When porting Stiletto/Godot HUD layouts into QC or RmlUI, place widgets in the letterboxed HUD rect **`screen.HUDMins`** / **`screen.HUDSize`** when they should track the safe HUD area—not always the full viewport **`screen.Mins`** / **`screen.Size`** (see **`base/src/hud/hud.qc`**).
 - Target a **minimal reusable Nuclide framework** for the game layer: roughly **three monster archetypes** via **`monster_base`** entityDefs, and map goals via **MapC / RuleC / `maps/*.add`** or **gs-entbase** triggers—not the full engine feature surface.
 
+## Deferred / Known Issues
+
+- **Spectator target cycling (local two-client):** scroll / next-prev does not switch to the other player on same-machine multi-client; deferred — see **`docs/deferred/spectator-target-cycling.md`**.
+
 ## Learned Workspace Facts
 
 - Figma/Expresso-exported HUD PNGs for this gamepack live under **`base/ui/`**; elements named **`ammopip`** or **`abilitypip`** should use the shared **`pip.png`** asset in that folder (VFS path **`ui/pip.png`** relative to the game root as wired in RML/CSS). The Rml **`hud.rml`** layer also references **`huddeco-quickinfo@1x.png`**, **`infopanelleft@1x.png`** (649×423 art clipped to the 700×84 Godot strip, not stretched), **`reloadTimer@1x.png`**, **`heart.png`**, **`Star_1@1x.png`**, **`image_1@1x.png`** (weapon slot art), **`placeholder_huddeco-ring1@1x.png`**, **`placeholder_huddeco-bcenter@1x.png`**, **`favorite@1x.png`** (speedometer backing), and **`hurt.png`** (full-screen overlay; **`#hurt-overlay`** starts at opacity 0 until game code or engine drives it).

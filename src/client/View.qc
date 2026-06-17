@@ -428,23 +428,37 @@ ncView::UpdateView(void)
 #endif
 			break;
 		case SPECMODE_LOCKEDCHASE:
-			view_angles = [0, spec.v_angle[1], 0];
+			c = findfloat(world, ::entnum, spec.m_spectatingEntity);
+			if (Spectator_HasChaseTargetEntity(spec, c)) {
+				view_angles = [0, ((ncPlayer)c).v_angle[1], 0];
+			} else {
+				view_angles = [0, view_angles[1], 0];
+			}
 		case SPECMODE_THIRDPERSON:
+			c = findfloat(world, ::entnum, spec.m_spectatingEntity);
+			if (!Spectator_HasChaseTargetEntity(spec, c)) {
+				SetCameraOrigin(spec.origin + [0, 0, 16]);
+				SetCameraAngle(view_angles);
+				break;
+			}
+
+			ncPlayer chasePl = (ncPlayer)c;
+			float chaseDist = 48;
+			float chaseSide = 4;
+			float chaseLift = 16;
+
 			makevectors(view_angles);
-			vector vecStart = spec.GetEyePos();
-			vecStart[2] += 16;
-			vecStart += (v_right * 4);
+			vector chaseStart = chasePl.GetEyePos() + (v_right * chaseSide);
+			vector chaseEnd = chaseStart + (v_forward * -chaseDist) + [0, 0, chaseLift] + (v_right * chaseSide);
 
-			vector vecEnd = vecStart + (v_forward * -48) + [0,0,16] + (v_right * 4);
-			traceline(vecStart, vecEnd, FALSE, m_viewTarget);
-
+			traceline(chaseStart, chaseEnd, FALSE, chasePl);
 			SetCameraOrigin(trace_endpos + (v_forward * 5));
 			SetCameraAngle(view_angles);
 			break;
 		case SPECMODE_FIRSTPERSON:
 			c = findfloat(world, ::entnum, spec.m_spectatingEntity);
 
-			if (is.Player(c)) {
+			if (Spectator_HasChaseTargetEntity(spec, c)) {
 				ncPlayer bp = (ncPlayer)c;
 				removeentity(c);
 				SetCameraOrigin(bp.GetEyePos());
@@ -468,24 +482,25 @@ ncView::UpdateView(void)
 			break;
 		case SPECMODE_CHASEOVERVIEW:
 			c = findfloat(world, ::entnum, spec.m_spectatingEntity);
-			if (is.Player(c)) {
-				SetCameraOrigin(c.origin);
+			if (Spectator_HasChaseTargetEntity(spec, c)) {
+				ncPlayer overviewPl = (ncPlayer)c;
+				vector overviewAngles = [45, overviewPl.v_angle[1], 0];
+
+				makevectors(overviewAngles);
+				vector overviewStart = overviewPl.GetEyePos();
+				vector overviewEnd = overviewStart + (v_forward * -128) + [0, 0, 64];
+
+				traceline(overviewStart, overviewEnd, FALSE, overviewPl);
+				SetCameraOrigin(trace_endpos);
+				SetCameraAngle(overviewAngles);
+			} else {
+				SetCameraOrigin(spec.origin + [0, 0, 16]);
+				SetCameraAngle(view_angles);
 			}
-			
-			drawfill(m_vecPosition, m_vecSize, [0,0,0], 1.0f, DRAWFLAG_NORMAL);
-			g_overview.SetViewPosition(m_vecPosition);
-			g_overview.SetViewSize(m_vecSize);
-			g_overview.SetRadarPitch(view_angles[0]);
-			g_overview.UpdateView();
-			return;
+			break;
 		case SPECMODE_FREEOVERVIEW:
 			SetCameraOrigin(pSeat->m_vecPredictedOrigin);
-			drawfill(m_vecPosition, m_vecSize, [0,0,0], 1.0f, DRAWFLAG_NORMAL);
-			g_overview.SetViewPosition(m_vecPosition);
-			g_overview.SetViewSize(m_vecSize);
-			g_overview.SetRadarPitch(view_angles[0]);
-			g_overview.UpdateView();
-			return;
+			SetCameraAngle(view_angles);
 			break;
 		default:
 			SetCameraOrigin(cl.GetEyePos());

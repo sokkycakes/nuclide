@@ -1,0 +1,39 @@
+---
+description: Engine modifications must be made in the FTE release engine directory
+alwaysApply: true
+---
+
+# Engine Changes Location
+
+All modifications to the FTE engine must be made in:
+
+```
+C:\Users\sokky\Documents\Godot\bulwark_proto_funny\fteqw\engine\release\
+```
+
+## Key Guidelines
+
+- **Never modify files** in other engine locations outside this release directory
+- **FTE engine source** is located here for release builds
+- **All C, header, and build files** for the engine go in this directory
+- **Coordinate with existing code** in this directory before adding new files
+
+## When You're About to Modify Engine Files
+
+1. Verify the path starts with the engine release directory above
+2. Check for existing code patterns in the directory
+3. Ensure changes don't conflict with ongoing work
+4. Document significant modifications in commit messages
+
+## Example Paths (✓ Correct)
+
+- `fteqw\engine\release\client\*.c`
+- `fteqw\engine\release\server\*.c`
+- `fteqw\engine\release\common\*.h`
+- `fteqw\engine\release\win32\*.c`
+
+## Example Paths (✗ Incorrect)
+
+- `fteqw\engine\*.c` (root level)
+- `fteqw\src\*.c` (wrong location)
+- Any location outside `fteqw\engine\release\`

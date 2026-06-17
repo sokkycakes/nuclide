@@ -1,0 +1,29 @@
+// Archstiletto primary: melee swing derived from the Quake axe (weapon_axe).
+// Uses the v_archstiletto IQM viewmodel. NOTE: that model currently ships a
+// single 8-frame sequence, so every viewmodel activity maps to sequence 0 until
+// separate idle/fire/draw clips are authored. Placeholder tuning -- the boss kit
+// is undesigned (see hero_archstiletto); to be deepened in a later pass.
+entityDef weapon_archstiletto
+{
+	"inherit"			"weapon_axe"
+
+	"editor_usage"		"Archstiletto melee (axe-derived)"
+
+	"model_view"		"models/v_reference.iqm"
+	"inv_name"			"Archstiletto"
+
+	"def_onFire"		"projectile_archstiletto_melee"
+
+	// v_archstiletto.iqm has one sequence (index 0); map all activities to it
+	// until the model gains separate idle/fire/draw clips.
+	"act_idle"			"0"
+	"act_draw"			"0"
+	"act_fireFailed"	"0"
+	"act_fire"			"0"
+}
+
+entityDef projectile_archstiletto_melee
+{
+	"inherit"			"projectile_axe"
+	"damage"			"1"
+}

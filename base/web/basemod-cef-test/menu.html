@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Main Menu</title>
+<link rel="stylesheet" href="menu.css">
+</head>
+<body>
+  <div id="menu-root">
+    <nav id="main-menu" aria-label="Main Menu">
+
+      <!-- Group 1: play actions -->
+      <ul class="btn-group">
+        <li class="menu-item" data-action="map_browser"  data-desc="Browse and load available maps.">Map Browser</li>
+        <li class="menu-item" data-action="start_server" data-desc="Host a new multiplayer server.">Start Server</li>
+      </ul>
+
+      <!-- Group 2: config/meta -->
+      <ul class="btn-group btn-group--meta">
+        <li class="menu-item" data-action="settings"    data-desc="Configure video, audio, and controls.">Settings</li>
+        <li class="menu-item" data-action="legacy_menu" data-desc="Open the classic Quake menu system.">Legacy Menu</li>
+        <li class="menu-item" data-action="quit"        data-desc="Exit the game.">Quit</li>
+      </ul>
+
+    </nav>
+
+    <!-- Bottom bar: hint left, description centred — matches L4D screenshot layout -->
+    <footer id="desc-bar">
+      <div id="hint"><span class="key">&#9679;</span> Select</div>
+      <div id="desc-text"></div>
+    </footer>
+  </div>
+
+  <script src="menu.js"></script>
+</body>
+</html>

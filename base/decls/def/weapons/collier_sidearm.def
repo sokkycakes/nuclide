@@ -8,7 +8,7 @@ entityDef weapon_collier_sidearm
 
 	"spawnclass"		"ncWeapon"
 	"model"				"progs/g_nail.mdl"
-	"model_view"		"models/v_balrog1.mdl"
+	"model_view"		"models/v_collier.iqm"
 	"snd_acquire"		"weapon.pickup"
 	"snd_respawn"		"item.respawn"
 	"spin"				"1"
@@ -25,7 +25,8 @@ entityDef weapon_collier_sidearm
 	"clipSizeDefault"	"6"
 
 	"act_fire"			"shootA"
-	"act_idle"			"0"
+	"act_idle"			"idle"
+	"act_draw"			"draw"
 
 	"snd_fire"			"weapon_collier_sidearm.shoot"
 	"snd_empty"			"weapon.empty"
@@ -50,7 +51,8 @@ entityDef fireInfo_collierPrimary
 
 entityDef damage_collierDirect
 {
-	"damage"	"2"
+	// 1 per bullet to match the rest of the roster (R4, 4 HP cast).
+	"damage"	"1"
 }
 
 entityDef projectile_collier

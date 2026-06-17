@@ -1,0 +1,115 @@
+Opened log file 'C:\Users\sokky\Documents\Godot\bulwark_proto_funny\nuclide\dmp_analysis.txt'
+
+Microsoft (R) Windows Debugger Version 10.0.17763.132 AMD64
+Copyright (c) Microsoft Corporation. All rights reserved.
+
+NatVis script successfully loaded from 'C:\Program Files\Windows Kits\10\Debuggers\x64\Visualizers\atlmfc.natvis'
+NatVis script successfully loaded from 'C:\Program Files\Windows Kits\10\Debuggers\x64\Visualizers\concurrency.natvis'
+NatVis script successfully loaded from 'C:\Program Files\Windows Kits\10\Debuggers\x64\Visualizers\cpp_rest.natvis'
+NatVis script successfully loaded from 'C:\Program Files\Windows Kits\10\Debuggers\x64\Visualizers\stl.natvis'
+NatVis script successfully loaded from 'C:\Program Files\Windows Kits\10\Debuggers\x64\Visualizers\Windows.Data.Json.natvis'
+NatVis script successfully loaded from 'C:\Program Files\Windows Kits\10\Debuggers\x64\Visualizers\Windows.Devices.Geolocation.natvis'
+NatVis script successfully loaded from 'C:\Program Files\Windows Kits\10\Debuggers\x64\Visualizers\Windows.Devices.Sensors.natvis'
+NatVis script successfully loaded from 'C:\Program Files\Windows Kits\10\Debuggers\x64\Visualizers\Windows.Media.natvis'
+NatVis script successfully loaded from 'C:\Program Files\Windows Kits\10\Debuggers\x64\Visualizers\windows.natvis'
+NatVis script successfully loaded from 'C:\Program Files\Windows Kits\10\Debuggers\x64\Visualizers\winrt.natvis'
+
+Loading Dump File [C:\Users\sokky\AppData\Local\CrashDumps\fteqw64.exe.364880.dmp]
+User Mini Dump File: Only registers, stack and portions of memory are available
+
+
+************* Path validation summary **************
+Response                         Time (ms)     Location
+OK                                             C:\bld\fteqw_src2\build
+OK                                             C:\Users\sokky\Documents\Godot\bulwark_proto_funny\nuclide
+Deferred                                       srv*C:\Users\sokky\AppData\Local\Temp\symcache*https://msdl.microsoft.com/download/symbols
+Symbol search path is: C:\bld\fteqw_src2\build;C:\Users\sokky\Documents\Godot\bulwark_proto_funny\nuclide;srv*C:\Users\sokky\AppData\Local\Temp\symcache*https://msdl.microsoft.com/download/symbols
+Executable search path is: 
+Windows 10 Version 22631 MP (16 procs) Free x64
+Product: WinNt, suite: SingleUserTS
+22621.1.amd64fre.ni_release.220506-1250
+Machine Name:
+Debug session time: Wed Jun 17 02:35:10.000 2026 (UTC - 5:00)
+System Uptime: not available
+Process Uptime: 0 days 0:00:04.000
+................................................................
+..............................................................
+Loading unloaded module list
+......
+This dump file has an exception of interest stored in it.
+The stored exception information can be accessed via .ecxr.
+(59150.5a514): Access violation - code c0000005 (first/second chance not available)
+ntdll!NtWaitForMultipleObjects+0x14:
+00007ffc`369d1954 c3              ret
+0:000> .ecxr; .echo ===STACK===; kP 100; .echo ===EXCEPTION===; .exr -1; .echo ===FAULTINSTR===; r; u @rip-10 L8; q
+*** WARNING: Unable to verify checksum for fteqw64.exe
+*** ERROR: Symbol file could not be found.  Defaulted to export symbols for fteqw64.exe - 
+rax=000000adb4badb70 rbx=000000adb4badad0 rcx=000001fdbde070d8
+rdx=0000000000000003 rsi=0000000000000009 rdi=000001fdbde070d8
+rip=00007ff79b65ff53 rsp=000000adb4badab0 rbp=0000000000000001
+ r8=0000000000000008  r9=000001fc6c22de44 r10=000001fc6c22de40
+r11=000000adb4bad8fc r12=000001fcb07ff701 r13=0000000000000000
+r14=ff000000ff000000 r15=0000000000000003
+iopl=0         nv up ei ng nz na po nc
+cs=0033  ss=002b  ds=002b  es=002b  fs=0053  gs=002b             efl=00010286
+fteqw64+0x3ff53:
+00007ff7`9b65ff53 418b4610        mov     eax,dword ptr [r14+10h] ds:ff000000`ff000010=????????
+===STACK===
+Child-SP          RetAddr           Call Site
+000000ad`b4badab0 00007ff7`9b662674 fteqw64+0x3ff53
+000000ad`b4badb40 00007ff7`9b64f123 fteqw64+0x42674
+000000ad`b4badc30 00007ff7`9b66be25 fteqw64+0x2f123
+000000ad`b4badcd0 00007ff7`9b669afc fteqw64+0x4be25
+000000ad`b4baddf0 00007ff7`9b66ade1 fteqw64+0x49afc
+000000ad`b4badef0 00007ff7`9b850194 fteqw64+0x4ade1
+000000ad`b4bae020 00007ff7`9b9827e2 fteqw64+0x230194
+000000ad`b4bae080 00007ff7`9b97b40f fteqw64+0x3627e2
+000000ad`b4bae150 00007ff7`9b97af87 fteqw64+0x35b40f
+000000ad`b4bae1f0 00007ff7`9b84b734 fteqw64+0x35af87
+000000ad`b4bae230 00007ff7`9b66d928 fteqw64+0x22b734
+000000ad`b4bae2c0 00007ff7`9b819049 fteqw64+0x4d928
+000000ad`b4bae300 00007ff7`9b6b1cdd fteqw64+0x1f9049
+000000ad`b4bae3a0 00007ff7`9ca0739a fteqw64+0x91cdd
+000000ad`b4bafda0 00007ffc`3664259d fteqw64+0x13e739a
+000000ad`b4bafde0 00007ffc`3698af78 kernel32!BaseThreadInitThunk+0x1d
+000000ad`b4bafe10 00000000`00000000 ntdll!RtlUserThreadStart+0x28
+===EXCEPTION===
+ExceptionAddress: 00007ff79b65ff53 (fteqw64+0x000000000003ff53)
+   ExceptionCode: c0000005 (Access violation)
+  ExceptionFlags: 00000000
+NumberParameters: 2
+   Parameter[0]: 0000000000000000
+   Parameter[1]: ffffffffffffffff
+Attempt to read from address ffffffffffffffff
+===FAULTINSTR===
+Last set context:
+rax=000000adb4badb70 rbx=000000adb4badad0 rcx=000001fdbde070d8
+rdx=0000000000000003 rsi=0000000000000009 rdi=000001fdbde070d8
+rip=00007ff79b65ff53 rsp=000000adb4badab0 rbp=0000000000000001
+ r8=0000000000000008  r9=000001fc6c22de44 r10=000001fc6c22de40
+r11=000000adb4bad8fc r12=000001fcb07ff701 r13=0000000000000000
+r14=ff000000ff000000 r15=0000000000000003
+iopl=0         nv up ei ng nz na po nc
+cs=0033  ss=002b  ds=002b  es=002b  fs=0053  gs=002b             efl=00010286
+fteqw64+0x3ff53:
+00007ff7`9b65ff53 418b4610        mov     eax,dword ptr [r14+10h] ds:ff000000`ff000010=????????
+fteqw64+0x3ff43:
+00007ff7`9b65ff43 014d89          add     dword ptr [rbp-77h],ecx
+00007ff7`9b65ff46 ee              out     dx,al
+00007ff7`9b65ff47 41f6c401        test    r12b,1
+00007ff7`9b65ff4b 7461            je      fteqw64+0x3ffae (00007ff7`9b65ffae)
+00007ff7`9b65ff4d 4c8b7718        mov     r14,qword ptr [rdi+18h]
+00007ff7`9b65ff51 eb5b            jmp     fteqw64+0x3ffae (00007ff7`9b65ffae)
+00007ff7`9b65ff53 418b4610        mov     eax,dword ptr [r14+10h]
+00007ff7`9b65ff57 413b4614        cmp     eax,dword ptr [r14+14h]
+quit:
+NatVis script unloaded from 'C:\Program Files\Windows Kits\10\Debuggers\x64\Visualizers\atlmfc.natvis'
+NatVis script unloaded from 'C:\Program Files\Windows Kits\10\Debuggers\x64\Visualizers\concurrency.natvis'
+NatVis script unloaded from 'C:\Program Files\Windows Kits\10\Debuggers\x64\Visualizers\cpp_rest.natvis'
+NatVis script unloaded from 'C:\Program Files\Windows Kits\10\Debuggers\x64\Visualizers\stl.natvis'
+NatVis script unloaded from 'C:\Program Files\Windows Kits\10\Debuggers\x64\Visualizers\Windows.Data.Json.natvis'
+NatVis script unloaded from 'C:\Program Files\Windows Kits\10\Debuggers\x64\Visualizers\Windows.Devices.Geolocation.natvis'
+NatVis script unloaded from 'C:\Program Files\Windows Kits\10\Debuggers\x64\Visualizers\Windows.Devices.Sensors.natvis'
+NatVis script unloaded from 'C:\Program Files\Windows Kits\10\Debuggers\x64\Visualizers\Windows.Media.natvis'
+NatVis script unloaded from 'C:\Program Files\Windows Kits\10\Debuggers\x64\Visualizers\windows.natvis'
+NatVis script unloaded from 'C:\Program Files\Windows Kits\10\Debuggers\x64\Visualizers\winrt.natvis'

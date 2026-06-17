@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="iso-8859-1" standalone="yes"?>
+<game
+  type="q1"
+  name="StilettoSwift (WAD)"
+  enginepath_linux="/mnt/c/Users/sokky/Documents/Godot/bulwark_proto_funny/nuclide"
+  enginepath_win32="C:/Users/sokky/Documents/Godot/bulwark_proto_funny/nuclide"
+  engine_win32="fteqw64.exe"
+  engine_linux="fteqw"
+  basegame="base"
+  basegamename="StilettoSwift"
+  unknowngamename="Custom Quake modification"
+  default_scale="1.0"
+  no_patch="1"
+  no_bsp_monitor="1"
+  show_wads="1"
+  archivetypes="pak wad"
+  texturetypes="tga jpg mip hlw"
+  modeltypes="mdl"
+  maptypes="mapq1"
+  shaders="quake3"
+  shaderpath="scripts"
+  entityclass="quake3"
+  entityclasstype="def xml"
+  entities="quake3"
+  brushtypes="quake"
+  patchtypes="quake3"
+  shader_weapclip = "textures/clip"
+  shader_caulk = "textures/skip"
+  shader_hintlocal = "textures/hintskip"
+  shader_nodraw = "textures/hintskip"
+  shader_nodrawnonsolid = "textures/hintskip"
+  shader_lavacaulk = "textures/*lavaskip"
+  shader_watercaulk = "textures/*waterskip"
+  shader_slimecaulk = "textures/*slimeskip"
+/>
+
+<!--
+  ericw qbsp loads textures only from WADs listed on worldspawn "wad" (semicolon-separated
+  filenames or absolute paths). -wadpath dirs are search roots for those names; they do not
+  auto-include every .wad in a folder. Decompiled maps often omit "wad" — add it (see q1.game pack).
+  WAD mip previews load palette via VFS path gfx/palette.lmp (see NetRadiant plugins/imagehl/mip.cpp).
+  QE_InitVFS mounts EnginePath/<Game name>/ and EnginePath/basegame/ — Nuclide uses basegame=base, so keep
+  the file at base/gfx/palette.lmp (repo root), not under base/id1/ (that layout is for TrenchBroom Quake profile).
+-->

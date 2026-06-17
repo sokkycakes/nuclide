@@ -15,6 +15,27 @@
 */
 
 bool
+Client_LocalUsesSpectatorControls(void)
+{
+	entity me;
+
+	if (!pSeat)
+		return false;
+
+	me = pSeat->m_ePlayer;
+	if (!me || me == world)
+		return false;
+
+	if (me.classname == "spectator")
+		return true;
+
+	if (is.Player(me) && ((ncPlayer)me).IsFakeSpectator())
+		return true;
+
+	return false;
+}
+
+bool
 Client_IsSpectator(ncPlayer cl)
 {
 	if (cl.m_spectatingMode == SPECMODE_DEATHCAM)
@@ -29,7 +50,11 @@ Client_IsSpectator(ncPlayer cl)
 bool
 Client_IsRealSpectator(ncClient cl)
 {
-	return cl.IsRealSpectator();
+	/* avoid virtual dispatch on entity 0 / pre-spawn stubs during connect */
+	if (!cl || cl == world)
+		return false;
+
+	return (cl.classname == "spectator");
 }
 
 bool

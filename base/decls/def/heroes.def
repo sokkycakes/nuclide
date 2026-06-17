@@ -1,0 +1,15 @@
+// Hero roster aggregator.
+//
+// EntityDef_Init() only globs top-level "decls/def/*.def"; subfolder defs must be
+// pulled in via #include from a top-level aggregator (same pattern as monsters.def
+// and weapons.def). Add a #include line here for each new hero def.
+#include "heroes/hero_base.def"
+
+// --- Stiletto roster (seven heroes) ---
+#include "heroes/hero_collier.def"
+#include "heroes/hero_beaumont.def"
+#include "heroes/hero_vagrant.def"
+#include "heroes/hero_skipstream.def"
+#include "heroes/hero_angel.def"
+#include "heroes/hero_motionblue.def"
+#include "heroes/hero_archstiletto.def"

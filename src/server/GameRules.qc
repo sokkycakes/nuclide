@@ -451,17 +451,34 @@ Game_DefaultRules(void)
 
 	if (!STRING_SET(gameType)) {
 		bool isCoop = cvars.GetBool("coop");
-		bool isSingle = (cvars.GetInteger("sv_playerslots") <= 1i) ? (true) : (false);
-		gameType = ((isSingle || isCoop) == (true)) ? ("singleplayer") : ("deathmatch");
+
+		if (isCoop == true) {
+			gameType = "singleplayer";
+		} else if (cvars.GetBool("deathmatch") == true) {
+			gameType = "deathmatch";
+		} else if (cvars.GetInteger("maxclients") > 1i) {
+			/* listen/dedicated servers configured for MP */
+			gameType = "deathmatch";
+		} else if (cvars.GetInteger("sv_playerslots") > 1i) {
+			gameType = "deathmatch";
+		} else {
+			gameType = "singleplayer";
+		}
 	}
 
 	return (gameType);
 }
 
 /* Rule specific Scripting, nicknamed 'RuleC' because MapC exists. */
+var bool g_ruleCInitialized = false;
+
 void
 RuleC_Init(void)
 {
+	if (g_ruleCInitialized == true) {
+		return;
+	}
+
 	string gameType = g_ruleCName = Game_DefaultRules();
 	string pathToProgs;
 
@@ -490,4 +507,6 @@ RuleC_Init(void)
 			error(sprintf("RuleC %S does not have a main function.", pathToProgs));
 		}
 	}
+
+	g_ruleCInitialized = true;
 }

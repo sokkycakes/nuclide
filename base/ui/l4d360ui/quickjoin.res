@@ -1,0 +1,60 @@
+"Resource/UI/QuickJoin.res"
+{
+	"LblTitle"
+	{
+		"ControlName"			"Label"
+		"fieldName"				"LblTitle"
+		"xpos"					"0"
+		"ypos"					"0"
+		"wide"					"210"
+		"tall"					"40"
+		"autoResize"			"1"
+		"pinCorner"				"0"
+		"visible"				"1"
+		"enabled"				"1"
+		"tabPosition"			"0"
+		"wrap"					"1"
+		"labelText"				""
+		"Font"					"DefaultMedium"
+		"fgcolor_override"		"255 255 255 255"
+	}
+	
+	"GplQuickJoinList"
+	{
+		"ControlName"					"GenericPanelList"
+		"fieldName"						"GplQuickJoinList"
+		"xpos"							"-1"
+		"ypos"							"20"
+		"zpos"							"0"
+		"wide"							"210"
+		"tall"							"300"
+		"autoResize"					"1"
+		"pinCorner"						"0"
+		"visible"						"1"
+		"enabled"						"1"
+		"tabPosition"					"1"
+		"panelBorder"					"0"
+		"NoDrawPanel"					"1"
+		"arrowsVisible"					"0"
+	}
+	
+	"BtnSeeAll" [$WIN32]
+	{
+		"ControlName"			"L4D360HybridButton"
+		"fieldName"				"BtnSeeAll"
+		"xpos"					"0"
+		"ypos"					"180"
+		"wide"					"230"
+		"tall"					"20"
+		"autoResize"			"1"
+		"pinCorner"				"0"
+		"visible"				"1"
+		"enabled"				"1"
+		"tabPosition"			"0"
+		"labelText"				"#L4D360UI_MainMenu_SeeAll"
+		"style"					"DefaultButton"
+		"command"				"SeeAll"
+		"ActivationType"		"1"
+		"FocusDisabledBorderSize" "1"
+	}
+}

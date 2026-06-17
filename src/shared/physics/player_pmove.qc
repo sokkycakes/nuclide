@@ -650,8 +650,14 @@ ncPlayer::Physics_Run(void)
 	/* give us a chance to manipulate input_ globals before running physics */
 	Physics_InputPreMove();
 
-	Stiletto_PmGunjumpAir(this, saved_input_buttons, saved_input_movevalues);
-	Stiletto_WallJump(this, saved_input_buttons);
+	/* tool punish: kill horizontal control + scale move wish while punished */
+	Stiletto_Combat_PreMove(this);
+
+	/* a fully-stunned hero can't air-dodge or wall-jump out of the punish */
+	if (!Stiletto_Combat_IsFullyStunned(this)) {
+		Stiletto_PmGunjumpAir(this, saved_input_buttons, saved_input_movevalues);
+		Stiletto_WallJump(this, saved_input_buttons);
+	}
 
 	/* handle footsteps */
 	Footsteps_Update();
@@ -699,6 +705,9 @@ ncPlayer::Physics_Run(void)
 		}
 		Physics_Fall(flFallVel - flBaseVel);
 	}
+
+	/* tool punish: start the landing stun, expire it, run OOC regen (server) */
+	Stiletto_Combat_PostMove(this);
 
 	gravity = stilettoGravSave;
 

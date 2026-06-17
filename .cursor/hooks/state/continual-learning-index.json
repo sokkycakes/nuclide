@@ -1,0 +1,180 @@
+{
+    "version": 1,
+    "updated": "2026-06-02T16:29:20.793Z",
+    "transcripts": {
+        "C:\\Users\\sokky\\.cursor\\projects\\c-Users-sokky-Documents-Godot-bulwark-proto-funny-nuclide\\agent-transcripts\\11be714c-e14a-42eb-b275-a0f72df9ba58\\11be714c-e14a-42eb-b275-a0f72df9ba58.jsonl": {
+            "mtimeUtc": "2026-06-01T04:14:30.952Z"
+        },
+        "C:\\Users\\sokky\\.cursor\\projects\\c-Users-sokky-Documents-Godot-bulwark-proto-funny-nuclide\\agent-transcripts\\11be714c-e14a-42eb-b275-a0f72df9ba58\\subagents\\1463e377-6cde-4e87-a11a-a516ef81fbf0.jsonl": {
+            "mtimeUtc": "2026-06-01T03:56:43.783Z"
+        },
+        "C:\\Users\\sokky\\.cursor\\projects\\c-Users-sokky-Documents-Godot-bulwark-proto-funny-nuclide\\agent-transcripts\\138b3112-50f0-4062-b10e-405ec3ea5107\\138b3112-50f0-4062-b10e-405ec3ea5107.jsonl": {
+            "mtimeUtc": "2026-05-14T22:29:56.481Z"
+        },
+        "C:\\Users\\sokky\\.cursor\\projects\\c-Users-sokky-Documents-Godot-bulwark-proto-funny-nuclide\\agent-transcripts\\138b3112-50f0-4062-b10e-405ec3ea5107\\subagents\\03387b3f-c7c8-4ca3-8c05-27096721b83d.jsonl": {
+            "mtimeUtc": "2026-05-14T11:50:00.887Z"
+        },
+        "C:\\Users\\sokky\\.cursor\\projects\\c-Users-sokky-Documents-Godot-bulwark-proto-funny-nuclide\\agent-transcripts\\138b3112-50f0-4062-b10e-405ec3ea5107\\subagents\\b084449e-2786-4382-abd0-e90e0ff37c37.jsonl": {
+            "mtimeUtc": "2026-05-14T06:19:46.678Z"
+        },
+        "C:\\Users\\sokky\\.cursor\\projects\\c-Users-sokky-Documents-Godot-bulwark-proto-funny-nuclide\\agent-transcripts\\138b3112-50f0-4062-b10e-405ec3ea5107\\subagents\\c1d00ce5-87c1-4c04-b9d6-98156e28548b.jsonl": {
+            "mtimeUtc": "2026-05-13T03:31:13.177Z"
+        },
+        "C:\\Users\\sokky\\.cursor\\projects\\c-Users-sokky-Documents-Godot-bulwark-proto-funny-nuclide\\agent-transcripts\\138b3112-50f0-4062-b10e-405ec3ea5107\\subagents\\dbf0f54f-4d24-4692-ad19-03d7e5a7f966.jsonl": {
+            "mtimeUtc": "2026-05-14T08:26:12.143Z"
+        },
+        "C:\\Users\\sokky\\.cursor\\projects\\c-Users-sokky-Documents-Godot-bulwark-proto-funny-nuclide\\agent-transcripts\\196eb4f1-aafe-490b-8f0e-2822d4cf53bb\\196eb4f1-aafe-490b-8f0e-2822d4cf53bb.jsonl": {
+            "mtimeUtc": "2026-05-14T23:41:41.789Z"
+        },
+        "C:\\Users\\sokky\\.cursor\\projects\\c-Users-sokky-Documents-Godot-bulwark-proto-funny-nuclide\\agent-transcripts\\2fb18c73-27de-4606-a357-9f4f0c57a0db\\2fb18c73-27de-4606-a357-9f4f0c57a0db.jsonl": {
+            "mtimeUtc": "2026-05-18T22:16:31.758Z"
+        },
+        "C:\\Users\\sokky\\.cursor\\projects\\c-Users-sokky-Documents-Godot-bulwark-proto-funny-nuclide\\agent-transcripts\\3287e909-5735-410a-9fd5-a3956c6d4532\\3287e909-5735-410a-9fd5-a3956c6d4532.jsonl": {
+            "mtimeUtc": "2026-05-18T11:04:39.238Z"
+        },
+        "C:\\Users\\sokky\\.cursor\\projects\\c-Users-sokky-Documents-Godot-bulwark-proto-funny-nuclide\\agent-transcripts\\3287e909-5735-410a-9fd5-a3956c6d4532\\subagents\\5a3d28c0-323a-4990-8c2c-881d1e8618f1.jsonl": {
+            "mtimeUtc": "2026-05-18T10:22:17.307Z"
+        },
+        "C:\\Users\\sokky\\.cursor\\projects\\c-Users-sokky-Documents-Godot-bulwark-proto-funny-nuclide\\agent-transcripts\\32ca98c7-29b3-4e7c-81c5-d1d8369774a3\\32ca98c7-29b3-4e7c-81c5-d1d8369774a3.jsonl": {
+            "mtimeUtc": "2026-05-19T02:35:59.229Z"
+        },
+        "C:\\Users\\sokky\\.cursor\\projects\\c-Users-sokky-Documents-Godot-bulwark-proto-funny-nuclide\\agent-transcripts\\32ca98c7-29b3-4e7c-81c5-d1d8369774a3\\subagents\\00ae9e24-dd8c-4680-9b5e-8a3c04e794e2.jsonl": {
+            "mtimeUtc": "2026-05-19T01:02:06.346Z"
+        },
+        "C:\\Users\\sokky\\.cursor\\projects\\c-Users-sokky-Documents-Godot-bulwark-proto-funny-nuclide\\agent-transcripts\\32ca98c7-29b3-4e7c-81c5-d1d8369774a3\\subagents\\099cac79-a4b6-4efd-a199-8337603de49c.jsonl": {
+            "mtimeUtc": "2026-05-19T00:57:57.318Z"
+        },
+        "C:\\Users\\sokky\\.cursor\\projects\\c-Users-sokky-Documents-Godot-bulwark-proto-funny-nuclide\\agent-transcripts\\32ca98c7-29b3-4e7c-81c5-d1d8369774a3\\subagents\\1a55df5e-79b2-4a3f-bb5b-84de817cc418.jsonl": {
+            "mtimeUtc": "2026-05-19T00:57:57.237Z"
+        },
+        "C:\\Users\\sokky\\.cursor\\projects\\c-Users-sokky-Documents-Godot-bulwark-proto-funny-nuclide\\agent-transcripts\\32ca98c7-29b3-4e7c-81c5-d1d8369774a3\\subagents\\2fddeae0-55bb-4586-8f7a-4ebae87d48f0.jsonl": {
+            "mtimeUtc": "2026-05-19T00:57:57.323Z"
+        },
+        "C:\\Users\\sokky\\.cursor\\projects\\c-Users-sokky-Documents-Godot-bulwark-proto-funny-nuclide\\agent-transcripts\\32ca98c7-29b3-4e7c-81c5-d1d8369774a3\\subagents\\43de0ea0-4a69-421e-9938-445a827bc74c.jsonl": {
+            "mtimeUtc": "2026-05-19T00:57:57.332Z"
+        },
+        "C:\\Users\\sokky\\.cursor\\projects\\c-Users-sokky-Documents-Godot-bulwark-proto-funny-nuclide\\agent-transcripts\\32ca98c7-29b3-4e7c-81c5-d1d8369774a3\\subagents\\537939f8-f728-4e78-94b4-ac0206644747.jsonl": {
+            "mtimeUtc": "2026-05-19T00:57:57.327Z"
+        },
+        "C:\\Users\\sokky\\.cursor\\projects\\c-Users-sokky-Documents-Godot-bulwark-proto-funny-nuclide\\agent-transcripts\\32ca98c7-29b3-4e7c-81c5-d1d8369774a3\\subagents\\882aaab1-b320-410a-80fe-b0f6fc93fded.jsonl": {
+            "mtimeUtc": "2026-05-19T00:57:57.128Z"
+        },
+        "C:\\Users\\sokky\\.cursor\\projects\\c-Users-sokky-Documents-Godot-bulwark-proto-funny-nuclide\\agent-transcripts\\32ca98c7-29b3-4e7c-81c5-d1d8369774a3\\subagents\\9d1e5eca-3224-45ff-9c5f-3de1bf75ee00.jsonl": {
+            "mtimeUtc": "2026-05-19T00:57:57.324Z"
+        },
+        "C:\\Users\\sokky\\.cursor\\projects\\c-Users-sokky-Documents-Godot-bulwark-proto-funny-nuclide\\agent-transcripts\\32ca98c7-29b3-4e7c-81c5-d1d8369774a3\\subagents\\bac76d1c-de00-4e54-8fae-aa77aff077ea.jsonl": {
+            "mtimeUtc": "2026-05-19T01:41:49.925Z"
+        },
+        "C:\\Users\\sokky\\.cursor\\projects\\c-Users-sokky-Documents-Godot-bulwark-proto-funny-nuclide\\agent-transcripts\\32ca98c7-29b3-4e7c-81c5-d1d8369774a3\\subagents\\d3de3045-c5d5-4b12-a4f9-b0f673714759.jsonl": {
+            "mtimeUtc": "2026-05-19T00:57:57.329Z"
+        },
+        "C:\\Users\\sokky\\.cursor\\projects\\c-Users-sokky-Documents-Godot-bulwark-proto-funny-nuclide\\agent-transcripts\\32ca98c7-29b3-4e7c-81c5-d1d8369774a3\\subagents\\e98f8072-7a6a-4b55-bc97-3c307891134f.jsonl": {
+            "mtimeUtc": "2026-05-19T01:01:05.217Z"
+        },
+        "C:\\Users\\sokky\\.cursor\\projects\\c-Users-sokky-Documents-Godot-bulwark-proto-funny-nuclide\\agent-transcripts\\607d1d40-f41f-442d-8484-1f6b183a559e\\607d1d40-f41f-442d-8484-1f6b183a559e.jsonl": {
+            "mtimeUtc": "2026-05-26T18:09:30.568Z"
+        },
+        "C:\\Users\\sokky\\.cursor\\projects\\c-Users-sokky-Documents-Godot-bulwark-proto-funny-nuclide\\agent-transcripts\\607d1d40-f41f-442d-8484-1f6b183a559e\\subagents\\e4ca719a-8b00-45f4-a49d-8b3b8fbaadd5.jsonl": {
+            "mtimeUtc": "2026-05-25T13:25:15.045Z"
+        },
+        "C:\\Users\\sokky\\.cursor\\projects\\c-Users-sokky-Documents-Godot-bulwark-proto-funny-nuclide\\agent-transcripts\\68fc5ec8-c10a-479b-bb05-fa23c3304137\\68fc5ec8-c10a-479b-bb05-fa23c3304137.jsonl": {
+            "mtimeUtc": "2026-05-27T14:02:22.770Z"
+        },
+        "C:\\Users\\sokky\\.cursor\\projects\\c-Users-sokky-Documents-Godot-bulwark-proto-funny-nuclide\\agent-transcripts\\68fc5ec8-c10a-479b-bb05-fa23c3304137\\subagents\\1938bf39-55b0-458b-807f-023fde8f5336.jsonl": {
+            "mtimeUtc": "2026-05-27T14:02:09.821Z"
+        },
+        "C:\\Users\\sokky\\.cursor\\projects\\c-Users-sokky-Documents-Godot-bulwark-proto-funny-nuclide\\agent-transcripts\\7f85eb48-361a-4e05-9464-07e2ec557650\\7f85eb48-361a-4e05-9464-07e2ec557650.jsonl": {
+            "mtimeUtc": "2026-05-25T10:28:25.522Z"
+        },
+        "C:\\Users\\sokky\\.cursor\\projects\\c-Users-sokky-Documents-Godot-bulwark-proto-funny-nuclide\\agent-transcripts\\8d60b1f2-1864-4bee-b709-718e1a17db18\\8d60b1f2-1864-4bee-b709-718e1a17db18.jsonl": {
+            "mtimeUtc": "2026-05-27T13:51:15.863Z"
+        },
+        "C:\\Users\\sokky\\.cursor\\projects\\c-Users-sokky-Documents-Godot-bulwark-proto-funny-nuclide\\agent-transcripts\\9131b692-60f8-478a-8960-687e7b97703b\\9131b692-60f8-478a-8960-687e7b97703b.jsonl": {
+            "mtimeUtc": "2026-05-14T23:58:56.224Z"
+        },
+        "C:\\Users\\sokky\\.cursor\\projects\\c-Users-sokky-Documents-Godot-bulwark-proto-funny-nuclide\\agent-transcripts\\9e4802f0-504a-4892-a684-df3925276a19\\9e4802f0-504a-4892-a684-df3925276a19.jsonl": {
+            "mtimeUtc": "2026-06-01T04:54:16.184Z"
+        },
+        "C:\\Users\\sokky\\.cursor\\projects\\c-Users-sokky-Documents-Godot-bulwark-proto-funny-nuclide\\agent-transcripts\\a1f82fcf-2d8e-4de0-95ec-4a4a574a7c16\\a1f82fcf-2d8e-4de0-95ec-4a4a574a7c16.jsonl": {
+            "mtimeUtc": "2026-06-01T10:58:50.533Z"
+        },
+        "C:\\Users\\sokky\\.cursor\\projects\\c-Users-sokky-Documents-Godot-bulwark-proto-funny-nuclide\\agent-transcripts\\a23f9362-542b-42cd-b31f-e7105fdbfcea\\a23f9362-542b-42cd-b31f-e7105fdbfcea.jsonl": {
+            "mtimeUtc": "2026-05-24T14:34:47.308Z"
+        },
+        "C:\\Users\\sokky\\.cursor\\projects\\c-Users-sokky-Documents-Godot-bulwark-proto-funny-nuclide\\agent-transcripts\\a23f9362-542b-42cd-b31f-e7105fdbfcea\\subagents\\f1c95936-0aff-43c4-a8f2-0adec4ed4653.jsonl": {
+            "mtimeUtc": "2026-05-24T10:24:21.686Z"
+        },
+        "C:\\Users\\sokky\\.cursor\\projects\\c-Users-sokky-Documents-Godot-bulwark-proto-funny-nuclide\\agent-transcripts\\a60ee51f-fc82-43f1-9921-7a3c0dd38f20\\a60ee51f-fc82-43f1-9921-7a3c0dd38f20.jsonl": {
+            "mtimeUtc": "2026-05-15T02:01:53.295Z"
+        },
+        "C:\\Users\\sokky\\.cursor\\projects\\c-Users-sokky-Documents-Godot-bulwark-proto-funny-nuclide\\agent-transcripts\\a878446d-6437-4933-8e2f-5522a0f34dd8\\a878446d-6437-4933-8e2f-5522a0f34dd8.jsonl": {
+            "mtimeUtc": "2026-05-14T10:58:24.315Z"
+        },
+        "C:\\Users\\sokky\\.cursor\\projects\\c-Users-sokky-Documents-Godot-bulwark-proto-funny-nuclide\\agent-transcripts\\a8ad1988-8dba-448a-ad88-5d7b2d670825\\a8ad1988-8dba-448a-ad88-5d7b2d670825.jsonl": {
+            "mtimeUtc": "2026-05-15T11:19:48.791Z"
+        },
+        "C:\\Users\\sokky\\.cursor\\projects\\c-Users-sokky-Documents-Godot-bulwark-proto-funny-nuclide\\agent-transcripts\\b55c295a-2bd0-4b49-8622-ff38ef202f45\\b55c295a-2bd0-4b49-8622-ff38ef202f45.jsonl": {
+            "mtimeUtc": "2026-06-01T16:23:37.655Z"
+        },
+        "C:\\Users\\sokky\\.cursor\\projects\\c-Users-sokky-Documents-Godot-bulwark-proto-funny-nuclide\\agent-transcripts\\ba5ccf8d-7b52-4b31-a297-3249a83b3ced\\ba5ccf8d-7b52-4b31-a297-3249a83b3ced.jsonl": {
+            "mtimeUtc": "2026-05-28T05:11:33.308Z"
+        },
+        "C:\\Users\\sokky\\.cursor\\projects\\c-Users-sokky-Documents-Godot-bulwark-proto-funny-nuclide\\agent-transcripts\\d4e3b8a7-1170-4ed5-9d4b-065501ef7cce\\d4e3b8a7-1170-4ed5-9d4b-065501ef7cce.jsonl": {
+            "mtimeUtc": "2026-05-15T00:44:51.341Z"
+        },
+        "C:\\Users\\sokky\\.cursor\\projects\\c-Users-sokky-Documents-Godot-bulwark-proto-funny-nuclide\\agent-transcripts\\d4e3b8a7-1170-4ed5-9d4b-065501ef7cce\\subagents\\14f410e1-13bc-46d0-86e4-2fb5fcd3897b.jsonl": {
+            "mtimeUtc": "2026-05-15T00:09:41.278Z"
+        },
+        "C:\\Users\\sokky\\.cursor\\projects\\c-Users-sokky-Documents-Godot-bulwark-proto-funny-nuclide\\agent-transcripts\\d4e3b8a7-1170-4ed5-9d4b-065501ef7cce\\subagents\\7b7580ed-e185-423e-8df7-cbcd815a1894.jsonl": {
+            "mtimeUtc": "2026-05-15T00:06:40.741Z"
+        },
+        "C:\\Users\\sokky\\.cursor\\projects\\c-Users-sokky-Documents-Godot-bulwark-proto-funny-nuclide\\agent-transcripts\\d4e3b8a7-1170-4ed5-9d4b-065501ef7cce\\subagents\\c85c4482-6020-46ff-ba5d-19a2200c8b4b.jsonl": {
+            "mtimeUtc": "2026-05-15T00:44:41.653Z"
+        },
+        "C:\\Users\\sokky\\.cursor\\projects\\c-Users-sokky-Documents-Godot-bulwark-proto-funny-nuclide\\agent-transcripts\\e2be48a7-635e-4329-99cf-cc89d859ddd1\\e2be48a7-635e-4329-99cf-cc89d859ddd1.jsonl": {
+            "mtimeUtc": "2026-05-14T12:08:21.768Z"
+        },
+        "C:\\Users\\sokky\\.cursor\\projects\\c-Users-sokky-Documents-Godot-bulwark-proto-funny-nuclide\\agent-transcripts\\e7a839c3-6472-432e-9fe7-8d5e9e196e77\\e7a839c3-6472-432e-9fe7-8d5e9e196e77.jsonl": {
+            "mtimeUtc": "2026-05-19T10:08:12.601Z"
+        },
+        "C:\\Users\\sokky\\.cursor\\projects\\c-Users-sokky-Documents-Godot-bulwark-proto-funny-nuclide\\agent-transcripts\\e8103d83-0a3b-44e3-ac9a-02dfcf6f653f\\e8103d83-0a3b-44e3-ac9a-02dfcf6f653f.jsonl": {
+            "mtimeUtc": "2026-05-16T02:12:28.521Z"
+        },
+        "C:\\Users\\sokky\\.cursor\\projects\\c-Users-sokky-Documents-Godot-bulwark-proto-funny-nuclide\\agent-transcripts\\e8103d83-0a3b-44e3-ac9a-02dfcf6f653f\\subagents\\a485e8e6-ca86-4d1a-8d17-63b047139f49.jsonl": {
+            "mtimeUtc": "2026-05-15T22:22:51.593Z"
+        },
+        "C:\\Users\\sokky\\.cursor\\projects\\c-Users-sokky-Documents-Godot-bulwark-proto-funny-nuclide\\agent-transcripts\\e8103d83-0a3b-44e3-ac9a-02dfcf6f653f\\subagents\\d2f9ac50-1c5d-4589-84eb-8ff9acf87e3b.jsonl": {
+            "mtimeUtc": "2026-05-15T12:22:01.088Z"
+        },
+        "C:\\Users\\sokky\\.cursor\\projects\\c-Users-sokky-Documents-Godot-bulwark-proto-funny-nuclide\\agent-transcripts\\ed41ac8c-d93d-481f-a00a-04adcc24aaba\\ed41ac8c-d93d-481f-a00a-04adcc24aaba.jsonl": {
+            "mtimeUtc": "2026-05-12T10:14:20.231Z"
+        },
+        "C:\\Users\\sokky\\.cursor\\projects\\c-Users-sokky-Documents-Godot-bulwark-proto-funny-nuclide\\agent-transcripts\\f03a3143-53b4-4663-8831-d100942b10e7\\f03a3143-53b4-4663-8831-d100942b10e7.jsonl": {
+            "mtimeUtc": "2026-06-02T16:23:59.366Z"
+        },
+        "C:\\Users\\sokky\\.cursor\\projects\\c-Users-sokky-Documents-Godot-bulwark-proto-funny-nuclide\\agent-transcripts\\f03a3143-53b4-4663-8831-d100942b10e7\\subagents\\36e79e22-0936-4807-a375-e08464eb2927.jsonl": {
+            "mtimeUtc": "2026-06-02T14:55:52.822Z"
+        },
+        "C:\\Users\\sokky\\.cursor\\projects\\c-Users-sokky-Documents-Godot-bulwark-proto-funny-nuclide\\agent-transcripts\\f03a3143-53b4-4663-8831-d100942b10e7\\subagents\\8862979c-99eb-448b-bf78-60044146ef4e.jsonl": {
+            "mtimeUtc": "2026-06-02T15:39:17.055Z"
+        },
+        "C:\\Users\\sokky\\.cursor\\projects\\c-Users-sokky-Documents-Godot-bulwark-proto-funny-nuclide\\agent-transcripts\\f03a3143-53b4-4663-8831-d100942b10e7\\subagents\\e962d1d3-ade0-43fd-8f06-7dcbcb0dce7b.jsonl": {
+            "mtimeUtc": "2026-06-02T16:24:18.294Z"
+        },
+        "C:\\Users\\sokky\\.cursor\\projects\\c-Users-sokky-Documents-Godot-bulwark-proto-funny-nuclide\\agent-transcripts\\fb114152-cc4b-4d82-95b8-30707901cb7a\\fb114152-cc4b-4d82-95b8-30707901cb7a.jsonl": {
+            "mtimeUtc": "2026-05-13T02:10:44.473Z"
+        },
+        "C:\\Users\\sokky\\.cursor\\projects\\c-Users-sokky-Documents-Godot-bulwark-proto-funny-nuclide\\agent-transcripts\\fb114152-cc4b-4d82-95b8-30707901cb7a\\subagents\\131de790-b1da-4f3b-aad6-b918831fc62a.jsonl": {
+            "mtimeUtc": "2026-05-12T08:11:38.458Z"
+        },
+        "C:\\Users\\sokky\\.cursor\\projects\\c-Users-sokky-Documents-Godot-bulwark-proto-funny-nuclide\\agent-transcripts\\fb114152-cc4b-4d82-95b8-30707901cb7a\\subagents\\2162ab5a-75a5-4060-814e-bf7e75b62243.jsonl": {
+            "mtimeUtc": "2026-05-11T20:49:57.390Z"
+        },
+        "C:\\Users\\sokky\\.cursor\\projects\\c-Users-sokky-Documents-Godot-bulwark-proto-funny-nuclide\\agent-transcripts\\fb114152-cc4b-4d82-95b8-30707901cb7a\\subagents\\a5427c38-7a25-45d3-aca4-8f52ceeb216c.jsonl": {
+            "mtimeUtc": "2026-05-09T10:45:01.942Z"
+        },
+        "C:\\Users\\sokky\\.cursor\\projects\\c-Users-sokky-Documents-Godot-bulwark-proto-funny-nuclide\\agent-transcripts\\fef34466-6900-49e0-9fa7-8b6572794ac5\\fef34466-6900-49e0-9fa7-8b6572794ac5.jsonl": {
+            "mtimeUtc": "2026-05-14T04:55:58.899Z"
+        }
+    }
+}

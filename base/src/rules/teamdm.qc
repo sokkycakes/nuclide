@@ -32,6 +32,12 @@ CodeCallback_StartGameType(void)
 	teams.SetSpawnPoint(1, "info_player_deathmatch");
 	teams.SetSpawnPoint(2, "info_player_deathmatch");
 
+	/* hero roster: both teams may field any hero (shared roster).
+	   Defaults to swap-at-spawn + duplicates-allowed for initial testing. */
+	Hero_RegisterRoster(1);
+	Hero_RegisterRoster(2);
+	Hero_SetPolicy(HEROSWAP_ATSPAWN, HEROCOMP_DUPLICATES);
+
 	/* from shared.qc */
 	Util_RemoveAllMonsters();
 	Util_SetItemRespawnTimers();
@@ -49,7 +55,9 @@ bool
 CodeCallback_PlayerRequestRespawn(entity playerEntity)
 {
 	if (is.Alive(playerEntity) == false) {
-		ents.ChangeToClass(playerEntity, playerEntity.classname);
+		/* consume any queued hero pick / keep current hero (shared.qc) */
+		string heroID = Hero_ResolveSpawnHero(playerEntity);
+		ents.ChangeToClass(playerEntity, heroID);
 		game.TeleportToSpawn(playerEntity);
 		music.PlayOnceOnClient(precache.Music("music/track05.ogg"), playerEntity);
 	}
@@ -77,12 +85,14 @@ CodeCallback_CallRequestTeam(entity playerEntity, int teamNum)
 	ents.Input(playerEntity, "SetTeam", itos(teamNum), playerEntity);
 
 	if (is.Alive(playerEntity) == false) {
+		/* spawn as the player's chosen hero, else the team default (shared.qc) */
+		string heroID = Hero_ResolveSpawnHero(playerEntity);
+		ents.ChangeToClass(playerEntity, heroID);
+
 		if (playerEntity.team == 1) {
-			ents.ChangeToClass(playerEntity, "player_enforcer");
 			userinfo.SetString(playerEntity, "topcolor", "0xff1800");
 			userinfo.SetString(playerEntity, "bottomcolor", "0xff1800");
 		} else {
-			ents.ChangeToClass(playerEntity, "player_mp");
 			userinfo.SetString(playerEntity, "topcolor", "0x9aff");
 			userinfo.SetString(playerEntity, "bottomcolor", "0x9aff");
 		}
@@ -121,6 +131,12 @@ CodeCallback_ClientCommand(entity playerEntity, string command)
 	float commandArgs = tokenize(command);
 
 	switch (argv(0)) {
+	case "selecthero": {
+		/* capture the id before any helper re-tokenizes (shared.qc) */
+		string heroID = argv(1);
+		Hero_TrySelect(playerEntity, heroID);
+		return (true);
+	}
 	default:
 		return (false);
 	}

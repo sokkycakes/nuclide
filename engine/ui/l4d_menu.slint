@@ -1,0 +1,112 @@
+export component L4DMenu {
+    callback singleplayer();
+    callback multiplayer();
+    callback options();
+    callback quit();
+
+    width: 1920px;
+    height: 1080px;
+    background: #1b1b1b;
+
+    Text {
+        x: 80px;
+        y: 200px;
+        text: "FTEQW";
+        font-size: 64px;
+        font-weight: 800;
+        color: #c83232;
+        horizontal-alignment: left;
+    }
+
+    Text {
+        x: 80px;
+        y: 280px;
+        text: "powered by Slint";
+        font-size: 18px;
+        color: #888888;
+    }
+
+    t1 := TouchArea {
+        x: 80px;
+        y: 400px;
+        width: 320px;
+        height: 60px;
+        clicked => { root.singleplayer(); }
+
+        Rectangle {
+            background: #c8323226;
+            border-color: #c8323266;
+            border-width: 2px;
+        }
+        Text {
+            text: "SINGLE PLAYER";
+            color: #e8e8e8;
+            font-size: 20px;
+            horizontal-alignment: center;
+            vertical-alignment: center;
+        }
+    }
+
+    t2 := TouchArea {
+        x: 80px;
+        y: 480px;
+        width: 320px;
+        height: 60px;
+        clicked => { root.multiplayer(); }
+
+        Rectangle {
+            background: #c8323226;
+            border-color: #c8323266;
+            border-width: 2px;
+        }
+        Text {
+            text: "MULTIPLAYER";
+            color: #e8e8e8;
+            font-size: 20px;
+            horizontal-alignment: center;
+            vertical-alignment: center;
+        }
+    }
+
+    t3 := TouchArea {
+        x: 80px;
+        y: 560px;
+        width: 320px;
+        height: 60px;
+        clicked => { root.options(); }
+
+        Rectangle {
+            background: #c8323226;
+            border-color: #c8323266;
+            border-width: 2px;
+        }
+        Text {
+            text: "OPTIONS";
+            color: #e8e8e8;
+            font-size: 20px;
+            horizontal-alignment: center;
+            vertical-alignment: center;
+        }
+    }
+
+    t4 := TouchArea {
+        x: 80px;
+        y: 640px;
+        width: 320px;
+        height: 60px;
+        clicked => { root.quit(); }
+
+        Rectangle {
+            background: #c8323226;
+            border-color: #c8323266;
+            border-width: 2px;
+        }
+        Text {
+            text: "QUIT";
+            color: #e8e8e8;
+            font-size: 20px;
+            horizontal-alignment: center;
+            vertical-alignment: center;
+        }
+    }
+}

@@ -1,0 +1,14 @@
+// Angel -- sniper. Roster baseline: 4 HP, shared movement + speeds.
+// Placeholder model (natasha2) + inherited alice2-family animations.
+entityDef hero_angel
+{
+	"inherit"				"hero_base"
+
+	"model"					"models/player/natasha2/natasha2.mdl"
+
+	"health"				"4"
+	"max_health"			"4"
+
+	"weapon"				"weapon_angel_sniper"
+	"current_weapon"		"0"
+}

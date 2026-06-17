@@ -87,29 +87,192 @@ ncSpectator::IsFakeSpectator(void)
 void
 ncSpectator::ProcessInput(void)
 {
-#ifdef SERVER
 	if (input_buttons & INPUT_PRIMARY) {
-		InputNext();
-	} else if (input_buttons & INPUT_SECONDARY) {
-		InputPrevious();
-	} else if (input_buttons & INPUT_JUMP) {
 		InputMode();
+	} else if (input_buttons & INPUT_SECONDARY) {
+		InputModePrevious();
 	} else {
-		m_spectatingFlags &= ~SPECFLAG_BUTTON_RELEASED;
+		m_spectatingFlags &= ~SPECFLAG_MODE_RELEASED;
 	}
+
+	if (!(input_buttons & (INPUT_PRIMARY | INPUT_SECONDARY))) {
+		if (input_impulse == IMPULSE_SPEC_NEXT) {
+			InputNext();
+			input_impulse = 0;
+		} else if (input_impulse == IMPULSE_SPEC_PREV) {
+			InputPrevious();
+			input_impulse = 0;
+		} else {
+			m_spectatingFlags &= ~SPECFLAG_TARGET_RELEASED;
+		}
+	}
+}
+
+entity
+Spectator_EntityForPlayerSlot(float slotEntnum)
+{
+#ifdef CLIENT
+	return findfloat(world, ::entnum, slotEntnum);
+#else
+	return edict_num(slotEntnum);
 #endif
 }
 
 void
 ncSpectator::WarpToTarget(void)
 {
-	entity b = edict_num(m_spectatingEntity);
+	entity b;
+
+	if (!m_spectatingEntity)
+		return;
+
+	b = Spectator_EntityForPlayerSlot(m_spectatingEntity);
+
+	if (!IsValidChaseTarget(b))
+		return;
+
 	setorigin(this, b.origin);
+}
+
+bool
+Spectator_TargetIsPlayablePlayer(entity target)
+{
+	if (!target)
+		return false;
+
+#ifdef SERVER
+	if (!(target.flags & FL_CLIENT))
+		return false;
+#endif
+
+	if (!target._isPlayer)
+		return false;
+
+	if (target.classname == "spectator")
+		return false;
+
+	ncPlayer pl = (ncPlayer)target;
+
+	if (!pl.IsPlayer())
+		return false;
+
+	if (pl.IsFakeSpectator() || pl.IsRealSpectator())
+		return false;
+
+	if (!pl.modelindex)
+		return false;
+
+#ifdef CLIENT
+	/* CSQC remote players often lack classname/team/health until late in the
+	   replication stream; trust modelindex + userinfo for other slots. */
+	int slot = (int)(target.entnum - 1);
+
+	if (getplayerkeyfloat(slot, "*spec"))
+		return false;
+
+	if (getplayerkeyfloat(slot, "*spectator"))
+		return false;
+
+	if ((int)getplayerkeyfloat(slot, "*team") == TEAM_SPECTATOR)
+		return false;
+
+	/* health can be stale 0 on freshly replicated ents; userinfo *dead
+	   is authoritative for whether the slot is a corpse */
+	if (pl.health <= 0 && getplayerkeyfloat(slot, "*dead"))
+		return false;
+#else
+	if (pl.IsDead())
+		return false;
+
+	if (pl.team == TEAM_SPECTATOR)
+		return false;
+#endif
+
+	return true;
+}
+
+bool
+Spectator_HasChaseTargetEntity(entity spec, entity target)
+{
+	ncSpectator sp = (ncSpectator)spec;
+
+	if (!sp || !target || !sp.m_spectatingEntity)
+		return false;
+
+#ifdef SERVER
+	if (num_for_edict(target) != sp.m_spectatingEntity)
+		return false;
+#else
+	if (target.entnum != sp.m_spectatingEntity)
+		return false;
+#endif
+
+	return Spectator_TargetIsPlayablePlayer(target);
+}
+
+bool
+Spectator_IsValidChaseTarget(entity spectator, entity target)
+{
+	if (!target || !spectator)
+		return false;
+
+	/* never chase our own client slot */
+	if (target == spectator)
+		return false;
+
+	if (num_for_edict(target) == num_for_edict(spectator))
+		return false;
+
+#ifdef CLIENT
+	if (target.entnum == spectator.entnum)
+		return false;
+#endif
+
+#ifdef SERVER
+	if (clienttype(target) != CLIENTTYPE_REAL
+		&& clienttype(target) != CLIENTTYPE_BOT) {
+		return false;
+	}
+#else
+	int slot = (int)(target.entnum - 1);
+
+	if (!STRING_SET(getplayerkeyvalue(slot, "name")))
+		return false;
+
+	/* no CSQC entity yet — fall back to userinfo only */
+	if (!target._isPlayer) {
+		if (getplayerkeyfloat(slot, "*spec"))
+			return false;
+
+		if (getplayerkeyfloat(slot, "*spectator"))
+			return false;
+
+		if ((int)getplayerkeyfloat(slot, "*team") == TEAM_SPECTATOR)
+			return false;
+
+		return false;
+	}
+#endif
+
+	return Spectator_TargetIsPlayablePlayer(target);
+}
+
+bool
+ncSpectator::IsValidChaseTarget(entity target)
+{
+	return Spectator_IsValidChaseTarget(this, target);
 }
 
 void
 ncSpectator::SharedInputFrame(void)
 {
+	/* Overview spectator cameras stay in the codebase (ncRadar, View.qc) but
+	   are not used during play — remap if anything still selects them. */
+	if (m_spectatingMode == SPECMODE_FREEOVERVIEW)
+		m_spectatingMode = SPECMODE_FREE;
+	else if (m_spectatingMode == SPECMODE_CHASEOVERVIEW)
+		m_spectatingMode = SPECMODE_LOCKEDCHASE;
+
 	SetSize(g_vec_null, g_vec_null);
 
 	if (m_spectatingMode == SPECMODE_FREE || m_spectatingMode == SPECMODE_FREEOVERVIEW) {
@@ -213,8 +376,8 @@ ncSpectator::ReceiveEntity(float new, float flChanged)
 		 * right after anyway. */
 		/* FIXME: splitscreen */
 		if (entnum == player_localentnum) {
-			/* FIXME: splitscreen */
-			pSeat = &g_seats[0];
+			CSQC_UpdateSeat();
+			pSeat = &g_seats[(int)getproperty(VF_ACTIVESEAT)];
 
 			for (int i = sequence+1; i <= servercommandframe; i++) {
 				/* ...maybe the input state is too old? */
@@ -248,6 +411,11 @@ ncSpectator::ReceiveEntity(float new, float flChanged)
 	READENTITY_BYTE(movetype, SPECFL_TYPE)
 	READENTITY_BYTE(solid, SPECFL_TYPE)
 
+	if (m_spectatingMode == SPECMODE_FREEOVERVIEW)
+		m_spectatingMode = SPECMODE_FREE;
+	else if (m_spectatingMode == SPECMODE_CHASEOVERVIEW)
+		m_spectatingMode = SPECMODE_LOCKEDCHASE;
+
 	if (flChanged & SPECFL_TARGET) {
 		m_flLastSpecTargetChange = time;
 	}
@@ -267,26 +435,11 @@ ncSpectator::InputNext(void)
 	if (m_flDeathCam > time)
 		return;
 
-	if (m_spectatingFlags & SPECFLAG_BUTTON_RELEASED) {
+	if (m_spectatingFlags & SPECFLAG_TARGET_RELEASED) {
 		return;
 	}
 
-	/* don't allow switching players in free mode, as we're not tracking anything */
-	if (m_spectatingMode == SPECMODE_FREE || m_spectatingMode == SPECMODE_FREEOVERVIEW) {
-		return;
-	}
-
-	if (m_spectatingMode == SPECMODE_DEATHCAM && m_flDeathCam < time) {
-		m_spectatingMode = SPECMODE_THIRDPERSON;
-		InputNext();
-		return;
-	} else if (m_spectatingMode == SPECMODE_FREE) {
-		m_spectatingMode = SPECMODE_THIRDPERSON;
-	} else if (m_spectatingMode == SPECMODE_FREEOVERVIEW) {
-		m_spectatingMode = SPECMODE_CHASEOVERVIEW;
-	}
-
-	m_spectatingFlags |= SPECFLAG_BUTTON_RELEASED;
+	m_spectatingFlags |= SPECFLAG_TARGET_RELEASED;
 
 #if 0
 	float max_edict;
@@ -303,30 +456,33 @@ ncSpectator::InputNext(void)
 	float max_edict;
 	float sep = m_spectatingEntity;
 	float best = 0;
-	ncClient cl;
+	bool engageChase = (m_spectatingMode == SPECMODE_FREE
+		|| m_spectatingMode == SPECMODE_FREEOVERVIEW
+		|| (m_spectatingMode == SPECMODE_DEATHCAM && m_flDeathCam < time));
 
 	max_edict = serverkeyfloat("sv_playerslots");
+
+	if (sep) {
+		entity cur = Spectator_EntityForPlayerSlot(sep);
+
+		if (!IsValidChaseTarget(cur))
+			sep = 0;
+	}
 
 	for (float i = 1; i <= max_edict; i++) {
 		entity f;
 
 		if (i <= sep && best == 0) {
-			f = edict_num(i);
-			if (f && f._isPlayer && f != this) {
-				cl = (ncClient)f;
-				if (!cl.IsFakeSpectator())
-					best = i;
-			}
+			f = Spectator_EntityForPlayerSlot(i);
+			if (IsValidChaseTarget(f))
+				best = i;
 		}
 
 		if (i > sep) {
-			f = edict_num(i);
-			if (f && f._isPlayer && f != this) {
-				cl = (ncClient)f;
-				if (!cl.IsFakeSpectator()) {
-					best = i;
-					break;
-				}
+			f = Spectator_EntityForPlayerSlot(i);
+			if (IsValidChaseTarget(f)) {
+				best = i;
+				break;
 			}
 		}
 	}
@@ -335,6 +491,15 @@ ncSpectator::InputNext(void)
 		return;
 
 	m_spectatingEntity = best;
+
+	if (engageChase) {
+		if (m_spectatingMode == SPECMODE_FREEOVERVIEW)
+			m_spectatingMode = SPECMODE_CHASEOVERVIEW;
+		else if (m_spectatingMode == SPECMODE_DEATHCAM && m_flDeathCam < time)
+			m_spectatingMode = SPECMODE_THIRDPERSON;
+		else if (m_spectatingMode == SPECMODE_FREE)
+			m_spectatingMode = SPECMODE_THIRDPERSON;
+	}
 #endif
 
 	WarpToTarget();
@@ -349,21 +514,11 @@ ncSpectator::InputPrevious(void)
 	if (m_flDeathCam > time)
 		return;
 
-	if (m_spectatingFlags & SPECFLAG_BUTTON_RELEASED) {
+	if (m_spectatingFlags & SPECFLAG_TARGET_RELEASED) {
 		return;
 	}
 
-	if (m_spectatingMode == SPECMODE_DEATHCAM && m_flDeathCam < time) {
-		m_spectatingMode = SPECMODE_THIRDPERSON;
-		InputNext();
-		return;
-	} else if (m_spectatingMode == SPECMODE_FREE) {
-		m_spectatingMode = SPECMODE_THIRDPERSON;
-	} else if (m_spectatingMode == SPECMODE_FREEOVERVIEW) {
-		m_spectatingMode = SPECMODE_CHASEOVERVIEW;
-	}
-
-	m_spectatingFlags |= SPECFLAG_BUTTON_RELEASED;
+	m_spectatingFlags |= SPECFLAG_TARGET_RELEASED;
 
 #if 0
 	float max_edict;
@@ -378,34 +533,36 @@ ncSpectator::InputPrevious(void)
 	float max_edict;
 	float sep = m_spectatingEntity;
 	float best = 0;
-	ncClient cl;
+	bool engageChase = (m_spectatingMode == SPECMODE_FREE
+		|| m_spectatingMode == SPECMODE_FREEOVERVIEW
+		|| (m_spectatingMode == SPECMODE_DEATHCAM && m_flDeathCam < time));
 
 	max_edict = serverkeyfloat("sv_playerslots");
+
+	if (sep) {
+		entity cur = Spectator_EntityForPlayerSlot(sep);
+
+		if (!IsValidChaseTarget(cur))
+			sep = 0;
+	}
 
 	for (float i = max_edict; i > 0; i--) {
 		entity f;
 
 		/* remember the first valid one here */
 		if (i >= sep && best == 0) {
-			f = edict_num(i);
+			f = Spectator_EntityForPlayerSlot(i);
 
-			if (f && f._isPlayer) {
-				cl = (ncClient)f;
-
-				if (!cl.IsFakeSpectator())
-					best = i;
-			}
+			if (IsValidChaseTarget(f))
+				best = i;
 		}
 
 		/* find the first good one and take it */
 		if (i < sep) {
-			f = edict_num(i);
-			if (f && f._isPlayer) {
-				cl = (ncClient)f;
-				if (!cl.IsFakeSpectator()) {
-					best = i;
-					break;
-				}
+			f = Spectator_EntityForPlayerSlot(i);
+			if (IsValidChaseTarget(f)) {
+				best = i;
+				break;
 			}
 		}
 	}
@@ -414,13 +571,23 @@ ncSpectator::InputPrevious(void)
 		return;
 
 	m_spectatingEntity = best;
+
+	if (engageChase) {
+		if (m_spectatingMode == SPECMODE_FREEOVERVIEW)
+			m_spectatingMode = SPECMODE_CHASEOVERVIEW;
+		else if (m_spectatingMode == SPECMODE_DEATHCAM && m_flDeathCam < time)
+			m_spectatingMode = SPECMODE_THIRDPERSON;
+		else if (m_spectatingMode == SPECMODE_FREE)
+			m_spectatingMode = SPECMODE_THIRDPERSON;
+	}
 #endif
 
 
 	WarpToTarget();
 
-	if (m_spectatingMode == SPECMODE_LOCKEDCHASE)
-		m_spectatingMode = SPECMODE_CHASEOVERVIEW;
+	/* overview entry disabled: stay in the locked chase camera instead of
+	   snapping to the map overview. The overview rendering path is left
+	   intact, it just isn't reachable from spectator input anymore. */
 }
 
 void
@@ -428,15 +595,14 @@ ncSpectator::InputMode(void)
 {
 	if (m_spectatingMode == SPECMODE_DEATHCAM && m_flDeathCam < time) {
 		m_spectatingMode = SPECMODE_THIRDPERSON;
-		InputNext();
 		return;
 	}
 
-	if (m_spectatingFlags & SPECFLAG_BUTTON_RELEASED) {
+	if (m_spectatingFlags & SPECFLAG_MODE_RELEASED) {
 		return;
 	}
 
-	m_spectatingFlags |= SPECFLAG_BUTTON_RELEASED;
+	m_spectatingFlags |= SPECFLAG_MODE_RELEASED;
 
 	ncClient f;
 #ifdef CLIENT
@@ -445,16 +611,54 @@ ncSpectator::InputMode(void)
 	f = (ncClient)edict_num(m_spectatingEntity);
 #endif
 
-	if (f == this || !(f._isPlayer)) {
-		if (m_spectatingMode != SPECMODE_FREE)
-			m_spectatingMode = SPECMODE_FREE;
-		else
-			m_spectatingMode = SPECMODE_FREEOVERVIEW;
+	if (!f || !IsValidChaseTarget(f)) {
+		/* no valid target: stay in free-fly. Overview modes are
+		   intentionally skipped here (the rendering path still
+		   exists, we just never select it from input). */
+		m_spectatingMode = SPECMODE_FREE;
 	} else {
 		m_spectatingMode++;
 
-		if (m_spectatingMode > SPECMODE_CHASEOVERVIEW)
+		/* skip the overview modes when cycling chase cameras, wrapping
+		   back to the first chase mode instead of entering FREEOVERVIEW. */
+		if (m_spectatingMode >= SPECMODE_FREEOVERVIEW)
 			m_spectatingMode = SPECMODE_LOCKEDCHASE;
+	}
+}
+
+void
+ncSpectator::InputModePrevious(void)
+{
+	if (m_spectatingMode == SPECMODE_DEATHCAM && m_flDeathCam < time) {
+		m_spectatingMode = SPECMODE_THIRDPERSON;
+		return;
+	}
+
+	if (m_spectatingFlags & SPECFLAG_MODE_RELEASED) {
+		return;
+	}
+
+	m_spectatingFlags |= SPECFLAG_MODE_RELEASED;
+
+	ncClient f;
+#ifdef CLIENT
+	f = (ncClient)findfloat(world, ::entnum, m_spectatingEntity);
+#else
+	f = (ncClient)edict_num(m_spectatingEntity);
+#endif
+
+	if (!f || !IsValidChaseTarget(f)) {
+		m_spectatingMode = SPECMODE_FREE;
+	} else {
+		m_spectatingMode--;
+
+		/* wrap backward through the chase modes, skipping overview/deathcam */
+		if (m_spectatingMode < SPECMODE_LOCKEDCHASE
+			|| m_spectatingMode == SPECMODE_DEATHCAM
+			|| m_spectatingMode == SPECMODE_FREEOVERVIEW
+			|| m_spectatingMode == SPECMODE_CHASEOVERVIEW) {
+			m_spectatingMode = SPECMODE_FIRSTPERSON;
+		}
 	}
 }
 
@@ -514,11 +718,14 @@ ncSpectator::SpectatorTrackPlayer(void)
 		b = (ncClient)edict_num(m_spectatingEntity);
 	#endif
 
-		if (b && is.Player(b))
-		if (b.IsFakeSpectator()) {
+		if (m_spectatingMode != SPECMODE_DEATHCAM
+			&& (!b || !IsValidChaseTarget(b))) {
 			b = 0;
+#ifdef SERVER
+			/* server is authoritative — drop invalid chase targets */
+			m_spectatingEntity = 0;
 			m_spectatingMode = SPECMODE_FREE;
-			InputNext();
+#endif
 		}
 
 		/* if the ent is dead... or not available in this current frame

@@ -1,0 +1,45 @@
+default
+{
+	castShadows 1
+	receiveShadows 1
+	sampleSize 16
+	ambientColor ( 0.000000 0.000000 0.000000 )
+	longestCurve 0.000000
+}
+
+0 // ESurfaceType::Meta V: 4 I: 6 planar
+{
+	shader textures/dev_128_or_032x
+	lightmapAxis ( 0.000000 0.000000 1.000000 )
+}
+
+1 // ESurfaceType::Meta V: 4 I: 6 planar
+{
+	shader textures/dev_128_gr_064x
+	lightmapAxis ( 0.000000 1.000000 0.000000 )
+}
+
+2 // ESurfaceType::Meta V: 4 I: 6 planar
+{
+	shader textures/dev_128_gr_064x
+	lightmapAxis ( 1.000000 0.000000 0.000000 )
+}
+
+3 // ESurfaceType::Meta V: 4 I: 6 planar
+{
+	shader textures/dev_128_gr_064x
+	lightmapAxis ( -0.000000 -0.000000 -1.000000 )
+}
+
+4 // ESurfaceType::Meta V: 4 I: 6 planar
+{
+	shader textures/dev_128_gr_064x
+	lightmapAxis ( -0.000000 -1.000000 -0.000000 )
+}
+
+5 // ESurfaceType::Meta V: 4 I: 6 planar
+{
+	shader textures/dev_128_gr_064x
+	lightmapAxis ( -1.000000 -0.000000 -0.000000 )
+}
+

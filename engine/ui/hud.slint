@@ -1,0 +1,377 @@
+// Stiletto in-game HUD — ported from Figma node 20:159
+//   "ss_player_collier HUD (final look)"  (file TwV4BjYuoh7tbV28O6NP2I)
+// Functional reference: Godot scene ss_player_collier.tscn -> HUD/Control
+//   (see godot_hud_report.md for the per-element data sources).
+//
+// Only the *visible* Figma elements are ported; hidden layers (region guides,
+// killCounter, placeholder rings, playerRank, bounding boxes, the DriveGaugeHUD
+// slot) are intentionally omitted.
+//
+// Reference canvas = the Figma HUD frame: 1440 x 1080 (true 4:3). The engine
+// (cl_slint_hud.c) sets viewport-w / viewport-h to the on-screen letterboxed
+// 4:3 HUD rect each frame, so every coordinate below reflows proportionally —
+// matching the responsive pattern used by title_menu.slint.
+//
+// Element names mirror the Figma node names so the mapping to gameplay data
+// stays obvious:
+//   objectiveHud  scoreLeft/scoreRight   playerNameplateLeft/Right
+//   exgaugeMini   driveGaugeMini         timer        timeIndicator
+//   ammoCounter   abilityCharges         reloadTimer  hpVector/hpLow/hpDead
+//   speedometer   exGauge (ex-level/MAX) driveGauge   exIndicator   hudring
+
+// A single ammo / ability charge pip (filled vs depleted).
+// Godot: ammo_indicator_v2.gd / charge_indicatorv2.gd toggle pip alpha.
+component Pip inherits Image {
+    in property <length> px;
+    in property <length> py;
+    in property <length> sz;
+    in property <bool> filled: true;
+
+    x: root.px;
+    y: root.py;
+    width: root.sz;
+    height: root.sz;
+    source: @image-url("assets/hud/pip.png");
+    image-fit: contain;
+    // empty_alpha (0.19) vs full_alpha (1.0) from the Godot indicators.
+    opacity: root.filled ? 1.0 : 0.19;
+}
+
+// One dash of the per-player mini drive gauge (driveGaugeMini in Figma).
+component DrivePip inherits Rectangle {
+    in property <length> px;
+    in property <length> py;
+    in property <length> pw;
+    in property <length> ph;
+
+    x: root.px;
+    y: root.py;
+    width: root.pw;
+    height: root.ph;
+    border-radius: root.ph / 2;
+    background: #d9d9d9;
+    border-width: 2px;
+    border-color: #000000;
+}
+
+export component GameHud inherits Window {
+    // ── Layout viewport (px) — pushed from C each frame (UI_Slint_SetViewport).
+    in-out property <int> viewport-w: 1440;
+    in-out property <int> viewport-h: 1080;
+
+    // ── Live data (pushed from cl_slint_hud.c / SlintHud_SyncProperties).
+    in-out property <int> health: 100;          // Body/PlayerState/Health
+    in-out property <int> ammo: 6;              // revolver_projectile.ammo_in_clip (max 6)
+    in-out property <int> ability-charges: 3;   // HookController.current_charges (max 3)
+    in-out property <int> score-left: 2;        // DuelGameMode local score
+    in-out property <int> score-right: 5;       // DuelGameMode opponent score
+    in-out property <string> player1-name: "Player1";
+    in-out property <string> player2-name: "Player2";
+    in-out property <string> timer-text: "10:00";   // DuelGameMode round clock (MM:SS)
+    in-out property <string> reload-text: "0.0";     // NetworkedWeaponManager reload secs
+    in-out property <string> ex-level: "3";          // DriveGauge.current_bars
+    in-out property <string> speedometer: "000";     // int(h_velocity * 39.37) ups
+
+    // Figma reference dimensions (kept as ints for ratio math).
+    private property <int> ref-w: 1440;
+    private property <int> ref-h: 1080;
+
+    // HP state — Godot hp.gd: dead <= 0, "low" at minimum HP, else full.
+    private property <bool> hp-dead: root.health <= 0;
+    private property <bool> hp-low: root.health > 0 && root.health <= 25;
+    private property <bool> hp-full: root.health > 25;
+
+    pure function sx(v: float) -> length {
+        return root.viewport-w * v / root.ref-w * 1px;
+    }
+    pure function sy(v: float) -> length {
+        return root.viewport-h * v / root.ref-h * 1px;
+    }
+
+    width: root.viewport-w * 1px;
+    height: root.viewport-h * 1px;
+    no-frame: true;
+    background: transparent;
+
+    // ════════════════════════════════════════════════════════════════════
+    //  DECO — hud ring + bottom gauges  (Figma "Deco — huddeco rings + bcenter")
+    // ════════════════════════════════════════════════════════════════════
+    // hudring — full-height circle (export clipped to the 1080 viewport).
+    Image {
+        x: root.sx(67);
+        y: root.sy(0);
+        width: root.sx(1324);
+        height: root.sy(1080);
+        source: @image-url("assets/hud/hudring.png");
+        image-fit: fill;
+    }
+
+    // hudDecoBottom — bottom-left / bottom-right curves + center dashes.
+    Image {
+        x: root.sx(233);
+        y: root.sy(727);
+        width: root.sx(974);
+        height: root.sy(289);
+        source: @image-url("assets/hud/hud_deco_bottom.png");
+        image-fit: fill;
+    }
+
+    // exGauge base shape (olive) then the active driveGauge (green DRIVE meter)
+    // drawn over it — Godot DriveGauge / drive_gauge_hud.gd.
+    Image {
+        x: root.sx(228.39);
+        y: root.sy(780.37);
+        width: root.sx(326);
+        height: root.sy(175);
+        source: @image-url("assets/hud/ex_gauge.png");
+        image-fit: fill;
+    }
+    Image {
+        x: root.sx(228.39);
+        y: root.sy(780.37);
+        width: root.sx(326);
+        height: root.sy(175);
+        source: @image-url("assets/hud/drive_gauge.png");
+        image-fit: fill;
+    }
+
+    // exGauge level number + MAX label (DriveGauge.current_bars / "MAX").
+    Text {
+        x: root.sx(230);
+        y: root.sy(820);
+        width: root.sx(120);
+        height: root.sy(110);
+        text: root.ex-level;
+        color: #ffffff;
+        font-size: root.sy(96);
+        font-weight: 900;
+        horizontal-alignment: left;
+        vertical-alignment: top;
+    }
+    Text {
+        x: root.sx(260);
+        y: root.sy(905);
+        width: root.sx(90);
+        height: root.sy(44);
+        text: "MAX";
+        color: #ffffff;
+        font-size: root.sy(36);
+        font-weight: 900;
+        horizontal-alignment: left;
+        vertical-alignment: top;
+    }
+
+    // exIndicator — the "EX" tag to the right of the gauge.
+    Image {
+        x: root.sx(558);
+        y: root.sy(896);
+        width: root.sx(86);
+        height: root.sy(33);
+        source: @image-url("assets/hud/ex_indicator.png");
+        image-fit: contain;
+    }
+
+    // ════════════════════════════════════════════════════════════════════
+    //  OBJECTIVE HUD — top-center scoreboard  (Figma "objectiveHud")
+    // ════════════════════════════════════════════════════════════════════
+    // timeIndicator — trapezoid behind the round clock.
+    Image {
+        x: root.sx(601);
+        y: root.sy(39);
+        width: root.sx(237);
+        height: root.sy(152);
+        source: @image-url("assets/hud/time_indicator.png");
+        image-fit: fill;
+    }
+
+    // scoreLeft — local round-win count.
+    Text {
+        x: root.sx(407);
+        y: root.sy(57.64);
+        width: root.sx(50);
+        height: root.sy(115);
+        text: root.score-left;
+        color: #c7c7c7;
+        font-size: root.sy(96);
+        font-weight: 900;
+        horizontal-alignment: right;
+        vertical-alignment: center;
+    }
+
+    // playerNameplateLeft — red plate (blue gradient + red color overlay).
+    Rectangle {
+        x: root.sx(471.67);
+        y: root.sy(93.14);
+        width: root.sx(202);
+        height: root.sy(44);
+        background: @linear-gradient(180deg, #3698e2f2, #14568ff2);
+        Rectangle {
+            width: 100%;
+            height: 100%;
+            background: #f88282;
+            opacity: 0.85;
+        }
+    }
+    Text {
+        x: root.sx(487.67);
+        y: root.sy(105.14);
+        text: root.player1-name;
+        color: #ffffff;
+        font-size: root.sy(18.72);
+        font-weight: 700;
+        horizontal-alignment: left;
+    }
+    // exgaugeMini (3 ability pips) — opponent/self ability charges (cosmetic).
+    Pip { px: root.sx(592.99); py: root.sy(143.64); sz: root.sx(26); }
+    Pip { px: root.sx(621);    py: root.sy(143.64); sz: root.sx(26); }
+    Pip { px: root.sx(648);    py: root.sy(143.64); sz: root.sx(26); }
+    // driveGaugeMini (5 dashes).
+    DrivePip { px: root.sx(480);    py: root.sy(147.64); pw: root.sx(34); ph: root.sy(8); }
+    DrivePip { px: root.sx(520);    py: root.sy(147.64); pw: root.sx(34); ph: root.sy(8); }
+    DrivePip { px: root.sx(560);    py: root.sy(147.64); pw: root.sx(34); ph: root.sy(8); }
+    DrivePip { px: root.sx(600);    py: root.sy(147.64); pw: root.sx(34); ph: root.sy(8); }
+    DrivePip { px: root.sx(640);    py: root.sy(147.64); pw: root.sx(34); ph: root.sy(8); }
+
+    // timer — round clock.
+    Text {
+        x: root.sx(688.33);
+        y: root.sy(101.64);
+        width: root.sx(80);
+        height: root.sy(40);
+        text: root.timer-text;
+        color: #ffffff;
+        font-size: root.sy(32);
+        font-weight: 700;
+        horizontal-alignment: center;
+        vertical-alignment: center;
+    }
+
+    // playerNameplateRight — blue plate.
+    Rectangle {
+        x: root.sx(772);
+        y: root.sy(93.14);
+        width: root.sx(203);
+        height: root.sy(44);
+        background: @linear-gradient(180deg, #3698e2f2, #14568ff2);
+    }
+    Text {
+        x: root.sx(772);
+        y: root.sy(105.14);
+        width: root.sx(188);
+        text: root.player2-name;
+        color: #ffffff;
+        font-size: root.sy(18.72);
+        font-weight: 700;
+        horizontal-alignment: right;
+    }
+    Pip { px: root.sx(772);  py: root.sy(143.64); sz: root.sx(26); }
+    Pip { px: root.sx(800);  py: root.sy(143.64); sz: root.sx(26); }
+    Pip { px: root.sx(827);  py: root.sy(143.64); sz: root.sx(26); }
+    DrivePip { px: root.sx(775);  py: root.sy(147.64); pw: root.sx(34); ph: root.sy(8); }
+    DrivePip { px: root.sx(815);  py: root.sy(147.64); pw: root.sx(34); ph: root.sy(8); }
+    DrivePip { px: root.sx(855);  py: root.sy(147.64); pw: root.sx(34); ph: root.sy(8); }
+    DrivePip { px: root.sx(895);  py: root.sy(147.64); pw: root.sx(34); ph: root.sy(8); }
+    DrivePip { px: root.sx(935);  py: root.sy(147.64); pw: root.sx(34); ph: root.sy(8); }
+
+    // scoreRight — opponent round-win count.
+    Text {
+        x: root.sx(989.67);
+        y: root.sy(66.64);
+        width: root.sx(50);
+        height: root.sy(97);
+        text: root.score-right;
+        color: #c7c7c7;
+        font-size: root.sy(96);
+        font-weight: 900;
+        horizontal-alignment: left;
+        vertical-alignment: center;
+    }
+
+    // ════════════════════════════════════════════════════════════════════
+    //  CENTER CLUSTER — crosshair / ammo / HP  (Figma "Cluster — Center")
+    // ════════════════════════════════════════════════════════════════════
+    // quickInfoDeco — static art framing the ammo cluster.
+    Image {
+        x: root.sx(666);
+        y: root.sy(511);
+        width: root.sx(108);
+        height: root.sy(96);
+        source: @image-url("assets/hud/quick_info_deco.png");
+        image-fit: contain;
+    }
+
+    // ammoCounter — 6 pips arcing up-right (filled = rounds remaining).
+    Pip { px: root.sx(737.28); py: root.sy(583.94); sz: root.sx(28.72); filled: root.ammo > 0; }
+    Pip { px: root.sx(757.16); py: root.sy(574.09); sz: root.sx(28.72); filled: root.ammo > 1; }
+    Pip { px: root.sx(740.07); py: root.sy(563.59); sz: root.sx(28.72); filled: root.ammo > 2; }
+    Pip { px: root.sx(758.75); py: root.sy(552.12); sz: root.sx(28.72); filled: root.ammo > 3; }
+    Pip { px: root.sx(778.63); py: root.sy(542.07); sz: root.sx(28.72); filled: root.ammo > 4; }
+    Pip { px: root.sx(761.35); py: root.sy(531.76); sz: root.sx(28.72); filled: root.ammo > 5; }
+
+    // abilityCharges — 3 grapple-hook charge pips (filled = charges ready).
+    Pip { px: root.sx(681.63); py: root.sy(566.63); sz: root.sx(17.37); filled: root.ability-charges > 0; }
+    Pip { px: root.sx(667.69); py: root.sy(555.32); sz: root.sx(17.37); filled: root.ability-charges > 1; }
+    Pip { px: root.sx(666);    py: root.sy(540);    sz: root.sx(17.37); filled: root.ability-charges > 2; }
+
+    // reloadTimer — seconds until reload completes.
+    Text {
+        x: root.sx(791);
+        y: root.sy(582);
+        width: root.sx(60);
+        height: root.sy(30);
+        text: root.reload-text;
+        color: #e5e5eb;
+        font-size: root.sy(20);
+        font-weight: 700;
+        horizontal-alignment: left;
+        vertical-alignment: center;
+    }
+
+    // hpVector / hpLowVector / hpDeadVector — one shown per health state.
+    Image {
+        x: root.sx(707);
+        y: root.sy(588);
+        width: root.sx(26);
+        height: root.sy(26);
+        source: @image-url("assets/hud/hp_vector.png");
+        image-fit: contain;
+        colorize: #bcd2ff;
+        visible: root.hp-full;
+    }
+    Image {
+        x: root.sx(706);
+        y: root.sy(586);
+        width: root.sx(28);
+        height: root.sy(28);
+        source: @image-url("assets/hud/hp_low_vector.png");
+        image-fit: contain;
+        colorize: #ff5a5a;
+        visible: root.hp-low;
+    }
+    Image {
+        x: root.sx(694.62);
+        y: root.sy(575.14);
+        width: root.sx(50.87);
+        height: root.sy(50.87);
+        source: @image-url("assets/hud/hp_dead_vector.png");
+        image-fit: contain;
+        colorize: #8a8a8a;
+        visible: root.hp-dead;
+    }
+
+    // ════════════════════════════════════════════════════════════════════
+    //  speedometer — bottom-center movement speed (ups)
+    // ════════════════════════════════════════════════════════════════════
+    Text {
+        x: root.sx(681);
+        y: root.sy(868);
+        width: root.sx(78);
+        height: root.sy(41);
+        text: root.speedometer;
+        color: #d9e0e5;
+        font-size: root.sy(32);
+        font-weight: 500;
+        horizontal-alignment: center;
+        vertical-alignment: center;
+    }
+}

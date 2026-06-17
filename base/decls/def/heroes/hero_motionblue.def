@@ -1,0 +1,15 @@
+// Motionblue -- explosive slug launcher (mobility via blast jumps).
+// Roster baseline: 4 HP, shared movement + speeds.
+// Placeholder model (yuri2) + inherited alice2-family animations.
+entityDef hero_motionblue
+{
+	"inherit"				"hero_base"
+
+	"model"					"models/player/yuri2/yuri2.mdl"
+
+	"health"				"4"
+	"max_health"			"4"
+
+	"weapon"				"weapon_motionblue_slug"
+	"current_weapon"		"0"
+}

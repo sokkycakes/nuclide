@@ -562,8 +562,12 @@ HUD_Draw(void)
 	HLHUD_ClampTimers();
 }
 
+/* Framework chrome (watching bar, top bar, timer/score, key hints,
+   observer crosshair) is drawn by src/client/hud.qc before this runs.
+   This is the game-specific extension point; derive the letterboxed rect
+   via screen.HUDMins()/screen.HUDSize() if adding extras here. */
 void
-HUD_DrawSpectator(vector hud_mins, vector hud_size)
+HUD_DrawSpectator(void)
 {
 
 }

@@ -1,0 +1,830 @@
+// Pregame Lobby ? 1:1 port of Figma node 19:88 "16:9 v2" (1280 ? 720)
+// https://www.figma.com/design/zPN8CD2bkg3IHbvJsTcNfA/?node-id=19-88
+//
+// Every coordinate, size, color and gradient stop is taken verbatim from the
+// Figma SVG export (lobby_draft.svg). Element order matches the export's
+// paint order, and grouping/names match the Figma layer tree (node ids in
+// comments).
+//
+// Platform notes (no visual liberties taken ? these are baked equivalents):
+//  - Elliptical/positioned radial gradients and tiled pattern fills are not
+//    expressible in Slint, so they are baked into exact SVG assets
+//    (lobby_bg.svg, mappreview_overlay.svg, stripes_*.svg) whose contents are
+//    copied verbatim from the Figma export.
+//  - Figma blend modes have no Slint equivalent; the composited result colors
+//    were computed per the blend math and hard-coded:
+//      * "color" blend  #B0D78C over blue plate  -> #70974C ? #355C11
+//      * "color" blend  #910000 over blue plate  -> #E95757 ? #AE1D1D
+//      * "color-burn" score digits on #D9D9D9    -> #ABABAB ? #D6D6D6
+//      * "color-burn" score digits on plates     -> translucent black gradient
+//  - Fonts as in Figma: "Trade Gothic Next LT Pro BdCn",
+//    "TradeGothicLTW04-BdCnNo.20", "Helvetica Extended BQ", "Iosevka" (Heavy),
+//    "04b24" (pixel score font). Fallbacks apply if not installed.
+//
+// Responsive: viewport-w / viewport-h are set from C each frame; everything
+// scales proportionally from the 1280?720 reference, like title_menu.slint.
+
+// keyStripe ? nodes 19:347 / 19:136 (#5B5B5B + 20% #666?#000 overlay,
+// 2px #AFAFAF top/bottom edges)
+component KeyStripeBG inherits Rectangle {
+    in property <length> edge;
+
+    background: #5B5B5B;
+
+    Rectangle {
+        x: 0;
+        y: 0;
+        width: parent.width;
+        height: parent.height;
+        background: @linear-gradient(180deg, #53535333 0%, #00000033 100%);
+    }
+
+    Rectangle {
+        x: 0;
+        y: 0;
+        width: parent.width;
+        height: root.edge;
+        background: #AFAFAF;
+    }
+
+    Rectangle {
+        x: 0;
+        y: parent.height - root.edge;
+        width: parent.width;
+        height: root.edge;
+        background: #AFAFAF;
+    }
+}
+
+export component LobbyPanel inherits Window {
+    callback start-game();
+    callback back();
+    callback toggle-ready();
+
+    // Session state bound from FTEQW (m_slint_lobby.c)
+    in-out property <string> host-name: "Player 1";
+    in-out property <string> map-name: "MAPNAME";
+    in-out property <string> ruleset: "DUEL";
+    in-out property <string> server-type: "LISTEN SERVER";
+    in-out property <string> room-code: "----";
+    in-out property <string> status-text: "Waiting for host to start game...";
+    in-out property <string> ready-label: "Ready";
+    in-out property <string> player1-name: "Player1";
+    in-out property <string> player2-name: "Player2";
+    in-out property <string> player3-name: "Player3";
+    in-out property <string> player4-name: "Player4";
+    in-out property <int> player-count: 1;
+    in-out property <int> max-players: 16;
+    in-out property <int> is-host: 1;
+
+    // Focused row (0=Ruleset 1=Map 2=ServerType 3=Start 4=Ready), driven by
+    // m_slint_menu.c (keyboard/controller) and the per-row TouchAreas (mouse).
+    in-out property <int> selected-index: 0;
+
+    // Set from FTEQW each frame to match vid.width / vid.height
+    in-out property <int> viewport-w: 1280;
+    in-out property <int> viewport-h: 720;
+
+    // Figma reference dimensions
+    private property <int> ref-w: 1280;
+    private property <int> ref-h: 720;
+
+    pure function sx(v: float) -> length {
+        return v * root.viewport-w * 1px / root.ref-w;
+    }
+    pure function sy(v: float) -> length {
+        return v * root.viewport-h * 1px / root.ref-h;
+    }
+
+    // Root-space Y of a focusable row. Used by BOTH the highlight bar and the
+    // mouse hit-areas so they can never drift apart.
+    // Rows: 0=LOBBY OPTIONS 1=RULESET 2=MAP 3=SERVER TYPE 4=START GAME.
+    pure function row-y(i: int) -> length {
+        return i == 1 ? root.sy(277.0)
+             : i == 2 ? root.sy(309.2)
+             : i == 3 ? root.sy(340.3)
+             : i == 4 ? root.sy(384.1)
+             : root.sy(245.8);
+    }
+    pure function focus-y() -> length {
+        return root.row-y(root.selected-index);
+    }
+
+    width: root.viewport-w * 1px;
+    height: root.viewport-h * 1px;
+    no-frame: true;
+    background: #5C5C5C;
+
+    // ?? bg ? node 19:375 (vertical #5C5C5C?#C2C2C2 + 41% elliptical radial) ??
+    Image {
+        x: 0;
+        y: 0;
+        width: root.sx(1280);
+        height: root.sy(720);
+        source: @image-url("../assets/lobby_bg.svg");
+        image-fit: fill;
+    }
+
+    // ?? lobbypanelbg ? node 19:290 ??
+    Rectangle {
+        x: root.sx(0);
+        y: root.sy(54);
+        width: root.sx(650);
+        height: root.sy(666);
+        background: @linear-gradient(180deg, #272727C9 0%, #494949C9 89.9%);
+    }
+
+    // ?? keyStripe ? node 19:347 (full 650px stripe, behind the panel one) ??
+    KeyStripeBG {
+        x: root.sx(0);
+        y: root.sy(589);
+        width: root.sx(650);
+        height: root.sy(46.4);
+        edge: max(1px, root.sy(2));
+    }
+
+    // ?? focus ? node 19:382 ("LOBBY OPTIONS" selection bar) ??
+    // Repurposed as the moving highlight: y tracks the focused row.
+    Rectangle {
+        x: root.sx(111);
+        y: root.focus-y();
+        width: root.sx(452);
+        height: root.sy(34);
+        background: @linear-gradient(90deg, #B70043 32.21%, #34343400 100%);
+
+        Rectangle { // top accent (3px, 55% #FF8C8C ? transparent)
+            x: 0;
+            y: 0;
+            width: parent.width;
+            height: max(1px, root.sy(3));
+            background: @linear-gradient(90deg, #FF8C8C8C 0%, #51000000 100%);
+        }
+
+        Rectangle { // left accent
+            x: 0;
+            y: 0;
+            width: max(1px, root.sx(3));
+            height: parent.height;
+            background: #FF8C8C8C;
+        }
+
+        Rectangle { // bottom accent
+            x: 0;
+            y: parent.height - max(1px, root.sy(3));
+            width: parent.width;
+            height: max(1px, root.sy(3));
+            background: @linear-gradient(90deg, #FF8C8C8C 0%, #51000000 100%);
+        }
+    }
+
+    // ?? lobbypanel ? node 19:90 ??????????????????????????????????????????????
+
+    // Container 19:91 bottom border (1px #40454E @ 85%)
+    Rectangle {
+        x: root.sx(109.969);
+        y: root.sy(58.391);
+        width: root.sx(536.391);
+        height: max(1px, root.sy(1));
+        background: #40454ED9;
+    }
+
+    // Container 19:94 ? clipped content column
+    panel-content := Rectangle {
+        x: root.sx(109.969);
+        y: root.sy(59.391);
+        width: root.sx(536.391);
+        height: root.sy(529.616);
+        clip: true;
+
+        // playerName ? node 19:96 (sits *behind* the map preview, as in Figma)
+        Text {
+            x: root.sx(9);
+            y: root.sy(5.5);
+            text: root.host-name;
+            color: #8D8D8D;
+            font-family: "Trade Gothic Next LT Pro BdCn";
+            font-size: root.sy(18.72);
+            font-weight: 700;
+        }
+
+        // mapPreview Container ? node 19:98
+        Rectangle {
+            x: root.sx(0.031);
+            y: root.sy(-0.391);
+            width: root.sx(536);
+            height: root.sy(182);
+            clip: true;
+
+            Image { // "?" placeholder artwork (raw Figma image fill)
+                x: 0;
+                y: 0;
+                width: parent.width;
+                height: parent.height;
+                source: @image-url("../assets/container.png");
+                image-fit: cover;
+            }
+
+            Image { // radial + linear darkening overlays (exact export copy)
+                x: 0;
+                y: 0;
+                width: parent.width;
+                height: parent.height;
+                source: @image-url("../assets/mappreview_overlay.svg");
+                image-fit: fill;
+            }
+
+            // mapNamePreview ? node 19:100
+            Text {
+                x: root.sx(6.04);
+                y: root.sy(127.85);
+                text: root.map-name;
+                color: #EAEEF891;
+                font-family: "Helvetica Extended BQ";
+                font-size: root.sy(48);
+                letter-spacing: root.sx(-2);
+            }
+
+            // match info ? node 19:101 (outlined text)
+            Text {
+                x: root.sx(13);
+                y: root.sy(12);
+                text: "Round Time: 60\nScore Limit: 5\nMatch Time: 20 min.";
+                color: #EAEEF8;
+                font-family: "TradeGothicLTW04-BdCnNo.20";
+                font-size: root.sy(16);
+                font-weight: 700;
+                stroke: @linear-gradient(180deg, #909090 0%, #000000 100%);
+                stroke-width: root.sy(4);
+                stroke-style: outside;
+            }
+        }
+
+        // List - Lobby Menu ? node 19:106 (rows 543.578 ? 31.672, right edge
+        // clipped by the panel exactly as in Figma)
+
+        // lobbyType ? node 19:107
+        Text {
+            x: root.sx(9.03);
+            y: root.sy(189.45);
+            text: "LOBBY OPTIONS";
+            color: #EAEEF8;
+            font-family: "Trade Gothic Next LT Pro BdCn";
+            font-size: root.sy(23.472);
+            font-weight: 700;
+            letter-spacing: root.sx(-0.2347);
+        }
+
+        // gameType ? node 19:110
+        Text {
+            x: root.sx(9);
+            y: root.sy(220.61);
+            text: "RULESET:";
+            color: #ADADAD;
+            font-family: "Trade Gothic Next LT Pro BdCn";
+            font-size: root.sy(23.472);
+            font-weight: 700;
+            letter-spacing: root.sx(-0.2347);
+        }
+
+        Text {
+            x: root.sx(96);
+            y: root.sy(220.61);
+            text: root.ruleset;
+            color: #ADADAD;
+            font-family: "Trade Gothic Next LT Pro BdCn";
+            font-size: root.sy(23.472);
+            font-weight: 700;
+            letter-spacing: root.sx(-0.2347);
+        }
+
+        // map ? node 19:115
+        Text {
+            x: root.sx(9);
+            y: root.sy(252.78);
+            text: "MAP:";
+            color: #ADADAD;
+            font-family: "Trade Gothic Next LT Pro BdCn";
+            font-size: root.sy(23.472);
+            font-weight: 700;
+            letter-spacing: root.sx(-0.2347);
+        }
+
+        Text {
+            x: root.sx(58);
+            y: root.sy(252.78);
+            text: root.map-name;
+            color: #ADADAD;
+            font-family: "Trade Gothic Next LT Pro BdCn";
+            font-size: root.sy(23.472);
+            font-weight: 700;
+            letter-spacing: root.sx(-0.2347);
+        }
+
+        // network ? node 19:120
+        Text {
+            x: root.sx(9);
+            y: root.sy(283.95);
+            text: "SERVER TYPE:";
+            color: #ADADAD;
+            font-family: "Trade Gothic Next LT Pro BdCn";
+            font-size: root.sy(23.472);
+            font-weight: 700;
+            letter-spacing: root.sx(-0.2347);
+        }
+
+        Text {
+            x: root.sx(137);
+            y: root.sy(283.95);
+            text: root.server-type;
+            color: #ADADAD;
+            font-family: "Trade Gothic Next LT Pro BdCn";
+            font-size: root.sy(23.472);
+            font-weight: 700;
+            letter-spacing: root.sx(-0.2347);
+        }
+
+        // start ? node 19:125 (List Item with 2px highlight borders)
+        Rectangle {
+            x: 0;
+            y: root.sy(318.605);
+            width: root.sx(543.578);
+            height: max(1px, root.sy(2));
+            background: @linear-gradient(90deg, #FFFFFF00 0%, #FFFFFF29 50%, #99999900 100%);
+        }
+
+        Text {
+            x: root.sx(9);
+            y: root.sy(327.69);
+            text: "START GAME";
+            color: #ADADAD;
+            font-family: "Trade Gothic Next LT Pro BdCn";
+            font-size: root.sy(23.472);
+            font-weight: 700;
+            letter-spacing: root.sx(-0.2347);
+        }
+
+        Rectangle {
+            x: 0;
+            y: root.sy(363.777);
+            width: root.sx(543.578);
+            height: max(1px, root.sy(2));
+            background: @linear-gradient(90deg, #FFFFFF00 0%, #FFFFFF29 50%, #99999900 100%);
+        }
+
+        // chatText ? node 19:129
+        Text { // node 19:132
+            x: root.sx(9);
+            y: root.sy(371.54);
+            text: root.ready-label;
+            color: #EAEEF8;
+            font-family: "Iosevka";
+            font-size: root.sy(23.472);
+            font-weight: 900;
+        }
+
+        Text { // node 19:135
+            x: root.sx(9);
+            y: root.sy(401.977);
+            width: root.sx(519);
+            text: root.status-text;
+            color: #ADADAD;
+            font-family: "Trade Gothic Next LT Pro BdCn";
+            font-size: root.sy(23.472);
+            font-weight: 700;
+            letter-spacing: root.sx(-0.2347);
+            wrap: word-wrap;
+        }
+
+    }
+
+    // keyStripe ? node 19:136 (panel-width stripe with the button hints)
+    KeyStripeBG {
+        x: root.sx(109.969);
+        y: root.sy(589.006);
+        width: root.sx(536.391);
+        height: root.sy(46.4);
+        edge: max(1px, root.sy(2));
+
+        // keyA ? node 19:138
+        Image {
+            x: root.sx(10.8);
+            y: root.sy(9.2);
+            width: root.sx(28);
+            height: root.sy(28);
+            source: @image-url("../assets/360_b_1.png");
+            image-fit: fill;
+        }
+
+        Text {
+            x: root.sx(42.4);
+            y: root.sy(9.2);
+            text: "Select";
+            color: #ADADAD;
+            font-family: "Trade Gothic Next LT Pro BdCn";
+            font-size: root.sy(23.472);
+            font-weight: 700;
+        }
+
+        // keyB ? node 19:144
+        Image {
+            x: root.sx(110.32);
+            y: root.sy(9.2);
+            width: root.sx(28);
+            height: root.sy(28);
+            source: @image-url("../assets/360_b_2.png");
+            image-fit: fill;
+        }
+
+        Text {
+            x: root.sx(141.92);
+            y: root.sy(9.2);
+            text: "Back";
+            color: #ADADAD;
+            font-family: "Trade Gothic Next LT Pro BdCn";
+            font-size: root.sy(23.472);
+            font-weight: 700;
+        }
+
+        // keyStart ? node 19:150
+        Image {
+            x: root.sx(195.877);
+            y: root.sy(9.2);
+            width: root.sx(28);
+            height: root.sy(28);
+            source: @image-url("../assets/360_x_1.png");
+            image-fit: fill;
+        }
+
+        Text {
+            x: root.sx(227.477);
+            y: root.sy(9.2);
+            text: "Settings";
+            color: #ADADAD;
+            font-family: "Trade Gothic Next LT Pro BdCn";
+            font-size: root.sy(23.472);
+            font-weight: 700;
+        }
+    }
+
+    // ?? playerListHeader ? node 19:164 ("1 / 16") ??
+    Rectangle {
+        x: root.sx(934);
+        y: root.sy(29);
+        width: root.sx(242);
+        height: root.sy(37);
+        background: @linear-gradient(90deg, #5C5C5C00 0%, #3A3A3A 50.96%);
+
+        Text { // node 19:166
+            x: root.sx(189.98);
+            y: root.sy(5);
+            text: root.player-count;
+            color: #EAEEF8;
+            font-family: "Trade Gothic Next LT Pro BdCn";
+            font-size: root.sy(21.6);
+            font-weight: 700;
+            letter-spacing: root.sx(1.08);
+        }
+
+        Text { // node 19:169
+            x: root.sx(204.14);
+            y: root.sy(6);
+            text: "/";
+            color: #ADC4DF;
+            opacity: 0.6;
+            font-family: "Trade Gothic Next LT Pro BdCn";
+            font-size: root.sy(21.6);
+            font-weight: 700;
+            letter-spacing: root.sx(1.08);
+        }
+
+        Text { // node 19:171
+            x: root.sx(215.68);
+            y: root.sy(5);
+            text: root.max-players;
+            color: #ADC4DF;
+            opacity: 0.85;
+            font-family: "Trade Gothic Next LT Pro BdCn";
+            font-size: root.sy(21.6);
+            font-weight: 700;
+            letter-spacing: root.sx(1.08);
+        }
+    }
+
+    // ?? playerNameplateBig ? node 19:172 ??
+    Rectangle {
+        x: root.sx(891);
+        y: root.sy(66);
+        width: root.sx(285);
+        height: root.sy(123);
+        background: @linear-gradient(180deg, #8C8C8CF2 0%, #525252F2 100%);
+
+        Image { // diagonal stripe overlay (pattern4)
+            x: 0;
+            y: 0;
+            width: parent.width;
+            height: parent.height;
+            source: @image-url("../assets/stripes_nameplate_big.svg");
+            image-fit: fill;
+        }
+
+        Rectangle { // node 19:173 ? emblem box
+            x: 0;
+            y: 0;
+            width: root.sx(86);
+            height: root.sy(123);
+            background: @linear-gradient(180deg, #3D3D3D 0%, #949494 100%);
+        }
+
+        Rectangle { // node 19:174 ? white name strip
+            x: root.sx(86);
+            y: 0;
+            width: root.sx(199);
+            height: root.sy(45);
+            background: #D9D9D9;
+        }
+
+        Text { // node 19:175 ? score "86" (color-burn result on #D9D9D9)
+            x: root.sx(226);
+            y: root.sy(-11);
+            width: root.sx(75);
+            height: root.sy(70);
+            horizontal-alignment: center;
+            vertical-alignment: center;
+            text: "86";
+            font-family: "04b24";
+            font-size: root.sy(64);
+            letter-spacing: root.sx(-5);
+            color: @linear-gradient(180deg, #ABABAB 26.44%, #D6D6D6 100%);
+        }
+
+        Text { // node 19:184
+            x: root.sx(94);
+            y: root.sy(12);
+            text: root.player1-name;
+            color: #7C7C7C;
+            font-family: "Trade Gothic Next LT Pro BdCn";
+            font-size: root.sy(18.72);
+            font-weight: 700;
+        }
+    }
+
+    // playerStatus ? node 19:176 (crown + rank, left of the big nameplate)
+    Rectangle {
+        x: root.sx(855);
+        y: root.sy(66);
+        width: root.sx(36);
+        height: root.sy(123);
+        clip: true;
+        background: @linear-gradient(180deg, #3D3D3D3B 0%, #9494943B 100%);
+
+        Image { // crown ? node 19:178
+            x: root.sx(5.2);
+            y: root.sy(5.2);
+            width: root.sx(25.6);
+            height: root.sy(24.8);
+            source: @image-url("../assets/crown.svg");
+            image-fit: fill;
+        }
+
+        Image { // looks_one ? node 19:181
+            x: root.sx(6);
+            y: root.sy(94);
+            width: root.sx(24);
+            height: root.sy(24);
+            source: @image-url("../assets/looks_one.svg");
+            image-fit: fill;
+        }
+    }
+
+    // ?? playerStatusBigTeam ? node 19:384 ??
+    Rectangle {
+        x: root.sx(855);
+        y: root.sy(194);
+        width: root.sx(36);
+        height: root.sy(242);
+        background: @linear-gradient(180deg, #333333 69.23%, #C2C2C200 100%);
+    }
+
+    // ?? playerListSmall ? node 19:234 ??
+    Rectangle {
+        x: root.sx(894);
+        y: root.sy(197);
+        width: root.sx(282);
+        height: root.sy(326);
+        clip: true;
+        background: @linear-gradient(180deg, #333333 31.73%, #C2C2C200 100%);
+
+        Image { // fine diagonal stripe overlay (pattern5)
+            x: 0;
+            y: 0;
+            width: parent.width;
+            height: parent.height;
+            source: @image-url("../assets/stripes_playerlist.svg");
+            image-fit: fill;
+        }
+
+        // playerNameplate4 ? node 19:235 ("color"-blended #B0D78C over blue)
+        Rectangle {
+            x: 0;
+            y: 0;
+            width: root.sx(285);
+            height: root.sy(44);
+            background: @linear-gradient(180deg, #70974CF2 0%, #355C11F2 100%);
+
+            Rectangle { // node 19:236 ? emblem box
+                x: 0;
+                y: 0;
+                width: root.sx(86);
+                height: root.sy(44);
+                background: @linear-gradient(180deg, #3D3D3D 0%, #949494 100%);
+            }
+
+            Text { // node 19:237
+                x: root.sx(94);
+                y: root.sy(12);
+                text: root.player4-name;
+                color: #FFFFFF;
+                font-family: "Trade Gothic Next LT Pro BdCn";
+                font-size: root.sy(18.72);
+                font-weight: 700;
+            }
+
+            Text { // node 19:238 ? score "47" (color-burn approximation)
+                x: root.sx(226);
+                y: root.sy(-11);
+                width: root.sx(75);
+                height: root.sy(70);
+                horizontal-alignment: center;
+                vertical-alignment: center;
+                text: "47";
+                font-family: "04b24";
+                font-size: root.sy(64);
+                letter-spacing: root.sx(-5);
+                color: @linear-gradient(180deg, #00000036 26.44%, #4B4B4B1A 100%);
+            }
+        }
+
+        // playerNameplate3 ? node 19:239 ("color"-blended #910000 over blue)
+        Rectangle {
+            x: 0;
+            y: root.sy(47);
+            width: root.sx(285);
+            height: root.sy(44);
+            background: @linear-gradient(180deg, #E95757F2 0%, #AE1D1DF2 100%);
+
+            Rectangle { // node 19:240 ? emblem box
+                x: 0;
+                y: 0;
+                width: root.sx(86);
+                height: root.sy(44);
+                background: @linear-gradient(180deg, #3D3D3D 0%, #949494 100%);
+            }
+
+            Text { // node 19:241
+                x: root.sx(94);
+                y: root.sy(12);
+                text: root.player3-name;
+                color: #FFFFFF;
+                font-family: "Trade Gothic Next LT Pro BdCn";
+                font-size: root.sy(18.72);
+                font-weight: 700;
+            }
+
+            Text { // node 19:242 ? score "100" (right-aligned, color-burn approx.)
+                x: root.sx(195);
+                y: root.sy(-11);
+                width: root.sx(98);
+                height: root.sy(70);
+                horizontal-alignment: right;
+                vertical-alignment: center;
+                text: "100";
+                font-family: "04b24";
+                font-size: root.sy(64);
+                letter-spacing: root.sx(-5);
+                color: @linear-gradient(180deg, #00000036 26.44%, #4B4B4B1A 100%);
+            }
+        }
+
+        // playerNameplate2 ? node 19:243 (plain blue)
+        Rectangle {
+            x: 0;
+            y: root.sy(94);
+            width: root.sx(285);
+            height: root.sy(44);
+            background: @linear-gradient(180deg, #3698E2F2 0%, #14568FF2 100%);
+
+            Rectangle { // node 19:244 ? emblem box
+                x: 0;
+                y: 0;
+                width: root.sx(86);
+                height: root.sy(44);
+                background: @linear-gradient(180deg, #3D3D3D 0%, #949494 100%);
+            }
+
+            Text { // node 19:245
+                x: root.sx(94);
+                y: root.sy(12);
+                text: root.player2-name;
+                color: #FFFFFF;
+                font-family: "Trade Gothic Next LT Pro BdCn";
+                font-size: root.sy(18.72);
+                font-weight: 700;
+            }
+
+            Text { // node 19:246 ? score "02" (color-burn approximation)
+                x: root.sx(226);
+                y: root.sy(-11);
+                width: root.sx(75);
+                height: root.sy(70);
+                horizontal-alignment: center;
+                vertical-alignment: center;
+                text: "02";
+                font-family: "04b24";
+                font-size: root.sy(64);
+                letter-spacing: root.sx(-5);
+                color: @linear-gradient(180deg, #00000036 26.44%, #4B4B4B1A 100%);
+            }
+        }
+    }
+
+    // playerListSmall 3px gradient border (stroke drawn outside the clip)
+    Rectangle {
+        x: root.sx(891);
+        y: root.sy(194);
+        width: root.sx(288);
+        height: root.sy(332);
+        background: transparent;
+        border-width: max(1px, root.sx(3));
+        border-color: @linear-gradient(180deg, #333333 31.73%, #C2C2C200 100%);
+    }
+
+    // ?? lobbyPanelBanner ? node 19:286 ??
+    Image { // stripe overlay (pattern6, in the banner's rotated space)
+        x: root.sx(-14);
+        y: root.sy(62);
+        width: root.sx(117);
+        height: root.sy(518);
+        source: @image-url("../assets/stripes_banner.svg");
+        image-fit: fill;
+    }
+
+    Text { // node 19:288 ? "Pregame Lobby", rotated -90? (reads bottom?top).
+        // Box placed so that after rotation about its center it covers the
+        // exact screen rect x 63.4..111.4, y 26.3..411.3 from the export.
+        x: root.sx(87.4) - root.sy(385) / 2;
+        y: root.sy(218.81) - root.sx(48) / 2;
+        width: root.sy(385);
+        height: root.sx(48);
+        transform-rotation: -90deg;
+        vertical-alignment: center;
+        text: "Pregame Lobby";
+        color: #EAEEF8;
+        font-family: "Helvetica Extended BQ";
+        font-size: root.sx(32);
+    }
+
+    // ?? frame top border (1px #C9C9C9) ? node 19:88 ??
+    Rectangle {
+        x: 0;
+        y: 0;
+        width: parent.width;
+        height: max(1px, root.sy(1));
+        background: #C9C9C9;
+    }
+
+    // -- Mouse hit-targets (Tier 1) --------------------------------------
+    // Root-level so they share the focus bar's exact geometry (same x/width
+    // and row-y), guaranteeing the hit area coincides with the highlight.
+    // Hover moves the highlight; click activates. Rows 0-3 are inert; only
+    // START GAME (4) fires its callback.
+    TouchArea { // LOBBY OPTIONS
+        x: root.sx(111); y: root.row-y(0); width: root.sx(452); height: root.sy(31);
+        mouse-cursor: pointer;
+        changed has-hover => { if (self.has-hover) { root.selected-index = 0; } }
+        clicked => { root.selected-index = 0; }
+    }
+    TouchArea { // RULESET
+        x: root.sx(111); y: root.row-y(1); width: root.sx(452); height: root.sy(31);
+        mouse-cursor: pointer;
+        changed has-hover => { if (self.has-hover) { root.selected-index = 1; } }
+        clicked => { root.selected-index = 1; }
+    }
+    TouchArea { // MAP
+        x: root.sx(111); y: root.row-y(2); width: root.sx(452); height: root.sy(31);
+        mouse-cursor: pointer;
+        changed has-hover => { if (self.has-hover) { root.selected-index = 2; } }
+        clicked => { root.selected-index = 2; }
+    }
+    TouchArea { // SERVER TYPE
+        x: root.sx(111); y: root.row-y(3); width: root.sx(452); height: root.sy(31);
+        mouse-cursor: pointer;
+        changed has-hover => { if (self.has-hover) { root.selected-index = 3; } }
+        clicked => { root.selected-index = 3; }
+    }
+    TouchArea { // START GAME
+        x: root.sx(111); y: root.row-y(4); width: root.sx(452); height: root.sy(31);
+        mouse-cursor: pointer;
+        changed has-hover => { if (self.has-hover) { root.selected-index = 4; } }
+        clicked => { root.selected-index = 4; root.start-game(); }
+    }
+}

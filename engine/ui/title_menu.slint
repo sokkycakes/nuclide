@@ -1,0 +1,304 @@
+// Title menu — Figma frame "16:9" (node 46:2)
+// Reference design: 1365 × 768 px
+//
+// Responsive layout: viewport-w / viewport-h are set from C each frame to match
+// the window. Every element position and size is proportional to those values,
+// so anchors reflow natively at 4:3, 16:9, or any aspect — no bitmap stretch.
+
+export component FocusBar inherits Rectangle {
+    in property <length> bar-y;
+    in property <length> col-w;
+    in property <length> bar-h;
+    in property <length> accent-h;
+
+    y: root.bar-y;
+    x: 0px;
+    width: root.col-w;
+    height: root.bar-h;
+    clip: true;
+
+    background: @linear-gradient(90deg, #b70043 32%, #34343400 100%);
+
+    Rectangle {
+        y: 0px;
+        width: parent.width;
+        height: root.accent-h;
+        background: @linear-gradient(90deg, #ff8c8c 32%, #ff8c8c00 100%);
+    }
+
+    Rectangle {
+        y: parent.height - root.accent-h;
+        width: parent.width;
+        height: root.accent-h;
+        background: @linear-gradient(90deg, #ff8c8c 32%, #ff8c8c00 100%);
+    }
+}
+
+component MenuItemRow inherits TouchArea {
+    in property <int> index;
+    in property <string> label;
+    in property <length> row-y;
+    in property <length> col-w;
+    in property <length> row-h;
+    in property <length> label-x;
+    in property <length> label-y;
+    in property <length> label-size;
+    in property <length> touch-pad;
+
+    callback pick();
+    callback scroll-up();
+    callback scroll-down();
+
+    x: 0px;
+    y: root.row-y - root.touch-pad;
+    width: root.col-w;
+    height: root.row-h;
+
+    clicked => {
+        root.pick();
+    }
+
+    scroll-event(event) => {
+        if (event.delta-y > 0) {
+            root.scroll-down();
+            return accept;
+        }
+        if (event.delta-y < 0) {
+            root.scroll-up();
+            return accept;
+        }
+        return reject;
+    }
+
+    Text {
+        x: root.label-x;
+        y: root.label-y;
+        text: root.label;
+        font-size: root.label-size;
+        font-weight: 700;
+        letter-spacing: -1.2px;
+        color: #ffffff;
+    }
+}
+
+export component TitleMenu inherits Window {
+    callback map-browser();
+    callback create-server();
+    callback settings();
+    callback quit();
+
+    callback key-up();
+    callback key-down();
+    callback key-activate();
+
+    in-out property <int> selected-index: 0;
+
+    // Set from FTEQW each frame to match vid.width / vid.height
+    in-out property <int> viewport-w: 1365;
+    in-out property <int> viewport-h: 768;
+
+    // Figma reference dimensions (integers for ratio math)
+    private property <int> ref-w: 1365;
+    private property <int> ref-h: 768;
+    private property <int> item-count: 4;
+    private property <[string]> menu-labels: ["Map Browser", "Create Server", "Settings", "Quit"];
+
+    width: root.viewport-w * 1px;
+    height: root.viewport-h * 1px;
+
+    // Scaled metrics derived from Figma node positions
+    private property <length> menu-col-w: root.viewport-w * 452 / root.ref-w * 1px;
+    private property <length> panel-y: root.viewport-h * 418 / root.ref-h * 1px;
+    private property <length> panel-h: root.viewport-h * 189 / root.ref-h * 1px;
+    private property <length> focus-bar-h: root.viewport-h * 38 / root.ref-h * 1px;
+    private property <length> focus-offset: root.viewport-h * 3 / root.ref-h * 1px;
+    private property <length> row-h: root.viewport-h * 40 / root.ref-h * 1px;
+    private property <length> touch-pad: root.viewport-h * 5 / root.ref-h * 1px;
+    private property <length> label-x: root.viewport-w * 102 / root.ref-w * 1px;
+    private property <length> label-y: root.viewport-h * 5 / root.ref-h * 1px;
+    private property <length> label-size: root.viewport-h * 24 / root.ref-h * 1px;
+    private property <length> accent-h: max(1px, root.viewport-h * 2 / root.ref-h * 1px);
+    private property <length> hint-label-size: root.viewport-h * 24 / root.ref-h * 1px;
+
+    private property <[length]> item-y: [
+        root.viewport-h * 443 / root.ref-h * 1px,
+        root.viewport-h * 483 / root.ref-h * 1px,
+        root.viewport-h * 514 / root.ref-h * 1px,
+        root.viewport-h * 545 / root.ref-h * 1px,
+    ];
+
+    no-frame: true;
+    background: #0000;
+
+    function nav-up() {
+        if (root.selected-index > 0) {
+            root.selected-index -= 1;
+        }
+    }
+
+    function nav-down() {
+        if (root.selected-index < root.item-count - 1) {
+            root.selected-index += 1;
+        }
+    }
+
+    function activate-at(index: int) {
+        if (index == 0) {
+            root.map-browser();
+        } else if (index == 1) {
+            root.create-server();
+        } else if (index == 2) {
+            root.settings();
+        } else if (index == 3) {
+            root.quit();
+        }
+    }
+
+    function activate-selection() {
+        root.activate-at(root.selected-index);
+    }
+
+    function pick-item(index: int) {
+        root.selected-index = index;
+        root.activate-at(index);
+    }
+
+    // menupanel — node 46:20 (full width, bottom-anchored band)
+    panel := Rectangle {
+        x: 0px;
+        y: root.panel-y;
+        width: parent.width;
+        height: root.panel-h;
+        background: @linear-gradient(180deg, #6d6d6dcc 0%, #424242cc 9%, #282828cc 42%, #2a2a2acc 66%, #323232cc 87%, #6d6d6dcc 100%);
+    }
+
+    Rectangle {
+        x: panel.x;
+        y: panel.y;
+        width: panel.width;
+        height: panel.height;
+        background: @linear-gradient(180deg, #ff000047 0%, #f6000009 24%, #f5000000 51%, #e500000b 88%, #ff000047 100%);
+    }
+
+    Rectangle {
+        x: 0px;
+        y: panel.y;
+        width: parent.width;
+        height: root.accent-h;
+        background: #ffb1b1;
+    }
+
+    Rectangle {
+        x: 0px;
+        y: panel.y + panel.height - root.accent-h;
+        width: parent.width;
+        height: root.accent-h;
+        background: #ffb1b1;
+    }
+
+    FocusBar {
+        col-w: root.menu-col-w;
+        bar-h: root.focus-bar-h;
+        accent-h: root.accent-h;
+        bar-y: root.item-y[root.selected-index] - root.focus-offset;
+    }
+
+    for label[index] in root.menu-labels: MenuItemRow {
+        index: index;
+        label: label;
+        row-y: root.item-y[index];
+        col-w: root.menu-col-w;
+        row-h: root.row-h;
+        label-x: root.label-x;
+        label-y: root.label-y;
+        label-size: root.label-size;
+        touch-pad: root.touch-pad;
+        pick => {
+            root.pick-item(index);
+        }
+        scroll-up => {
+            root.nav-up();
+        }
+        scroll-down => {
+            root.nav-down();
+        }
+    }
+
+    // logovectorframe — node 60:2 (bottom-right)
+    Image {
+        x: root.viewport-w * 851 / root.ref-w * 1px;
+        y: root.viewport-h * 443 / root.ref-h * 1px;
+        width: root.viewport-w * 460 / root.ref-w * 1px;
+        height: root.viewport-h * 204 / root.ref-h * 1px;
+        source: @image-url("assets/logovectorframe.svg");
+        image-fit: contain;
+    }
+
+    // Controller hint — nodes 53:126 / 46:100 (bottom-left)
+    Image {
+        x: root.viewport-w * 94 / root.ref-w * 1px;
+        y: root.viewport-h * 661 / root.ref-h * 1px;
+        width: root.viewport-w * 32 / root.ref-w * 1px;
+        height: root.viewport-h * 32 / root.ref-h * 1px;
+        source: @image-url("assets/360_y.png");
+        image-fit: contain;
+    }
+
+    Text {
+        x: root.viewport-w * 130 / root.ref-w * 1px;
+        y: root.viewport-h * 660 / root.ref-h * 1px;
+        text: "Settings";
+        font-size: root.hint-label-size;
+        font-weight: 700;
+        letter-spacing: -1.2px;
+        color: #6d6d6d;
+    }
+
+    // tplogo — node 47:112 (bottom-right corner)
+    Image {
+        x: root.viewport-w * 1200 / root.ref-w * 1px;
+        y: root.viewport-h * 624 / root.ref-h * 1px;
+        width: root.viewport-w * 81 / root.ref-w * 1px;
+        height: root.viewport-h * 109 / root.ref-h * 1px;
+        source: @image-url("assets/tplogo.png");
+        image-fit: contain;
+        opacity: 0.51;
+    }
+
+    keyboard-focus := FocusScope {
+        x: 0px;
+        y: 0px;
+        width: 0px;
+        height: 0px;
+
+        init => {
+            keyboard-focus.focus();
+        }
+
+        key-pressed(event) => {
+            if (event.text == Key.UpArrow) {
+                root.nav-up();
+                return accept;
+            } else if (event.text == Key.DownArrow) {
+                root.nav-down();
+                return accept;
+            } else if (event.text == Key.Return || event.text == Key.Space) {
+                root.activate-selection();
+                return accept;
+            }
+            return reject;
+        }
+    }
+
+    key-up => {
+        root.nav-up();
+    }
+
+    key-down => {
+        root.nav-down();
+    }
+
+    key-activate => {
+        root.activate-selection();
+    }
+}

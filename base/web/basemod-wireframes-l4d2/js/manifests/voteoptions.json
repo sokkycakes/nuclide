@@ -1,0 +1,119 @@
+{
+  "source": "resource/ui/l4d360ui/voteoptions.res",
+  "viewId": "view-vote",
+  "frame": "VoteOptions",
+  "viewport": {
+    "wide": 510,
+    "tall": 350
+  },
+  "controls": [
+    {
+      "id": "VoteOptions",
+      "name": "VoteOptions",
+      "controlName": "Frame",
+      "command": "",
+      "labelText": "",
+      "visible": true,
+      "xpos": 65,
+      "ypos": 65,
+      "wide": 510,
+      "tall": 350
+    },
+    {
+      "id": "PnlUpperGarnish",
+      "name": "PnlUpperGarnish",
+      "controlName": "Panel",
+      "command": "",
+      "labelText": "",
+      "visible": true,
+      "xpos": 0,
+      "ypos": 0,
+      "wide": 510,
+      "tall": 45
+    },
+    {
+      "id": "BtnChooseNewLeader",
+      "name": "BtnChooseNewLeader",
+      "controlName": "Button",
+      "command": "",
+      "labelText": "",
+      "visible": false,
+      "xpos": 15,
+      "ypos": 60,
+      "wide": 140,
+      "tall": null
+    },
+    {
+      "id": "BtnBootPlayer",
+      "name": "BtnBootPlayer",
+      "controlName": "Button",
+      "command": "",
+      "labelText": "",
+      "visible": true,
+      "xpos": 15,
+      "ypos": 95,
+      "wide": 140,
+      "tall": null
+    },
+    {
+      "id": "BtnForceTeamChange",
+      "name": "BtnForceTeamChange",
+      "controlName": "Button",
+      "command": "",
+      "labelText": "",
+      "visible": false,
+      "xpos": 15,
+      "ypos": 130,
+      "wide": 140,
+      "tall": null
+    },
+    {
+      "id": "BtnChangeScenario",
+      "name": "BtnChangeScenario",
+      "controlName": "Button",
+      "command": "",
+      "labelText": "",
+      "visible": true,
+      "xpos": 15,
+      "ypos": 165,
+      "wide": 140,
+      "tall": null
+    },
+    {
+      "id": "BtnChangeDifficulty",
+      "name": "BtnChangeDifficulty",
+      "controlName": "Button",
+      "command": "",
+      "labelText": "",
+      "visible": true,
+      "xpos": 15,
+      "ypos": 200,
+      "wide": 140,
+      "tall": null
+    },
+    {
+      "id": "BtnRestartScenario",
+      "name": "BtnRestartScenario",
+      "controlName": "Button",
+      "command": "",
+      "labelText": "",
+      "visible": true,
+      "xpos": 15,
+      "ypos": 235,
+      "wide": 140,
+      "tall": null
+    },
+    {
+      "id": "LblHelpText",
+      "name": "LblHelpText",
+      "controlName": "Label",
+      "command": "",
+      "labelText": "",
+      "visible": true,
+      "xpos": 0,
+      "ypos": 0,
+      "wide": 510,
+      "tall": 25
+    }
+  ]
+}

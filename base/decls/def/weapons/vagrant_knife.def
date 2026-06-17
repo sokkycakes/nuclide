@@ -1,0 +1,55 @@
+// Vagrant primary: knife melee swing. Prototype cadence (0.8s), short reach.
+// 1 damage per swing. The 10x backstab multiplier and throwable knife are
+// SECONDARY mechanics deferred to the signature-tool pass -- not in v1.
+entityDef weapon_vagrant_knife
+{
+	"editor_color"		".3 .3 1"
+	"editor_mins"		"-16 -16 -16"
+	"editor_maxs"		"16 16 16"
+	"editor_usage"		"Vagrant knife (melee)"
+	"editor_rotatable"	"1"
+
+	"spawnclass"		"ncWeapon"
+	"model_view"		"progs/v_axe.mdl"
+	"snd_acquire"		"weapon.pickup"
+	"snd_respawn"		"item.respawn"
+	"spin"				"1"
+	"pickupFlash"		"1"
+	"animPrefix"		"axe"
+
+	"def_onFire"		"projectile_vagrant_knife"
+	"testDistance"		"-28"
+	"inv_name"			"Vagrant"
+	"ammoRequired"		"0"
+	"silent_fire"		"1"
+
+	"failRate"			"0.8"
+	"fireRate"			"0.8"
+	"snd_hit"			"Weapon_Axe.Melee_Hit"
+	"snd_failed"		"Weapon_Axe.Miss"
+
+	"act_idle"			"0"
+	"act_draw"			"0"
+	"act_fireFailed"	"1,2"
+	"act_fire"			"1,2"
+
+	"hudSlot"			"0"
+	"hudSlotPos"		"0"
+	"weight"			"0"
+	"crosshair"			"none"
+	"ammoIcon"			"none"
+	"icon"				"weapon_axe.weapon"
+	"iconSelected"		"weapon_axe.weapon_s"
+}
+
+entityDef projectile_vagrant_knife
+{
+	"spawnclass"			"ncProjectile"
+	"damage"				"1"
+	"is_bullet"				"1"
+	"range"					"28"
+	"decal_detonate"		"Impact.Shot"
+	"detonate_on_world"		"0"
+	"snd_hitBody"			"Weapon_Axe.Melee_Hit"
+	"snd_hitWorld"			"Weapon_Axe.Melee_HitWorld"
+}

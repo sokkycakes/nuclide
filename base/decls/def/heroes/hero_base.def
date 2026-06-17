@@ -1,0 +1,27 @@
+// Hero roster base def.
+//
+// Every playable hero inherits hero_base, which in turn inherits the shared
+// "player" def (see decls/def/player.def). A hero overrides only what makes it
+// distinct: model (+ act_* animations), health/max_health, movement (pm_*) and
+// loadout (weapon/item CSV + current_weapon). No gameplay QC is required to add
+// a hero -- define the def and register it via teams.AddClass() in a ruleset.
+//
+// RESERVED / FUTURE-USE (inert): the def_ability_* keys below are documented
+// placeholders for a future generic ability system. They have NO runtime effect
+// in this iteration -- no QC reads them. They exist so content authors can
+// pre-author intent without a later schema break. Do not rely on them.
+entityDef hero_base
+{
+	"inherit"				"player"
+
+	// Stiletto roster combat flag. Read by the shared combat code (U6) to
+	// switch a hero onto Archstiletto's duel rules (super-armor buffer +
+	// trajectory-preserving tool punish). 0 = standard 4 HP roster behavior.
+	"stiletto_arch"			"0"
+
+	// --- RESERVED FOR FUTURE ABILITY SYSTEM (inert, do not rely on) ---
+	"def_ability_passive"	""
+	"def_ability_primary"	""
+	"def_ability_secondary"	""
+	"def_ability_ultimate"	""
+}

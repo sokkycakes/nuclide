@@ -1,0 +1,57 @@
+<?xml version="1.0"?>
+<!--
+  StilettoSwift (Q3 BSP) — q3map2 under Tools/q3map2/; FTE at [EnginePath]fteqw64.exe.
+  q3map2 writes the .bsp beside the .map; installbsp copies it into base/maps/ for devmap.
+-->
+<project version="2.0">
+<var name="q3map2">"[EnginePath]Tools/q3map2/q3map2.exe" -v -game quake3 -fs_basepath "[EnginePath]" -fs_game [GameName]</var>
+<var name="installbsp">"[EnginePath]Tools/netradiant/install_bsp_for_fte.bat" "[BspFile]" "[EnginePath][GameName]/maps" "[MapName]"</var>
+<var name="fte">"[EnginePath]fteqw64.exe" +game [GameName] +devmap [MapName]</var>
+<build name="qbsp">
+<command>[q3map2] -meta "[MapFile]"</command>
+<command>[installbsp]</command>
+</build>
+<build name="qbsp -onlyents">
+<command>[q3map2] -onlyents "[MapFile]"</command>
+<command>[installbsp]</command>
+</build>
+<build name="qvis">
+<command>[q3map2] -vis -saveprt "[MapFile]"</command>
+</build>
+<build name="qvis -fast">
+<command>[q3map2] -vis -fast -saveprt "[MapFile]"</command>
+</build>
+<build name="qrad">
+<command>[q3map2] -light -fast "[MapFile]"</command>
+<command>[installbsp]</command>
+</build>
+<build name="run in engine">
+<command>[installbsp]</command>
+<command>[fte]</command>
+</build>
+<separator />
+<build name="qbsp, qvis">
+<command>[q3map2] -meta "[MapFile]"</command>
+<command>[q3map2] -vis -saveprt "[MapFile]"</command>
+<command>[installbsp]</command>
+</build>
+<build name="qbsp, qvis, qrad">
+<command>[q3map2] -meta "[MapFile]"</command>
+<command>[q3map2] -vis -saveprt "[MapFile]"</command>
+<command>[q3map2] -light -fast "[MapFile]"</command>
+<command>[installbsp]</command>
+</build>
+<build name="qbsp, qvis -fast, qrad">
+<command>[q3map2] -meta "[MapFile]"</command>
+<command>[q3map2] -vis -fast -saveprt "[MapFile]"</command>
+<command>[q3map2] -light -fast "[MapFile]"</command>
+<command>[installbsp]</command>
+</build>
+<build name="qbsp, qvis, qrad, run">
+<command>[q3map2] -meta "[MapFile]"</command>
+<command>[q3map2] -vis -saveprt "[MapFile]"</command>
+<command>[q3map2] -light -fast "[MapFile]"</command>
+<command>[installbsp]</command>
+<command>[fte]</command>
+</build>
+</project>

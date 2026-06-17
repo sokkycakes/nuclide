@@ -1,0 +1,14 @@
+// Skipstream -- burst revolver. Roster baseline: 4 HP, shared movement + speeds.
+// Placeholder model (alice2) + inherited alice2-family animations.
+entityDef hero_skipstream
+{
+	"inherit"				"hero_base"
+
+	"model"					"models/player/alice2/alice2.mdl"
+
+	"health"				"4"
+	"max_health"			"4"
+
+	"weapon"				"weapon_skipstream_burst"
+	"current_weapon"		"0"
+}
