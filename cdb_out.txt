@@ -1,0 +1,205 @@
+﻿
+Microsoft (R) Windows Debugger Version 10.0.17763.132 AMD64
+Copyright (c) Microsoft Corporation. All rights reserved.
+
+CommandLine: fteqw64.exe -game base -condebug +developer 1 +map dev
+Symbol search path is: srv*
+Executable search path is: 
+ModLoad: 00007ff7`315a0000 00007ff7`35678000   fteqw64.exe.db
+ModLoad: 00007ffc`36930000 00007ffc`36b48000   ntdll.dll
+ModLoad: 00007ffc`36630000 00007ffc`366f4000   C:\WINDOWS\System32\KERNEL32.DLL
+ModLoad: 00007ffc`33ec0000 00007ffc`34293000   C:\WINDOWS\System32\KERNELBASE.dll
+ModLoad: 00007ffc`35570000 00007ffc`355e1000   C:\WINDOWS\System32\WS2_32.dll
+ModLoad: 00007ffc`347d0000 00007ffc`348e8000   C:\WINDOWS\System32\RPCRT4.dll
+ModLoad: 00007ffc`34670000 00007ffc`34699000   C:\WINDOWS\System32\GDI32.dll
+ModLoad: 00007ffc`33b80000 00007ffc`33ba6000   C:\WINDOWS\System32\win32u.dll
+ModLoad: 00007ffc`33bb0000 00007ffc`33ccb000   C:\WINDOWS\System32\gdi32full.dll
+ModLoad: 00007ffc`2d2d0000 00007ffc`2d304000   C:\WINDOWS\SYSTEM32\WINMM.dll
+ModLoad: 00007ffc`33e20000 00007ffc`33eba000   C:\WINDOWS\System32\msvcp_win.dll
+ModLoad: 00007ffc`33d00000 00007ffc`33e11000   C:\WINDOWS\System32\ucrtbase.dll
+ModLoad: 000001a0`1cfb0000 000001a0`1d0c1000   C:\WINDOWS\System32\ucrtbase.dll
+ModLoad: 00007ffc`35f60000 00007ffc`36112000   C:\WINDOWS\System32\USER32.dll
+ModLoad: 00007ffc`34c20000 00007ffc`34dc1000   C:\WINDOWS\System32\ole32.dll
+ModLoad: 00007ffc`36130000 00007ffc`364c1000   C:\WINDOWS\System32\combase.dll
+ModLoad: 00007ffc`355f0000 00007ffc`35e8c000   C:\WINDOWS\System32\SHELL32.dll
+ModLoad: 00007ffc`33a40000 00007ffc`33b7f000   C:\WINDOWS\System32\wintypes.dll
+ModLoad: 00007ffc`36770000 00007ffc`36821000   C:\WINDOWS\System32\ADVAPI32.dll
+ModLoad: 00007ffc`35eb0000 00007ffc`35f57000   C:\WINDOWS\System32\msvcrt.dll
+ModLoad: 00007ffc`34b70000 00007ffc`34c18000   C:\WINDOWS\System32\sechost.dll
+ModLoad: 00007ffc`33cd0000 00007ffc`33cf8000   C:\WINDOWS\System32\bcrypt.dll
+ModLoad: 00007ffc`34360000 00007ffc`343db000   C:\WINDOWS\System32\bcryptprimitives.dll
+ModLoad: 00007ffc`34a00000 00007ffc`34a31000   C:\WINDOWS\System32\IMM32.dll
+ModLoad: 00007ffc`346a0000 00007ffc`34778000   C:\WINDOWS\System32\oleaut32.dll
+ModLoad: 00007ffc`304b0000 00007ffc`304db000   C:\WINDOWS\SYSTEM32\dwmapi.dll
+ModLoad: 00007ffc`35480000 00007ffc`354e9000   C:\WINDOWS\System32\shlwapi.dll
+ModLoad: 00007ffc`30080000 00007ffc`30133000   C:\WINDOWS\SYSTEM32\UxTheme.dll
+ModLoad: 00007ffb`cdc50000 00007ffb`cdd50000   C:\WINDOWS\SYSTEM32\OPENGL32.dll
+ModLoad: 00007ffc`315e0000 00007ffc`316d7000   C:\WINDOWS\SYSTEM32\dxgi.dll
+ModLoad: 00007ffc`24970000 00007ffc`24a23000   C:\WINDOWS\WinSxS\amd64_microsoft.windows.common-controls_6595b64144ccf1df_5.82.22621.5983_none_b43eefe36389d177\COMCTL32.dll
+ModLoad: 00007ffc`09630000 00007ffc`09656000   C:\WINDOWS\SYSTEM32\d3d12.dll
+ModLoad: 00007ffc`30b10000 00007ffc`30d88000   C:\WINDOWS\SYSTEM32\dwrite.dll
+ModLoad: 00007ffb`e1160000 00007ffb`e11e9000   C:\WINDOWS\SYSTEM32\MSVCP140.dll
+ModLoad: 00007ffb`cad20000 00007ffb`cb1ad000   C:\Users\sokky\Documents\Godot\bulwark_proto_funny\nuclide\D3DCOMPILER_47.dll
+ModLoad: 00007ffc`0f540000 00007ffc`0f98a000   C:\WINDOWS\SYSTEM32\uiautomationcore.dll
+ModLoad: 000001a0`1ce70000 000001a0`1ce79000   C:\WINDOWS\SYSTEM32\icuuc.dll
+ModLoad: 00007ffc`0deb0000 00007ffc`0e120000   C:\WINDOWS\SYSTEM32\icu.dll
+ModLoad: 00007ffc`0d4e0000 00007ffc`0d4fe000   C:\WINDOWS\SYSTEM32\VCRUNTIME140.dll
+ModLoad: 00007ffc`11fc0000 00007ffc`11fed000   C:\WINDOWS\SYSTEM32\GLU32.dll
+ModLoad: 000001a0`1ce70000 000001a0`1ce8e000   C:\WINDOWS\SYSTEM32\VCRUNTIME140.dll
+ModLoad: 00007ffb`a6a10000 00007ffb`a6a1c000   C:\WINDOWS\SYSTEM32\VCRUNTIME140_1.dll
+ModLoad: 00007ffc`304e0000 00007ffc`30517000   C:\WINDOWS\SYSTEM32\dxcore.dll
+ModLoad: 000001a0`1ce70000 000001a0`1ce79000   C:\WINDOWS\SYSTEM32\icuuc.dll
+(62ea0.5ec1c): Break instruction exception - code 80000003 (first chance)
+ntdll!LdrpDoDebuggerBreak+0x30:
+00007ffc`36a0cbc4 cc              int     3
+0:000> cdb: Reading initial command 'sxe av; g; .echo ===FAULT===; r; .echo ===STACK===; kv 60; .echo ===DONE===; q'
+ModLoad: 00007ffc`348f0000 00007ffc`349f4000   C:\WINDOWS\System32\shcore.dll
+ModLoad: 00007ffc`32ad0000 00007ffc`32ae8000   C:\WINDOWS\SYSTEM32\kernel.appcore.dll
+ModLoad: 00007ffc`23f90000 00007ffc`23f97000   C:\WINDOWS\SYSTEM32\shfolder.dll
+ModLoad: 00007ffc`31900000 00007ffc`3221a000   C:\WINDOWS\SYSTEM32\windows.storage.dll
+ModLoad: 00007ffc`33970000 00007ffc`33995000   C:\WINDOWS\SYSTEM32\profapi.dll
+ModLoad: 00007ffc`328c0000 00007ffc`328cc000   C:\WINDOWS\SYSTEM32\secur32.dll
+ModLoad: 00007ffc`32d30000 00007ffc`32d73000   C:\WINDOWS\SYSTEM32\SSPICLI.DLL
+ModLoad: 00007ffc`34460000 00007ffc`345c8000   C:\WINDOWS\System32\crypt32.dll
+ModLoad: 00000000`10000000 00000000`10021000   C:\WINDOWS\SYSTEM32\OpenAL32.DLL
+ModLoad: 00007ffc`0d4a0000 00007ffc`0d4c9000   C:\WINDOWS\SYSTEM32\winmmbase.dll
+ModLoad: 00007ffc`27a00000 00007ffc`27a9c000   C:\WINDOWS\SYSTEM32\MMDevAPI.DLL
+ModLoad: 00007ffb`ee5e0000 00007ffb`ee626000   C:\WINDOWS\SYSTEM32\wdmaud.drv
+ModLoad: 00007ffc`08290000 00007ffc`08299000   C:\WINDOWS\SYSTEM32\ksuser.dll
+ModLoad: 00007ffc`31700000 00007ffc`3170b000   C:\WINDOWS\SYSTEM32\AVRT.dll
+ModLoad: 00007ffc`336e0000 00007ffc`3370c000   C:\WINDOWS\SYSTEM32\DEVOBJ.dll
+ModLoad: 00007ffc`33730000 00007ffc`3377e000   C:\WINDOWS\SYSTEM32\cfgmgr32.dll
+ModLoad: 000001a0`1e860000 000001a0`1e8ae000   C:\WINDOWS\SYSTEM32\CFGMGR32.dll
+ModLoad: 000001a0`1fbc0000 000001a0`1fc0e000   C:\WINDOWS\SYSTEM32\cfgmgr32.dll
+ModLoad: 00007ffc`22300000 00007ffc`224ee000   C:\WINDOWS\SYSTEM32\AUDIOSES.DLL
+ModLoad: 00007ffc`058d0000 00007ffc`058de000   C:\WINDOWS\SYSTEM32\msacm32.drv
+ModLoad: 00007ffb`fd560000 00007ffb`fd57e000   C:\WINDOWS\SYSTEM32\MSACM32.dll
+ModLoad: 00007ffb`fd550000 00007ffb`fd55b000   C:\WINDOWS\SYSTEM32\midimap.dll
+ModLoad: 00000000`00c80000 00000000`011f8000   C:\WINDOWS\SYSTEM32\Sens_oal.dll
+ModLoad: 00000000`00c80000 00000000`01103000   C:\WINDOWS\SYSTEM32\wrap_oal.dll
+ModLoad: 00000000`00c80000 00000000`01103000   C:\WINDOWS\SYSTEM32\wrap_oal.dll
+ModLoad: 00007ffc`086e0000 00007ffc`08782000   C:\WINDOWS\SYSTEM32\dsound.dll
+ModLoad: 00007ffb`f9740000 00007ffb`f97f1000   C:\WINDOWS\SYSTEM32\ResampleDmo.DLL
+ModLoad: 000001a0`1e880000 000001a0`1e8cd000   C:\WINDOWS\SYSTEM32\powrprof.dll
+ModLoad: 00007ffc`32850000 00007ffc`3289d000   C:\WINDOWS\SYSTEM32\powrprof.dll
+ModLoad: 00007ffc`2dca0000 00007ffc`2dcab000   C:\WINDOWS\SYSTEM32\msdmo.dll
+ModLoad: 00007ffc`32830000 00007ffc`32843000   C:\WINDOWS\SYSTEM32\UMPDC.dll
+ModLoad: 00007ffc`36830000 00007ffc`368e0000   C:\WINDOWS\System32\clbcatq.dll
+ModLoad: 00007ffc`30dd0000 00007ffc`30de5000   C:\WINDOWS\SYSTEM32\resourcepolicyclient.dll
+ModLoad: 00000000`00c80000 00000000`011f8000   C:\WINDOWS\system32\Sens_oal.dll
+ModLoad: 00007ffb`fb760000 00007ffb`fb817000   C:\Windows\System32\appresolver.dll
+ModLoad: 00007ffc`33030000 00007ffc`33058000   C:\Windows\System32\USERENV.dll
+ModLoad: 00007ffb`f4e10000 00007ffb`f4e1d000   C:\WINDOWS\SYSTEM32\LINKINFO.dll
+ModLoad: 00007ffc`2f710000 00007ffc`2f818000   C:\WINDOWS\SYSTEM32\PROPSYS.dll
+ModLoad: 00007ffc`2c600000 00007ffc`2c697000   C:\WINDOWS\SYSTEM32\apphelp.dll
+ModLoad: 00007ffc`000a0000 00007ffc`000ba000   C:\WINDOWS\system32\NetworkExplorer.dll
+ModLoad: 00007ffb`f5940000 00007ffb`f59ee000   C:\WINDOWS\SYSTEM32\ntshrui.dll
+ModLoad: 00007ffc`2ba70000 00007ffc`2ba98000   C:\WINDOWS\SYSTEM32\srvcli.dll
+ModLoad: 00007ffc`25b70000 00007ffc`25b82000   C:\WINDOWS\SYSTEM32\cscapi.dll
+ModLoad: 00007ffc`2f4b0000 00007ffc`2f555000   C:\WINDOWS\SYSTEM32\policymanager.dll
+ModLoad: 00007ffc`2f3e0000 00007ffc`2f473000   C:\WINDOWS\SYSTEM32\msvcp110_win.dll
+ModLoad: 00007ffc`32be0000 00007ffc`32c14000   C:\WINDOWS\SYSTEM32\ntmarta.dll
+ModLoad: 00007ffb`ddc20000 00007ffb`dddd5000   C:\Windows\System32\TaskFlowDataEngine.dll
+ModLoad: 00007ffc`21400000 00007ffc`214b2000   C:\Windows\System32\OneCoreCommonProxyStub.dll
+ModLoad: 00007ffb`dbb10000 00007ffb`dbc03000   C:\Users\sokky\Documents\Godot\bulwark_proto_funny\nuclide\vulkan-1.dll
+ModLoad: 00007ffc`2cd10000 00007ffc`2cd2a000   C:\WINDOWS\SYSTEM32\windows.staterepositorycore.dll
+ModLoad: 00007ffc`30270000 00007ffc`302b9000   C:\WINDOWS\SYSTEM32\directxdatabasehelper.dll
+ModLoad: 00007ffb`77ed0000 00007ffb`7ab82000   C:\WINDOWS\System32\DriverStore\FileRepository\nvmdi.inf_amd64_97fbf7e42e9512b0\nvoglv64.dll
+ModLoad: 00007ffc`34de0000 00007ffc`35254000   C:\WINDOWS\System32\SETUPAPI.dll
+ModLoad: 00007ffc`328a0000 00007ffc`328b4000   C:\WINDOWS\SYSTEM32\WTSAPI32.dll
+ModLoad: 00007ffc`296c0000 00007ffc`296ca000   C:\WINDOWS\SYSTEM32\VERSION.dll
+ModLoad: 00007ffc`33710000 00007ffc`33722000   C:\WINDOWS\SYSTEM32\msasn1.dll
+ModLoad: 00007ffc`29680000 00007ffc`296b2000   C:\WINDOWS\SYSTEM32\cryptnet.dll
+ModLoad: 00007ffc`332c0000 00007ffc`332cc000   C:\WINDOWS\SYSTEM32\cryptbase.dll
+ModLoad: 00007ffc`33210000 00007ffc`33260000   C:\WINDOWS\SYSTEM32\wldp.dll
+ModLoad: 00007ffc`28c70000 00007ffc`28dca000   C:\WINDOWS\SYSTEM32\drvstore.dll
+ModLoad: 00007ffc`343e0000 00007ffc`3445c000   C:\WINDOWS\System32\WINTRUST.dll
+ModLoad: 00007ffc`35e90000 00007ffc`35eaf000   C:\WINDOWS\System32\imagehlp.dll
+ModLoad: 00007ffc`332e0000 00007ffc`332fb000   C:\WINDOWS\SYSTEM32\CRYPTSP.dll
+ModLoad: 00007ffc`32a30000 00007ffc`32a67000   C:\WINDOWS\system32\rsaenh.dll
+ModLoad: 00007ffc`19ea0000 00007ffc`1edf7000   C:\WINDOWS\System32\DriverStore\FileRepository\nvmdi.inf_amd64_97fbf7e42e9512b0\nvgpucomp64.dll
+ModLoad: 00007ffc`25080000 00007ffc`250b9000   C:\WINDOWS\SYSTEM32\rometadata.dll
+ModLoad: 000001a0`1fea0000 000001a0`1ff7c000   image000001a0`1fea0000
+ModLoad: 00007ffc`24060000 00007ffc`2406e000   C:\Program Files (x86)\RivaTuner Statistics Server\Vulkan\RTSSVkLayer64.dll
+ModLoad: 00000000`69c00000 00000000`69cd3000   C:\WINDOWS\WinSxS\amd64_microsoft.vc90.crt_1fc8b3b9a1e18e3b_9.0.30729.9635_none_08e2c157a83ed5da\MSVCP90.dll
+ModLoad: 00000000`69b50000 00000000`69bf3000   C:\WINDOWS\WinSxS\amd64_microsoft.vc90.crt_1fc8b3b9a1e18e3b_9.0.30729.9635_none_08e2c157a83ed5da\MSVCR90.dll
+ModLoad: 00007ffb`e0d20000 00007ffb`e0d6d000   C:\ProgramData\obs-studio-hook\graphics-hook64.dll
+[OBS] graphics-hook.dll loaded against process: fteqw64.exe
+[OBS] (half life scientist) everything..  seems to be in order
+ModLoad: 00007ffc`364d0000 00007ffc`36630000   C:\WINDOWS\System32\MSCTF.dll
+ModLoad: 00007ffc`07f40000 00007ffc`07f66000   C:\Users\sokky\Documents\Godot\bulwark_proto_funny\nuclide\fteplug_cef_x64.dll
+ModLoad: 00007ffc`12440000 00007ffc`12585000   C:\WINDOWS\SYSTEM32\textinputframework.dll
+ModLoad: 00007ffc`2bed0000 00007ffc`2c003000   C:\WINDOWS\SYSTEM32\CoreMessaging.dll
+ModLoad: 00007ffc`29820000 00007ffc`29b8c000   C:\WINDOWS\SYSTEM32\CoreUIComponents.dll
+ModLoad: 00007ffc`24a70000 00007ffc`24aea000   C:\WINDOWS\system32\Oleacc.dll
+ModLoad: 00007ffc`2d160000 00007ffc`2d2aa000   C:\Windows\System32\AppXDeploymentClient.dll
+ModLoad: 00007ffc`368e0000 00007ffc`368e8000   C:\WINDOWS\System32\PSAPI.DLL
+ModLoad: 00007ffc`31140000 00007ffc`31373000   C:\WINDOWS\SYSTEM32\dbghelp.dll
+ModLoad: 00007ffc`32470000 00007ffc`324dc000   C:\WINDOWS\SYSTEM32\WINSTA.dll
+ModLoad: 00007ffc`31380000 00007ffc`315d7000   C:\WINDOWS\system32\d3d11.dll
+ModLoad: 00007ffc`272d0000 00007ffc`27395000   C:\WINDOWS\System32\DriverStore\FileRepository\nvmdi.inf_amd64_97fbf7e42e9512b0\nvldumdx.dll
+ModLoad: 00007ffc`25ee0000 00007ffc`2601b000   C:\WINDOWS\System32\DriverStore\FileRepository\nvmdi.inf_amd64_97fbf7e42e9512b0\NvMemMapStoragex.dll
+ModLoad: 00007ffc`143a0000 00007ffc`19749000   C:\WINDOWS\System32\DriverStore\FileRepository\nvmdi.inf_amd64_97fbf7e42e9512b0\nvwgf2umx.dll
+ModLoad: 00007ffb`f65c0000 00007ffb`f6ce5000   C:\WINDOWS\System32\DriverStore\FileRepository\nvmdi.inf_amd64_97fbf7e42e9512b0\nvppex.dll
+ModLoad: 00007ffc`1f250000 00007ffc`1f7bb000   C:\WINDOWS\SYSTEM32\nvapi64.dll
+ModLoad: 00007ffc`2b7f0000 00007ffc`2ba45000   C:\WINDOWS\SYSTEM32\dcomp.dll
+ModLoad: 00007ffc`27630000 00007ffc`276ec000   C:\WINDOWS\SYSTEM32\mscms.dll
+onecoreuap\windows\core\color\mscms\internalgamma.cxx(230)\mscms.dll!00007FFC2766B657: (caller: 00007FFC2766B3BB) ReturnNt(1) tid(5ec1c) C000000D An invalid parameter was passed to a service or function.
+ModLoad: 00007ffc`2f2a0000 00007ffc`2f2b1000   C:\WINDOWS\SYSTEM32\xinput1_4.dll
+ModLoad: 00007ffc`12590000 00007ffc`127a5000   C:\WINDOWS\SYSTEM32\inputhost.dll
+ModLoad: 00007ffc`008f0000 00007ffc`0092f000   C:\Windows\System32\deviceaccess.dll
+ModLoad: 00000000`00c80000 00000000`01103000   C:\WINDOWS\SYSTEM32\wrap_oal.dll
+ModLoad: 00000000`00c80000 00000000`01103000   C:\WINDOWS\SYSTEM32\wrap_oal.dll
+ModLoad: 00007ffc`23950000 00007ffc`23ace000   C:\Windows\System32\Windows.UI.dll
+ModLoad: 00007ffb`ab200000 00007ffb`ab249000   C:\WINDOWS\SYSTEM32\icm32.dll
+ModLoad: 00007ffc`123f0000 00007ffc`1243b000   C:\WINDOWS\system32\ApplicationTargetedFeatureDatabase.dll
+ModLoad: 00007ffc`2e2d0000 00007ffc`2e576000   C:\Windows\System32\twinapi.appcore.dll
+ModLoad: 00007ffc`32f90000 00007ffc`32ff9000   C:\WINDOWS\system32\mswsock.dll
+ModLoad: 00007ffc`337a0000 00007ffc`337aa000   C:\WINDOWS\SYSTEM32\DPAPI.dll
+(62ea0.5ec1c): Access violation - code c0000005 (first chance)
+First chance exceptions are reported before any exception handling.
+This exception may be expected and handled.
+*** WARNING: Unable to verify checksum for fteqw64.exe.db
+*** ERROR: Symbol file could not be found.  Defaulted to export symbols for fteqw64.exe.db - 
+===FAULT===
+rax=00000073a52fd610 rbx=00000073a52fd570 rcx=000001a1b71d0ab8
+rdx=0000000000000003 rsi=0000000000000009 rdi=000001a1b71d0ab8
+rip=00007ff7315dff57 rsp=00000073a52fd550 rbp=0000000000000001
+ r8=0000000000000008  r9=000001a060d7de44 r10=000001a060d7de40
+r11=00000073a52fd39c r12=000001a12c9c4901 r13=0000000000000000
+r14=baadf00dbaadf00d r15=0000000000000003
+iopl=0         nv up ei ng nz na pe nc
+cs=0033  ss=002b  ds=002b  es=002b  fs=0053  gs=002b             efl=00010282
+fteqw64_exe+0x3ff57:
+00007ff7`315dff57 418b4610        mov     eax,dword ptr [r14+10h] ds:baadf00d`baadf01d=????????
+===STACK===
+Child-SP          RetAddr           : Args to Child                                                           : Call Site
+00000073`a52fd550 00007ff7`315e269a : 00000000`00000000 00000000`00000000 00000000`00000000 00000000`00000000 : fteqw64_exe+0x3ff57
+00000073`a52fd5e0 00007ff7`315cf123 : 00000000`00000000 00000000`bf800000 00000000`00000000 3f800000`3f7ffffc : fteqw64_exe+0x4269a
+00000073`a52fd6d0 00007ff7`315ebe4d : 00000000`00000000 00007ffb`00000000 00007ffb`78543b00 000001a0`61096f20 : fteqw64_exe+0x2f123
+00000073`a52fd770 00007ff7`315e9b24 : 00000000`00000001 00000000`00000000 000001a0`60ea3a70 000001a0`60d30000 : fteqw64_exe+0x4be4d
+00000073`a52fd890 00007ff7`315eae09 : 00000000`44340000 00000000`00000000 00000000`00000000 00000000`00000000 : fteqw64_exe+0x49b24
+00000073`a52fd990 00007ff7`317d0213 : 00000000`00000000 00007ff7`318fcf68 3fb99999`a0000000 00000000`00000000 : fteqw64_exe+0x4ae09
+00000073`a52fdac0 00007ff7`31903c96 : 00000000`0000000d 00007ff7`316cee01 00000000`00000000 00007ff7`3177795d : fteqw64_exe+0x230213
+00000073`a52fdb20 00007ff7`318fc8c3 : 00000000`00000000 00000000`00000000 00000000`00000000 00000000`00000000 : fteqw64_exe+0x363c96
+00000073`a52fdbf0 00007ff7`318fc43b : 00000000`00000001 00000073`a52fde10 00000000`00000000 00007ff7`34dc5600 : fteqw64_exe+0x35c8c3
+00000073`a52fdc90 00007ff7`317cb7b3 : 000001a0`60e80710 00000000`00000000 00000000`00000000 00000000`00989680 : fteqw64_exe+0x35c43b
+00000073`a52fdcd0 00007ff7`315ed950 : 00000000`00000001 00007ff7`31794743 00000000`00000000 00000000`00000000 : fteqw64_exe+0x22b7b3
+00000073`a52fdd60 00007ff7`31799069 : 00000000`00000000 00007ffc`31ab1bb6 00000073`a52fdde0 00007ff7`3162ed31 : fteqw64_exe+0x4d950
+00000073`a52fdda0 00007ff7`31631cfd : 00000000`0000000a 00000000`00000000 00000073`a52fdd88 00000000`00000000 : fteqw64_exe+0x1f9069
+00000073`a52fde40 00007ff7`3298883a : 00000000`0000000a 00007ff7`329888b1 00000000`00000000 00000000`00000000 : fteqw64_exe+0x91cfd
+00000073`a52ff840 00007ffc`3664259d : 00000000`00000000 00000000`00000000 00000000`00000000 00000000`00000000 : fteqw64_exe+0x13e883a
+00000073`a52ff880 00007ffc`3698af78 : 00000000`00000000 00000000`00000000 00000000`00000000 00000000`00000000 : KERNEL32!BaseThreadInitThunk+0x1d
+00000073`a52ff8b0 00000000`00000000 : 00000000`00000000 00000000`00000000 00000000`00000000 00000000`00000000 : ntdll!RtlUserThreadStart+0x28
+===DONE===
+quit:
+NatVis script unloaded from 'C:\Program Files\Windows Kits\10\Debuggers\x64\Visualizers\atlmfc.natvis'
+NatVis script unloaded from 'C:\Program Files\Windows Kits\10\Debuggers\x64\Visualizers\concurrency.natvis'
+NatVis script unloaded from 'C:\Program Files\Windows Kits\10\Debuggers\x64\Visualizers\cpp_rest.natvis'
+NatVis script unloaded from 'C:\Program Files\Windows Kits\10\Debuggers\x64\Visualizers\stl.natvis'
+NatVis script unloaded from 'C:\Program Files\Windows Kits\10\Debuggers\x64\Visualizers\Windows.Data.Json.natvis'
+NatVis script unloaded from 'C:\Program Files\Windows Kits\10\Debuggers\x64\Visualizers\Windows.Devices.Geolocation.natvis'
+NatVis script unloaded from 'C:\Program Files\Windows Kits\10\Debuggers\x64\Visualizers\Windows.Devices.Sensors.natvis'
+NatVis script unloaded from 'C:\Program Files\Windows Kits\10\Debuggers\x64\Visualizers\Windows.Media.natvis'
+NatVis script unloaded from 'C:\Program Files\Windows Kits\10\Debuggers\x64\Visualizers\windows.natvis'
+NatVis script unloaded from 'C:\Program Files\Windows Kits\10\Debuggers\x64\Visualizers\winrt.natvis'

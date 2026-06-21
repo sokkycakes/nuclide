@@ -1,8 +1,19 @@
 /*
  * Stiletto prototype movement: wall contact/slide/jump, grapple tuning,
- * air dodge + air stall (KickbackModulev2: +attack2 -> INPUT_SECONDARY edge;
- * dodge if forward/side move wish magnitude exceeds threshold, else stall),
- * short parry window. Constants live here (no decl tuning layer).
+ * air dodge + air stall, short parry window. Constants live here (no decl
+ * tuning layer).
+ *
+ * Input model:
+ *   INPUT_JUMP (jump) is the context-sensitive air button. While airborne and
+ *   off a wall, a fresh jump press performs an air dash (if there is movement
+ *   wish) or an air stall (if not). On a wall, the jump press is consumed by
+ *   the wall jump instead, so dash/stall do not fire.
+ *
+ *   INPUT_STILETTO_DASH (MOUSE4) is now a held "acro" modifier (shift-style),
+ *   not a standalone action. While it is held:
+ *     - wall jump launches at a fixed steep upward angle;
+ *     - air dash (with movement wish) angles diagonally downward;
+ *     - jump with no movement wish becomes a drop dash (straight down).
  */
 
 #define STILETTO_GRAPPLE_PULL			600.0f
@@ -34,6 +45,11 @@
 #define STILETTO_WALL_JUMP_HORIZ		260.0f
 #define STILETTO_WALL_JUMP_UP			240.0f
 #define STILETTO_WALL_JUMP_COOLDOWN		0.22f
+
+/* acro modifier (MOUSE4 held): fixed steep launch off the wall, applied as an
+ * override so the takeoff angle is consistent regardless of incoming speed. */
+#define STILETTO_WALL_JUMP_ACRO_HORIZ		140.0f
+#define STILETTO_WALL_JUMP_ACRO_UP		360.0f
 #define STILETTO_WALL_SLIDE_MAX_FALL		420.0f
 #define STILETTO_WALL_CLING_MAX_FALL		140.0f
 
@@ -41,6 +57,20 @@
 #define STILETTO_MAX_AIR_DODGES			1.0f
 #define STILETTO_MAX_AIR_STALLS			1.0f
 #define STILETTO_AIR_MOVE_INPUT_THRESH		8.0f
+
+/* acro modifier (MOUSE4 held): air dash angles downward (vertical velocity is
+ * overridden so the dive angle is consistent), and a no-movement jump becomes a
+ * drop dash straight down. */
+#define STILETTO_AIR_DASH_DOWN_SPEED		300.0f
+#define STILETTO_DROP_DASH_SPEED		600.0f
+
+/* Air dash is a purely additive impulse that exists for only an extremely short
+ * time. The dash velocity (dodgeDir * STILETTO_AIR_DASH_SPEED) is added to the
+ * current velocity, then that same contribution is bled back out linearly over
+ * STILETTO_AIR_DASH_ADD_TIME. This is independent of ground/run speed caps: it
+ * just shifts your position and ekes a little distance, then leaves your
+ * underlying velocity (and air control) untouched, so it can't stack speed. */
+#define STILETTO_AIR_DASH_ADD_TIME		0.5f
 
 #define STILETTO_AIR_STALL_TIME			0.2f
 #define STILETTO_AIR_STALL_GRAV_SCALE		0.0f
@@ -51,6 +81,9 @@ void
 Stiletto_ApplyMoveTuning(entity e)
 {
 	ncPlayer pl = (ncPlayer)e;
+	float addMag;
+	float step;
+	vector addDelta;
 
 	if (time < pl.m_stilettoAirStallEnd) {
 		pl.gravity *= STILETTO_AIR_STALL_GRAV_SCALE;
@@ -58,6 +91,27 @@ Stiletto_ApplyMoveTuning(entity e)
 		/* Godot-style: completely nullify downward velocity during stall */
 		if (pl.velocity[2] < 0.0f) {
 			pl.velocity[2] = 0.0f;
+		}
+	}
+
+	/* air dash bleed: remove the additive dash contribution over a very short
+	 * window, so the dash is a brief positional shift rather than a permanent
+	 * speed add. This subtracts only the dash's own impulse and never references
+	 * run-speed caps, leaving the player's underlying velocity / air control
+	 * intact. (Air dash is single-charge per airtime, so the stored contribution
+	 * is never clobbered mid-bleed.) */
+	if (pl.m_stilettoDashAddVel != g_vec_null) {
+		addMag = vlen(pl.m_stilettoDashAddVel);
+		step = (STILETTO_AIR_DASH_SPEED / STILETTO_AIR_DASH_ADD_TIME) * input_timelength;
+
+		if (addMag <= 0.0f || step >= addMag) {
+			/* final frame: subtract whatever remains */
+			pl.velocity -= pl.m_stilettoDashAddVel;
+			pl.m_stilettoDashAddVel = g_vec_null;
+		} else {
+			addDelta = pl.m_stilettoDashAddVel * (step / addMag);
+			pl.velocity -= addDelta;
+			pl.m_stilettoDashAddVel -= addDelta;
 		}
 	}
 
@@ -420,6 +474,7 @@ Stiletto_PmGunjumpAir(entity e, int curButtons, vector moveWish)
 {
 	ncPlayer pl = (ncPlayer)e;
 	float horiz;
+	float acro;
 	vector dodgeDir;
 	vector fwd;
 	vector right;
@@ -432,11 +487,17 @@ Stiletto_PmGunjumpAir(entity e, int curButtons, vector moveWish)
 		return;
 	}
 
-	if (!(curButtons & INPUT_SECONDARY)) {
+	/* on a wall the jump press belongs to the wall jump; no dash/stall here */
+	if (pl.m_nuclideFlags & VFL_STILETTO_WALL) {
 		return;
 	}
 
-	if (pl.m_stilettoPrevButtons & INPUT_SECONDARY) {
+	/* jump is now the context-sensitive air button (fresh press only) */
+	if (!(curButtons & INPUT_JUMP)) {
+		return;
+	}
+
+	if (pl.m_stilettoPrevButtons & INPUT_JUMP) {
 		return;
 	}
 
@@ -448,14 +509,15 @@ Stiletto_PmGunjumpAir(entity e, int curButtons, vector moveWish)
 		return;
 	}
 
+	/* MOUSE4 held = acro modifier (no edge requirement, it is a held shift) */
+	acro = (curButtons & INPUT_STILETTO_DASH) ? 1.0f : 0.0f;
+
 	horiz = sqrt(moveWish[0] * moveWish[0] + moveWish[1] * moveWish[1]);
 
 	if (horiz > STILETTO_AIR_MOVE_INPUT_THRESH) {
 		if (pl.m_stilettoAirDodgeCharges < 1.0f) {
 			return;
 		}
-
-		pl.m_stilettoAirDodgeCharges -= 1.0f;
 
 		makevectors(input_angles);
 		fwd = v_forward;
@@ -482,15 +544,36 @@ Stiletto_PmGunjumpAir(entity e, int curButtons, vector moveWish)
 			return;
 		}
 
+		/* validate direction before spending the charge */
+		pl.m_stilettoAirDodgeCharges -= 1.0f;
+
 		dodgeDir = normalize(dodgeDir);
-		pl.velocity += dodgeDir * STILETTO_AIR_DASH_SPEED;
+
+		/* purely additive horizontal impulse; remember the contribution so it
+		 * can be bled back out over a very short window (see ApplyMoveTuning) */
+		pl.m_stilettoDashAddVel = dodgeDir * STILETTO_AIR_DASH_SPEED;
+		pl.m_stilettoDashAddVel[2] = 0.0f;
+		pl.velocity += pl.m_stilettoDashAddVel;
+
+		/* acro: dive the dash diagonally downward at a consistent angle */
+		if (acro) {
+			pl.velocity[2] = -STILETTO_AIR_DASH_DOWN_SPEED;
+		}
 	} else {
 		if (pl.m_stilettoAirStallCharges < 1.0f) {
 			return;
 		}
 
 		pl.m_stilettoAirStallCharges -= 1.0f;
-		pl.m_stilettoAirStallEnd = time + STILETTO_AIR_STALL_TIME;
+
+		if (acro) {
+			/* drop dash: cancel horizontal momentum and slam straight down */
+			pl.velocity[0] = 0.0f;
+			pl.velocity[1] = 0.0f;
+			pl.velocity[2] = -STILETTO_DROP_DASH_SPEED;
+		} else {
+			pl.m_stilettoAirStallEnd = time + STILETTO_AIR_STALL_TIME;
+		}
 	}
 }
 
@@ -527,13 +610,23 @@ Stiletto_WallJump(entity e, int curButtons)
 		return;
 	}
 	away = normalize(away);
-	along = (pl.velocity[0] * away[0]) + (pl.velocity[1] * away[1]);
-	if (along < 0.0f) {
-		pl.velocity[0] -= away[0] * along;
-		pl.velocity[1] -= away[1] * along;
+
+	if (curButtons & INPUT_STILETTO_DASH) {
+		/* acro modifier: fixed steep upward launch, applied as an override so
+		 * the takeoff angle is consistent regardless of incoming velocity */
+		pl.velocity[0] = away[0] * STILETTO_WALL_JUMP_ACRO_HORIZ;
+		pl.velocity[1] = away[1] * STILETTO_WALL_JUMP_ACRO_HORIZ;
+		pl.velocity[2] = STILETTO_WALL_JUMP_ACRO_UP;
+	} else {
+		along = (pl.velocity[0] * away[0]) + (pl.velocity[1] * away[1]);
+		if (along < 0.0f) {
+			pl.velocity[0] -= away[0] * along;
+			pl.velocity[1] -= away[1] * along;
+		}
+
+		pl.velocity += away * STILETTO_WALL_JUMP_HORIZ + [0, 0, STILETTO_WALL_JUMP_UP];
 	}
 
-	pl.velocity += away * STILETTO_WALL_JUMP_HORIZ + [0, 0, STILETTO_WALL_JUMP_UP];
 	pl.flags &= ~FL_ONGROUND;
 	pl.m_stilettoWallJumpCooldown = STILETTO_WALL_JUMP_COOLDOWN;
 	pl.RemoveVFlags(VFL_STILETTO_WALL);

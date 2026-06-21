@@ -188,6 +188,12 @@ float clframetime;
 
 string(string modelname, int frame, float frametime) spriteframe = #0;
 
+/* engine-native (Figma-native) HUD renderer. The engine owns the draw + all
+ * internal gating (native_hud cvar, ca_active, menu/intermission/paused); CSQC
+ * just invokes it from the 2D pass so it's unified with hud.dat. See
+ * cl_native_hud.c / PF_CL_hud_drawnative in the engine. */
+void(vector predictedVelocity) hud_drawnative = #0:hud_drawnative;
+
 void CSQC_UpdateSeat(void);
 
 /** Like drawstring() but aligns text to the right from the specified screen coordinates. */
@@ -388,6 +394,7 @@ struct
 	bool m_iInputJump;
 	bool m_iInputStilettoGrapple;
 	bool m_iInputStilettoBoot;
+	bool m_iInputStilettoDash;
 	movementStance_t m_dForceStance;
 	float m_flInputBlockTime;
 	

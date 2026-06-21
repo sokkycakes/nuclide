@@ -89,6 +89,7 @@ ncPlayer::ncPlayer(void)
 	m_stilettoAirDodgeCharges = 1.0f;
 	m_stilettoAirStallCharges = 1.0f;
 	m_stilettoAirStallEnd = 0.0f;
+	m_stilettoDashAddVel = g_vec_null;
 	m_stilettoParryEnd = 0.0f;
 	m_stilettoPunishState = 0i;
 	m_stilettoPunishEnd = 0.0f;
@@ -443,6 +444,17 @@ ncPlayer::ProcessInput(void)
 	}
 
 	if (!m_activeWeapon) {
+		return;
+	}
+
+	/* On the very first prediction frame the weapon entity may have been found
+	   by findentity() in PredictPostFrame but its CSQC class constructor has not
+	   run yet (CSQC_Ent_Update for that entity slot is still pending in the same
+	   network frame).  In that window _isWeapon can be true while every vtable
+	   function field is still zero — exactly the NULL-function crash reported.
+	   _WeaponStoppedFiring is virtual (see Weapon.h) so its slot is set by
+	   spawnfunc_ncWeapon; a null pointer here means the entity is not ready. */
+	if (!m_activeWeapon._WeaponStoppedFiring) {
 		return;
 	}
 
@@ -982,6 +994,9 @@ ncPlayer::ClientInputFrame(void)
 	if (pSeat->m_iInputAttack2 == true) {
 		input_buttons |= INPUT_SECONDARY;
 	}
+	if (pSeat->m_iInputStilettoDash == true) {
+		input_buttons |= INPUT_STILETTO_DASH;
+	}
 	if (pSeat->m_iInputReload == true) {
 		input_buttons |= INPUT_RELOAD;
 	}
@@ -1156,6 +1171,9 @@ ncPlayer::ReceiveEntity(float isNew, float flChanged)
 	READENTITY_FLOAT(m_stilettoAirDodgeCharges, PLAYER_STILETTO)
 	READENTITY_FLOAT(m_stilettoAirStallCharges, PLAYER_STILETTO)
 	READENTITY_FLOAT(m_stilettoAirStallEnd, PLAYER_STILETTO)
+	READENTITY_COORD(m_stilettoDashAddVel[0], PLAYER_STILETTO)
+	READENTITY_COORD(m_stilettoDashAddVel[1], PLAYER_STILETTO)
+	READENTITY_COORD(m_stilettoDashAddVel[2], PLAYER_STILETTO)
 	READENTITY_FLOAT(m_stilettoParryEnd, PLAYER_STILETTO)
 	READENTITY_INT(m_stilettoPunishState, PLAYER_STILETTO)
 	READENTITY_FLOAT(m_stilettoPunishEnd, PLAYER_STILETTO)
@@ -1267,6 +1285,7 @@ ncPlayer::PredictPreFrame(void)
 	SAVE_STATE(m_stilettoAirDodgeCharges)
 	SAVE_STATE(m_stilettoAirStallCharges)
 	SAVE_STATE(m_stilettoAirStallEnd)
+	SAVE_STATE(m_stilettoDashAddVel)
 	SAVE_STATE(m_stilettoParryEnd)
 	SAVE_STATE(m_stilettoPunishState)
 	SAVE_STATE(m_stilettoPunishEnd)
@@ -1335,6 +1354,7 @@ ncPlayer::PredictPostFrame(void)
 	ROLL_BACK(m_stilettoAirDodgeCharges)
 	ROLL_BACK(m_stilettoAirStallCharges)
 	ROLL_BACK(m_stilettoAirStallEnd)
+	ROLL_BACK(m_stilettoDashAddVel)
 	ROLL_BACK(m_stilettoParryEnd)
 	ROLL_BACK(m_stilettoPunishState)
 	ROLL_BACK(m_stilettoPunishEnd)
@@ -1439,6 +1459,7 @@ ncPlayer::Save(float handle)
 	SaveFloat(handle, "m_stilettoAirDodgeCharges", m_stilettoAirDodgeCharges);
 	SaveFloat(handle, "m_stilettoAirStallCharges", m_stilettoAirStallCharges);
 	SaveFloat(handle, "m_stilettoAirStallEnd", m_stilettoAirStallEnd);
+	SaveVector(handle, "m_stilettoDashAddVel", m_stilettoDashAddVel);
 	SaveFloat(handle, "m_stilettoParryEnd", m_stilettoParryEnd);
 	SaveInt(handle, "m_stilettoPunishState", m_stilettoPunishState);
 	SaveFloat(handle, "m_stilettoPunishEnd", m_stilettoPunishEnd);
@@ -1589,6 +1610,9 @@ ncPlayer::Restore(string keyName, string setValue)
 		break;
 	case "m_stilettoAirStallEnd":
 		m_stilettoAirStallEnd = ReadFloat(setValue);
+		break;
+	case "m_stilettoDashAddVel":
+		m_stilettoDashAddVel = ReadVector(setValue);
 		break;
 	case "m_stilettoParryEnd":
 		m_stilettoParryEnd = ReadFloat(setValue);
@@ -1775,6 +1799,16 @@ ncPlayer::EvaluateEntity(void)
 {
 	pvsflags = !HasVFlags(VFL_FAKESPEC) ? 0 : PVSF_IGNOREPVS;
 
+	/* mirror live values into the engine-native HUD stat slots (clientstat,
+	 * registered in init()). These are sent per-client by the engine. */
+	if (m_activeWeapon && m_activeWeapon._isWeapon && m_activeWeapon.GetClipSize() > 0i) {
+		hudStatClip = m_activeWeapon.GetClip();
+	} else {
+		hudStatClip = -1i;
+	}
+	hudStatReload = m_timeUntilReloaded;
+	hudStatCharges = m_stilettoGrappleCharges;
+
 	EVALUATE_FIELD(entityDefID, PLAYER_MODELINDEX)
 	EVALUATE_FIELD(modelindex, PLAYER_MODELINDEX)
 	EVALUATE_FIELD(vw_index, PLAYER_MODELINDEX)
@@ -1858,6 +1892,9 @@ ncPlayer::EvaluateEntity(void)
 	EVALUATE_FIELD(m_stilettoAirDodgeCharges, PLAYER_STILETTO)
 	EVALUATE_FIELD(m_stilettoAirStallCharges, PLAYER_STILETTO)
 	EVALUATE_FIELD(m_stilettoAirStallEnd, PLAYER_STILETTO)
+	EVALUATE_VECTOR(m_stilettoDashAddVel, 0, PLAYER_STILETTO)
+	EVALUATE_VECTOR(m_stilettoDashAddVel, 1, PLAYER_STILETTO)
+	EVALUATE_VECTOR(m_stilettoDashAddVel, 2, PLAYER_STILETTO)
 	EVALUATE_FIELD(m_stilettoParryEnd, PLAYER_STILETTO)
 	EVALUATE_FIELD(m_stilettoPunishState, PLAYER_STILETTO)
 	EVALUATE_FIELD(m_stilettoPunishEnd, PLAYER_STILETTO)
@@ -1984,6 +2021,9 @@ ncPlayer::SendEntity(entity ePEnt, float flChanged)
 	SENDENTITY_FLOAT(m_stilettoAirDodgeCharges, PLAYER_STILETTO)
 	SENDENTITY_FLOAT(m_stilettoAirStallCharges, PLAYER_STILETTO)
 	SENDENTITY_FLOAT(m_stilettoAirStallEnd, PLAYER_STILETTO)
+	SENDENTITY_COORD(m_stilettoDashAddVel[0], PLAYER_STILETTO)
+	SENDENTITY_COORD(m_stilettoDashAddVel[1], PLAYER_STILETTO)
+	SENDENTITY_COORD(m_stilettoDashAddVel[2], PLAYER_STILETTO)
 	SENDENTITY_FLOAT(m_stilettoParryEnd, PLAYER_STILETTO)
 	SENDENTITY_INT(m_stilettoPunishState, PLAYER_STILETTO)
 	SENDENTITY_FLOAT(m_stilettoPunishEnd, PLAYER_STILETTO)

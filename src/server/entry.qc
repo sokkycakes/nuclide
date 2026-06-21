@@ -457,6 +457,13 @@ init(float prevprogs)
 
 	ncStats::Init();
 
+	/* engine-native HUD bridge: expose clip / reload / grapple-charges to the
+	 * C-side HUD (cl_native_hud.c NHUD_STAT_*). Mirrored per-frame in
+	 * ncPlayer::EvaluateEntity. */
+	clientstat(STAT_USER + 0, EV_INTEGER, hudStatClip);
+	clientstat(STAT_USER + 1, EV_FLOAT, hudStatReload);
+	clientstat(STAT_USER + 2, EV_INTEGER, hudStatCharges);
+
 	/* DO NOT EVER CHANGE THESE. */
 	cvars.SetString("r_meshpitch", "1");
 

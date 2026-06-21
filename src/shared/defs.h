@@ -189,6 +189,15 @@ enumflags
 .bool _isWeapon;
 .bool _isItem;
 
+#ifdef SERVER
+/* engine-native HUD bridge (cl_native_hud.c reads these via clientstat slots
+ * STAT_USER+0..2). ncPlayer::EvaluateEntity mirrors the live values each frame
+ * and init() registers the stats. See NHUD_STAT_* in the engine. */
+.int hudStatClip;      /* active weapon clip count (-1 = clipless weapon) */
+.float hudStatReload;  /* seconds remaining on the current reload         */
+.int hudStatCharges;   /* grapple-hook charges available (0..3)           */
+#endif
+
 void
 Empty(void)
 {

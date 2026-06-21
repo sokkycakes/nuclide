@@ -653,7 +653,11 @@ ncPlayer::Physics_Run(void)
 	/* tool punish: kill horizontal control + scale move wish while punished */
 	Stiletto_Combat_PreMove(this);
 
-	/* a fully-stunned hero can't air-dodge or wall-jump out of the punish */
+	/* a fully-stunned hero can't air-dodge or wall-jump out of the punish.
+	 * Jump now drives both: dash/stall fire only off a wall, the wall jump only
+	 * on a wall. GunjumpAir MUST run before WallJump -- it bails while the wall
+	 * flag is still set, and WallJump clears that flag, so this order keeps a
+	 * single jump press from triggering both in one frame. */
 	if (!Stiletto_Combat_IsFullyStunned(this)) {
 		Stiletto_PmGunjumpAir(this, saved_input_buttons, saved_input_movevalues);
 		Stiletto_WallJump(this, saved_input_buttons);

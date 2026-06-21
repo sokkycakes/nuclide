@@ -242,6 +242,14 @@ CSQC_Update2D(float w, float h, bool focus)
 	ncPlayer cl = (ncPlayer)pSeat->m_ePlayer;
 	self = cl;
 
+	/* engine-native HUD: the engine self-gates on the native_hud cvar plus
+	 * ca_active/menu/intermission/paused, so calling it unconditionally here
+	 * restores the prior always-on behaviour while keeping the draw in the
+	 * CSQC 2D pass (under the menu, with the rest of the HUD). Pass the local
+	 * player's predicted velocity so the engine speedometer shows the real
+	 * (CSQC-predicted) speed in Quake/Hammer units. */
+	hud_drawnative(cl ? cl.velocity : [0.0f, 0.0f, 0.0f]);
+
 	if (Util_GetMaxPlayers() > 1 && !VGUI_Active() && (Client_InIntermission() || (!cl.IsFakeSpectator() && cl.IsDead()))) {
 		HUD_DrawIntermission();
 		Textmenu_Draw();
@@ -627,7 +635,9 @@ CSQC_Input_Frame(void)
 		if (pSeat->m_flInputBlockTime > time && !pl.IsFakeSpectator()) {
 			input_buttons &= ~INPUT_PRIMARY;
 			input_buttons &= ~INPUT_SECONDARY;
+			input_buttons &= ~INPUT_STILETTO_DASH;
 			pSeat->m_iInputAttack2 = false;
+			pSeat->m_iInputStilettoDash = false;
 			return;
 		}
 	} else if (me != world && me.classname == "spectator") {
