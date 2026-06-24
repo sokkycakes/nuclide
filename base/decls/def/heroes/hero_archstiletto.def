@@ -14,6 +14,9 @@ entityDef hero_archstiletto
 	"inherit"				"hero_base"
 
 	"model"					"progs/enforcer.mdl"
+	/* Quake vertex MDL has no HL skeleton; keep the Valve backend (the base
+	   player def uses the skeletal backend for the CS/CSO hero models). */
+	"animBackend"			"1"
 
 	"act_idle"				"$ENFORCER_IDLE"
 	"act_walk"				"$ENFORCER_WALK"

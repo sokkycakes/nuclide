@@ -34,7 +34,7 @@ GameText_DrawString(vector pos, string msg, vector col, float alpha)
 	int c = tokenizebyseparator(msg, "\n");
 
 	for (int i = 0; i < c; i++) {
-		float strwidth = Font_StringWidth(argv(i), TRUE, FONT_20);
+		float strwidth = Font_StringWidth(argv(i), TRUE, FONT_GAMEMESSAGE);
 
 		if (pos[0] == -1) {
 			rpos[0] = g_hudmins[0] + (g_hudres[0] / 2) - (strwidth/2);
@@ -51,10 +51,10 @@ GameText_DrawString(vector pos, string msg, vector col, float alpha)
 		} else {
 			rpos[1] = g_hudmins[1] + ((g_hudres[1] - 12) * pos[1]);
 		}
-		rpos[1] += Font_GetHeight(FONT_20) * i;
-		rpos[1] -= (Font_GetHeight(FONT_20) * c) / 2;
+		rpos[1] += Font_GetHeight(FONT_GAMEMESSAGE) * i;
+		rpos[1] -= (Font_GetHeight(FONT_GAMEMESSAGE) * c) / 2;
 
-		Font_DrawText_RGBA(rpos, argv(i), col, alpha, FONT_20);
+		Font_DrawText_RGBA(rpos, argv(i), col, alpha, FONT_GAMEMESSAGE);
 	}
 }
 

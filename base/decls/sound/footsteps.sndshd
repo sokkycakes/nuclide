@@ -2,14 +2,30 @@ step_default.left
 {
 	attenuation static
 	footstep
-	sample common/null.wav
+	pitch_min 0.9
+	pitch_max 1.1
+	volume 0.6
+	sample player/footsteps/step.wav
+	sample player/footsteps/step2.wav
+	sample player/footsteps/step3.wav
+	sample player/footsteps/step6.wav
+	sample player/footsteps/step7.wav
+	sample player/footsteps/footstep.wav
 }
 
 step_default.right
 {
 	attenuation static
 	footstep
-	sample common/null.wav
+	pitch_min 0.9
+	pitch_max 1.1
+	volume 0.6
+	sample player/footsteps/step.wav
+	sample player/footsteps/step2.wav
+	sample player/footsteps/step3.wav
+	sample player/footsteps/step6.wav
+	sample player/footsteps/step7.wav
+	sample player/footsteps/footstep.wav
 }
 
 damage_bullet.hit

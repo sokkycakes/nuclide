@@ -339,7 +339,19 @@ Stiletto_OnPhysicsStart(entity e)
 	if (pl.flags & FL_ONGROUND) {
 		pl.m_stilettoAirDodgeCharges = STILETTO_MAX_AIR_DODGES;
 		pl.m_stilettoAirStallCharges = STILETTO_MAX_AIR_STALLS;
+		pl.m_stilettoAirTime = time;  // Stamp ref time (time - m_stilettoAirTime ≈ 0 while grounded)
+	} else if (pl.m_stilettoAirTime == 0.0f) {
+		pl.m_stilettoAirTime = time;  // Init for fresh spawns already airborne
 	}
+}
+
+/* Called after the physics step when the player first leaves the ground (jump / fall).
+ * Stamps current time so Physics_Fall can measure airborne duration. */
+void
+Stiletto_LeaveGround(entity e)
+{
+	ncPlayer pl = (ncPlayer)e;
+	pl.m_stilettoAirTime = time;
 }
 
 void
@@ -547,6 +559,10 @@ Stiletto_PmGunjumpAir(entity e, int curButtons, vector moveWish)
 		/* validate direction before spending the charge */
 		pl.m_stilettoAirDodgeCharges -= 1.0f;
 
+#ifdef SERVER
+		pl.StartSoundDef("Player.AirDash", CHAN_AUTO, true);
+#endif
+
 		dodgeDir = normalize(dodgeDir);
 
 		/* purely additive horizontal impulse; remember the contribution so it
@@ -568,10 +584,16 @@ Stiletto_PmGunjumpAir(entity e, int curButtons, vector moveWish)
 
 		if (acro) {
 			/* drop dash: cancel horizontal momentum and slam straight down */
+#ifdef SERVER
+			pl.StartSoundDef("Player.AirDash", CHAN_AUTO, true);
+#endif
 			pl.velocity[0] = 0.0f;
 			pl.velocity[1] = 0.0f;
 			pl.velocity[2] = -STILETTO_DROP_DASH_SPEED;
 		} else {
+#ifdef SERVER
+			pl.StartSoundDef("Player.AirStall", CHAN_AUTO, true);
+#endif
 			pl.m_stilettoAirStallEnd = time + STILETTO_AIR_STALL_TIME;
 		}
 	}

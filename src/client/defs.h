@@ -148,6 +148,7 @@ bool Util_IsFocused(void);
 /* fonts */
 font_s FONT_16;
 font_s FONT_20;
+font_s FONT_GAMEMESSAGE;	/* game_text / centerprint HUD messages (text.qc) */
 font_s FONT_CON;
 font_s FONT_CENTERPRINT;
 font_s FONT_SPEC;		/* spectator HUD bar text (Trade Gothic) */

@@ -49,6 +49,7 @@ entityDef fireInfo_skipstreamPrimary
 	"fireRate"			"0.13"
 	"reloadTime"		"2.0"
 	"semiAuto"			"1"
+	"snd_fire"			"weapon_collier_sidearm.shoot"
 	"punchSpring"		"-0.6 0.2 0"
 	"act_reload"		"reload"
 	"act_reloadEmpty"	"reload"

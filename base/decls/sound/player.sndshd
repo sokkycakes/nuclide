@@ -89,6 +89,41 @@ Player.Jump
 	sample player/plyrjmp8.wav
 }
 
+Player.LandSoft
+{
+	attenuation static
+	pitch_min 0.95
+	pitch_max 1.05
+	volume 0.7
+	sample player/footsteps/step4.wav
+}
+
+Player.LandHard
+{
+	attenuation static
+	pitch_min 0.9
+	pitch_max 1.0
+	volume 0.8
+	sample player/hardlanding.ogg
+}
+
+Player.AirDash
+{
+	attenuation static
+	pitch_min 0.95
+	pitch_max 1.05
+	volume 0.7
+	sample player/airdodge.wav
+}
+
+Player.AirStall
+{
+	attenuation static
+	pitch_min 0.9
+	pitch_max 1.1
+	volume 0.8
+	sample player/airstall.wav
+}
 
 Player.Gib
 {

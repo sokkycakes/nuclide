@@ -164,7 +164,11 @@ export component PauseMenu inherits Window {
     width: root.viewport-w * 1px;
     height: root.viewport-h * 1px;
     no-frame: true;
-    background: #000000;
+    // Transparent so the live game framebuffer shows through behind the overlay
+    // (this menu is non-opaque in-game). The compositor's alpha-fix only keeps
+    // pixels cleared to (0,0,0,0) transparent — an opaque background paints the
+    // whole screen black. Matches GameHud in hud.slint.
+    background: transparent;
 
     // Scaled metrics for interactive menu
     private property <length> panel-x: root.sx(155);

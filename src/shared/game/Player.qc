@@ -96,6 +96,13 @@ ncPlayer::ncPlayer(void)
 	m_stilettoPrevButtons = 0;
 	m_stilettoGrappleHeld = 0;
 	m_stilettoGrappleActionHeld = 0;
+
+#ifdef SERVER
+	/* precache sounds that are called by string name in stiletto_tuning.qc
+	 * but aren't referenced from any entity def snd_* field */
+	precache.Sound("Player.AirDash");
+	precache.Sound("Player.AirStall");
+#endif
 }
 
 ncWeapon
@@ -509,9 +516,18 @@ ncPlayer::UpdatePlayerAnimation_Skeletal(float timelength)
 	frame = anim_top;
 	frame1time = anim_top_time;
 //  	lerpfrac = 1.0f;
-	skel_build(skeletonindex, this, modelindex, 0.001, m_torsoFirst, m_torsoLast ); // The 0.0001 comes from a stupid bug?
 
-	skel_postmul_bone( skeletonindex, m_torsoTwistYaw, [0,0,0], anglesToForward([ 0, fCorrect, 0 ]) );
+	/* Up/down aim rides the second blend axis (dim1) of the aim sequence; the
+	 * first axis (dim0) is a yaw/roll lean and must stay centered or the torso
+	 * twists sideways as you look up or down. */
+	subblendfrac = 0.0f;
+	subblend2frac = v_angle[0] / 90;
+
+	skel_build(skeletonindex, this, modelindex, 0.001, m_torsoFirst, m_torsoLast );
+
+	/* No skel_postmul_bone here — the leg correction in angles[1] already hides
+	 * foot-skate, and applying the full fCorrect yaw to a single spine bone
+	 * compounds with the aim-blend pitch to produce a diagonal lean on strafe. */
 
 }
 
@@ -533,7 +549,12 @@ ncPlayer::UpdatePlayerAnimation_Valve(float timelength)
 	angles[1] = v_angle[1] - fCorrect;
 	angles[0] = angles[2] = 0;
 
-	subblendfrac =
+	/* Up/down aim lives entirely on the second blend axis (dim1) of these
+	 * HL/CS player models). The first blend axis (dim0) is a yaw/roll lean on
+	 * the upper spine; driving it with pitch makes the torso twist sideways
+	 * when looking up or down. Keep dim0 centered.
+	 * For genuine 1D-blend models the engine ignores subblend2frac entirely. */
+	subblendfrac = 0.0f;
 	subblend2frac = v_angle[0] / 90;
 }
 
@@ -589,6 +610,16 @@ ncPlayer::UpdatePlayerAnimation(float timelength)
 			anim_bottom = m_actWalkProne;
 		} else {
 			anim_bottom = m_actRun;
+		}
+	}
+
+	/* airborne: override the leg gait with the jump/fall pose. Only when the
+	 * model actually defines act_jump, so other games are unaffected. */
+	if (m_actJump != ACTIVITY_NOTFOUND) {
+		if (!(flags & FL_ONGROUND) && waterlevel < 2) {
+			if (!IsCrouching() && !IsProne()) {
+				anim_bottom = m_actJump;
+			}
 		}
 	}
 

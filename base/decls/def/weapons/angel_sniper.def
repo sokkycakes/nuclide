@@ -47,6 +47,7 @@ entityDef fireInfo_angelPrimary
 	"fireRate"			"1.5"
 	"reloadTime"		"2.75"
 	"semiAuto"			"1"
+	"snd_fire"			"weapon_collier_sidearm.shoot"
 	"punchSpring"		"-2.0 0 0"
 	"act_reload"		"reload"
 	"act_reloadEmpty"	"reload"

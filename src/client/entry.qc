@@ -147,6 +147,7 @@ CSQC_RendererRestarted(string rstr)
 	/* Fonts */
 	Font_Load("fonts/font16.font", FONT_16);
 	Font_Load("fonts/font20.font", FONT_20);
+	Font_Load("fonts/gamemessage.font", FONT_GAMEMESSAGE);
 	Font_Load("fonts/console.font", FONT_CON);
 	Font_Load("fonts/centerprint.font", FONT_CENTERPRINT);
 	Font_Load("fonts/spectatorhud.font", FONT_SPEC);
@@ -242,13 +243,11 @@ CSQC_Update2D(float w, float h, bool focus)
 	ncPlayer cl = (ncPlayer)pSeat->m_ePlayer;
 	self = cl;
 
-	/* engine-native HUD: the engine self-gates on the native_hud cvar plus
-	 * ca_active/menu/intermission/paused, so calling it unconditionally here
-	 * restores the prior always-on behaviour while keeping the draw in the
-	 * CSQC 2D pass (under the menu, with the rest of the HUD). Pass the local
-	 * player's predicted velocity so the engine speedometer shows the real
-	 * (CSQC-predicted) speed in Quake/Hammer units. */
-	hud_drawnative(cl ? cl.velocity : [0.0f, 0.0f, 0.0f]);
+	/* When the engine-native HUD is enabled it OWNS the in-game HUD lane: it
+	 * replaces the game's hud.dat HUD in first-person and stays hidden while
+	 * spectating (so it never stacks on top of the spectator chrome). This
+	 * makes `native_hud` a clean toggle — no need to also flip g_showHud. */
+	bool nativeHudActive = (cvar("native_hud") != 0);
 
 	if (Util_GetMaxPlayers() > 1 && !VGUI_Active() && (Client_InIntermission() || (!cl.IsFakeSpectator() && cl.IsDead()))) {
 		HUD_DrawIntermission();
@@ -268,8 +267,16 @@ CSQC_Update2D(float w, float h, bool focus)
 					cl.m_activeWeapon.UpdateGUI();
 				}
 
-				HUD_Draw();
+				/* native HUD replaces the game HUD when enabled, otherwise
+				 * fall back to the Nuclide hud.dat HUD. */
+				if (nativeHudActive) {
+					hud_drawnative(cl ? cl.velocity : [0.0f, 0.0f, 0.0f]);
+				} else {
+					HUD_Draw();
+				}
 			} else {
+				/* spectating: the spectator HUD owns this mode. The native HUD
+				 * stays hidden here so the two never overlap. */
 				HUD_DrawSpectator();
 			}
 		}
@@ -740,23 +747,21 @@ CSQC_Parse_Print(string sMessage, float fLevel)
 }
 
 /** Catches every centerprint call and allows us to tinker with it.
-That's how we are able to add color, alpha and whatnot.
-Keep in mind that newlines need to be tokenized.
+
+Instead of the old flat orange centerprint buffer, route every centerprint
+through the GoldSrc-style HUD message system (the same path game_text /
+env_message / titles.txt use). They then share GoldSrc HudMessage behaviour:
+fade-in/out, colour and screen positioning, drawn by GameText_Draw(). Channel 0
+is the rotating transient queue. A message whose text matches a titles.txt entry
+inherits that entry's styling; a plain string falls back to the GoldSrc defaults
+in GameMessage_Setup() (centred, lower third, 0.5s fade in/out, 2s hold).
 */
 float
 CSQC_Parse_CenterPrint(string sMessage)
 {
 	CSQC_UpdateSeat();
 
-	pSeat->m_iCenterprintLines = tokenizebyseparator(sMessage, "\n");
-
-	for (int i = 0; i < (pSeat->m_iCenterprintLines); i++) {
-		pSeat->m_strCenterprintBuffer[i] = sprintf("^xF80%s", argv(i));
-	}
-
-	pSeat->m_flCenterprintAlpha = 1;
-	pSeat->m_flCenterprintTime = time + 3;
-
+	GameMessage_Setup(sMessage, 0);
 	return (1);
 }
 

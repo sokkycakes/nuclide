@@ -44,6 +44,7 @@ entityDef fireInfo_collierPrimary
 	"fireRate"			"0.2"
 	"reloadTime"		"1.4"
 	"semiAuto"			"1"
+	"snd_fire"			"weapon_collier_sidearm.shoot"
 	"punchSpring"		"-1.2 0.6 0"
 	"act_reload"		"reload"
 	"act_reloadEmpty"	"reload"

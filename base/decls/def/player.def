@@ -41,18 +41,28 @@ entityDef player
 	"pm_boxcenter"			"1"
 	"pm_runfiring"			"0"
 	"model"					"models/player/alice2/alice2.mdl"
-	"animBackend"			"1"
+	// Skeletal backend: these CS/CSO models order the spine BEFORE the legs,
+	// so the Valve single-basebone split would freeze the legs on the aim
+	// pose. Skeletal builds the full gait, then overwrites only the torso
+	// bone RANGE with the aim, and twists it in yaw via twistYaw.
+	"animBackend"			"0"
 
 	"spine"					"Bip01 Spine"
 	"torsoStart"			"Bip01 Spine"
-	"torsoEnd"				"Bip01 R Finger12"
+	// torsoEnd is the exclusive upper bound of the torso range; "Bip01 L Thigh"
+	// is the first leg bone, so the torso covers Spine..Breast_Sub and the legs
+	// keep the gait animation.
+	"torsoEnd"				"Bip01 L Thigh"
+	"twistYaw"				"Bip01 Spine"
 
 	"snd_jump"				"Player.Jump"
+	"snd_landSoft"			"Player.LandSoft"
+	"snd_landHard"			"Player.LandHard"
 
 	"act_idle"				"idle1"
 	"act_jump"				"jump"
 	"act_walk"				"walk"
-	"act_run"				"walk"
+	"act_run"				"run"
 	"act_idle_crouch"		"crouch_idle"
 	"act_walk_crouch"		"crouchrun"
 	"act_pain"				"idle1"
@@ -75,6 +85,8 @@ entityDef player_enforcer
 {
 	"inherit"		"player"
 	"model"			"progs/enforcer.mdl"
+	/* Quake vertex MDL has no HL skeleton; the skeletal backend can't build it. */
+	"animBackend"	"1"
 	
 	"act_idle"		"$ENFORCER_IDLE"
 	"act_walk"		"$ENFORCER_WALK"

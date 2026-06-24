@@ -70,7 +70,7 @@ weapon_nailgun.shoot
 weapon_collier_sidearm.shoot
 {
 	alerts
-	sample weapons/gunshotv4.ogg
+	sample weapons/gunshotv4.wav
 }
 
 weapon_supernailgun.shoot

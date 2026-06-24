@@ -4,5 +4,6 @@ typeInfo falldamage
 	"minFallDistance"	"580"	// we need to fall this fast before we take damage
 	"maxFallDistance"	"1024"	// we will have a 100 HP hit at this speed
 	"minLandDistance"	"400"	// at this distance, we'll play the player 'land' sound
+	"minHardLandAirtime"	"0.8"	// airtime in seconds before a hard landing sound plays
 	"punchAngleScale"	"15"	// Fall punch scaler.
 }

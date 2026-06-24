@@ -21,6 +21,11 @@ entityDef misc_explobox2
 	"model"			"maps/b_exbox2.bsp"
 }
 
+entityDef func_ladder
+{
+	"spawnclass"		"func_ladder"
+}
+
 entityDef misc_fireball
 {
 	"spawnclass"	"env_shooter"
