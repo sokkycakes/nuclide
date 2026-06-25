@@ -460,6 +460,12 @@ Cmd_Parse(string sCMD)
 	case "-stiletto_dash":
 		pSeat->m_iInputStilettoDash = false;
 		break;
+	case "+melee":
+		pSeat->m_iInputMelee = true;
+		break;
+	case "-melee":
+		pSeat->m_iInputMelee = false;
+		break;
 	case "+reload":
 		pSeat->m_iInputReload = true;
 		break;
@@ -779,6 +785,8 @@ Cmd_Init(void)
 	registercommand("-stiletto_boot");
 	registercommand("+stiletto_dash");
 	registercommand("-stiletto_dash");
+	registercommand("+melee");
+	registercommand("-melee");
 	registercommand("+reload");
 	registercommand("-reload");
 	registercommand("+activate");

@@ -474,6 +474,8 @@ ncPlayer::ProcessInput(void)
 	/* weapon system */
 	if (input_buttons & INPUT_SECONDARY) {
 		m_activeWeapon._SecondaryAttack();
+	} else if (input_buttons & INPUT_MELEE) {
+		m_activeWeapon._SecondaryAttack();
 	} else if (input_buttons & INPUT_PRIMARY) {
 		m_activeWeapon._PrimaryAttack();
 	} else if (input_buttons & INPUT_RELOAD) {
@@ -1027,6 +1029,9 @@ ncPlayer::ClientInputFrame(void)
 	}
 	if (pSeat->m_iInputStilettoDash == true) {
 		input_buttons |= INPUT_STILETTO_DASH;
+	}
+	if (pSeat->m_iInputMelee == true) {
+		input_buttons |= INPUT_MELEE;
 	}
 	if (pSeat->m_iInputReload == true) {
 		input_buttons |= INPUT_RELOAD;
@@ -1781,7 +1786,9 @@ ncPlayer::MakePlayer(void)
 	Unspectate();
 
 	if (health <= 0) {
-		health = max_health = 100;
+		max_health = GetSpawnFloat("max_health");
+		if (max_health <= 0) max_health = 100;
+		health = max_health;
 		armor = 0;
 	}
 
@@ -1839,6 +1846,7 @@ ncPlayer::EvaluateEntity(void)
 	}
 	hudStatReload = m_timeUntilReloaded;
 	hudStatCharges = m_stilettoGrappleCharges;
+	hudStatMaxHealth = max_health;
 
 	EVALUATE_FIELD(entityDefID, PLAYER_MODELINDEX)
 	EVALUATE_FIELD(modelindex, PLAYER_MODELINDEX)

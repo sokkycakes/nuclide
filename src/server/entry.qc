@@ -463,6 +463,7 @@ init(float prevprogs)
 	clientstat(STAT_USER + 0, EV_INTEGER, hudStatClip);
 	clientstat(STAT_USER + 1, EV_FLOAT, hudStatReload);
 	clientstat(STAT_USER + 2, EV_INTEGER, hudStatCharges);
+	clientstat(STAT_USER + 3, EV_FLOAT, hudStatMaxHealth);
 
 	/* DO NOT EVER CHANGE THESE. */
 	cvars.SetString("r_meshpitch", "1");

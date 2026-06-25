@@ -67,6 +67,24 @@ weapon_nailgun.shoot
 	sample weapons/rocket1i.wav
 }
 
+Weapon_Collier.Melee_Hit
+{
+	alerts
+	sample player/axhit1.wav
+}
+
+Weapon_Collier.Melee_HitWorld
+{
+	alerts
+	sample player/axhit2.wav
+}
+
+Weapon_Collier.Melee_Swing
+{
+	alerts
+	sample weapons/ax1.wav
+}
+
 weapon_collier_sidearm.shoot
 {
 	alerts

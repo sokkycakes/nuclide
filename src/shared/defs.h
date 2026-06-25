@@ -196,6 +196,7 @@ enumflags
 .int hudStatClip;      /* active weapon clip count (-1 = clipless weapon) */
 .float hudStatReload;  /* seconds remaining on the current reload         */
 .int hudStatCharges;   /* grapple-hook charges available (0..3)           */
+.float hudStatMaxHealth; /* max_health for proportional HUD thresholds    */
 #endif
 
 void

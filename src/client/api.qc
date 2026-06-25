@@ -76,6 +76,12 @@ CLPF_player_GetHealth(void)
 }
 
 float
+CLPF_player_GetMaxHealth(void)
+{
+	return (pSeat->m_ePlayer.max_health);
+}
+
+float
 CLPF_player_GetArmor(void)
 {
 	return (((ncPlayer)pSeat->m_ePlayer).armor);

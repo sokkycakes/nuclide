@@ -101,7 +101,28 @@ Stiletto_ApplyMoveTuning(entity e)
 	 * intact. (Air dash is single-charge per airtime, so the stored contribution
 	 * is never clobbered mid-bleed.) */
 	if (pl.m_stilettoDashAddVel != g_vec_null) {
+		/* Collision response (PMoveCustom_Rebound) may have already removed
+		 * components of the dash impulse from velocity (e.g. when dashing into
+		 * a wall). Clip the stored additive velocity per axis so the bleed does
+		 * not subtract components that are no longer present — which would
+		 * reverse the player away from the wall for the entire bleed window. */
+		if (pl.m_stilettoDashAddVel[0] > 0.0f && pl.velocity[0] <= 0.0f) {
+			pl.m_stilettoDashAddVel[0] = 0.0f;
+		} else if (pl.m_stilettoDashAddVel[0] < 0.0f && pl.velocity[0] >= 0.0f) {
+			pl.m_stilettoDashAddVel[0] = 0.0f;
+		}
+		if (pl.m_stilettoDashAddVel[1] > 0.0f && pl.velocity[1] <= 0.0f) {
+			pl.m_stilettoDashAddVel[1] = 0.0f;
+		} else if (pl.m_stilettoDashAddVel[1] < 0.0f && pl.velocity[1] >= 0.0f) {
+			pl.m_stilettoDashAddVel[1] = 0.0f;
+		}
+
 		addMag = vlen(pl.m_stilettoDashAddVel);
+
+		/* reduced gravity that decays back to normal alongside the dash bleed.
+		 * remaining frac drives a lerp from 0.3→1.0 over the dash window. */
+		pl.gravity *= 0.3f + (0.7f * (1.0f - addMag / STILETTO_AIR_DASH_SPEED));
+
 		step = (STILETTO_AIR_DASH_SPEED / STILETTO_AIR_DASH_ADD_TIME) * input_timelength;
 
 		if (addMag <= 0.0f || step >= addMag) {
