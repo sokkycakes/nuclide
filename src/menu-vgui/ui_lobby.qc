@@ -18,22 +18,20 @@
  * Uses the engine-native lobby system (lobby_create_lan etc.) so the host
  * stays in the menu --- no map loaded, no player spawned.  The lobby session
  * manages connected players; lobby_* cvars expose state to QC.
+ *
+ * Full-screen layout: replaces the main menu entirely while active. Backing
+ * out returns to the main menu.
  */
 
-int g_iLobbyDialogInitialized;
 int g_iLobbyViewInitialized;
+int g_bLobbyShowPending;	/* set TRUE to show lobby view on next update */
 
-/* ---- Create dialog widgets ----------------------------------- */
-static vguiWindow winLobbyCreate;
-static vguiLabel lblCrtHostname;
-static vguiTextBox txbCrtHostname;
-static vguiLabel lblCrtMaxplayers;
-static vguiTextBox txbCrtMaxplayers;
-static vguiButton btnCrtCreate;
-static vguiButton btnCrtCancel;
+/* Forward declarations */
+void UI_LobbyView_Show(void);
+void UI_LobbyView_Hide(void);
+void Desktop_ShowMenu(float fShow);
 
-/* ---- Lobby view widgets -------------------------------------- */
-static vguiWindow winLobbyView;
+/* ---- Lobby view widgets (full-screen, children of g_uiDesktop) --------- */
 static vguiLabel lblLbRoomCode;
 static vguiLabel lblLbHost;
 static vguiLabel lblLbState;
@@ -61,18 +59,24 @@ static void LobbyView_Start ( void )
 static void LobbyView_Leave ( void )
 {
 	localcmd("lobby_close\n");
-	winLobbyView.Hide();
+	UI_LobbyView_Hide();
 }
 
 /* ---- Refresh lobby label text from cvars --------------------- */
 
 void UI_LobbyView_Update ( void )
 {
-	if (!g_iLobbyViewInitialized)
+	if (!g_iLobbyViewInitialized) {
+		/* If a lobby show is pending and the lobby is now active, do it */
+		if (g_bLobbyShowPending && cvar("lobby_player_count") > 0) {
+			g_bLobbyShowPending = FALSE;
+			UI_LobbyView_Show();
+		}
 		return;
+	}
 	if (cvar("lobby_player_count") <= 0)
 	{
-		winLobbyView.Hide();
+		UI_LobbyView_Hide();
 		return;
 	}
 
@@ -88,7 +92,7 @@ void UI_LobbyView_Update ( void )
 	lblLbP4.SetTitle(cvar_string("lobby_player4_name"));
 }
 
-/* ---- Show the lobby view ------------------------------------- */
+/* ---- Show the lobby view (full-screen, replaces main menu) --- */
 
 void UI_LobbyView_Show ( void )
 {
@@ -96,85 +100,131 @@ void UI_LobbyView_Show ( void )
 	{
 		g_iLobbyViewInitialized = TRUE;
 
-		winLobbyView = spawn( vguiWindow );
-		winLobbyView.SetTitle( "Pregame Lobby" );
-		winLobbyView.SetSize( '380 380' );
+		/* ---- Background cover (fills screen behind labels) ----- */
+		/* Using a themed approach — the background map renders below
+		 * the VGUI layer, so the lobby text reads on top of it. */
 
+		/* Room code */
 		lblLbRoomCode = spawn( vguiLabel );
-		lblLbRoomCode.SetPos( '20 32' );
+		lblLbRoomCode.SetPos( '20 40' );
 		lblLbRoomCode.SetTitle( "Room: ---" );
 
+		/* Host */
 		lblLbHost = spawn( vguiLabel );
-		lblLbHost.SetPos( '20 52' );
+		lblLbHost.SetPos( '20 64' );
 		lblLbHost.SetTitle( "Host: ---" );
 
+		/* State */
 		lblLbState = spawn( vguiLabel );
-		lblLbState.SetPos( '20 72' );
+		lblLbState.SetPos( '20 88' );
 		lblLbState.SetTitle( "" );
 
+		/* Player count */
 		lblLbCount = spawn( vguiLabel );
-		lblLbCount.SetPos( '20 92' );
+		lblLbCount.SetPos( '20 112' );
 		lblLbCount.SetTitle( "Players: 0 / 0" );
 
+		/* Player 1-4 */
 		lblLbP1 = spawn( vguiLabel );
-		lblLbP1.SetPos( '20 120' );
+		lblLbP1.SetPos( '20 140' );
 		lblLbP1.SetTitle( "" );
 
 		lblLbP2 = spawn( vguiLabel );
-		lblLbP2.SetPos( '20 140' );
+		lblLbP2.SetPos( '20 164' );
 		lblLbP2.SetTitle( "" );
 
 		lblLbP3 = spawn( vguiLabel );
-		lblLbP3.SetPos( '20 160' );
+		lblLbP3.SetPos( '20 188' );
 		lblLbP3.SetTitle( "" );
 
 		lblLbP4 = spawn( vguiLabel );
-		lblLbP4.SetPos( '20 180' );
+		lblLbP4.SetPos( '20 212' );
 		lblLbP4.SetTitle( "" );
 
+		/* Ready button */
 		btnLbReady = spawn( vguiButton );
 		btnLbReady.SetTitle( "Ready" );
 		btnLbReady.SetSize( '100 24' );
-		btnLbReady.SetPos( '20 220' );
+		btnLbReady.SetPos( '20 260' );
 		btnLbReady.SetFunc( LobbyView_Ready );
 
+		/* Start Game button */
 		btnLbStart = spawn( vguiButton );
 		btnLbStart.SetTitle( "Start Game" );
 		btnLbStart.SetSize( '100 24' );
-		btnLbStart.SetPos( '140 220' );
+		btnLbStart.SetPos( '140 260' );
 		btnLbStart.SetFunc( LobbyView_Start );
 
+		/* Leave button */
 		btnLbLeave = spawn( vguiButton );
 		btnLbLeave.SetTitle( "Leave Lobby" );
 		btnLbLeave.SetSize( '100 24' );
-		btnLbLeave.SetPos( '260 220' );
+		btnLbLeave.SetPos( '260 260' );
 		btnLbLeave.SetFunc( LobbyView_Leave );
 
-		g_uiDesktop.Add( winLobbyView );
-		winLobbyView.Add( lblLbRoomCode );
-		winLobbyView.Add( lblLbHost );
-		winLobbyView.Add( lblLbState );
-		winLobbyView.Add( lblLbCount );
-		winLobbyView.Add( lblLbP1 );
-		winLobbyView.Add( lblLbP2 );
-		winLobbyView.Add( lblLbP3 );
-		winLobbyView.Add( lblLbP4 );
-		winLobbyView.Add( btnLbReady );
-		winLobbyView.Add( btnLbStart );
-		winLobbyView.Add( btnLbLeave );
+		/* Add all widgets to the desktop */
+		g_uiDesktop.Add( lblLbRoomCode );
+		g_uiDesktop.Add( lblLbHost );
+		g_uiDesktop.Add( lblLbState );
+		g_uiDesktop.Add( lblLbCount );
+		g_uiDesktop.Add( lblLbP1 );
+		g_uiDesktop.Add( lblLbP2 );
+		g_uiDesktop.Add( lblLbP3 );
+		g_uiDesktop.Add( lblLbP4 );
+		g_uiDesktop.Add( btnLbReady );
+		g_uiDesktop.Add( btnLbStart );
+		g_uiDesktop.Add( btnLbLeave );
 	}
 
+	/* Hide main menu buttons */
+	Desktop_ShowMenu(FALSE);
+
+	/* Show lobby view elements */
+	lblLbRoomCode.Show();
+	lblLbHost.Show();
+	lblLbState.Show();
+	lblLbCount.Show();
+	lblLbP1.Show();
+	lblLbP2.Show();
+	lblLbP3.Show();
+	lblLbP4.Show();
+	btnLbReady.Show();
+	btnLbStart.Show();
+	btnLbLeave.Show();
+
 	UI_LobbyView_Update();
-	winLobbyView.Show();
-	winLobbyView.SetPos( ( g_vidsize / 2 ) - ( winLobbyView.GetSize() / 2 ) );
 }
 
-/* ---- Create dialog callbacks --------------------------------- */
+/* ---- Hide the lobby view (return to main menu) --------------- */
 
-static void LobbyDialog_Create ( void )
+void UI_LobbyView_Hide ( void )
 {
-	string hostName = txbCrtHostname.GetText();
-	int maxPlayers = (int)max(stof(txbCrtMaxplayers.GetText()), 2);
+	if (!g_iLobbyViewInitialized)
+		return;
+
+	/* Hide all lobby view elements */
+	lblLbRoomCode.Hide();
+	lblLbHost.Hide();
+	lblLbState.Hide();
+	lblLbCount.Hide();
+	lblLbP1.Hide();
+	lblLbP2.Hide();
+	lblLbP3.Hide();
+	lblLbP4.Hide();
+	btnLbReady.Hide();
+	btnLbStart.Hide();
+	btnLbLeave.Hide();
+
+	/* Show main menu buttons */
+	Desktop_ShowMenu(TRUE);
+}
+
+/* ---- Create lobby with defaults and enter full-screen view --- */
+
+void UI_Lobby_Show ( void )
+{
+	string hostName = cvar_string("name");
+	int maxPlayers = 16;
 
 	localcmd(sprintf("set hostname %s\n", hostName));
 	localcmd(sprintf("set lobby_maxplayers %i\n", maxPlayers));
@@ -182,66 +232,7 @@ static void LobbyDialog_Create ( void )
 	localcmd("set lobby_defaultmap background01\n");
 	localcmd("lobby_create_lan\n");
 
-	winLobbyCreate.Hide();
-	UI_LobbyView_Show();
-}
-
-static void LobbyDialog_Cancel ( void )
-{
-	winLobbyCreate.Hide();
-}
-
-/* ---- Show the create dialog ---------------------------------- */
-
-void UI_Lobby_Show ( void )
-{
-	if ( !g_iLobbyDialogInitialized )
-	{
-		g_iLobbyDialogInitialized = TRUE;
-		winLobbyCreate = spawn( vguiWindow );
-		winLobbyCreate.SetTitle( "Create Lobby" );
-		winLobbyCreate.SetSize( '338 200' );
-		winLobbyCreate.SetIcon( "gfx/icon16/group_add" );
-
-		lblCrtHostname = spawn( vguiLabel );
-		lblCrtHostname.SetPos( '20 32' );
-		lblCrtHostname.SetTitle( "Server name" );
-
-		txbCrtHostname = spawn( vguiTextBox );
-		txbCrtHostname.SetPos( [ 20, 50 ] );
-		txbCrtHostname.SetSize( [ 124, 24 ] );
-		txbCrtHostname.SetText( cvar_string( "hostname" ) );
-
-		lblCrtMaxplayers = spawn( vguiLabel );
-		lblCrtMaxplayers.SetPos( '20 84' );
-		lblCrtMaxplayers.SetTitle( "Max players" );
-
-		txbCrtMaxplayers = spawn( vguiTextBox );
-		txbCrtMaxplayers.SetPos( [ 20, 102 ] );
-		txbCrtMaxplayers.SetSize( [ 124, 24 ] );
-		txbCrtMaxplayers.SetText( "8" );
-
-		btnCrtCreate = spawn( vguiButton );
-		btnCrtCreate.SetTitle( "Create" );
-		btnCrtCreate.SetSize( '80 24' );
-		btnCrtCreate.SetPos( winLobbyCreate.GetSize() - '168 32' );
-		btnCrtCreate.SetFunc( LobbyDialog_Create );
-
-		btnCrtCancel = spawn( vguiButton );
-		btnCrtCancel.SetTitle( "Cancel" );
-		btnCrtCancel.SetSize( '80 24' );
-		btnCrtCancel.SetPos( winLobbyCreate.GetSize() - '80 32' );
-		btnCrtCancel.SetFunc( LobbyDialog_Cancel );
-
-		g_uiDesktop.Add( winLobbyCreate );
-		winLobbyCreate.Add( lblCrtHostname );
-		winLobbyCreate.Add( txbCrtHostname );
-		winLobbyCreate.Add( lblCrtMaxplayers );
-		winLobbyCreate.Add( txbCrtMaxplayers );
-		winLobbyCreate.Add( btnCrtCreate );
-		winLobbyCreate.Add( btnCrtCancel );
-	}
-
-	winLobbyCreate.Show();
-	winLobbyCreate.SetPos( ( g_vidsize / 2 ) - ( winLobbyCreate.GetSize() / 2 ) );
+	/* Lobby view spawns on the next frame via UI_LobbyView_Update once
+	 * lobby_create_lan has executed and cvars are populated */
+	g_bLobbyShowPending = TRUE;
 }

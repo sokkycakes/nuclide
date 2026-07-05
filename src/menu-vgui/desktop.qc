@@ -12,27 +12,72 @@
  * WHATSOEVER RESULTING FROM LOSS OF MIND, USE, DATA OR PROFITS, WHETHER
  * IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING
  * OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
-*/
+ */
+
+/* ---- Menu button refs (file scope so Desktop_ShowMenu can toggle them) -- */
+static vguiMenuButton btnNewgame;
+static vguiMenuButton btnLoadgame;
+static vguiMenuButton btnFindserver;
+static vguiMenuButton btnCreateserver;
+static vguiMenuButton btnLobby;
+static vguiMenuButton btnOptions;
+static vguiMenuButton btnClassicMenu;
+static vguiMenuButton btnQuit;
+static vguiMenuButton btnMPlayer;
+static vguiMenuButton btnPlayerList;
+static vguiMenuButton btnResume;
+static vguiMenuButton btnDisconnect;
+static vguiMenuButton btnMods;
+static vguiMenuButton btnFriends;
+static vguiMenuButton btnPackages;
+static vguiMenuTitle title;
+static vguiPic fnIcon;
+
+/* ---- Show/hide all main menu buttons --------------------------- */
+
+void Desktop_ShowMenu ( float fShow )
+{
+	if (fShow) {
+		if (btnNewgame) btnNewgame.Show();
+		if (btnLoadgame) btnLoadgame.Show();
+		if (btnFindserver) btnFindserver.Show();
+		if (btnCreateserver) btnCreateserver.Show();
+		if (btnLobby) btnLobby.Show();
+		if (btnOptions) btnOptions.Show();
+		if (btnClassicMenu) btnClassicMenu.Show();
+		if (btnQuit) btnQuit.Show();
+		if (btnMPlayer) btnMPlayer.Show();
+		if (btnPlayerList) btnPlayerList.Show();
+		if (btnResume) btnResume.Show();
+		if (btnDisconnect) btnDisconnect.Show();
+		if (btnMods) btnMods.Show();
+		if (btnFriends) btnFriends.Show();
+		if (btnPackages) btnPackages.Show();
+		if (title) title.Show();
+		if (fnIcon) fnIcon.Show();
+	} else {
+		if (btnNewgame) btnNewgame.Hide();
+		if (btnLoadgame) btnLoadgame.Hide();
+		if (btnFindserver) btnFindserver.Hide();
+		if (btnCreateserver) btnCreateserver.Hide();
+		if (btnLobby) btnLobby.Hide();
+		if (btnOptions) btnOptions.Hide();
+		if (btnClassicMenu) btnClassicMenu.Hide();
+		if (btnQuit) btnQuit.Hide();
+		if (btnMPlayer) btnMPlayer.Hide();
+		if (btnPlayerList) btnPlayerList.Hide();
+		if (btnResume) btnResume.Hide();
+		if (btnDisconnect) btnDisconnect.Hide();
+		if (btnMods) btnMods.Hide();
+		if (btnFriends) btnFriends.Hide();
+		if (btnPackages) btnPackages.Hide();
+		if (title) title.Hide();
+		if (fnIcon) fnIcon.Hide();
+	}
+}
 
 void Desktop_Init ( void )
 {
-	static vguiMenuButton btnNewgame;
-	static vguiMenuButton btnLoadgame;
-	static vguiMenuButton btnFindserver;
-	static vguiMenuButton btnCreateserver;
-	static vguiMenuButton btnOptions;
-	static vguiMenuButton btnClassicMenu;
-	static vguiMenuButton btnQuit;
-	static vguiMenuButton btnMPlayer;
-	static vguiMenuButton btnPlayerList;
-	static vguiMenuButton btnResume;
-	static vguiMenuButton btnDisconnect;
-	static vguiMenuButton btnMods;
-	static vguiMenuButton btnFriends;
-	static vguiMenuButton btnPackages;
-	static vguiMenuTitle title;
-	static vguiPic fnIcon;
-	
 	static void Desktop_ResumeGame ( void ) {
 		m_toggle( 0 );
 	}
@@ -88,7 +133,6 @@ void Desktop_Init ( void )
 	btnCreateserver.SetFunc( UI_CreateServer_Show );
 	btnCreateserver.SetIcon( "gfx/icon16/server_add" );
 
-	static vguiMenuButton btnLobby;
 	btnLobby = spawn( vguiMenuButton );
 	btnLobby.SetTitle( "Create Lobby" );
 	btnLobby.SetSize( '128 24' );
