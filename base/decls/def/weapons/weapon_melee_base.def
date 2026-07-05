@@ -1,0 +1,38 @@
+// Base melee weapon — TF2-style line+hull trace with optional cleave.
+// Inheriting weapons must set "spawnclass" "ncWeaponBaseMelee".
+entityDef weapon_melee_base
+{
+	"spawnclass"			"ncWeaponBaseMelee"
+
+	// ---- Melee-specific keys ----
+	"melee_range"			"64"
+	"melee_bounds_mins"		"-18 -32 -18"
+	"melee_bounds_maxs"		"18 32 18"
+	"melee_cleave"			"0"
+	"melee_damage"			"20"
+	"melee_push"			"100"
+
+	// ---- ncWeapon defaults for melee ----
+	"ammoRequired"			"0"
+	"silent_fire"			"1"
+	"testDistance"			"-64"
+	"snd_swing"				"Melee_Swing"
+	"fireRate"				"0.5"
+	"failRate"				"0.5"
+
+	// ---- HUD ----
+	"crosshair"				"none"
+	"ammoIcon"				"none"
+}
+
+// Minimal damage decl for direct application.
+// Weapons inheriting from weapon_melee_base can point to this if they
+// still want a retro-compat projectile decl for fallback code paths.
+entityDef melee_hit
+{
+	"spawnclass"		"ncProjectile"
+	"is_bullet"			"1"
+	"damage"			"skill:plr_axe"
+	"range"				"64"
+	"detonate_on_world"	"0"
+}

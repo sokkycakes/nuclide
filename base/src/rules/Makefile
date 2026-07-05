@@ -9,3 +9,4 @@ all:
 	$(QCC) $(CFLAGS) lastmanstanding.src
 	$(QCC) $(CFLAGS) teamdm.src
 	$(QCC) $(CFLAGS) duel.src
+	$(QCC) $(CFLAGS) dm_lobby.src

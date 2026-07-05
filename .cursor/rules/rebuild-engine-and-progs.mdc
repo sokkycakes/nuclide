@@ -1,0 +1,99 @@
+---
+description: Quick reference for rebuilding FTE engine and game progs
+alwaysApply: true
+---
+
+# Rebuilding Engine and Progs
+
+## Quick Commands (from nuclide root)
+
+### Rebuild Game Progs (QuakeC)
+```bash
+make game GAME=base
+```
+
+Rebuilds all game logic:
+- `base/progs.dat` (server-side)
+- `base/menu.dat` (menu)
+- `base/csprogs.dat` (client-side)
+
+### Rebuild FTE Engine (C)
+
+**From the fteqw directory:**
+
+```bash
+cd fteqw
+bash build_m_rel_ccache.sh
+```
+
+This builds:
+- `fteqw/engine/release/fteqw64.exe` (main engine)
+
+**If CEF plugin changed:**
+```bash
+cmd /c fteqw\rebuild_cef_plugin.bat
+```
+
+This builds:
+- `fteqw/engine/release/fteplug_cef_x64.dll`
+
+### Copy Engine Binaries to Runtime (from nuclide root)
+
+After building the engine, copy binaries:
+
+```powershell
+$src = "..\fteqw\engine\release"
+Copy-Item -LiteralPath "$src\fteqw64.exe" -Destination "fteqw64.exe" -Force
+Copy-Item -LiteralPath "$src\fteplug_cef_x64.dll" -Destination "fteplug_cef_x64.dll" -Force
+```
+
+## Engine Build Targets
+
+From `ThirdParty/fteqw/engine`, supported build modes:
+
+- **m-dbg** / **m-rel**: Client build (debug/release)
+- **sv-dbg** / **sv-rel**: Dedicated server build
+- **qcc-rel**: QuakeC compiler (fteqcc)
+- **plugins-dbg** / **plugins-rel**: Engine plugins
+
+## Common Workflows
+
+### Full Rebuild (Progs + Engine)
+
+```bash
+# 1. Rebuild progs
+make game GAME=base
+
+# 2. Build engine
+cd fteqw && bash build_m_rel_ccache.sh && cd ..
+
+# 3. Copy binaries
+$src = "..\fteqw\engine\release"
+Copy-Item -LiteralPath "$src\fteqw64.exe" -Destination "fteqw64.exe" -Force
+```
+
+### Quick Progs Only
+```bash
+make game GAME=base
+```
+
+### Quick Engine Only
+```bash
+cd fteqw && bash build_m_rel_ccache.sh && cd ..
+# Then copy binaries
+```
+
+## Key Paths
+
+- **Engine source**: `fteqw/engine/release/`
+- **Engine config header**: `base/engine.h` (copied to engine build)
+- **Progs source**: `base/src/` (contains client, server, menu, hud, rules, maps subdirs)
+- **Progs output**: `base/progs.dat`, `base/csprogs.dat`, `base/menu.dat`
+- **Runtime root**: nuclide repo root (where `fteqw64.exe` goes)
+
+## Notes
+
+- **Never modify engine files** outside `fteqw/engine/release/`
+- **Runtime location**: Binaries copy to nuclide root, NOT into `ThirdParty/`
+- **Config header**: `base/engine.h` feeds into engine build automatically via Makefile
+- **CEF plugin**: Only rebuild if `cef.c` changed; output goes to nuclide root

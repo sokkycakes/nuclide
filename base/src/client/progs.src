@@ -25,6 +25,7 @@ defs.h
 ../shared/include.src
 
 main.qc
+lobby_overlay.qc
 
 /* global client/shared code */
 ../../../src/client/include.src

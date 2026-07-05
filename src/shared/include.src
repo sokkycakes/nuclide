@@ -26,6 +26,7 @@ audio/SoundScape.qc
 game/Item.qc
 game/Dispenser.qc
 game/Weapon.qc
+game/WeaponBaseMelee.qc
 physics/Portal.qc
 physics/Debris.qc
 audio/Sound.qc
@@ -38,6 +39,7 @@ system/cloader.qc
 audio/soundDef.qc
 physics/Ragdoll.qc
 game/Player.qc
+physics/slide.qc
 physics/player_pmove.qc
 environment/propdata.qc
 environment/surfaceproperties.qc

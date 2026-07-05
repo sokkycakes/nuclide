@@ -12,6 +12,7 @@ ui_friends.qc
 ui_newgame.qc
 ui_quitgame.qc
 ui_createserver.qc
+ui_lobby.qc
 ui_customgame.qc
 ui_findservers.qc
 ui_musicplayer.qc

@@ -1,0 +1,30 @@
+---
+description: Reference path for Source SDK and Source engine code lookups
+alwaysApply: true
+---
+
+# Source SDK and Source Engine Reference
+
+When the user mentions any of the following, reference code from:
+
+```
+D:\c drive\Godot\stiletto-proto\sourcesdk_reference
+```
+
+**Trigger phrases:**
+- Source SDK
+- TF2 source code / TF2 SDK
+- L4D / Left 4 Dead code/SDK
+- Alien Swarm / ASW code/SDK
+
+This path contains reference implementations and patterns from:
+- Team Fortress 2 (TF2) source code
+- Left 4 Dead (L4D) engine code
+- Alien Swarm (ASW) modifications
+- Source engine architecture and systems
+
+Use this path when:
+- Porting or referencing gameplay mechanics from these games
+- Understanding Source engine patterns and conventions
+- Implementing networking, entity systems, or other engine-level features
+- Checking build systems or compilation patterns from these codebases

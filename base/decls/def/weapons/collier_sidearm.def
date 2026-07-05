@@ -16,7 +16,6 @@ entityDef weapon_collier_sidearm
 	"animPrefix"		"nailgun"
 
 	"def_fireInfo"		"fireInfo_collierPrimary"
-	"def_altFireInfo"	"fireInfo_collierMelee"
 	"inv_name"			"Collier"
 	"ammoType"			"ammo_nails"
 	"infiniteReserve"	"1"
@@ -49,39 +48,6 @@ entityDef fireInfo_collierPrimary
 	"punchSpring"		"-1.2 0.6 0"
 	"act_reload"		"reload"
 	"act_reloadEmpty"	"reload"
-}
-
-// ---------------------------------------------------------------------------
-// Collier stinger melee -- secondary attack (right-click).
-// Ported from Godot prototype: 2 damage, ~96-unit range, 0.6 s cooldown.
-// Follows the hitscan-bullet melee pattern (same as weapon_axe / vagrant_knife).
-// ---------------------------------------------------------------------------
-entityDef fireInfo_collierMelee
-{
-	"def_onFire"		"projectile_collier_melee"
-	"fireRate"			"0.6"
-	"semiAuto"			"1"
-	"testDistance"		"-96"
-	"failRate"			"0.6"
-	"snd_fire"			"Weapon_Collier.Melee_Swing"
-	"snd_fireFailed"	"Weapon_Axe.Miss"
-}
-
-entityDef damage_collierMelee
-{
-	"damage"	"2"
-}
-
-entityDef projectile_collier_melee
-{
-	"spawnclass"			"ncProjectile"
-	"damage"				"2"
-	"def_damage"			"damage_collierMelee"
-	"is_bullet"				"1"
-	"range"					"96"
-	"detonate_on_world"		"0"
-	"snd_hitBody"			"Weapon_Collier.Melee_Hit"
-	"snd_hitWorld"			"Weapon_Collier.Melee_HitWorld"
 }
 
 entityDef damage_collierDirect

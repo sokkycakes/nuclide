@@ -12,7 +12,13 @@ entityDef weapon_archstiletto
 	"model_view"		"models/v_reference.iqm"
 	"inv_name"			"Archstiletto"
 
-	"def_onFire"		"projectile_archstiletto_melee"
+	// melee override: boss kit hits hard, double range, cleave enabled
+	"melee_damage"		"1"
+	"melee_range"		"128"
+	"melee_cleave"		"1"
+
+	// sound
+	"snd_swing"			"Melee_Swing"
 
 	// v_archstiletto.iqm has one sequence (index 0); map all activities to it
 	// until the model gains separate idle/fire/draw clips.

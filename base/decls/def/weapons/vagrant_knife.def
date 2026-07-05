@@ -3,13 +3,15 @@
 // SECONDARY mechanics deferred to the signature-tool pass -- not in v1.
 entityDef weapon_vagrant_knife
 {
+	"inherit"			"weapon_melee_base"
+
 	"editor_color"		".3 .3 1"
 	"editor_mins"		"-16 -16 -16"
 	"editor_maxs"		"16 16 16"
 	"editor_usage"		"Vagrant knife (melee)"
 	"editor_rotatable"	"1"
 
-	"spawnclass"		"ncWeapon"
+	"spawnclass"		"ncWeaponBaseMelee"
 	"model_view"		"progs/v_axe.mdl"
 	"snd_acquire"		"weapon.pickup"
 	"snd_respawn"		"item.respawn"
@@ -17,7 +19,13 @@ entityDef weapon_vagrant_knife
 	"pickupFlash"		"1"
 	"animPrefix"		"axe"
 
-	"def_onFire"		"projectile_vagrant_knife"
+	// melee override: short reach (28 units), fast swing, no cleave
+	"melee_range"		"28"
+	"melee_damage"		"1"
+	"melee_push"		"50"
+	"melee_cleave"		"0"
+
+	// weapon specific
 	"testDistance"		"-28"
 	"inv_name"			"Vagrant"
 	"ammoRequired"		"0"
@@ -44,12 +52,7 @@ entityDef weapon_vagrant_knife
 
 entityDef projectile_vagrant_knife
 {
-	"spawnclass"			"ncProjectile"
-	"damage"				"1"
-	"is_bullet"				"1"
-	"range"					"28"
-	"decal_detonate"		"Impact.Shot"
-	"detonate_on_world"		"0"
-	"snd_hitBody"			"Weapon_Axe.Melee_Hit"
-	"snd_hitWorld"			"Weapon_Axe.Melee_HitWorld"
+	"inherit"			"projectile_axe"
+	"damage"			"1"
+	"range"				"28"
 }

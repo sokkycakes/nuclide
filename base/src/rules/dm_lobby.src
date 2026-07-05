@@ -1,0 +1,9 @@
+#pragma target fte_5768
+#pragma PROGS_DAT  "../../progs/dm_lobby.dat"
+
+#includelist
+../../../src/rules.src
+shared.qc
+lobby.qc
+dm_lobby.qc
+#endlist

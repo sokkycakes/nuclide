@@ -396,7 +396,6 @@ struct
 	bool m_iInputStilettoGrapple;
 	bool m_iInputStilettoBoot;
 	bool m_iInputStilettoDash;
-	bool m_iInputMelee;
 	movementStance_t m_dForceStance;
 	float m_flInputBlockTime;
 	

@@ -52,3 +52,4 @@
 #define VFL_HOLDING				(1<<16) /**< Entity will be requested not to advance in animation by itself. */
 #define VFL_STILETTO_WALL		(1<<17)
 #define VFL_STILETTO_PARRY		(1<<18)
+#define VFL_SLIDING			(1<<19) /**< Entity is sliding (crouch-slide ala Deadlock). */

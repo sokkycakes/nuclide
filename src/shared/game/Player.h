@@ -218,6 +218,9 @@ public:
 	virtual void EvaluateEntity(void);
 	virtual float SendEntity(entity,float);
 	virtual void Death(entity, entity, int, vector, vector, int);
+	virtual void Pain(entity, entity, int, vector, vector, int);
+	/** Restores render FX after invuln flash expires. Used as think callback. */
+	nonvirtual void ClearInvulnFlash(void);
 	virtual void ServerInputFrame(void);
 	virtual void Input(entity, string, string);
 

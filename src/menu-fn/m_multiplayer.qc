@@ -19,6 +19,7 @@ var bool g_menuLAN = false;
 CWidget fn_multiplayer;
 
 CMainButton mp_btnQuickstart;
+CMainButton mp_btnCreateLobby;
 CMainButton mp_btnInternet;
 CMainButton mp_btnSpectate;
 CMainButton mp_btnChat;
@@ -206,6 +207,13 @@ mp_btnquickstart(void)
 }
 
 void
+mp_btncreatelobby(void)
+{
+	localcmd("lobby_create_lan\n");
+	// Switch to lobby page will be added later
+}
+
+void
 menu_multiplayer_init(void)
 {
 	fn_multiplayer = spawn(CWidget);
@@ -218,11 +226,17 @@ menu_multiplayer_init(void)
 	mp_btnQuickstart.SetExecute(mp_btnquickstart);
 	mp_btnQuickstart.SetPos(50,140);
 	Widget_Add(fn_multiplayer, mp_btnQuickstart);
-	
+
+	mp_btnCreateLobby = spawn(CMainButton);
+	mp_btnCreateLobby.SetImage(BTN_CREATEGAME);
+	mp_btnCreateLobby.SetExecute(mp_btncreatelobby);
+	mp_btnCreateLobby.SetPos(50,172);
+	Widget_Add(fn_multiplayer, mp_btnCreateLobby);
+
 	mp_btnInternet = spawn(CMainButton);
 	mp_btnInternet.SetImage(BTN_INTERNET);
 	mp_btnInternet.SetExecute(mp_btninet_start);
-	mp_btnInternet.SetPos(50,172);
+	mp_btnInternet.SetPos(50,204);
 	Widget_Add(fn_multiplayer, mp_btnInternet);
 	
 	mp_btnSpectate = spawn(CMainButton);
@@ -350,7 +364,9 @@ menu_multiplayer_draw(void)
 
 		WLabel_AtHeight(215, 148, m_reslbl[IDS_MAIN_QUICKHELP], HELPTXT_SIZE, col_help,
 						1.0f, 0, font_label);
-		WLabel_AtHeight(215, 180, m_reslbl[IDS_MULTI_BROWSEHELP], HELPTXT_SIZE, col_help,
+		WLabel_AtHeight(215, 180, "Create a pre-game lobby and wait for players.", HELPTXT_SIZE, col_help,
+						1.0f, 0, font_label);
+		WLabel_AtHeight(215, 212, m_reslbl[IDS_MULTI_BROWSEHELP], HELPTXT_SIZE, col_help,
 						1.0f, 0, font_label);
 		WLabel_AtHeight(215, 212, "Spectate internet games.", HELPTXT_SIZE, col_help,
 						1.0f, 0, font_label);

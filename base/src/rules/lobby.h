@@ -1,0 +1,13 @@
+#ifndef LOBBY_H
+#define LOBBY_H
+
+#define LOBBY_WARMUP 0
+#define LOBBY_COUNTDOWN 1
+#define LOBBY_LIVE 2
+
+#define LOBBY_PLAYER_JOINED 0
+#define LOBBY_PLAYER_READY 1
+#define LOBBY_PLAYER_SPECTATOR 2
+#define LOBBY_PLAYER_COMPETITOR 3
+
+#endif

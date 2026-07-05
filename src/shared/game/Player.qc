@@ -474,8 +474,6 @@ ncPlayer::ProcessInput(void)
 	/* weapon system */
 	if (input_buttons & INPUT_SECONDARY) {
 		m_activeWeapon._SecondaryAttack();
-	} else if (input_buttons & INPUT_MELEE) {
-		m_activeWeapon._SecondaryAttack();
 	} else if (input_buttons & INPUT_PRIMARY) {
 		m_activeWeapon._PrimaryAttack();
 	} else if (input_buttons & INPUT_RELOAD) {
@@ -1029,9 +1027,6 @@ ncPlayer::ClientInputFrame(void)
 	}
 	if (pSeat->m_iInputStilettoDash == true) {
 		input_buttons |= INPUT_STILETTO_DASH;
-	}
-	if (pSeat->m_iInputMelee == true) {
-		input_buttons |= INPUT_MELEE;
 	}
 	if (pSeat->m_iInputReload == true) {
 		input_buttons |= INPUT_RELOAD;
@@ -1745,6 +1740,37 @@ ncPlayer::MakeTempSpectator(void)
 }
 
 void
+ncPlayer::Pain(entity inflictor, entity attacker, int damagePoints, vector dir, vector absImpactPos, int hitBody)
+{
+#ifdef SERVER
+	/* fixed intense view punch for melee-weight hits — snaps the head
+	 * back then springs to neutral via the pmove spring system. */
+	m_punchAngle[0] = -7;
+	m_punchAngle[1] = 0;
+	m_punchAngle[2] = 1.5;
+	m_punchVelocity[0] = 20;
+	m_punchVelocity[2] = -3;
+
+	/* flash the model transparent during the invulnerability window so
+	 * other players can see the target is briefly immune.  The render FX
+	 * field is networked and drives an alpha pulse on the client.  Use
+	 * the existing invuln end (stamped by Stiletto_Combat_StampDamage) as
+	 * the clear time, or a safe 1.3 s fallback. */
+	SetRenderFX(RFX_FASTPULSE);
+	nextthink = (m_stilettoInvulnEnd > time) ? m_stilettoInvulnEnd : time + STILETTO_IFRAME_TIME;
+	think = ncPlayer::ClearInvulnFlash;
+#endif
+}
+
+/** Restore normal render FX after the invulnerability flash expires. */
+void
+ncPlayer::ClearInvulnFlash(void)
+{
+	SetRenderFX(RFX_NORMAL);
+	nextthink = 0;
+}
+
+void
 ncPlayer::Death(entity inflictor, entity attacker, int damagePoints, vector dir, vector absImpactPos, int hitBody)
 {
 	/* either gib, or make a corpse */
@@ -1759,6 +1785,7 @@ ncPlayer::Death(entity inflictor, entity attacker, int damagePoints, vector dir,
 	armor = 0;
 	effects = 0;
 	alpha = 1.0f;
+	SetRenderFX(RFX_NORMAL);
 	SetModelindex(0);
 	SetMovetype(MOVETYPE_NONE);
 	SetSolid(SOLID_NOT);
@@ -1794,6 +1821,7 @@ ncPlayer::MakePlayer(void)
 
 	effects = 0;
 	alpha = 1.0f;
+	SetRenderFX(RFX_NORMAL);
 	SetSolid(SOLID_SLIDEBOX);
 	SetMovetype(MOVETYPE_WALK);
 	MakeVulnerable();

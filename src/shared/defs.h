@@ -113,6 +113,7 @@ string __fullspawndata;
 #include "game/Item.h"
 #include "game/Dispenser.h"
 #include "game/Weapon.h"
+#include "game/WeaponBaseMelee.h"
 #include "game/Actor.h"
 #include "ai/Monster.h"
 #include "ai/SquadMonster.h"

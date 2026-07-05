@@ -1,18 +1,26 @@
 entityDef weapon_axe
 {
+	"inherit"			"weapon_melee_base"
+
 	"editor_color"		".3 .3 1"
 	"editor_mins"		"-16 -16 -16"
 	"editor_maxs"		"16 16 16"
 	"editor_usage"		"Axe"
 	"editor_rotatable"	"1"
 
-	"spawnclass"		"ncWeapon"
+	"spawnclass"		"ncWeaponBaseMelee"
 	"model_view"		"progs/v_axe.mdl"
 	"snd_acquire"		"weapon.pickup"
 	"snd_respawn"		"item.respawn"
 	"spin"				"1"
 	"pickupFlash"		"1"
 	"animPrefix"		"axe"
+
+	// melee system
+	"melee_range"		"64"
+	"melee_damage"		"skill:plr_axe"
+	"melee_push"		"400"
+	"melee_cleave"		"0"
 
 	// weapon specific
 	"def_onFire"		"projectile_axe"
@@ -25,6 +33,7 @@ entityDef weapon_axe
 	"fireRate"			"0.5"
 	"snd_hit"			"Weapon_Axe.Melee_Hit"
 	"snd_failed"		"Weapon_Axe.Miss"
+	"snd_swing"			"Melee_Swing"
 
 	"act_idle"			"0"
 	"act_draw"			"0"
@@ -43,6 +52,7 @@ entityDef weapon_axe
 	"iconSelected"		"weapon_axe.weapon_s"
 }
 
+// kept for backwards compat; the new melee class applies damage directly
 entityDef projectile_axe
 {
 	"spawnclass"			"ncProjectile"
@@ -54,4 +64,3 @@ entityDef projectile_axe
 	"snd_hitBody"			"Weapon_Axe.Melee_Hit"
 	"snd_hitWorld"			"Weapon_Axe.Melee_HitWorld"
 }
-

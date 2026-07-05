@@ -88,10 +88,19 @@ void Desktop_Init ( void )
 	btnCreateserver.SetFunc( UI_CreateServer_Show );
 	btnCreateserver.SetIcon( "gfx/icon16/server_add" );
 
+	static vguiMenuButton btnLobby;
+	btnLobby = spawn( vguiMenuButton );
+	btnLobby.SetTitle( "Create Lobby" );
+	btnLobby.SetSize( '128 24' );
+	btnLobby.SetPosition( 5 );
+	btnLobby.SetFunc( UI_Lobby_Show );
+	btnLobby.SetIcon( "gfx/icon16/group_add" );
+	btnLobby.FlagRemove( MBUTTON_SHOWSP );
+
 	btnMods = spawn( vguiMenuButton );
 	btnMods.SetTitle( "Custom Game" );
 	btnMods.SetSize( '128 24' );
-	btnMods.SetPosition( 5 );
+	btnMods.SetPosition( 6 );
 	btnMods.SetIcon( "gfx/icon16/rainbow" );
 	btnMods.SetFunc( UI_CustomGame_Show );
 	btnMods.FlagRemove( MBUTTON_SHOWSP | MBUTTON_SHOWMP );
@@ -99,35 +108,35 @@ void Desktop_Init ( void )
 	btnOptions = spawn( vguiMenuButton );
 	btnOptions.SetTitle( "Options" );
 	btnOptions.SetSize( '128 24' );
-	btnOptions.SetPosition( 6 );
+	btnOptions.SetPosition( 7 );
 	btnOptions.SetFunc( UI_Options_Show );
 	btnOptions.SetIcon( "gfx/icon16/cog" );
 
 	btnClassicMenu = spawn( vguiMenuButton );
 	btnClassicMenu.SetTitle( "Classic FTE Menu" );
 	btnClassicMenu.SetSize( '128 24' );
-	btnClassicMenu.SetPosition( 7 );
+	btnClassicMenu.SetPosition( 8 );
 	btnClassicMenu.SetFunc( Desktop_ClassicEngineMenu );
 	btnClassicMenu.SetIcon( "gfx/icon16/application_osx_terminal" );
 
 	btnQuit = spawn( vguiMenuButton );
 	btnQuit.SetTitle( "Quit Game" );
 	btnQuit.SetSize( '128 24' );
-	btnQuit.SetPosition( 8 );
+	btnQuit.SetPosition( 9 );
 	btnQuit.SetFunc( UI_QuitGame_Show );
 	btnQuit.SetIcon( "gfx/icon16/stop" );
 
 	btnMPlayer = spawn( vguiMenuButton );
 	btnMPlayer.SetTitle( "Music Player" );
 	btnMPlayer.SetSize( '128 24' );
-	btnMPlayer.SetPosition( 9 );
+	btnMPlayer.SetPosition( 10 );
 	btnMPlayer.SetFunc( UI_MusicPlayer_Show );
 	btnMPlayer.SetIcon( "gfx/icon16/ipod" );
 
 	btnPlayerList = spawn( vguiMenuButton );
 	btnPlayerList.SetTitle( "Player List" );
 	btnPlayerList.SetSize( '128 24' );
-	btnPlayerList.SetPosition( 10 );
+	btnPlayerList.SetPosition( 11 );
 	btnPlayerList.SetFunc( Desktop_PlayerList );
 	btnPlayerList.FlagRemove( MBUTTON_SHOWOFFLINE );
 	btnPlayerList.SetIcon( "gfx/icon16/user" );
@@ -135,7 +144,7 @@ void Desktop_Init ( void )
 	btnResume = spawn( vguiMenuButton );
 	btnResume.SetTitle( "Resume Game" );
 	btnResume.SetSize( '128 24' );
-	btnResume.SetPosition( 11 );
+	btnResume.SetPosition( 12 );
 	btnResume.SetFunc( Desktop_ResumeGame );
 	btnResume.FlagRemove( MBUTTON_SHOWOFFLINE );
 	btnResume.SetIcon( "gfx/icon16/control_play" );
@@ -144,7 +153,7 @@ void Desktop_Init ( void )
 	btnFriends = spawn( vguiMenuButton );
 	btnFriends.SetTitle( "Friends" );
 	btnFriends.SetSize( '128 24' );
-	btnFriends.SetPosition( 12 );
+	btnFriends.SetPosition( 13 );
 	btnFriends.SetFunc( UI_Friends_Show );
 	btnFriends.SetIcon( "gfx/icon16/status_online" );
 	btnFriends.FlagAdd( MBUTTON_AUTHONLY );
@@ -152,7 +161,7 @@ void Desktop_Init ( void )
 	btnPackages = spawn( vguiMenuButton );
 	btnPackages.SetTitle( "Packages" );
 	btnPackages.SetSize( '128 24' );
-	btnPackages.SetPosition( 13 );
+	btnPackages.SetPosition( 14 );
 	btnPackages.SetFunc( UI_Packages_Show );
 	btnPackages.SetIcon( "gfx/icon16/package" );
 	btnPackages.FlagAdd( MBUTTON_AUTHONLY );
@@ -173,6 +182,9 @@ void Desktop_Init ( void )
 	if (GameLibrary_GetInfo(GAMEINFO_TYPE) != "Singleplayer")
 		g_uiDesktop.Add( btnCreateserver );
 
+	if (GameLibrary_GetInfo(GAMEINFO_TYPE) != "Singleplayer")
+		g_uiDesktop.Add( btnLobby );
+
 	g_uiDesktop.Add( btnOptions );
 	g_uiDesktop.Add( btnClassicMenu );
 	g_uiDesktop.Add( btnQuit );
@@ -188,6 +200,8 @@ void Desktop_Init ( void )
 
 void Desktop_Draw ( void )
 {
+	/* refresh pregame lobby labels from cvars every frame */
+	UI_LobbyView_Update();
 	g_uiDesktop.Draw();
 }
 

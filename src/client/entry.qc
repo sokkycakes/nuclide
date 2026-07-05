@@ -243,10 +243,19 @@ CSQC_Update2D(float w, float h, bool focus)
 	ncPlayer cl = (ncPlayer)pSeat->m_ePlayer;
 	self = cl;
 
+	/* Lobby overlay: if active, draw the pre-game lobby UI on top and
+	   suppress the normal HUD. Chat and prints still show through. */
+	if (LobbyOverlay_ShouldDraw()) {
+		LobbyOverlay_Draw();
+		Chat_Draw();
+		Print_Draw();
+		return;
+	}
+
 	/* When the engine-native HUD is enabled it OWNS the in-game HUD lane: it
 	 * replaces the game's hud.dat HUD in first-person and stays hidden while
 	 * spectating (so it never stacks on top of the spectator chrome). This
-	 * makes `native_hud` a clean toggle — no need to also flip g_showHud. */
+	 * makes `native_hud` a clean toggle ??? no need to also flip g_showHud. */
 	bool nativeHudActive = (cvar("native_hud") != 0);
 
 	if (Util_GetMaxPlayers() > 1 && !VGUI_Active() && (Client_InIntermission() || (!cl.IsFakeSpectator() && cl.IsDead()))) {
@@ -664,6 +673,9 @@ CSQC_Input_Frame(void)
 			pSeat->m_iSpecWheelPending = 0;
 		}
 	}
+
+	/* lobby overlay: check for button clicks (ready, start game) */
+	LobbyOverlay_InputFrame();
 }
 
 /** Handles every SVC_CGAMEPACKET that the engine passes onto us that the server sent.

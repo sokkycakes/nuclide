@@ -102,6 +102,11 @@ ncPlayer::Physics_Crouch(void)
 	if (GetMovetype() != MOVETYPE_WALK)
 		return;
 
+	/* During a slide, the slide state machine manages crouch state;
+	 * don't interfere with hull sizing mid-slide. */
+	if (HasVFlags(VFL_SLIDING))
+		return;
+
 	if (CanCrouch() && input_buttons & INPUT_CROUCH) {
 		if (!IsCrouching()) {
 			testMins = m_pmoveVars.GetCrouchMins();
@@ -454,7 +459,14 @@ ncPlayer::Physics_MaxSpeed(void)
 
 		wishSpeed = (m_currentStamina >= maxStamina) ? walkSpeed : runSpeed;
 	} else if (IsCrouching()) {
-		wishSpeed = crouchSpeed;
+		if (HasVFlags(VFL_SLIDING)) {
+			/* While sliding we want to maintain momentum, not cap to
+			 * crouch speed. Use current horizontal speed as the cap. */
+			float slideSpeed = Slide_HorizSpeed(this);
+			wishSpeed = max(slideSpeed, crouchSpeed);
+		} else {
+			wishSpeed = crouchSpeed;
+		}
 	} else if (IsProne()) {
 		wishSpeed = proneSpeed;
 	} else {
@@ -492,6 +504,12 @@ ncPlayer::Physics_InputPreMove(void)
 
 	if (m_nuclideFlags & VFL_FROZEN || movetype == MOVETYPE_NONE) {
 		canMove = false;
+	}
+
+	/* suppress player input movement while sliding — only momentum and
+	 * gravity projection should affect the slide direction. */
+	if (HasVFlags(VFL_SLIDING)) {
+		input_movevalues = [0,0,0];
 	}
 
 	/* freeze in place */
@@ -675,7 +693,12 @@ ncPlayer::Physics_Run(void)
 
 	Physics_Crouch();
 	Physics_Prone();
+	Slide_CheckEnter(this);
 	Physics_CheckJump(TRUE);
+
+	/* Slide friction override: set self.friction so the ground-physics
+	 * step uses near-zero friction while sliding. */
+	Slide_OnPhysicsStart(this);
 
 	if (autocvar(pm_enginepmove, 0) > 0) {
 		/* fast engine-side player physics */
@@ -684,6 +707,9 @@ ncPlayer::Physics_Run(void)
 		/* QuakeC powered physics (slow, but more customizable) */
 		PMoveCustom_RunPlayerPhysics(this);
 	}
+
+	/* Slide post-physics: apply slope projection or flat-ground drag. */
+	Slide_ApplyGravityProjection(this);
 
 	/* Detect ground→air transition (jump, fall off edge). Runs after the physics step
 	 * so FL_ONGROUND reflects the post-move state. Stamps the current time so that
@@ -711,6 +737,9 @@ ncPlayer::Physics_Run(void)
 	}
 
 	Physics_CheckJump(FALSE);
+
+	/* Slide exit checks: crouch release, jump, low speed on flat ground. */
+	Slide_CheckExit(this);
 
 	if (wasOnGround == false && (flags & FL_ONGROUND)) {
 		if (waterlevel != 0) {

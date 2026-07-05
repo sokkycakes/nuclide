@@ -1,0 +1,20 @@
+---
+description: Reference path for Godot prototype code lookups
+alwaysApply: true
+---
+
+# Godot Prototype Code Reference
+
+When the user mentions the **Godot prototype** or **protophase2**, reference code and patterns from:
+
+```
+D:\c drive\Godot\stiletto-protophase2
+```
+
+This path contains the Godot prototype implementation. Use it as the source for:
+- Code patterns and architecture decisions
+- Gameplay mechanics and systems
+- UI/UX implementations
+- Asset organization
+
+When performing tasks related to the prototype, check this path first before referencing other codebases.

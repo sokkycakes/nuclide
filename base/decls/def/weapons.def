@@ -1,3 +1,4 @@
+#include weapons/weapon_melee_base.def
 #include weapons/axe.def
 #include weapons/grenadelauncher.def
 #include weapons/lightning.def

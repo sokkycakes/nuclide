@@ -478,7 +478,7 @@ void end_sys_globals;
 .float flags;
 .float colormap;
 #endif
-#ifdef SSQC
+#if defined(CSQC) || defined(SSQC)
 .float team;
 .float max_health;
 .float teleport_time;	/* While active, prevents the player from using the +back command, also blocks waterjumping. */
