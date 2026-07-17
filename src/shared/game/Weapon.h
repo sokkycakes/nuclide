@@ -323,6 +323,14 @@ public:
 
 	virtual void EjectBrass(void);
 	virtual void EjectCartridge(void);
+
+	/* Hero ability action — triggered by the +stiletto_grapple key.
+	 * Default: does nothing. Override per weapon (e.g. grapple for
+	 * Collier, warp teleport for Vagrant). */
+	virtual void DoAbilityAction(void);
+
+	/* Called when the ability key is released. */
+	virtual void OnAbilityReleased(void);
 #endif
 
 	virtual bool TestFireAbility(string);
@@ -427,6 +435,7 @@ private:
 	nonvirtual void _WeaponStoppedFiring(void);
 	nonvirtual void _PrimaryAttack(void);
 	nonvirtual void _SecondaryAttack(void);
+	virtual void _MeleeAttack(void);
 	nonvirtual void _SwitchedWeaponMode(void);
 	virtual void _AddedCallback(void);
 	virtual void _RemovedCallback(void);

@@ -126,9 +126,25 @@ Cmd_ParseClientCommand(ncClient sender, string cmd, int commandArguments)
 			ncPlayer pl = (ncPlayer)sender;
 			if (argv(1) == "1") {
 				pl.m_stilettoGrappleActionHeld = 1;
-				Stiletto_FireGrapple(sender);
+				/* Dispatch to the active weapon's ability action.
+				 * Vagrant's knife overrides this for warp teleport.
+				 * Default (ncWeapon) falls through to Stiletto_FireGrapple
+				 * so Collier and other heroes keep their grapple. */
+				if (pl.m_activeWeapon) {
+					/* Quick check: does this weapon override DoAbilityAction?
+					 * Vagrant knife uses it for warp; everything else keeps
+					 * the default grapple behavior. */
+					if (pl.m_activeWeapon.declclass == "weapon_vagrant_knife") {
+						pl.m_activeWeapon.DoAbilityAction();
+					} else {
+						Stiletto_FireGrapple(sender);
+					}
+				}
 			} else {
 				pl.m_stilettoGrappleActionHeld = 0;
+				if (pl.m_activeWeapon) {
+					pl.m_activeWeapon.OnAbilityReleased();
+				}
 			}
 		}
 		break;

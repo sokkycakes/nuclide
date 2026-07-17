@@ -29,7 +29,22 @@ Servers_GetInfo(int serverID, serverGame_t infoType)
 	case SERVERGAME_GAME:
 		return (string)gethostcachestring(srv_fldGame, serverID);
 		break;
+	case SERVERGAME_SERVERINFO:
+		return (string)gethostcachestring(srv_fldServerInfo, serverID);
+		break;
 	default:
 		return __NULL__;
 	}
+}
+
+float Servers_IsLobby(int serverID)
+{
+	string info = (string)Servers_GetInfo(serverID, SERVERGAME_SERVERINFO);
+	/* FTEQW server info is \key\value\key\value\... (Quake infobuf format) */
+	int n = tokenizebyseparator(info, "\\");
+	for (int i = 1; i + 1 < n; i += 2) {
+		if (argv(i) == "lobby" && stof(argv(i + 1)) != 0)
+			return TRUE;
+	}
+	return FALSE;
 }

@@ -1207,6 +1207,18 @@ ncWeapon::InputFrame(void)
 }
 
 void
+ncWeapon::DoAbilityAction(void)
+{
+
+}
+
+void
+ncWeapon::OnAbilityReleased(void)
+{
+
+}
+
+void
 ncWeapon::ReleasedWeaponAttack(string fireInfo)
 {
 	ncPlayer ourOwner = (ncPlayer)GetOwner();
@@ -1444,6 +1456,11 @@ ncWeapon::_SecondaryAttack(void)
 		_WeaponStartedFiring();
 		SecondaryAttack();
 	}
+}
+
+void
+ncWeapon::_MeleeAttack(void)
+{
 }
 
 void

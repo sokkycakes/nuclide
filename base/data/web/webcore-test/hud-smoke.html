@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>WebCore HUD smoke</title>
+  <link rel="stylesheet" href="hud-smoke.css">
+</head>
+<body>
+  <div class="chip" id="chip">HUD · world should show through</div>
+  <script>
+    function refresh() {
+      try {
+        if (typeof fte_query === "function") {
+          var s = fte_query("getstats");
+          if (s) document.getElementById("chip").textContent = "HUD · " + s;
+        }
+      } catch (e) {}
+    }
+    setInterval(refresh, 250);
+    refresh();
+  </script>
+</body>
+</html>

@@ -1,0 +1,17 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+  * { box-sizing: border-box; }
+  html, body { width: 64px; height: 64px; margin: 0; overflow: hidden; }
+  body { background: #102030; }
+  .tile { position: absolute; width: 24px; height: 24px; }
+  #red { left: 8px; top: 8px; background: #ff0000; }
+  #green { left: 32px; top: 8px; background: #00ff00; }
+  #blue { left: 8px; top: 32px; background: #0000ff; }
+  #blend { left: 32px; top: 32px; background: rgba(255, 255, 255, 0.5); }
+</style>
+<div class="tile" id="red"></div>
+<div class="tile" id="green"></div>
+<div class="tile" id="blue"></div>
+<div class="tile" id="blend"></div>

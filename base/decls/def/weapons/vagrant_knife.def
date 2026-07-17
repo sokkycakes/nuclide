@@ -1,58 +1,139 @@
-// Vagrant primary: knife melee swing. Prototype cadence (0.8s), short reach.
-// 1 damage per swing. The 10x backstab multiplier and throwable knife are
-// SECONDARY mechanics deferred to the signature-tool pass -- not in v1.
+// Vagrant knife — combined melee + throw projectile weapon.
+//
+// Single weapon with two firing modes:
+//   Primary fire:  throw knife projectile (1 shot, 2s reload, arc physics)
+//   Secondary fire: melee swing (89u, 1 dmg) + bullet cut (can_cut)
+//
+// During the 2s reload window both attacks are locked (shared clip/reload).
 entityDef weapon_vagrant_knife
 {
-	"inherit"			"weapon_melee_base"
+	"spawnclass"			"ncWeaponVagrantKnife"
 
-	"editor_color"		".3 .3 1"
-	"editor_mins"		"-16 -16 -16"
-	"editor_maxs"		"16 16 16"
-	"editor_usage"		"Vagrant knife (melee)"
-	"editor_rotatable"	"1"
+	"editor_color"			".3 .3 1"
+	"editor_mins"			"-16 -16 -16"
+	"editor_maxs"			"16 16 16"
+	"editor_usage"			"Vagrant knife (throw + melee + bullet cutter)"
+	"editor_rotatable"		"1"
 
-	"spawnclass"		"ncWeaponBaseMelee"
-	"model_view"		"progs/v_axe.mdl"
-	"snd_acquire"		"weapon.pickup"
-	"snd_respawn"		"item.respawn"
-	"spin"				"1"
-	"pickupFlash"		"1"
-	"animPrefix"		"axe"
+	// ---- Viewmodel ----
+	"model_view"			"progs/v_axe.mdl"
+	"animPrefix"			"axe"
 
-	// melee override: short reach (28 units), fast swing, no cleave
-	"melee_range"		"28"
-	"melee_damage"		"1"
-	"melee_push"		"50"
-	"melee_cleave"		"0"
+	// ---- Primary fire: throw knife projectile ----
+	"def_fireInfo"			"fireInfo_vagrant_throw"
 
-	// weapon specific
-	"testDistance"		"-28"
-	"inv_name"			"Vagrant"
-	"ammoRequired"		"0"
-	"silent_fire"		"1"
+	// ---- Clip / reload ----
+	"ammoType"				"ammo_nails"
+	"infiniteReserve"		"1"
+	"ammoRequired"			"1"
+	"ammoPerShot"			"1"
+	"clipSize"				"1"
+	"clipSizeDefault"		"1"
+	"reloadTime"			"2.0"
 
-	"failRate"			"0.8"
-	"fireRate"			"0.8"
-	"snd_hit"			"Weapon_Axe.Melee_Hit"
-	"snd_failed"		"Weapon_Axe.Miss"
+	// ---- Melee swing (secondary fire) ----
+	"melee_range"			"89"
+	"melee_damage"			"1"
+	"melee_push"			"50"
+	"melee_cleave"			"0"
+	"melee_bounds_mins"		"-18 -32 -18"
+	"melee_bounds_maxs"		"18 32 18"
 
-	"act_idle"			"0"
-	"act_draw"			"0"
-	"act_fireFailed"	"1,2"
-	"act_fire"			"1,2"
+	// ---- Projectile cutting (secondary fire) ----
+	"can_cut"				"1"
+	"deflect_cooldown"		"1.75"
+	"snd_cut"				"weapon_vagrant_knife.cut"
 
-	"hudSlot"			"0"
-	"hudSlotPos"		"0"
-	"weight"			"0"
-	"crosshair"			"none"
-	"ammoIcon"			"none"
-	"icon"				"weapon_axe.weapon"
-	"iconSelected"		"weapon_axe.weapon_s"
+	// ---- Sounds ----
+	"snd_acquire"			"weapon.pickup"
+	"snd_respawn"			"item.respawn"
+	"snd_swing"				"Melee_Swing"
+	"snd_hit"				"Weapon_Axe.Melee_Hit"
+	"snd_failed"			"Weapon_Axe.Miss"
+
+	// ---- Weapon specific ----
+	"testDistance"			"-89"
+	"inv_name"				"Vagrant"
+	"ammoRequired"			"0"
+	"silent_fire"			"1"
+
+	"fireRate"				"0.8"
+	"failRate"				"0.8"
+	"snd_hit"				"Weapon_Axe.Melee_Hit"
+	"snd_failed"			"Weapon_Axe.Miss"
+
+	"act_idle"				"0"
+	"act_draw"				"0"
+	"act_fireFailed"		"1,2"
+	"act_fire"				"1,2"
+
+	// ---- HUD ----
+	"hudSlot"				"0"
+	"hudSlotPos"			"0"
+	"weight"				"0"
+	"crosshair"				"none"
+	"ammoIcon"				"none"
+	"icon"					"weapon_axe.weapon"
+	"iconSelected"			"weapon_axe.weapon_s"
 }
 
-entityDef projectile_vagrant_knife
+// Fire info for the throw knife projectile.
+entityDef fireInfo_vagrant_throw
 {
-	"inherit"			"projectile_axe"
-	"damage"			"1"
-	"range"				"28"
+	"def_onFire"			"projectile_vagrant_throwknife"
+	"fireRate"				"0.6"
+	"reloadTime"			"2.0"
+	"semiAuto"				"1"
+	"snd_fire"				"weapon_vagrant_knife.throw"
+}
+
+// Thrown knife projectile.
+// 2x larger collision box than a base bullet, 25% slower velocity,
+// gravity arc for weight feel, mid-range via fuse.
+entityDef projectile_vagrant_throwknife
+{
+	"spawnclass"			"ncProjectile"
+	"model"					"progs/spike.mdl"
+	"mins"					"-4 -4 -4"
+	"maxs"					"4 4 4"
+
+	"velocity"				"1100"
+	"gravity"				"0.8"
+	"fuse"					"3.0"
+
+	"detonate_on_world"		"1"
+	"detonate_on_actor"		"1"
+
+	"def_damage"			"damage_vagrant_throw"
+	"damage"				"1"
+
+	"modelscale"			"5"
+}
+
+entityDef damage_vagrant_throw
+{
+	"damage"	"1"
+}
+
+// Warpknife: variant of the throw knife that sticks to surfaces instead of
+// detonating. Tracked by the weapon — one active on the field at a time.
+// Despawns on player damage; pickup via reload while within 32 units.
+entityDef projectile_vagrant_warpknife
+{
+	"inherit"				"projectile_vagrant_throwknife"
+
+	"detonate_on_world"		"0"
+	"detonate_on_actor"		"0"
+	"stick_to_world"		"1"
+	"fuse"					"0"
+}
+
+// Fire info for the warpknife throw (swapped in when m_bWarpQueued).
+entityDef fireInfo_vagrant_warp
+{
+	"def_onFire"			"projectile_vagrant_warpknife"
+	"fireRate"				"0.6"
+	"reloadTime"			"2.0"
+	"semiAuto"				"1"
+	"snd_fire"				"weapon_vagrant_knife.throw"
 }

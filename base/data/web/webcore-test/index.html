@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>FTE WebCore smoke test</title>
+  <style>
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      background: #111722 !important;
+      color: #f4f7ff !important;
+      font: 18px/1.4 sans-serif;
+    }
+    main { width: min(80vw, 720px); margin: 40px auto; padding: 24px; }
+    button { padding: 0.6rem 1rem; }
+    output { display: block; min-height: 1.5rem; margin-block: 1rem; }
+    .alpha-card {
+      padding: 2rem;
+      border-radius: 24px;
+      background: linear-gradient(135deg, rgba(84, 186, 255, 0.75), rgba(184, 84, 255, 0.35));
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>WebCore CPU renderer</h1>
+    <p id="status">Inline styles (no external CSS).</p>
+    <button id="query" type="button">Query FTE stats</button>
+    <output id="result" aria-live="polite"></output>
+    <div class="alpha-card">Premultiplied alpha and rounded clipping</div>
+  </main>
+  <script>
+    document.getElementById("query").onclick = function () {
+      var out = document.getElementById("result");
+      if (typeof window.fte_query !== "function") {
+        out.textContent = "FTE bridge unavailable";
+        return;
+      }
+      out.textContent = window.fte_query("getstats");
+    };
+  </script>
+</body>
+</html>

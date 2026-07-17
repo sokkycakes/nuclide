@@ -96,6 +96,7 @@ ncPlayer::ncPlayer(void)
 	m_stilettoPrevButtons = 0;
 	m_stilettoGrappleHeld = 0;
 	m_stilettoGrappleActionHeld = 0;
+	m_stilettoJumpKicked = false;
 
 #ifdef SERVER
 	/* precache sounds that are called by string name in stiletto_tuning.qc
@@ -477,9 +478,9 @@ ncPlayer::ProcessInput(void)
 	} else if (input_buttons & INPUT_PRIMARY) {
 		m_activeWeapon._PrimaryAttack();
 	} else if (input_buttons & INPUT_RELOAD) {
-		m_activeWeapon.Reload();
+	m_activeWeapon.Reload();
 	} else {
-		m_activeWeapon._WeaponStoppedFiring();
+	m_activeWeapon._WeaponStoppedFiring();
 		m_activeWeapon.Release();
 	}
 }

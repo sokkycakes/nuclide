@@ -320,6 +320,7 @@ private:
 	NETWORKED_VECTOR(m_stilettoDashAddVel)
 	NETWORKED_FLOAT(m_stilettoParryEnd)
 	float m_stilettoAirTime;
+	bool m_stilettoJumpKicked;
 
 	/* combat-reaction (stiletto_combat.qc): networked so the shared
 	 * Physics_Run punish movement-lock predicts identically client+server. */

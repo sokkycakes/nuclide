@@ -424,6 +424,51 @@ HLHUD_DrawAmmo3(vector pos, float ammoValue)
 	}
 }
 
+/* WebCore HTML HUD overlay (second decoder view). Gate: webcore_hud 1 */
+var float autocvar_webcore_hud = 0;
+var string autocvar_webcore_hud_url = "fte://data/web/webcore-test/hud-smoke.html";
+var float g_webcoreHudAlive;
+
+void
+WebCoreHud_Shutdown(void)
+{
+	if (g_webcoreHudAlive) {
+		gecko_destroy("webcore_hud");
+		g_webcoreHudAlive = 0;
+	}
+}
+
+void
+WebCoreHud_Ensure(void)
+{
+	string media;
+
+	if (g_webcoreHudAlive)
+		return;
+
+	media = sprintf("webcore:%s", autocvar_webcore_hud_url);
+	if (gecko_create("webcore_hud", media)) {
+		gecko_navigate("webcore_hud", "cmd:transparent");
+		g_webcoreHudAlive = 1;
+	}
+}
+
+void
+WebCoreHud_Draw(void)
+{
+	if (autocvar_webcore_hud <= 0) {
+		WebCoreHud_Shutdown();
+		return;
+	}
+
+	WebCoreHud_Ensure();
+	if (!g_webcoreHudAlive)
+		return;
+
+	gecko_resize("webcore_hud", g_hudRes[0], g_hudRes[1]);
+	drawpic(g_hudMins, "webcore_hud", g_hudRes, [1, 1, 1], 1, 0);
+}
+
 void
 HUD_Draw(void)
 {
@@ -560,6 +605,9 @@ HUD_Draw(void)
 	HLHUD_DrawAmmo2(pos, ammoValue);
 
 	HLHUD_ClampTimers();
+
+	/* Letterboxed WebCore HUD last so it composites over HudC chrome. */
+	WebCoreHud_Draw();
 }
 
 /* Framework chrome (watching bar, top bar, timer/score, key hints,

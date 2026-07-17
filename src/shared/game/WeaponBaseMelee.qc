@@ -46,12 +46,26 @@ ncWeaponBaseMelee::Spawned(void)
 	if (snd) { precache.Sound(snd); }
 	snd = GetDefString("snd_failed");
 	if (snd) { precache.Sound(snd); }
+
+	/* Read deflect/cut config from def */
+	m_bCanCut = GetDefBool("can_cut");
+	m_flDeflectCooldown = max(0, GetDefFloat("deflect_cooldown"));
+	m_flDeflectCooldownEnd = 0;
+
+	snd = GetDefString("snd_cut");
+	if (snd) { precache.Sound(snd); }
 }
 
 void
 ncWeaponBaseMelee::PrimaryAttack(void)
 {
 	if (CanFire() == false) {
+		Idle();
+		return;
+	}
+
+	/* If this weapon cuts projectiles, check the deflect cooldown */
+	if (m_bCanCut && time < m_flDeflectCooldownEnd) {
 		Idle();
 		return;
 	}
@@ -178,6 +192,20 @@ ncWeaponBaseMelee::DoSwingTrace(void)
 	}
 
 	vecHitDir = normalize(vecHitPos - vecStart);
+
+	/* Check if we cut a projectile — destroy it and apply cooldown */
+	if (m_bCanCut && eTarget) {
+		ncProjectile projTarget = (ncProjectile)eTarget;
+		if (projTarget) {
+			remove(eTarget);
+			m_flDeflectCooldownEnd = time + m_flDeflectCooldown;
+			string sndCut = GetDefString("snd_cut");
+			if (sndCut && pPlayer) {
+				pPlayer.StartSoundDef(sndCut, CHAN_WEAPON, true);
+			}
+			return;
+		}
+	}
 
 	ncSurfacePropEntity spTarget = (ncSurfacePropEntity)eTarget;
 	if (spTarget && spTarget.IsVulnerable() && eTarget != pPlayer) {

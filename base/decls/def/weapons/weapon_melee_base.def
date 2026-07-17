@@ -1,5 +1,10 @@
 // Base melee weapon — TF2-style line+hull trace with optional cleave.
 // Inheriting weapons must set "spawnclass" "ncWeaponBaseMelee".
+//
+// Deflect / cut support (opt-in via can_cut = 1):
+//   When a melee swing hits an ncProjectile the projectile is destroyed,
+//   a parry sound is played, and the weapon is locked for deflect_cooldown
+//   seconds. Any melee weapon inheriting this base can enable it.
 entityDef weapon_melee_base
 {
 	"spawnclass"			"ncWeaponBaseMelee"
@@ -11,6 +16,11 @@ entityDef weapon_melee_base
 	"melee_cleave"			"0"
 	"melee_damage"			"20"
 	"melee_push"			"100"
+
+	// ---- Deflect / cut (opt-in) ----
+	"can_cut"				"0"
+	"deflect_cooldown"		"1.75"
+	"snd_cut"				""
 
 	// ---- ncWeapon defaults for melee ----
 	"ammoRequired"			"0"

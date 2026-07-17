@@ -24,5 +24,10 @@ public:
 	virtual float GetMeleeDamage(void);
 	virtual float GetMeleePush(void);
 	virtual bool GetMeleeCleave(void);
+
+	/* Deflect / cut support */
+	bool m_bCanCut;
+	float m_flDeflectCooldown;
+	float m_flDeflectCooldownEnd;
 #endif
 };

@@ -12,7 +12,7 @@
  * WHATSOEVER RESULTING FROM LOSS OF MIND, USE, DATA OR PROFITS, WHETHER
  * IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING
  * OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
-*/
+ */
 
 int g_iServerBrowserInitialized;
 
@@ -90,14 +90,7 @@ void UI_FindServers_Show ( void )
 		lblPing.SetTitle(sprintf("Ping: %i", Servers_GetInfo(value, SERVERGAME_PING)));
 	}
 
-	static void Servers_Update ( void ) {
-		Master_UpdateCache();
-	}
-	static void Servers_Connect ( void ) {
-		int selectedEntry = listInternetGames.GetSelected();
-		localcmd(sprintf("connect %s\n", Servers_GetInfo(selectedEntry, SERVERGAME_ADDRESS)));
-	}
-
+	/* ---- Tab-switching helpers ------------------------------- */
 	static void Servers_ShowMaps(void) {
 		listTVGames.Hide();
 		listLANGames.Hide();
@@ -108,7 +101,6 @@ void UI_FindServers_Show ( void )
 		targetCategoryID = listInternetGamesID;
 		Servers_UpdateInternetGames();
 	}
-
 	static void Servers_ShowAddons(void) {
 		listTVGames.Hide();
 		listLANGames.Hide();
@@ -119,7 +111,6 @@ void UI_FindServers_Show ( void )
 		targetCategoryID = listPastGamesID;
 		Servers_UpdatePastGames();
 	}
-
 	static void Servers_ShowMods(void) {
 		listTVGames.Hide();
 		listInternetGames.Hide();
@@ -130,7 +121,6 @@ void UI_FindServers_Show ( void )
 		targetCategoryID = listLANGamesID;
 		Servers_UpdateLANGames();
 	}
-
 	static void Servers_ShowPatches(void) {
 		listLANGames.Hide();
 		listInternetGames.Hide();
@@ -141,56 +131,70 @@ void UI_FindServers_Show ( void )
 		Servers_UpdateSpectateGames();
 	}
 
+	/* ---- Fill all server lists from the host cache ----------- */
 	static void Servers_FillList(void) {
-		int modCount = 0i;
-		int mapCount = 0i;
-		int addonCount = 0i;
-		int patchCount = 0i;
+		int totalServers = Master_GetTotalServers();
 
-		for ( int i = 0; i < Master_GetTotalServers(); i++ ) {
-			patchCount++;
-			modCount++;
-			mapCount++;
-			addonCount++;
-		}
+		listTVGames.SetItemCount( totalServers );
+		listTVGamesID.SetItemCount( totalServers );
+		listLANGames.SetItemCount( totalServers );
+		listLANGamesID.SetItemCount( totalServers );
+		listPastGames.SetItemCount( totalServers );
+		listPastGamesID.SetItemCount( totalServers );
+		listInternetGames.SetItemCount( totalServers );
+		listInternetGamesID.SetItemCount( totalServers );
 
-		listTVGames.SetItemCount( patchCount );
-		listTVGamesID.SetItemCount( patchCount );
-		listLANGames.SetItemCount( modCount );
-		listLANGamesID.SetItemCount( modCount );
-		listPastGames.SetItemCount( addonCount );
-		listPastGamesID.SetItemCount( addonCount );
-		listInternetGames.SetItemCount( mapCount );
-		listInternetGamesID.SetItemCount( mapCount );
-
-		if (modCount) {
-		//	tabLANServers.SetFunc( Servers_ShowMods );
-		}
-		if (addonCount) {
-			//tabHistoricServers.SetFunc( Servers_ShowAddons );
-		}
-		if (mapCount) {
+		if (totalServers) {
 			tabInternetServers.SetFunc( Servers_ShowMaps );
-		}
-		if (patchCount) {
-			//tabSpectateServers.SetFunc( Servers_ShowPatches );
+			tabLANServers.SetFunc( Servers_ShowMods );
+			tabHistoricServers.SetFunc( Servers_ShowAddons );
+			tabSpectateServers.SetFunc( Servers_ShowPatches );
 		}
 
-		for ( int i = 0; i < Master_GetTotalServers(); i++ ) {
-				listTVGames.AddItem( Servers_GetInfo(i, SERVERGAME_ADDRESS) );
-				listTVGamesID.AddItem(sprintf("%i", i));
-				listLANGames.AddItem( Servers_GetInfo(i, SERVERGAME_ADDRESS) );
-				listLANGamesID.AddItem(sprintf("%i", i));
-				listInternetGames.AddItem( Servers_GetInfo(i, SERVERGAME_ADDRESS) );
-				listInternetGamesID.AddItem(sprintf("%i", i));
-				listPastGames.AddItem( Servers_GetInfo(i, SERVERGAME_ADDRESS) );
-				listPastGamesID.AddItem(sprintf("%i", i));
-			
+		for ( int i = 0; i < totalServers; i++ ) {
+			string entryText;
+			if (Servers_IsLobby(i))
+				entryText = sprintf("[LOBBY] %s", Servers_GetInfo(i, SERVERGAME_ADDRESS));
+			else
+				entryText = Servers_GetInfo(i, SERVERGAME_ADDRESS);
+
+			listTVGames.AddItem( entryText );
+			listTVGamesID.AddItem(sprintf("%i", i));
+			listLANGames.AddItem( entryText );
+			listLANGamesID.AddItem(sprintf("%i", i));
+			listInternetGames.AddItem( entryText );
+			listInternetGamesID.AddItem(sprintf("%i", i));
+			listPastGames.AddItem( entryText );
+			listPastGamesID.AddItem(sprintf("%i", i));
 		}
+	}
+
+	static void Servers_Update ( void ) {
+		Master_UpdateCache();
+		Servers_FillList();
 	}
 	static void Servers_Refresh ( void ) {
 		Master_RefreshCache();
 		Servers_FillList();
+	}
+
+	static void Servers_Connect ( void ) {
+		if (!targetCategory)
+			return;
+		int selectedEntry = targetCategory.GetSelected();
+		int serverId = (int)stof(targetCategoryID.GetItem(selectedEntry));
+
+		if (Servers_IsLobby(serverId)) {
+			/* Join lobby session instead of connecting directly */
+			winServers.Hide();
+			Desktop_ShowMenu(FALSE);
+			localcmd(sprintf("lobby_join %s\n",
+				Servers_GetInfo(serverId, SERVERGAME_ADDRESS)));
+			g_bLobbyShowPending = TRUE;
+		} else {
+			localcmd(sprintf("connect %s\n",
+				Servers_GetInfo(serverId, SERVERGAME_ADDRESS)));
+		}
 	}
 
 	if ( !g_iServerBrowserInitialized ) {
@@ -306,7 +310,10 @@ void UI_FindServers_Show ( void )
 		winServers.Add( lblPlayers );
 		winServers.Add( lblTimeLimit );
 		winServers.Add( lblPing );
-		Servers_ShowMaps();
+
+		Master_UpdateCache();
+		Servers_FillList();
+		Servers_ShowMods();
 	}
 
 	winServers.Show();

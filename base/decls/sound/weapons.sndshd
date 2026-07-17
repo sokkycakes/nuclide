@@ -76,7 +76,19 @@ weapon_nailgun.shoot
 weapon_collier_sidearm.shoot
 {
 	alerts
-	sample weapons/gunshotv4.wav
+	sample weapons/gunshotv4.ogg
+}
+
+weapon_vagrant_knife.cut
+{
+	alerts
+	sample weapons/clangv2.wav
+}
+
+weapon_vagrant_knife.throw
+{
+	alerts
+	sample weapons/melee_swing.wav
 }
 
 weapon_supernailgun.shoot

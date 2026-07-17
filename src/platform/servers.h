@@ -8,8 +8,12 @@ typedef enum
 	SERVERGAME_MAXPLAYERS,	/**< (int) Player slots. */
 	SERVERGAME_MAP,			/**< (string) Current map/level file. */
 	SERVERGAME_GAME,		/**< (string) Game directory. */
+	SERVERGAME_SERVERINFO	/**< (string) Raw server info (infobuf). */
 } serverGame_t;
 
 
 /** Retrieves fields for a given server. See serverGame_t for a list of fields you can query. */
 __variant Servers_GetInfo(int, serverGame_t);
+
+/** Returns true if server has lobby=1 in its info string */
+float Servers_IsLobby(int serverID);
