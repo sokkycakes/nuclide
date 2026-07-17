@@ -1,10 +1,14 @@
-// Vagrant knife — combined melee + throw projectile weapon.
+// Vagrant knife — melee + throw projectile + warpknife.
 //
-// Single weapon with two firing modes:
-//   Primary fire:  throw knife projectile (1 shot, 2s reload, arc physics)
-//   Secondary fire: melee swing (89u, 1 dmg) + bullet cut (can_cut)
+// Controls:
+//   M1 (INPUT_PRIMARY):   throw knife projectile (1 shot, 2s reload, arc physics)
+//   Q  (INPUT_SECONDARY): melee swing (89u) + bullet cut + backstab
+//   M2 (ability key):     throw warpknife / teleport / hold-to-pickup 1.5s
+//   R:                    no function
 //
-// During the 2s reload window both attacks are locked (shared clip/reload).
+// Backstab: Q from behind sets health=0 (bypasses HP/armor).
+// Warpknife: sticky projectile, 1s–10s cooldown by distance, 1.5s wall cling
+// on vertical teleports, 1.3s freeze on long-range (≥512u) teleports.
 entityDef weapon_vagrant_knife
 {
 	"spawnclass"			"ncWeaponVagrantKnife"

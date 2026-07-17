@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <title>Halo 3 Main Menu (H3EK + ElDewrito-styled)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="stylesheet" href="style.css?v=46" />
+  <link rel="stylesheet" href="style.css?v=55" />
 </head>
 <body>
   <div id="stage" class="stage stage--fade-in">
@@ -24,10 +24,11 @@
            doesn't fight subsequent enter/leave classes. -->
       <section class="page page--main-menu is-initial" data-page="main_menu">
 
-        <!-- Right group: HALO 3 + Bungie logos -->
+        <!-- Right group: HALO 3 + Bungie logos (src in markup so they show
+             even if JS is late; app.js may still refresh from data.js). -->
         <div class="group group--right">
-          <img id="title-logo"  class="chrome chrome--title delayd-fade-in"  alt="HALO 3" />
-          <img id="bungie-logo" class="chrome chrome--bungie delayd-fade-in" alt="Bungie" />
+          <img id="title-logo"  class="chrome chrome--title delayd-fade-in"  src="assets/halo3_logo.png" alt="HALO 3" />
+          <img id="bungie-logo" class="chrome chrome--bungie delayd-fade-in" src="assets/bungielogo.png" alt="Bungie" />
           <div id="build-text"   class="text-widget text-widget--build delayd-fade-in">build 12070.07.10.18.2128.delta</div>
         </div>
 
@@ -176,6 +177,8 @@
     <strong>Controls:</strong> Up/Down or W/S &mdash; move &middot; Enter or A &mdash; confirm &middot; Esc or B &mdash; back &middot; X &mdash; Settings &middot; Y &mdash; Friends (online) &middot; ` &mdash; toggle debug
   </div>
 
-  <script src="app.js?v=34"></script>
+  <!-- data.js avoids fetch()/XHR: ftewebcore currently crashes on Curl for those. -->
+  <script src="data.js"></script>
+  <script src="app.js?v=37"></script>
 </body>
 </html>

@@ -1,0 +1,192 @@
+/* Title menu — WebCore port of engine/ui/title_menu.slint
+   Figma frame 16:9 (node 46:2), reference 1365 × 768.
+   Positions use the same ratios as the Slint viewport-w/h math. */
+
+:root {
+  --ref-w: 1365;
+  --ref-h: 768;
+  /* No @font-face — custom fonts crash this WebCore build. */
+  --font: "Bahnschrift Condensed", "Bahnschrift", "Arial Narrow", "Segoe UI", Arial, sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: transparent;
+  color: #fff;
+  font-family: var(--font);
+}
+
+.stage {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  user-select: none;
+}
+
+/* ── Panel (full width, bottom band) ─────────────────────────────── */
+.panel {
+  position: absolute;
+  left: 0;
+  top: calc(100% * 418 / 768);
+  width: 100%;
+  height: calc(100% * 189 / 768);
+  pointer-events: none;
+}
+
+.panel__base {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    #6d6d6dcc 0%,
+    #424242cc 9%,
+    #282828cc 42%,
+    #2a2a2acc 66%,
+    #323232cc 87%,
+    #6d6d6dcc 100%
+  );
+}
+
+.panel__red {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    #ff000047 0%,
+    #f6000009 24%,
+    #f5000000 51%,
+    #e500000b 88%,
+    #ff000047 100%
+  );
+}
+
+.panel__edge {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: max(1px, calc(100vh * 2 / 768));
+  background: #ffb1b1;
+}
+.panel__edge--top { top: 0; }
+.panel__edge--bottom { bottom: 0; }
+
+/* ── Focus bar (left column, tracks selection via --focus-y) ─────── */
+.focus-bar {
+  position: absolute;
+  left: 0;
+  top: var(--focus-y, calc(100% * 440 / 768));
+  width: calc(100% * 452 / 1365);
+  height: calc(100% * 38 / 768);
+  will-change: top;
+  transition: top 120ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  background: linear-gradient(90deg, #b70043 32%, #34343400 100%);
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.focus-bar__edge {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: max(1px, calc(100vh * 2 / 768));
+  background: linear-gradient(90deg, #ff8c8c 32%, #ff8c8c00 100%);
+}
+.focus-bar__edge--top { top: 0; }
+.focus-bar__edge--bottom { bottom: 0; }
+
+/* ── Menu items ──────────────────────────────────────────────────── */
+.menu {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  padding: 0;
+  z-index: 3;
+}
+
+.menu-item {
+  position: absolute;
+  left: 0;
+  width: calc(100% * 452 / 1365);
+  height: calc(100% * 40 / 768);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #fff;
+  font: 700 calc(100vh * 24 / 768) / 1 var(--font);
+  letter-spacing: -1.2px;
+  text-align: left;
+  padding-left: calc(100% * 102 / 1365);
+  padding-top: calc(100vh * 5 / 768);
+  cursor: pointer;
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.menu-item:nth-child(1) { top: calc(100% * 443 / 768); }
+.menu-item:nth-child(2) { top: calc(100% * 483 / 768); }
+.menu-item:nth-child(3) { top: calc(100% * 514 / 768); }
+.menu-item:nth-child(4) { top: calc(100% * 545 / 768); }
+
+.menu-item:focus-visible {
+  /* Focus is visualised by the sliding bar, not a browser outline. */
+  outline: none;
+}
+
+/* ── Logo / chrome ───────────────────────────────────────────────── */
+.logo {
+  position: absolute;
+  left: calc(100% * 851 / 1365);
+  top: calc(100% * 443 / 768);
+  width: calc(100% * 460 / 1365);
+  height: calc(100% * 204 / 768);
+  object-fit: contain;
+  display: block;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 4;
+}
+
+.hint-glyph {
+  position: absolute;
+  left: calc(100% * 94 / 1365);
+  top: calc(100% * 661 / 768);
+  width: calc(100% * 32 / 1365);
+  height: calc(100% * 32 / 768);
+  object-fit: contain;
+  pointer-events: none;
+  z-index: 4;
+}
+
+.hint-label {
+  position: absolute;
+  left: calc(100% * 130 / 1365);
+  top: calc(100% * 660 / 768);
+  font: 700 calc(100vh * 24 / 768) / 1 var(--font);
+  letter-spacing: -1.2px;
+  color: #6d6d6d;
+  pointer-events: none;
+  z-index: 4;
+}
+
+.tp-logo {
+  position: absolute;
+  left: calc(100% * 1200 / 1365);
+  top: calc(100% * 624 / 768);
+  width: calc(100% * 81 / 1365);
+  height: calc(100% * 109 / 768);
+  object-fit: contain;
+  opacity: 0.51;
+  pointer-events: none;
+  z-index: 4;
+}

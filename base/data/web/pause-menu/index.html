@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Pause Menu</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="style.css?v=1" />
+</head>
+<body>
+  <!--
+    WebCore port of engine/ui/draft/pause_draft.slint
+    Actions match Slint pause callbacks.
+    Transparent root — live game shows through (menu isopaque=false in-game).
+  -->
+  <div id="stage" class="stage" data-selected="0">
+    <div class="panel" aria-hidden="true">
+      <div class="panel__base"></div>
+      <div class="panel__edge panel__edge--top"></div>
+      <div class="panel__edge panel__edge--bottom"></div>
+    </div>
+
+    <div class="banner" aria-hidden="true">
+      <div class="banner__label">PAUSE</div>
+    </div>
+
+    <div id="focus-bar" class="focus-bar" aria-hidden="true">
+      <div class="focus-bar__edge focus-bar__edge--top"></div>
+      <div class="focus-bar__edge focus-bar__edge--bottom"></div>
+    </div>
+
+    <nav id="menu" class="menu" role="listbox" aria-label="Pause menu">
+      <button type="button" class="menu-item is-selected" role="option" aria-selected="true"
+        data-index="0" data-cmd="webcore_closemenu">Return to Game</button>
+      <button type="button" class="menu-item" role="option" aria-selected="false"
+        data-index="1" data-cmd="menu_hostmenu">Host Menu</button>
+      <button type="button" class="menu-item" role="option" aria-selected="false"
+        data-index="2" data-cmd="menu_changeteam">Change Team</button>
+      <button type="button" class="menu-item" role="option" aria-selected="false"
+        data-index="3" data-cmd="menu_callvote">Call a Vote</button>
+      <button type="button" class="menu-item" role="option" aria-selected="false"
+        data-index="4" data-cmd="menu_options">Settings</button>
+      <button type="button" class="menu-item" role="option" aria-selected="false"
+        data-index="5" data-cmds="disconnect,webcore_closemenu">Leave Game</button>
+    </nav>
+  </div>
+
+  <script src="app.js?v=1"></script>
+</body>
+</html>

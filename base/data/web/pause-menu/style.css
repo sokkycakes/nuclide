@@ -1,0 +1,141 @@
+/* Pause menu — WebCore port of engine/ui/draft/pause_draft.slint
+   Figma 16:9 reference: 1280 × 720. Transparent so the game shows through. */
+
+:root {
+  --ref-w: 1280;
+  --ref-h: 720;
+  --font: "Bahnschrift Condensed", "Bahnschrift", "Arial Narrow", "Segoe UI", Arial, sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: transparent;
+  color: #fff;
+  font-family: var(--font);
+}
+
+.stage {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  user-select: none;
+}
+
+.panel {
+  position: absolute;
+  left: calc(100% * 149 / 1280);
+  top: calc(100% * 53 / 720);
+  width: calc(100% * 1131 / 1280);
+  height: calc(100% * 666 / 720);
+  pointer-events: none;
+}
+
+.panel__base {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, #272727c9 0%, #494949c9 90%);
+}
+
+.panel__edge {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: max(1px, calc(100vh * 1 / 720));
+  background: #c9c9c9;
+}
+.panel__edge--top { top: 0; }
+.panel__edge--bottom { bottom: 0; }
+
+.banner {
+  position: absolute;
+  left: 0;
+  top: calc(100% * 53 / 720);
+  width: calc(100% * 146 / 1280);
+  height: calc(100% * 667 / 720);
+  background: #1a1a1a;
+  pointer-events: none;
+  z-index: 1;
+  overflow: hidden;
+}
+
+.banner__label {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%) rotate(-90deg);
+  font: 700 calc(100vh * 48 / 720) / 1 var(--font);
+  letter-spacing: 0.2em;
+  color: #b70043;
+  white-space: nowrap;
+}
+
+.focus-bar {
+  position: absolute;
+  left: calc(100% * 155 / 1280);
+  top: var(--focus-y, calc(100% * 67 / 720));
+  width: calc(100% * 452 / 1280);
+  height: calc(100% * 32 / 720);
+  will-change: top;
+  transition: top 120ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  background: linear-gradient(90deg, #b70043 32%, #34343400 100%);
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.focus-bar__edge {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: max(1px, calc(100vh * 2 / 720));
+  background: linear-gradient(90deg, #ff8c8c 32%, #ff8c8c00 100%);
+}
+.focus-bar__edge--top { top: 0; }
+.focus-bar__edge--bottom { bottom: 0; }
+
+.menu {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  padding: 0;
+  z-index: 3;
+}
+
+.menu-item {
+  position: absolute;
+  left: calc(100% * 155 / 1280);
+  width: calc(100% * 452 / 1280);
+  height: calc(100% * 32 / 720);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #fff;
+  font: 700 calc(100vh * 23 / 720) / 1 var(--font);
+  letter-spacing: -0.5px;
+  text-align: left;
+  padding-left: calc(100% * 9 / 1280);
+  padding-top: calc(100vh * 4 / 720);
+  cursor: pointer;
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+  text-transform: uppercase;
+}
+
+.menu-item:nth-child(1) { top: calc(100% * 67 / 720); }
+.menu-item:nth-child(2) { top: calc(100% * 98 / 720); }
+.menu-item:nth-child(3) { top: calc(100% * 130 / 720); }
+.menu-item:nth-child(4) { top: calc(100% * 162 / 720); }
+.menu-item:nth-child(5) { top: calc(100% * 193 / 720); }
+.menu-item:nth-child(6) { top: calc(100% * 225 / 720); }
+
+.menu-item:focus-visible { outline: none; }

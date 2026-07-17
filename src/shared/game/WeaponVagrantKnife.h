@@ -1,17 +1,23 @@
 /*
- * Vagrant knife — combined melee + throw projectile weapon + warpknife.
+ * Vagrant knife — melee + throw projectile + warpknife.
  *
- * Single weapon, three firing modes sharing clip/reload state:
- *   Primary fire (INPUT_PRIMARY)       — throw knife projectile (1 shot, 2s reload)
- *   Secondary fire (INPUT_SECONDARY)   — melee swing (89u, 1 dmg) + bullet cut
- *   Reload (INPUT_RELOAD)              — queue warpknife / pick up stuck knife
+ * Controls:
+ *   M1 (INPUT_PRIMARY)       — throw knife projectile (1 shot, 2s reload)
+ *   Q  (INPUT_SECONDARY)     — melee swing (89u range) + bullet cut + backstab
+ *   M2 (nuclide_abi_grapple) — throw warpknife / teleport / hold-to-pickup
+ *   R                        — no function (replaced by M2)
  *
- * Warpknife: when queued via reload, the next throw spawns a sticky projectile
- * that stays on the surface it hits. Only one active at a time. Despawns if
- * the player takes damage. Pick up by pressing reload within 32 units.
+ * Backstab: Q-hit from behind (yaw diff > 120°) sets health = 0 instantly,
+ * bypassing HP and any future armor/barrier system.
  *
- * Inherits ncWeapon directly (not ncWeaponBaseMelee) because the primary
- * fire needs the standard projectile path while secondary does a melee swing.
+ * Warpknife: thrown via M2, sticks to surfaces. M2 again teleports to it.
+ * Hold M2 within 32u for 1.5s to pick up. Despawns on damage.
+ * Cooldown: 1s close (≤512u), ramps to 10s at 2000u.
+ * Wall stick: teleporting to a vertical surface gives 1.5s cling + slide.
+ * Long-range freeze: teleports ≥512u freeze the player for 1.3s.
+ *
+ * Inherits ncWeapon directly (not ncWeaponBaseMelee). Melee swing is
+ * a simple forward traceline — no hull trace or cleave.
  */
 class ncWeaponVagrantKnife : ncWeapon
 {

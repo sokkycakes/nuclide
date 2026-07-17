@@ -1,7 +1,8 @@
 /*
  * Vagrant knife — melee + throw projectile + warpknife.
  *
- * M1 = throw knife, Q = melee swing, M2 = warp functions, R = nothing.
+ * M1 = throw knife, Q = melee swing + backstab,
+ * M2 = warp functions, R = nothing.
  */
 
 #define WARP_PICKUP_RANGE		32

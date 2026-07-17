@@ -54,49 +54,42 @@
   const TRANSITION_MS = SLOW_MS;
 
   // ---------------------------------------------------------------------
-  // Load tag-derived data
-  // If running via game:// or fte:// scheme (CEF in FTEQW), convert relative URLs to absolute URLs
+  // Load tag-derived data.
+  // Prefer window.__H3_MENU_DATA__ from data.js (script src) — fetch()/XHR
+  // currently crash ftewebcore's Curl path. Keep fetch as HTTP-dev fallback.
   let data;
   try {
-    let dataUrl = "data.json?t=" + Date.now();
-    
-    // Detect if we're running via game:// or fte:// scheme and construct absolute URL
-    console.warn(`[H3 Menu] location.href="${location.href}" location.origin="${location.origin}" location.pathname="${location.pathname}"`);
-    
-    // Check for fte:// or game:// scheme
-    const isFteScheme = location.href.startsWith("fte://") || location.origin.includes("fte");
-    if (isFteScheme || location.href.startsWith("game://")) {
-      // URLs look like: fte://data/web/h3-main-menu/index.html or game://web/h3-main-menu/index.html
-      // Extract the directory from href
-      let fullPath = location.href;
-      let dir;
-      
-      if (fullPath.startsWith("fte://")) {
-        fullPath = fullPath.substring(6);  // Remove "fte://"
-        dir = fullPath.substring(0, fullPath.lastIndexOf('/'));  
-        dataUrl = `fte://${dir}/data.json?t=${Date.now()}`;
-        console.warn(`[H3 Menu] Detected fte:// scheme. Converted to: "${dataUrl}"`);
-      } else if (fullPath.startsWith("game://")) {
-        fullPath = fullPath.substring(7);  // Remove "game://"
-        dir = fullPath.substring(0, fullPath.lastIndexOf('/'));
-        // For game://, we need to add "data/" prefix since that's the sandbox boundary
-        dataUrl = `fte://data/${dir}/data.json?t=${Date.now()}`;
-        console.warn(`[H3 Menu] Detected game:// scheme. Converted to fte:// with data prefix: "${dataUrl}"`);
-      }
+    if (window.__H3_MENU_DATA__) {
+      data = window.__H3_MENU_DATA__;
+      console.warn("[H3 Menu] Using embedded data.js (__H3_MENU_DATA__)");
     } else {
-      console.warn(`[H3 Menu] Not using fte:// or game:// scheme, using relative path`);
+      let dataUrl = "data.json?t=" + Date.now();
+      console.warn(`[H3 Menu] location.href="${location.href}"`);
+      const isFteScheme = location.href.startsWith("fte://") || location.origin.includes("fte");
+      if (isFteScheme || location.href.startsWith("game://")) {
+        let fullPath = location.href;
+        let dir;
+        if (fullPath.startsWith("fte://")) {
+          fullPath = fullPath.substring(6);
+          dir = fullPath.substring(0, fullPath.lastIndexOf('/'));
+          dataUrl = `fte://${dir}/data.json?t=${Date.now()}`;
+        } else if (fullPath.startsWith("game://")) {
+          fullPath = fullPath.substring(7);
+          dir = fullPath.substring(0, fullPath.lastIndexOf('/'));
+          dataUrl = `fte://data/${dir}/data.json?t=${Date.now()}`;
+        }
+      }
+      console.warn(`[H3 Menu] Fetching from: "${dataUrl}"`);
+      const res = await fetch(dataUrl);
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+      }
+      data = await res.json();
     }
-    
-    console.warn(`[H3 Menu] Fetching from: "${dataUrl}"`);
-    const res = await fetch(dataUrl);
-    if (!res.ok) {
-      throw new Error(`HTTP ${res.status}: ${res.statusText}`);
-    }
-    data = await res.json();
   } catch (err) {
-    console.error("Failed to load data.json:", err);
+    console.error("Failed to load menu data:", err);
     document.body.innerHTML =
-      "<pre style='color:red;padding:2em'>Failed to load data.json: " + err.message + "</pre>";
+      "<pre style='color:red;padding:2em'>Failed to load menu data: " + err.message + "</pre>";
     return;
   }
 
@@ -465,14 +458,9 @@
   });
 
   function playAnimation(rootEl, className) {
-    // Each page wrapper now drives an opacity animation on itself plus a
-    // transform animation on its panel. All animations share the same
-    // 666 ms duration and end together, so we just resolve when the
-    // page-level animation fires animationend (or when the safety
-    // timeout trips in case prefers-reduced-motion suppresses it).
     return new Promise((resolve) => {
       rootEl.classList.remove(className);
-      void rootEl.offsetWidth;                  // force reflow / restart
+      void rootEl.offsetWidth;
       rootEl.classList.add(className);
 
       if (slowMo) {
@@ -491,14 +479,11 @@
         resolve();
       }
       function onEnd(ev) {
-        // Only resolve on the page wrapper's own opacity animation -
-        // ignore inner panel/transform animations to avoid resolving
-        // mid-transition.
         if (ev.target !== rootEl) return;
         finish();
       }
       rootEl.addEventListener("animationend", onEnd);
-      setTimeout(finish, TRANSITION_MS + 150);  // safety net
+      setTimeout(finish, TRANSITION_MS + 150);
     });
   }
 
