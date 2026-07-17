@@ -576,6 +576,8 @@ HUD_Draw(void)
 
 	if (weapon.AmmoRequired() == false) {
 		HLHUD_ClampTimers();
+		/* Still composite WebCore HUD (melee / ammoRequired 0). */
+		WebCoreHud_Draw();
 		return;
 	}
 
