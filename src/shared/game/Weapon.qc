@@ -1212,6 +1212,12 @@ ncWeapon::DoAbilityAction(void)
 #ifdef SERVER
 	entity o = GetOwner();
 
+	/* Arch lunge is def-gated (no QC subclass — keeps CSQC weapon vtables stable). */
+	if (declclass == "weapon_archstiletto") {
+		Archstiletto_AbilityPress(this);
+		return;
+	}
+
 	if (o) {
 		Stiletto_FireGrapple(o);
 	}
@@ -1221,7 +1227,11 @@ ncWeapon::DoAbilityAction(void)
 void
 ncWeapon::OnAbilityReleased(void)
 {
-
+#ifdef SERVER
+	if (declclass == "weapon_archstiletto") {
+		Archstiletto_AbilityRelease(this);
+	}
+#endif
 }
 
 void

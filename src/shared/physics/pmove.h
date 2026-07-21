@@ -171,6 +171,8 @@ void Stiletto_Lunge_Clear(entity pl);
 #ifdef SERVER
 void Stiletto_FireGrapple(entity pl);
 void Stiletto_ReleaseGrapple(entity pl);
+void Archstiletto_AbilityPress(entity weap);
+void Archstiletto_AbilityRelease(entity weap);
 #endif
 
 void PMoveCustom_RunPlayerPhysics(entity);

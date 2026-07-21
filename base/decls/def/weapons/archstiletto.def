@@ -7,7 +7,6 @@ entityDef weapon_archstiletto
 {
 	"inherit"			"weapon_axe"
 
-	"spawnclass"		"ncWeaponArchstiletto"
 	"editor_usage"		"Archstiletto melee (axe-derived) + lunge"
 
 	"model_view"		"models/v_reference.iqm"

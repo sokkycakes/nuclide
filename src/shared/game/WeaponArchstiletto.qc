@@ -1,18 +1,15 @@
 /*
- * Archstiletto weapon — axe-derived melee plus ground-charged mobility lunge
- * on the hero-ability key (see stiletto_tuning.qc for impulse / slow).
+ * Archstiletto lunge ability helpers (no QC subclass — avoids CSQC vtable
+ * mismatch on ncWeaponBaseMelee children). Called from ncWeapon ability hooks
+ * when declclass is weapon_archstiletto.
  */
-
-void
-ncWeaponArchstiletto::ncWeaponArchstiletto(void)
-{
-}
 
 #ifdef SERVER
 void
-ncWeaponArchstiletto::DoAbilityAction(void)
+Archstiletto_AbilityPress(entity weapEnt)
 {
-	ncPlayer o = (ncPlayer)GetOwner();
+	ncWeapon w = (ncWeapon)weapEnt;
+	ncPlayer o = (ncPlayer)w.GetOwner();
 
 	if (!o) {
 		return;
@@ -43,9 +40,10 @@ ncWeaponArchstiletto::DoAbilityAction(void)
 }
 
 void
-ncWeaponArchstiletto::OnAbilityReleased(void)
+Archstiletto_AbilityRelease(entity weapEnt)
 {
-	ncPlayer o = (ncPlayer)GetOwner();
+	ncWeapon w = (ncWeapon)weapEnt;
+	ncPlayer o = (ncPlayer)w.GetOwner();
 	float held;
 	float strength;
 
