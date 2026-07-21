@@ -93,6 +93,12 @@ ncPlayer::ncPlayer(void)
 	m_stilettoParryEnd = 0.0f;
 	m_stilettoPunishState = 0i;
 	m_stilettoPunishEnd = 0.0f;
+	m_stilettoLungeCharging = 0i;
+	m_stilettoLungeChargeStart = 0.0f;
+	m_stilettoLungeSeqStrength = 0.0f;
+	m_stilettoLungeFlight = 0i;
+	m_stilettoLungeCooldownEnd = 0.0f;
+	m_stilettoLungeLaunch = 0i;
 	m_stilettoPrevButtons = 0;
 	m_stilettoGrappleHeld = 0;
 	m_stilettoGrappleActionHeld = 0;
@@ -1107,7 +1113,7 @@ ncPlayer::_ReceiveComplete(float flNew, float flChanged)
 }
 
 void
-ncPlayer::ReceiveEntity(float isNew, float flChanged)
+ncPlayer::ReceivePlayerEntity(float isNew, float flChanged)
 {
 	/* store which input sequence we're on, this helps us
 	 * later when we run prediction again between last/latest
@@ -1209,6 +1215,12 @@ ncPlayer::ReceiveEntity(float isNew, float flChanged)
 	READENTITY_FLOAT(m_stilettoParryEnd, PLAYER_STILETTO)
 	READENTITY_INT(m_stilettoPunishState, PLAYER_STILETTO)
 	READENTITY_FLOAT(m_stilettoPunishEnd, PLAYER_STILETTO)
+	READENTITY_INT(m_stilettoLungeCharging, PLAYER_STILETTO)
+	READENTITY_FLOAT(m_stilettoLungeChargeStart, PLAYER_STILETTO)
+	READENTITY_FLOAT(m_stilettoLungeSeqStrength, PLAYER_STILETTO)
+	READENTITY_INT(m_stilettoLungeFlight, PLAYER_STILETTO)
+	READENTITY_FLOAT(m_stilettoLungeCooldownEnd, PLAYER_STILETTO)
+	READENTITY_INT(m_stilettoLungeLaunch, PLAYER_STILETTO)
 
 	/* we only really care about the declclass for decl lookups. */
 	if (flChanged & PLAYER_MODELINDEX) {
@@ -1321,6 +1333,12 @@ ncPlayer::PredictPreFrame(void)
 	SAVE_STATE(m_stilettoParryEnd)
 	SAVE_STATE(m_stilettoPunishState)
 	SAVE_STATE(m_stilettoPunishEnd)
+	SAVE_STATE(m_stilettoLungeCharging)
+	SAVE_STATE(m_stilettoLungeChargeStart)
+	SAVE_STATE(m_stilettoLungeSeqStrength)
+	SAVE_STATE(m_stilettoLungeFlight)
+	SAVE_STATE(m_stilettoLungeCooldownEnd)
+	SAVE_STATE(m_stilettoLungeLaunch)
 
 	for (int i = 0i; i < MAX_AMMO_TYPES; i++) {
 		m_ammoTypes_net[i] = m_ammoTypes[i];
@@ -1390,6 +1408,12 @@ ncPlayer::PredictPostFrame(void)
 	ROLL_BACK(m_stilettoParryEnd)
 	ROLL_BACK(m_stilettoPunishState)
 	ROLL_BACK(m_stilettoPunishEnd)
+	ROLL_BACK(m_stilettoLungeCharging)
+	ROLL_BACK(m_stilettoLungeChargeStart)
+	ROLL_BACK(m_stilettoLungeSeqStrength)
+	ROLL_BACK(m_stilettoLungeFlight)
+	ROLL_BACK(m_stilettoLungeCooldownEnd)
+	ROLL_BACK(m_stilettoLungeLaunch)
 
 	/* make sure to relink these */
 	ROLL_BACK(vehicle_entnum)
@@ -1495,6 +1519,12 @@ ncPlayer::Save(float handle)
 	SaveFloat(handle, "m_stilettoParryEnd", m_stilettoParryEnd);
 	SaveInt(handle, "m_stilettoPunishState", m_stilettoPunishState);
 	SaveFloat(handle, "m_stilettoPunishEnd", m_stilettoPunishEnd);
+	SaveInt(handle, "m_stilettoLungeCharging", m_stilettoLungeCharging);
+	SaveFloat(handle, "m_stilettoLungeChargeStart", m_stilettoLungeChargeStart);
+	SaveFloat(handle, "m_stilettoLungeSeqStrength", m_stilettoLungeSeqStrength);
+	SaveInt(handle, "m_stilettoLungeFlight", m_stilettoLungeFlight);
+	SaveFloat(handle, "m_stilettoLungeCooldownEnd", m_stilettoLungeCooldownEnd);
+	SaveInt(handle, "m_stilettoLungeLaunch", m_stilettoLungeLaunch);
 	SaveInt(handle, "m_stilettoPrevButtons", m_stilettoPrevButtons);
 }
 
@@ -1654,6 +1684,24 @@ ncPlayer::Restore(string keyName, string setValue)
 		break;
 	case "m_stilettoPunishEnd":
 		m_stilettoPunishEnd = ReadFloat(setValue);
+		break;
+	case "m_stilettoLungeCharging":
+		m_stilettoLungeCharging = ReadInt(setValue);
+		break;
+	case "m_stilettoLungeChargeStart":
+		m_stilettoLungeChargeStart = ReadFloat(setValue);
+		break;
+	case "m_stilettoLungeSeqStrength":
+		m_stilettoLungeSeqStrength = ReadFloat(setValue);
+		break;
+	case "m_stilettoLungeFlight":
+		m_stilettoLungeFlight = ReadInt(setValue);
+		break;
+	case "m_stilettoLungeCooldownEnd":
+		m_stilettoLungeCooldownEnd = ReadFloat(setValue);
+		break;
+	case "m_stilettoLungeLaunch":
+		m_stilettoLungeLaunch = ReadInt(setValue);
 		break;
 	case "m_stilettoPrevButtons":
 		m_stilettoPrevButtons = ReadInt(setValue);
@@ -1966,6 +2014,12 @@ ncPlayer::EvaluateEntity(void)
 	EVALUATE_FIELD(m_stilettoParryEnd, PLAYER_STILETTO)
 	EVALUATE_FIELD(m_stilettoPunishState, PLAYER_STILETTO)
 	EVALUATE_FIELD(m_stilettoPunishEnd, PLAYER_STILETTO)
+	EVALUATE_FIELD(m_stilettoLungeCharging, PLAYER_STILETTO)
+	EVALUATE_FIELD(m_stilettoLungeChargeStart, PLAYER_STILETTO)
+	EVALUATE_FIELD(m_stilettoLungeSeqStrength, PLAYER_STILETTO)
+	EVALUATE_FIELD(m_stilettoLungeFlight, PLAYER_STILETTO)
+	EVALUATE_FIELD(m_stilettoLungeCooldownEnd, PLAYER_STILETTO)
+	EVALUATE_FIELD(m_stilettoLungeLaunch, PLAYER_STILETTO)
 
 	for (int i = 0i; i < MAX_AMMO_TYPES; i++) {
 		EVALUATE_VECTOR(m_ammoTypes, i, PLAYER_AMMOTYPES)
@@ -2095,6 +2149,12 @@ ncPlayer::SendEntity(entity ePEnt, float flChanged)
 	SENDENTITY_FLOAT(m_stilettoParryEnd, PLAYER_STILETTO)
 	SENDENTITY_INT(m_stilettoPunishState, PLAYER_STILETTO)
 	SENDENTITY_FLOAT(m_stilettoPunishEnd, PLAYER_STILETTO)
+	SENDENTITY_INT(m_stilettoLungeCharging, PLAYER_STILETTO)
+	SENDENTITY_FLOAT(m_stilettoLungeChargeStart, PLAYER_STILETTO)
+	SENDENTITY_FLOAT(m_stilettoLungeSeqStrength, PLAYER_STILETTO)
+	SENDENTITY_INT(m_stilettoLungeFlight, PLAYER_STILETTO)
+	SENDENTITY_FLOAT(m_stilettoLungeCooldownEnd, PLAYER_STILETTO)
+	SENDENTITY_INT(m_stilettoLungeLaunch, PLAYER_STILETTO)
 
 	for (int i = 0i; i < MAX_AMMO_TYPES; i++) {
 		SENDENTITY_BYTE(m_ammoTypes[i], PLAYER_AMMOTYPES)

@@ -201,7 +201,8 @@ Stiletto_Combat_OnDamaged(entity e, float dmg)
 	 * ships; the exact window is a flagged playtest item. */
 	toolActive = (time < pl.m_stilettoAirStallEnd)
 	    || (pl.m_stilettoAirDodgeCharges < STILETTO_MAX_AIR_DODGES)
-	    || (pl.m_stilettoAirStallCharges < STILETTO_MAX_AIR_STALLS);
+	    || (pl.m_stilettoAirStallCharges < STILETTO_MAX_AIR_STALLS)
+	    || (pl.m_stilettoLungeFlight != 0);
 
 	/* only being hit mid-air-tool is punishable */
 	if (!airborne || !toolActive) {
@@ -241,6 +242,7 @@ Stiletto_Combat_Respawn(entity e)
 	pl.m_stilettoArchBuffer = 0.0f;
 	pl.m_stilettoPunishState = STILETTO_PUNISH_NONE;
 	pl.m_stilettoPunishEnd = 0.0f;
+	Stiletto_Lunge_Clear(pl);
 
 	/* Arch flag from the def, with a declclass fallback in case the spawn-key
 	 * buffer isn't populated after a ChangeToClass hero swap. */

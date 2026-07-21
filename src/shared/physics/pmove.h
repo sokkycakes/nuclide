@@ -140,6 +140,14 @@ ncDict g_lavaDamageDecl;
 
 #define STILETTO_GRAPPLE_HOOK_SPEED_QUAKE	(40.0f * 39.37008f)
 
+/* Archstiletto lunge tunables (playtest bands from origin requirements). */
+#define STILETTO_LUNGE_CHARGE_TIME		1.125f
+#define STILETTO_LUNGE_MIN_STRENGTH		0.25f
+#define STILETTO_LUNGE_COOLDOWN			1.5f
+#define STILETTO_LUNGE_MOVE_SCALE		0.75f
+#define STILETTO_LUNGE_IMPULSE_MIN		380.0f
+#define STILETTO_LUNGE_IMPULSE_MAX		920.0f
+
 /** Called by Nuclide. Sets up g_pmoveVars. */
 void PMove_Init(void);
 
@@ -156,6 +164,14 @@ void Stiletto_PmGunjumpAir(entity pl, int curButtons, vector moveWish);
 void Stiletto_WallJump(entity pl, int curButtons);
 void Stiletto_WallSlidePostMove(entity pl);
 void Stiletto_EndPhysicsFrame(entity pl, int curButtons);
+void Stiletto_Lunge_PreMove(entity pl);
+void Stiletto_Lunge_PostMove(entity pl);
+void Stiletto_Lunge_RequestLaunch(entity pl, float strength);
+void Stiletto_Lunge_Clear(entity pl);
+#ifdef SERVER
+void Stiletto_FireGrapple(entity pl);
+void Stiletto_ReleaseGrapple(entity pl);
+#endif
 
 void PMoveCustom_RunPlayerPhysics(entity);
 void PMoveCustom_RunCrouchPhysics(entity);

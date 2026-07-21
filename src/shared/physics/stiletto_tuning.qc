@@ -730,6 +730,88 @@ Stiletto_EndPhysicsFrame(entity e, int curButtons)
 	pl.m_stilettoPrevButtons = curButtons;
 }
 
+void
+Stiletto_Lunge_Clear(entity e)
+{
+	ncPlayer pl = (ncPlayer)e;
+
+	pl.m_stilettoLungeCharging = 0;
+	pl.m_stilettoLungeChargeStart = 0.0f;
+	pl.m_stilettoLungeSeqStrength = 0.0f;
+	pl.m_stilettoLungeFlight = 0;
+	pl.m_stilettoLungeLaunch = 0;
+}
+
+void
+Stiletto_Lunge_RequestLaunch(entity e, float strength)
+{
+	ncPlayer pl = (ncPlayer)e;
+
+	if (strength < STILETTO_LUNGE_MIN_STRENGTH) {
+		strength = STILETTO_LUNGE_MIN_STRENGTH;
+	}
+	if (strength > 1.0f) {
+		strength = 1.0f;
+	}
+
+	pl.m_stilettoLungeSeqStrength = strength;
+	pl.m_stilettoLungeLaunch = 1;
+}
+
+void
+Stiletto_Lunge_PreMove(entity e)
+{
+	ncPlayer pl = (ncPlayer)e;
+	float speed;
+	vector dir;
+
+	if (pl.m_stilettoLungeCharging) {
+		input_movevalues[0] *= STILETTO_LUNGE_MOVE_SCALE;
+		input_movevalues[1] *= STILETTO_LUNGE_MOVE_SCALE;
+	}
+
+	if (!pl.m_stilettoLungeLaunch) {
+		return;
+	}
+
+	pl.m_stilettoLungeLaunch = 0;
+
+	makevectors(pl.v_angle);
+	dir = v_forward;
+	speed = STILETTO_LUNGE_IMPULSE_MIN
+	    + (STILETTO_LUNGE_IMPULSE_MAX - STILETTO_LUNGE_IMPULSE_MIN)
+	    * pl.m_stilettoLungeSeqStrength;
+
+	pl.velocity = dir * speed;
+	pl.m_stilettoLungeFlight = 1;
+	pl.RemoveFlags(FL_ONGROUND);
+}
+
+void
+Stiletto_Lunge_PostMove(entity e)
+{
+	ncPlayer pl = (ncPlayer)e;
+
+	/* Mid-charge left the ground — cancel charge, no launch. */
+	if (pl.m_stilettoLungeCharging && !(pl.flags & FL_ONGROUND)) {
+		pl.m_stilettoLungeCharging = 0;
+		pl.m_stilettoLungeChargeStart = 0.0f;
+	}
+
+	if (!pl.m_stilettoLungeFlight && pl.m_stilettoLungeSeqStrength <= 0.0f) {
+		return;
+	}
+
+	/* Grounded: leave flight (no longer tool-punishable). Keep sequence
+	 * strength only while wall-touching so wall re-lunge still works. */
+	if (pl.flags & FL_ONGROUND) {
+		pl.m_stilettoLungeFlight = 0;
+		if (!(pl.m_nuclideFlags & VFL_STILETTO_WALL)) {
+			pl.m_stilettoLungeSeqStrength = 0.0f;
+		}
+	}
+}
+
 #ifdef SERVER
 void
 Stiletto_FireGrapple(entity e)

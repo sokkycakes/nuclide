@@ -1209,7 +1209,13 @@ ncWeapon::InputFrame(void)
 void
 ncWeapon::DoAbilityAction(void)
 {
+#ifdef SERVER
+	entity o = GetOwner();
 
+	if (o) {
+		Stiletto_FireGrapple(o);
+	}
+#endif
 }
 
 void

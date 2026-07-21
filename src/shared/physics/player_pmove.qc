@@ -673,6 +673,9 @@ ncPlayer::Physics_Run(void)
 	/* tool punish: kill horizontal control + scale move wish while punished */
 	Stiletto_Combat_PreMove(this);
 
+	/* Arch lunge: charge slow + pending look-vector impulse */
+	Stiletto_Lunge_PreMove(this);
+
 	/* a fully-stunned hero can't air-dodge or wall-jump out of the punish.
 	 * Jump now drives both: dash/stall fire only off a wall, the wall jump only
 	 * on a wall. GunjumpAir MUST run before WallJump -- it bails while the wall
@@ -750,6 +753,7 @@ ncPlayer::Physics_Run(void)
 
 	/* tool punish: start the landing stun, expire it, run OOC regen (server) */
 	Stiletto_Combat_PostMove(this);
+	Stiletto_Lunge_PostMove(this);
 
 	gravity = stilettoGravSave;
 

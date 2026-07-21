@@ -188,7 +188,7 @@ public:
 
 #ifdef CLIENT
 	virtual void OnRemoveEntity(void);
-	virtual void ReceiveEntity(float,float);
+	nonvirtual void ReceivePlayerEntity(float,float);
 	virtual void _ReceiveComplete(float, float);
 	virtual void PredictPreFrame(void);
 	virtual void PredictPostFrame(void);
@@ -326,6 +326,14 @@ private:
 	 * Physics_Run punish movement-lock predicts identically client+server. */
 	NETWORKED_INT(m_stilettoPunishState)
 	NETWORKED_FLOAT(m_stilettoPunishEnd)
+
+	/* Archstiletto lunge (shared so charge-slow + impulse predict). */
+	NETWORKED_INT(m_stilettoLungeCharging)
+	NETWORKED_FLOAT(m_stilettoLungeChargeStart)
+	NETWORKED_FLOAT(m_stilettoLungeSeqStrength)
+	NETWORKED_INT(m_stilettoLungeFlight)
+	NETWORKED_FLOAT(m_stilettoLungeCooldownEnd)
+	NETWORKED_INT(m_stilettoLungeLaunch)
 
 	int m_stilettoPrevButtons;
 
