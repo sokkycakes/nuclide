@@ -98,7 +98,7 @@ Entity_EntityUpdate(float type, float new)
 		/* any differences in things that are read below are now
 		   officially from prediction misses. */
 		float a = readfloat();
-		pl.ReceiveEntity(new, a);
+		pl.ReceivePlayerEntity(new, a);
 		break;
 	case ENT_SPECTATOR:
 		Spectator_ReadEntity(new);
