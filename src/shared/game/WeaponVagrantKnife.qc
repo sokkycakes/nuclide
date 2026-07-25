@@ -1,8 +1,6 @@
 /*
- * Vagrant knife — melee + throw projectile + warpknife.
- *
- * M1 = throw knife, Q = melee swing + backstab,
- * M2 = warp functions, R = nothing.
+ * Vagrant knife — throw projectile + warpknife.
+ * Melee lives on hero_vagrant_melee (ncWeaponVagrantMelee).
  */
 
 #define WARP_PICKUP_RANGE		32
@@ -14,8 +12,10 @@
 #define GHOST_DURATION			1.0
 
 void ncWeaponVagrantKnife::ncWeaponVagrantKnife(void) {}
+
 #ifdef SERVER
 void ncWeaponVagrantKnife::Reload(void) {}
+
 void ncWeaponVagrantKnife::Spawned(void)
 {
 	super::Spawned();
@@ -31,6 +31,7 @@ void ncWeaponVagrantKnife::Spawned(void)
 	m_flWarpThrowTime = 0; m_flNextWarpTime = 0;
 	m_flReloadEnd = 0; m_flPickupHoldStart = 0; m_bAbilityHeld = false;
 }
+
 void ncWeaponVagrantKnife::FireWarpKnife(entity ourOwnerEnt)
 {
 	ncPlayer ourOwner = (ncPlayer)ourOwnerEnt;
@@ -40,6 +41,7 @@ void ncWeaponVagrantKnife::FireWarpKnife(entity ourOwnerEnt)
 	if (wp) { m_entWarpKnife = wp; m_flWarpThrowTime = time; PlaySound(GetDefString("snd_fire"), CHAN_WEAPON, false); }
 	m_flReloadEnd = time + 2.0; m_flNextWarpTime = time + 0.5;
 }
+
 void ncWeaponVagrantKnife::PrimaryAttack(void)
 {
 	if (time < m_flReloadEnd) { Idle(); return; }
@@ -53,7 +55,16 @@ void ncWeaponVagrantKnife::PrimaryAttack(void)
 	if (p) { p.gravity = 1.0; p.movetype = MOVETYPE_TOSS; PlaySound(GetDefString("snd_fire"), CHAN_WEAPON, false); }
 	m_flReloadEnd = time + 2.0;
 }
-void ncWeaponVagrantKnife::SecondaryAttack(void) { DoMeleeSwing(); }
+
+void ncWeaponVagrantKnife::SecondaryAttack(void)
+{
+	/* Route weapon-secondary melee through the shared hero-melee path. */
+	ncPlayer o = (ncPlayer)GetOwner();
+	if (o) {
+		HeroActions_MeleePress(o);
+	}
+}
+
 void ncWeaponVagrantKnife::DoAbilityAction(void)
 {
 	ncPlayer o = (ncPlayer)GetOwner(); if (!o) return;
@@ -64,7 +75,9 @@ void ncWeaponVagrantKnife::DoAbilityAction(void)
 	} else FireWarpKnife(o);
 	m_bAbilityHeld = true;
 }
+
 void ncWeaponVagrantKnife::OnAbilityReleased(void) { m_bAbilityHeld = false; }
+
 void ncWeaponVagrantKnife::InputFrame(void)
 {
 	ncPlayer o = (ncPlayer)GetOwner();
@@ -83,6 +96,7 @@ void ncWeaponVagrantKnife::InputFrame(void)
 	if (o.m_stilettoLastDamageTime > m_flWarpThrowTime) { remove(m_entWarpKnife); m_entWarpKnife = __NULL__; m_bWarpQueued = false; }
 	if (m_weaponFireInfoValue && time >= m_flReloadEnd) m_weaponFireInfoValue = 0;
 }
+
 void ncWeaponVagrantKnife::DoWarpTeleport(entity e, float dist)
 {
 	ncPlayer o = (ncPlayer)e; if (!o || !m_entWarpKnife) return;
@@ -107,7 +121,9 @@ void ncWeaponVagrantKnife::DoWarpTeleport(entity e, float dist)
 	}
 	m_flNextWarpTime = time + cd;
 }
+
 void Ghost_RemoveThink(void) { remove(self); }
+
 void ncWeaponVagrantKnife::SpawnGhost(entity pl, vector dest)
 {
 	ncPlayer p = (ncPlayer)pl; if (!p) return;
@@ -120,45 +136,52 @@ void ncWeaponVagrantKnife::SpawnGhost(entity pl, vector dest)
 	g.alpha = 0.3; g.effects |= EF_FULLBRIGHT | EF_NOSHADOW;
 	g.nextthink = time + GHOST_DURATION; g.think = Ghost_RemoveThink;
 }
+
+/* Legacy line-only path retained for compatibility callers. */
 void ncWeaponVagrantKnife::DoMeleeSwing(void)
 {
-	if (time < m_flReloadEnd) { Idle(); return; }
-	if (m_bCanCut && time < m_flDeflectCooldownEnd) { Idle(); return; }
-	ncPlayer p = (ncPlayer)GetOwner();
-	if (p) { string s = GetDefString("snd_swing"); if (s) p.StartSoundDef(s, CHAN_WEAPON, true); }
-	DoSwingTrace();
-}
-void ncWeaponVagrantKnife::DoSwingTrace(void)
-{
-	ncPlayer p = (ncPlayer)GetOwner(); if (!p) return;
-	float rng = max(1, GetDefFloat("melee_range"));
-	vector fwd = anglesToForward(p.v_angle);
-	vector st = p.GetEyePos(); vector en = st + fwd * rng;
-	traceline(st, en, MOVE_NORMAL, p);
-	if (trace_fraction < 1.0 && trace_ent && trace_ent != p) {
-		ncSurfacePropEntity sp = (ncSurfacePropEntity)trace_ent;
-		if (sp && sp.IsVulnerable()) ApplyMeleeDamage(trace_ent, trace_endpos, fwd);
-		else if (m_bCanCut) {
-			ncProjectile pj = (ncProjectile)trace_ent;
-			if (pj) { remove(trace_ent); m_flDeflectCooldownEnd = time + m_flDeflectCooldown; string sc = GetDefString("snd_cut"); if (sc && p) p.StartSoundDef(sc, CHAN_WEAPON, true); }
-		}
+	ncPlayer o = (ncPlayer)GetOwner();
+	if (o) {
+		HeroActions_MeleePress(o);
 	}
 }
-void ncWeaponVagrantKnife::ApplyMeleeDamage(entity t, vector hp, vector dir)
-{
-	ncPlayer p = (ncPlayer)GetOwner(); if (!p || !t) return;
-	ncSurfacePropEntity sp = (ncSurfacePropEntity)t; if (!sp || !sp.IsVulnerable()) return;
-	float yd = t.angles_y - vectoyaw(p.origin - t.origin);
-	if (yd < 0) yd = -yd; if (yd > 180) yd = 360 - yd; if (yd > 120) { t.health = 0; }
-	float dmg = stof(GetDefString("melee_damage")); float push = GetDefFloat("melee_push");
-	ncDict dd = spawn(ncDict);
-	dd.AddKey("damage", itos(dmg)); dd.AddKey("weapon", classname); dd.AddKey("location", vtos(hp));
-	if (push > 0) { dd.AddKey("push", ftos(push)); dd.AddKey("knockback", ftos(push)); }
-	sp.Damage(this, p, dd, 1.0, dir, hp); remove(dd);
-	string sh = GetDefString("snd_hit"); if (sh) { p.StartSoundDef(sh, CHAN_WEAPON, true); SoundDef_Play(t, CHAN_BODY, sh); }
-}
+
+void ncWeaponVagrantKnife::DoSwingTrace(void) {}
+void ncWeaponVagrantKnife::ApplyMeleeDamage(entity t, vector hp, vector dir) {}
+
 void ncWeaponVagrantKnife::FreezeEndThink(void)
 {
 	ncPlayer o = (ncPlayer)GetOwner(); if (o) o.RemoveVFlags(VFL_FROZEN);
+}
+
+/* ---- Auxiliary Vagrant melee (line+hull base + backstab) ---- */
+
+void ncWeaponVagrantMelee::ncWeaponVagrantMelee(void) {}
+
+void ncWeaponVagrantMelee::ApplyMeleeDamage(entity t, vector hp, vector dir)
+{
+	ncPlayer p = (ncPlayer)GetOwner();
+	if (!p || !t) {
+		return;
+	}
+
+	ncSurfacePropEntity sp = (ncSurfacePropEntity)t;
+	if (!sp || !sp.IsVulnerable()) {
+		return;
+	}
+
+	/* Backstab: yaw delta > 120° instantly drops health. */
+	float yd = t.angles_y - vectoyaw(p.origin - t.origin);
+	if (yd < 0) {
+		yd = -yd;
+	}
+	if (yd > 180) {
+		yd = 360 - yd;
+	}
+	if (yd > 120) {
+		t.health = 0;
+	}
+
+	super::ApplyMeleeDamage(t, hp, dir);
 }
 #endif

@@ -77,3 +77,14 @@ public:
 	bool m_bAbilityHeld;
 #endif
 };
+
+/* Auxiliary Vagrant melee: ncWeaponBaseMelee + backstab. */
+class ncWeaponVagrantMelee : ncWeaponBaseMelee
+{
+public:
+	void ncWeaponVagrantMelee(void);
+
+#ifdef SERVER
+	virtual void ApplyMeleeDamage(entity, vector, vector);
+#endif
+};

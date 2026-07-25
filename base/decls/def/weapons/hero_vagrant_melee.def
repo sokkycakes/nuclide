@@ -1,0 +1,23 @@
+// Vagrant always-available ALT melee with backstab (ncWeaponVagrantMelee).
+entityDef hero_vagrant_melee
+{
+	"inherit"				"weapon_melee_base"
+	"spawnclass"			"ncWeaponVagrantMelee"
+
+	"inv_name"				"Vagrant Melee"
+	"melee_range"			"89"
+	"melee_damage"			"1"
+	"melee_push"			"50"
+	"melee_cleave"			"0"
+	"melee_bounds_mins"		"-18 -32 -18"
+	"melee_bounds_maxs"		"18 32 18"
+	"can_cut"				"1"
+	"deflect_cooldown"		"1.75"
+	"snd_cut"				"weapon_vagrant_knife.cut"
+	"testDistance"			"0"
+	"fireRate"				"0.5"
+	"failRate"				"0.5"
+	"snd_swing"				"Melee_Swing"
+	"snd_hit"				"Weapon_Axe.Melee_Hit"
+	"snd_failed"			"Weapon_Axe.Miss"
+}

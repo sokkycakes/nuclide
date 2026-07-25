@@ -1,4 +1,7 @@
 #include weapons/weapon_melee_base.def
+#include weapons/hero_collier_melee.def
+#include weapons/hero_vagrant_melee.def
+#include weapons/hero_archstiletto_melee.def
 #include weapons/axe.def
 #include weapons/grenadelauncher.def
 #include weapons/lightning.def

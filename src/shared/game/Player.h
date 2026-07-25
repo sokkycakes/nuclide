@@ -370,6 +370,9 @@ private:
 	float m_stilettoLastDamageTime;
 	float m_stilettoArchBuffer;
 	int m_stilettoIsArch;
+
+	/* Non-selectable auxiliary melee entity (server-owned). */
+	ncWeapon m_heroMeleeWeapon;
 #endif
 
 	entity m_holdingEntity;

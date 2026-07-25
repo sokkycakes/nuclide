@@ -8,7 +8,7 @@
 void
 HeroActions_Reset(entity player)
 {
-	/* Phase 1: no dedicated hero-action state to clear yet. */
+	HeroActions_ClearMeleeWeapon(player);
 }
 
 void
@@ -64,6 +64,96 @@ HeroActions_HeroToolRelease(entity player)
 }
 
 void
+HeroActions_ClearMeleeWeapon(entity player)
+{
+	ncPlayer pl;
+
+	if (!player) {
+		return;
+	}
+
+	pl = (ncPlayer)player;
+#ifdef SERVER
+	if (pl.m_heroMeleeWeapon) {
+		if (!wasfreed(pl.m_heroMeleeWeapon)) {
+			remove(pl.m_heroMeleeWeapon);
+		}
+		pl.m_heroMeleeWeapon = __NULL__;
+	}
+#endif
+}
+
+void
+HeroActions_EnsureMeleeWeapon(entity player)
+{
+	ncPlayer pl;
+	string meleeDef;
+	ncWeapon w;
+
+	if (!player) {
+		return;
+	}
+
+	pl = (ncPlayer)player;
+#ifdef SERVER
+	if (pl.m_heroMeleeWeapon && !wasfreed(pl.m_heroMeleeWeapon)) {
+		return;
+	}
+
+	pl.m_heroMeleeWeapon = __NULL__;
+	meleeDef = pl.GetDefString("hero_melee_weapon");
+	if (!STRING_SET(meleeDef)) {
+		return;
+	}
+
+	w = (ncWeapon)EntityDef_CreateClassname(meleeDef);
+	if (!w) {
+		if (autocvar_hero_actions_debug) {
+			print(sprintf("[hero_actions] failed to create melee '%s'\n", meleeDef));
+		}
+		return;
+	}
+
+	/* Non-selectable auxiliary: own it, but do not GiveItem / weapon-chain. */
+	w.SetOwner(pl);
+	pl.m_heroMeleeWeapon = w;
+
+	if (autocvar_hero_actions_debug) {
+		print(sprintf("[hero_actions] spawned melee '%s' for player=%d\n",
+			meleeDef, num_for_edict(pl)));
+	}
+#endif
+}
+
+void
+HeroActions_MeleePress(entity player)
+{
+	ncPlayer pl;
+	ncWeapon melee;
+
+	if (!player) {
+		return;
+	}
+
+	pl = (ncPlayer)player;
+
+	if (autocvar_hero_actions_debug) {
+		print(sprintf("[hero_actions] melee press player=%d\n", num_for_edict(pl)));
+	}
+
+#ifdef SERVER
+	HeroActions_EnsureMeleeWeapon(pl);
+	melee = pl.m_heroMeleeWeapon;
+	if (!melee || wasfreed(melee)) {
+		return;
+	}
+
+	/* Never change m_activeWeapon — swing the auxiliary entity directly. */
+	melee._PrimaryAttack();
+#endif
+}
+
+void
 HeroActions_InputFrame(entity player, int currentButtons, int previousButtons)
 {
 	ncPlayer pl;
@@ -88,9 +178,7 @@ HeroActions_InputFrame(entity player, int currentButtons, int previousButtons)
 		HeroActions_HeroToolRelease(pl);
 	}
 
-	/* Phase 2 will invoke auxiliary melee here. */
-	if (meleeNow && !meleePrev && autocvar_hero_actions_debug) {
-		print(sprintf("[hero_actions] melee press (noop until phase 2) player=%d\n",
-			num_for_edict(pl)));
+	if (meleeNow && !meleePrev) {
+		HeroActions_MeleePress(pl);
 	}
 }

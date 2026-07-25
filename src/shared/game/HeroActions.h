@@ -9,3 +9,6 @@ void HeroActions_Reset(entity player);
 void HeroActions_InputFrame(entity player, int currentButtons, int previousButtons);
 void HeroActions_HeroToolPress(entity player);
 void HeroActions_HeroToolRelease(entity player);
+void HeroActions_MeleePress(entity player);
+void HeroActions_EnsureMeleeWeapon(entity player);
+void HeroActions_ClearMeleeWeapon(entity player);

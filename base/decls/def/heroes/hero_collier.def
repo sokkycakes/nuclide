@@ -12,4 +12,5 @@ entityDef hero_collier
 
 	"weapon"				"weapon_collier_sidearm"
 	"current_weapon"		"0"
+	"hero_melee_weapon"		"hero_collier_melee"
 }

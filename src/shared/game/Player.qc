@@ -105,6 +105,9 @@ ncPlayer::ncPlayer(void)
 	m_stilettoGrappleHeld = 0;
 	m_stilettoGrappleActionHeld = 0;
 	m_stilettoJumpKicked = false;
+#ifdef SERVER
+	m_heroMeleeWeapon = __NULL__;
+#endif
 
 #ifdef SERVER
 	/* precache sounds that are called by string name in stiletto_tuning.qc
@@ -1880,6 +1883,7 @@ ncPlayer::MakeTempSpectator(void)
 	m_activeWeapon = __NULL__;
 	m_firstWeapon = __NULL__;
 	m_itemList = __NULL__;
+	HeroActions_ClearMeleeWeapon(this);
 
 	effects = 0;
 	alpha = 0.0f;
@@ -2003,6 +2007,7 @@ ncPlayer::MakePlayer(void)
 #ifdef SERVER
 	/* reset combat-reaction state and read the Arch flag from the hero def */
 	Stiletto_Combat_Respawn(this);
+	HeroActions_EnsureMeleeWeapon(this);
 #endif
 }
 
@@ -2471,6 +2476,7 @@ ncPlayer::Spawned(void)
 	/* we really need to check if whether we're a real client yet. */
 	if (clienttype(this) == CLIENTTYPE_REAL || clienttype(this) == CLIENTTYPE_BOT) {
 		MakePlayer();
+		HeroActions_EnsureMeleeWeapon(this);
 	} else {
 		Disappear(); /* hide us for now */
 	}

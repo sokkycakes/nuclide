@@ -34,4 +34,5 @@ entityDef hero_archstiletto
 	// Axe-derived melee placeholder (weapon_archstiletto) until the boss kit is designed.
 	"weapon"				"weapon_archstiletto"
 	"current_weapon"		"0"
+	"hero_melee_weapon"		"hero_archstiletto_melee"
 }
