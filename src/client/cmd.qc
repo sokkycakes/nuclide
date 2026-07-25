@@ -441,12 +441,55 @@ Cmd_Parse(string sCMD)
 		pSeat->m_iInputAttack2 = false;
 		break;
 	case "+stiletto_grapple":
-		localcmd("cmd nuclide_abi_grapple 1\n");
+		/* Legacy alias: same held bit as +hero_tool (usercmd button 11). */
+		pSeat->m_iInputHeroTool = true;
 		pSeat->m_iInputStilettoGrapple = true;
 		break;
 	case "-stiletto_grapple":
-		localcmd("cmd nuclide_abi_grapple 0\n");
+		pSeat->m_iInputHeroTool = false;
 		pSeat->m_iInputStilettoGrapple = false;
+		break;
+	case "+hero_tool":
+		pSeat->m_iInputHeroTool = true;
+		break;
+	case "-hero_tool":
+		pSeat->m_iInputHeroTool = false;
+		break;
+	case "+hero_melee":
+		pSeat->m_iInputHeroMelee = true;
+		break;
+	case "-hero_melee":
+		pSeat->m_iInputHeroMelee = false;
+		break;
+	case "+hero_guard":
+		pSeat->m_iInputHeroGuard = true;
+		/* Phase 4: reliable press/release. Placeholder logs only. */
+		if (cvar("hero_actions_debug")) {
+			print("[hero_actions] +hero_guard (noop until phase 4)\n");
+		}
+		break;
+	case "-hero_guard":
+		pSeat->m_iInputHeroGuard = false;
+		if (cvar("hero_actions_debug")) {
+			print("[hero_actions] -hero_guard (noop until phase 4)\n");
+		}
+		break;
+	case "+groove":
+		pSeat->m_iInputGroove = true;
+		break;
+	case "-groove":
+		pSeat->m_iInputGroove = false;
+		break;
+	case "hero_action":
+		/* Phase 7: validated server slot. Client forwards context for now. */
+		if (pSeat->m_iInputGroove) {
+			localcmd(sprintf("cmd hero_action %s groove\n", argv(1)));
+		} else {
+			localcmd(sprintf("cmd hero_action %s normal\n", argv(1)));
+		}
+		break;
+	case "weapon_mode":
+		localcmd("cmd weapon_mode\n");
 		break;
 	case "+stiletto_boot":
 		pSeat->m_iInputStilettoBoot = true;
@@ -783,6 +826,16 @@ Cmd_Init(void)
 	registercommand("-attack2");
 	registercommand("+stiletto_grapple");
 	registercommand("-stiletto_grapple");
+	registercommand("+hero_tool");
+	registercommand("-hero_tool");
+	registercommand("+hero_melee");
+	registercommand("-hero_melee");
+	registercommand("+hero_guard");
+	registercommand("-hero_guard");
+	registercommand("+groove");
+	registercommand("-groove");
+	registercommand("hero_action");
+	registercommand("weapon_mode");
 	registercommand("+stiletto_boot");
 	registercommand("-stiletto_boot");
 	registercommand("+stiletto_dash");

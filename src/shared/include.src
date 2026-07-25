@@ -29,6 +29,7 @@ game/Weapon.qc
 game/WeaponBaseMelee.qc
 game/WeaponVagrantKnife.qc
 game/WeaponArchstiletto.qc
+game/HeroActions.qc
 physics/Portal.qc
 physics/Debris.qc
 audio/Sound.qc

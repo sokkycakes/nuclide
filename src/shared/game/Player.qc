@@ -446,6 +446,15 @@ ncPlayer::ProcessInput(void)
 	if (health <= 0)
 		canfire = false;
 
+	/* Hero tools/melee before active-weapon primary/secondary/reload.
+	 * Server-authoritative for Phase 1 (matches old cmd path; avoids CSQC
+	 * prediction double-edges). Client still packs the bits in ClientInputFrame. */
+#ifdef SERVER
+	if (health > 0) {
+		HeroActions_InputFrame(this, input_buttons, m_stilettoPrevButtons);
+	}
+#endif
+
 	if (canfire == false) {
 		if (m_activeWeapon) {
 			m_activeWeapon.Release();
@@ -1074,6 +1083,12 @@ ncPlayer::ClientInputFrame(void)
 	}
 	if (pSeat->m_iInputStilettoDash == true) {
 		input_buttons |= INPUT_STILETTO_DASH;
+	}
+	if (pSeat->m_iInputHeroMelee == true) {
+		input_buttons |= INPUT_MELEE;
+	}
+	if (pSeat->m_iInputHeroTool == true) {
+		input_buttons |= INPUT_HERO_TOOL;
 	}
 	if (pSeat->m_iInputReload == true) {
 		input_buttons |= INPUT_RELOAD;

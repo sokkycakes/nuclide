@@ -135,6 +135,7 @@ string __fullspawndata;
 #include "game/Spectator.h"
 #include "physics/pmove.h"
 #include "game/Player.h"
+#include "game/HeroActions.h"
 
 #include "physics/Vehicle.h"
 

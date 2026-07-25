@@ -122,22 +122,29 @@ Cmd_ParseClientCommand(ncClient sender, string cmd, int commandArguments)
 		g_grMode.PlayerRequestTeam((ncPlayer)sender, (int)stoi(argv(1)));
 		break;
 	case "nuclide_abi_grapple":
+		/* Compatibility shim: old cmd callers still work; route via hero actions. */
 		if (is.Player(sender)) {
 			ncPlayer pl = (ncPlayer)sender;
 			if (argv(1) == "1") {
 				pl.m_stilettoGrappleActionHeld = 1;
-				/* Always dispatch through the weapon virtual. Default
-				 * ncWeapon::DoAbilityAction fires Stiletto_FireGrapple;
-				 * Vagrant / Arch override for warp / lunge. */
-				if (pl.m_activeWeapon) {
-					pl.m_activeWeapon.DoAbilityAction();
-				}
+				HeroActions_HeroToolPress(pl);
 			} else {
 				pl.m_stilettoGrappleActionHeld = 0;
-				if (pl.m_activeWeapon) {
-					pl.m_activeWeapon.OnAbilityReleased();
-				}
+				HeroActions_HeroToolRelease(pl);
 			}
+		}
+		break;
+	case "hero_action":
+		/* Phase 7 implements validation + spend. */
+		if (cvar("hero_actions_debug")) {
+			print(sprintf("[hero_actions] hero_action slot=%s ctx=%s (noop until phase 7)\n",
+				argv(1), argv(2)));
+		}
+		break;
+	case "weapon_mode":
+		/* Phase 5 implements mode cycle. */
+		if (cvar("hero_actions_debug")) {
+			print("[hero_actions] weapon_mode (noop until phase 5)\n");
 		}
 		break;
 	default:

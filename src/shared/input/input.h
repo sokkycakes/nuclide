@@ -19,6 +19,8 @@
 #define INPUT_USE INPUT_BUTTON5 /* This can NEVER change. Engine hard-coded. */
 #define INPUT_SPRINT INPUT_BUTTON7
 #define INPUT_CROUCH INPUT_BUTTON8
-#define INPUT_STILETTO_GRAPPLE INPUT_BUTTON11
 #define INPUT_STILETTO_DASH INPUT_BUTTON9
 #define INPUT_MELEE INPUT_BUTTON10
+/* Canonical held hero-tool bit; legacy name kept as alias during migration. */
+#define INPUT_HERO_TOOL INPUT_BUTTON11
+#define INPUT_STILETTO_GRAPPLE INPUT_HERO_TOOL

@@ -396,6 +396,10 @@ struct
 	bool m_iInputStilettoGrapple;
 	bool m_iInputStilettoBoot;
 	bool m_iInputStilettoDash;
+	bool m_iInputHeroMelee;
+	bool m_iInputHeroTool;
+	bool m_iInputHeroGuard;
+	bool m_iInputGroove;
 	movementStance_t m_dForceStance;
 	float m_flInputBlockTime;
 	
