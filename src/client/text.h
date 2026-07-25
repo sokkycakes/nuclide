@@ -60,9 +60,11 @@ void GameText_Draw(void);
 /** @brief Places a message within a specified channel.
 
 We look up a message within our titles.txt file and copy its parameters
-and string contents into a text channel.
+and string contents into a text channel. Writing to a channel already in use
+overwrites it immediately and restarts fade/hold timing (HL game_text /
+Quake centerprint semantics).
 
-We have 6 channels in total.
+We have 6 channels in total (0-5; 5 is reserved for text menus).
 
 @param strMessage is the message we'll look up.
 @param iChannel is the channel it will be stored in. */

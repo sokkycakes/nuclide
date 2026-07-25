@@ -1,0 +1,1287 @@
+#include "ui/menudef.h"
+
+{
+// SETUP MENU \\
+
+menuDef {
+    	name "ingame_controls"
+    	visible 0
+    	fullscreen 0
+    	rect -1 129 640 351
+    	focusColor 1 .75 0 1
+    	style 1
+    	border 1
+    	disableColor .5 .5 .5 1
+	onClose {
+	    uiScript saveControls
+	}
+	onopen { hide grpControls ; show move ; show header1 ; uiScript loadControls 
+	 setitemcolor btn1t backcolor 0.2 0.2 0.2 1
+	 setitemcolor btn1t forecolor 1 0.4 0.2 1
+	 setitemcolor btn2t backcolor 0 0 0 0
+	 setitemcolor btn2t forecolor 0.6 0.6 0.6 1
+	 setitemcolor btn3t backcolor 0 0 0 0
+	 setitemcolor btn3t forecolor 0.6 0.6 0.6 1
+	 setitemcolor btn4t backcolor 0 0 0 0
+	 setitemcolor btn4t forecolor 0.6 0.6 0.6 1
+	}
+
+//BACK FRAME
+	//mid
+	itemdef {
+		name bgframeL
+	      	rect 62 0 40 154
+	      	background "ui/assets/score/framel.tga"
+		style 1 
+	      	visible 1 
+	      	decoration 
+	      	backcolor 1 1 1 0.9
+	}
+	itemdef {
+		name bgframeM
+	      	rect 102 0 436 154
+	      	background "ui/assets/score/framem.tga"
+		style 1 
+	      	visible 1 
+	      	decoration 
+	      	backcolor 1 1 1 0.9
+	}
+	itemdef {
+		name bgframeR
+	      	rect 538 0 40 154
+	      	background "ui/assets/score/framer.tga"
+		style 1 
+	      	visible 1 
+	      	decoration 
+	      	backcolor 1 1 1 0.9
+	}
+	//bottom
+	itemdef {
+		name bgframeTL
+	      	rect 62 154 40 20
+	      	background "ui/assets/score/framebl.tga"
+		style 1 
+	      	visible 1 
+	      	decoration 
+	      	backcolor 1 1 1 0.9
+	}
+	itemdef {
+		name bgframeTM
+	      	rect 102 154 436 20
+	      	background "ui/assets/score/frameb.tga"
+		style 1 
+	      	visible 1 
+	      	decoration 
+	      	backcolor 1 1 1 0.9
+	}
+	itemdef {
+		name bgframeTR
+	      	rect 538 154 40 20
+	      	background "ui/assets/score/framebr.tga"
+		style 1 
+	      	visible 1 
+	      	decoration 
+	      	backcolor 1 1 1 0.9
+	}
+//Score FRAME
+	//top left
+	itemdef {
+		name scoreframeTL
+	      	rect 71 0 20 20
+	      	background "ui/assets/score/scoretl3.tga"
+		style 3 
+	      	visible 1 
+	      	decoration 
+	}
+	//top mid
+	itemdef {
+		name scoreframeM
+	      	rect 91 0 458 20
+	      	background "ui/assets/score/scoretm3.tga"
+		style 3 
+	      	visible 1 
+	      	decoration 
+	}
+	//top right
+	itemdef {
+		name scoreframeR
+	      	rect 549 0 20 20
+	      	background "ui/assets/score/scoretr3.tga"
+		style 3 
+	      	visible 1 
+	      	decoration 
+	}
+	//mid left
+	itemdef {
+		name scoreframeL
+	      	rect 71 20 10 135
+	      	background "ui/assets/score/scorel.tga"
+		style 3 
+	      	visible 1 
+	      	decoration 
+	}
+	//mid
+	itemdef {
+		name scoreframeM
+	      	rect 81 20 478 135
+	      	background "ui/assets/score/scorem.tga"
+		style 3 
+	      	visible 1 
+	      	decoration 
+	}
+	//mid right
+	itemdef {
+		name scoreframeR
+	      	rect 559 20 10 135
+	      	background "ui/assets/score/scorer.tga"
+		style 3 
+	      	visible 1 
+	      	decoration 
+	}
+	//btm left
+	itemdef {
+		name scoreframeBL
+	      	rect 71 155 10 10
+	      	background "ui/assets/score/scorebl.tga"
+		style 3 
+	      	visible 1 
+	      	decoration 
+	}
+	//btm mid
+	itemdef {
+		name scoreframeBM
+	      	rect 81 155 478 10
+	      	background "ui/assets/score/scoreb.tga"
+		style 3 
+	      	visible 1 
+	      	decoration 
+	}
+	//btm right
+	itemdef {
+		name scoreframeBR
+	      	rect 559 155 10 10
+	      	background "ui/assets/score/scorebr.tga"
+		style 3 
+	      	visible 1 
+	      	decoration 
+	}
+
+//
+/*
+// BUTTON BACK IMAGES //
+
+itemDef {
+	name lit_controls
+	text "CONTROLS"
+	textscale .22
+	style 3
+	decoration
+	background "ui/assets/menu/buttonlit.tga"
+	rect 38 15 56 25
+	textalign 1
+	textalignx 28
+	textaligny 18
+	forecolor 1 1 1 1
+	backcolor 1 1 1 1
+	visible 1
+	}
+
+// 	BUTTONS	//
+
+itemDef {
+	name ctr_player
+	text "PLAYER"
+	textscale .22
+	group grpbutton
+	style WINDOW_STYLE_FILLED
+	background "ui/assets/menu/button.tga"
+	rect 94 15 56 25
+	type 1
+	textalign 1
+	textalignx 28
+	textaligny 18
+	forecolor 1 1 1 1
+	backcolor 1 1 1 1 
+	visible 1
+	action { open ingame_player ; close ingame_controls ; close ingame_options ; close ingame_system  }
+	}
+itemDef {
+	name ctr_options
+	text "OPTIONS"
+	textscale .22
+	group grpbutton
+	style WINDOW_STYLE_FILLED
+	background "ui/assets/menu/button.tga"
+	rect 150 15 56 25
+	type 1
+	textalign 1
+	textalignx 28
+	textaligny 18
+	forecolor 1 1 1 1
+	backcolor 1 1 1 1 
+	visible 1
+	action { open ingame_options ; close ingame_controls ; close ingame_player ; close ingame_system  }
+	}
+itemDef {
+	name ctr_system
+	text "SYSTEM"
+	textscale .22
+	group grpbutton
+	style WINDOW_STYLE_FILLED
+	background "ui/assets/menu/button.tga"
+	rect 206 15 56 25
+	type 1
+	textalign 1
+	textalignx 28
+	textaligny 18
+	forecolor 1 1 1 1
+	backcolor 1 1 1 1
+	visible 1
+	action { open ingame_system ; close ingame_controls ; close ingame_player ; close ingame_options  }
+	}
+*/
+
+//MOUSE OVER MESSAGES
+
+itemDef {
+      	name keyBindStatus
+      	rect 310 145 640 208
+	ownerdraw UI_KEYBINDSTATUS
+	text " "      
+	forecolor 1 .75 0 1
+	textscale .20
+	textalign 1
+	visible 0
+      	decoration 
+	}
+itemDef {
+      	name yesno_message
+      	rect 310 145 640 208
+	text "Select the Item to Toggle to Yes or No"      
+	forecolor 1 .75 0 1
+	textscale .20
+	textalign 1
+	visible 0
+      	decoration 
+	}
+
+itemDef {
+      	name slider_message
+      	rect 310 145 640 208
+	text "Drag the Slider to Increase and Decrease"     
+	forecolor 1 .75 0 1
+	textscale .20
+	textalign 1
+	visible 0
+      	decoration 
+	}	
+
+
+//*******
+///SUBNAV BUTTONS
+//*******
+//
+//	BUTTON TEXT
+
+	itemDef {
+		name btn1t
+		text "MOVEMENT"
+		textscale .18
+		style 1	
+		rect 160 3 66 12 
+		backcolor 0.2 0.2 0.2 1
+		forecolor 1 0.4 0.2 1
+		//border 1
+		//bordercolor .3 .3 .3 1
+		textalign 1
+		textalignx 32      
+      		textaligny 9
+		decoration
+		visible 1 	  
+    	}
+	itemDef {
+		name btn2t
+		text "ACTIONS"
+		textscale .18
+		style 1	
+		rect 228 3 66 12 
+		backcolor 0 0 0 0
+		forecolor 0.6 0.6 0.6 1
+		textalign 1
+		textalignx 32      
+      		textaligny 9
+		decoration
+		visible 1 	  
+    	}
+	itemDef {
+		name btn3t
+		text "WEAPONS"
+		textscale .18
+		style 1	
+		rect 296 3 66 12 
+		backcolor 0 0 0 0
+		forecolor 0.6 0.6 0.6 1
+		textalign 1
+		textalignx 32      
+      		textaligny 9
+		decoration
+		visible 1 	  
+    	}
+	itemDef {
+		name btn4t
+		text "MOUSE"
+		textscale .18
+		style 1	
+		rect 364 3 66 12 
+		backcolor 0 0 0 0
+		forecolor 0.6 0.6 0.6 1
+		textalign 1
+		textalignx 32      
+      		textaligny 9
+		decoration
+		visible 1 	  
+    	}
+
+itemDef {
+	name btn1
+	type 1
+	group grpControlbutton
+	style WINDOW_STYLE_FILLED
+	rect 160 0 66 18
+	backcolor 0 0 0 0
+	visible 1
+	action { hide grpControls ; show move ; show header1 
+	 setitemcolor btn1t backcolor 0.2 0.2 0.2 1
+	 setitemcolor btn1t forecolor 1 0.4 0.2 1
+	 setitemcolor btn2t backcolor 0 0 0 0
+	 setitemcolor btn2t forecolor 0.6 0.6 0.6 1
+	 setitemcolor btn3t backcolor 0 0 0 0
+	 setitemcolor btn3t forecolor 0.6 0.6 0.6 1
+	 setitemcolor btn4t backcolor 0 0 0 0
+	 setitemcolor btn4t forecolor 0.6 0.6 0.6 1
+	}
+	onFocus {
+			transition btn1t 161 3 66 12 160 3 66 12 20 10
+		}
+	}
+
+itemDef {
+	name btn2
+	type 1
+	group grpControlbutton
+	style WINDOW_STYLE_FILLED
+	rect 228 0 66 18
+	backcolor 0 0 0 0
+	visible 1
+	action { hide grpControls ; show actions ; show header1 
+	 setitemcolor btn2t backcolor 0.2 0.2 0.2 1
+	 setitemcolor btn2t forecolor 1 0.4 0.2 1
+	 setitemcolor btn1t backcolor 0 0 0 0
+	 setitemcolor btn1t forecolor 0.6 0.6 0.6 1
+	 setitemcolor btn3t backcolor 0 0 0 0
+	 setitemcolor btn3t forecolor 0.6 0.6 0.6 1
+	 setitemcolor btn4t backcolor 0 0 0 0
+	 setitemcolor btn4t forecolor 0.6 0.6 0.6 1
+	}
+	onFocus {
+			transition btn2t 229 3 66 12 228 3 66 12 20 10
+		}
+	}
+	
+itemDef {
+	name btn3
+	type 1
+	group grpControlbutton
+	style WINDOW_STYLE_FILLED
+	rect 296 0 66 18
+	backcolor 0 0 0 0
+	visible 1
+	action { hide grpControls ; show weapons ; show header1  
+	 setitemcolor btn3t backcolor 0.2 0.2 0.2 1
+	 setitemcolor btn3t forecolor 1 0.4 0.2 1
+	 setitemcolor btn2t backcolor 0 0 0 0
+	 setitemcolor btn2t forecolor 0.6 0.6 0.6 1
+	 setitemcolor btn1t backcolor 0 0 0 0
+	 setitemcolor btn1t forecolor 0.6 0.6 0.6 1
+	 setitemcolor btn4t backcolor 0 0 0 0
+	 setitemcolor btn4t forecolor 0.6 0.6 0.6 1
+	}
+	onFocus {
+			transition btn3t 297 3 66 12 296 3 66 12 20 10
+		}
+	}
+
+itemDef {
+	name btn4
+	type 1
+	group grpControlbutton
+	style WINDOW_STYLE_FILLED
+	rect 364 0 66 18
+	backcolor 0 0 0 0
+	visible 1
+	action { hide grpControls ; show mouse ; hide header1  
+	 setitemcolor btn4t backcolor 0.2 0.2 0.2 1
+	 setitemcolor btn4t forecolor 1 0.4 0.2 1
+	 setitemcolor btn2t backcolor 0 0 0 0
+	 setitemcolor btn2t forecolor 0.6 0.6 0.6 1
+	 setitemcolor btn3t backcolor 0 0 0 0
+	 setitemcolor btn3t forecolor 0.6 0.6 0.6 1
+	 setitemcolor btn1t backcolor 0 0 0 0
+	 setitemcolor btn1t forecolor 0.6 0.6 0.6 1
+	}
+	onFocus {
+			transition btn4t 365 3 66 12 364 3 66 12 20 10
+		}
+	}	
+ 	itemDef {
+		name mouse
+		group grpControls
+		style 1	
+		rect 84 26 230 80 
+		border 1
+		bordercolor .6 .6 .6 0.5
+		backcolor 0.22 0.22 0.22 0.5
+		textalign 0
+		decoration
+		visible 0
+	}
+ 	itemDef {
+		name mouse
+		group grpControls
+		style 1	
+		rect 325 26 230 80 
+		border 1
+		bordercolor .6 .6 .6 0.5
+		backcolor 0.22 0.22 0.22 0.5
+		textalign 0
+		decoration
+		visible 0
+	}
+ 	itemDef {
+		name mouse
+		group grpControls
+		style 1	
+		rect 86 28 228 14
+		backcolor 0.12 0.12 0.12 1
+		textalign 0
+		decoration
+		visible 0
+		text "Invert Mouse"
+		textscale .18
+		textalignx 4
+      		textaligny 10
+	}
+ 	itemDef {
+		name mouse
+		group grpControls
+		style 1	
+		rect 327 28 228 14 
+		backcolor 0.12 0.12 0.12 1
+		textalign 0
+		decoration
+		visible 0
+		text "Mouse Sensitivity"
+		textscale .18
+		textalignx 4
+      		textaligny 10
+	}
+	itemDef {
+      		name mouse
+		group grpControls
+      		type ITEM_TYPE_YESNO
+		text "Invert Mouse:"
+		cvar "ui_mousePitch"
+		rect 96 47 220 15
+      		textalign 0//ITEM_ALIGN_RIGHT
+      		textaligny 11
+      		//textalignx 138
+		maxPaintChars 20
+		textscale .2               
+      		forecolor 1 1 1 1
+      		visible 0 
+      		style 1
+		action { uiScript update ui_mousePitch }
+		mouseenter { show yesno_message }
+		mouseexit { hide yesno_message }
+    		}
+	itemDef {
+      		name mouse
+		group grpControls
+		text "Setting this feature to Yes will reverse"
+		rect 96 82 220 15
+      		textalign 0
+		textscale .2               
+      		forecolor 0.6 0.6 0.6 1
+      		visible 0 
+      		style 1
+		decoration
+    		}
+	itemDef {
+      		name mouse
+		group grpControls
+		text "the direction of looking up and down."
+		rect 96 95 220 15
+      		textalign 0
+		textscale .2               
+      		forecolor 0.6 0.6 0.6 1
+      		visible 0 
+      		style 1
+		decoration
+    		}
+
+	itemDef {
+      		name mouse
+		group grpControls
+      		type ITEM_TYPE_SLIDER
+		text "Mouse Sensitivity:"
+		cvarfloat "sensitivity" 5 1 30
+		precision 2
+		rect 337 47 224 15
+      		textalign 0//ITEM_ALIGN_RIGHT
+      		//textalignx 138
+		maxPaintChars 20
+      		textaligny 11
+		textscale .2          
+      		forecolor 1 1 1 1
+      		visible 0 
+		mouseenter { show slider_message }
+		mouseexit { hide slider_message }
+    		}
+	itemDef {
+      		name mouse
+		group grpControls
+		text "1                   15                   30"
+		rect 441 68 220 15
+      		textalign 0
+		textscale .14               
+      		forecolor 0.6 0.6 0.6 1
+      		visible 0 
+      		style 1
+		decoration
+    		}
+	itemDef {
+      		name mouse
+		group grpControls
+		//text "    Current Value:"
+		rect 337 78 220 15
+      		textalign 0
+		textscale .2               
+      		forecolor 1 1 1 1
+      		visible 0 
+      		style 1
+		decoration
+    		}
+	itemDef {
+      		name mouse
+		group grpControls
+		cvar "sensitivity"
+		maxChars 3
+		rect 442 82 220 15
+      		textalign 0
+		textscale .2               
+      		forecolor 1 1 1 1
+      		visible 0 
+      		style 1
+		decoration
+    		}
+	itemDef {
+      		name mouse
+		group grpControls
+		text "Default value is 5."
+		rect 442 95 220 15
+      		textalign 0
+		textscale .2               
+      		forecolor 0.6 0.6 0.6 1
+      		visible 0 
+      		style 1
+		decoration
+    		}
+//bind headers	
+ 	itemDef {
+		name header1
+		text "COMMAND"
+		textscale .18
+		style 1	
+		rect 80 29 66 12 
+		backcolor 0 0 0 0
+		forecolor 1 1 1 1
+		textalign 0
+		decoration
+		visible 1 
+	}
+ 	itemDef {
+		name header1
+		text "KEY BIND"
+		textscale .18
+		style 1	
+		rect 182 29 66 12 
+		backcolor 0 0 0 0
+		forecolor 1 1 1 1
+		textalign 0
+		decoration
+		visible 1 
+	}
+ 	itemDef {
+		name header1
+		text "COMMAND"
+		textscale .18
+		style 1	
+		rect 321 29 66 12 
+		backcolor 0 0 0 0
+		forecolor 1 1 1 1
+		textalign 0
+		decoration
+		visible 1 
+	}
+ 	itemDef {
+		name header1
+		text "KEY BIND"
+		textscale .18
+		style 1	
+		rect 423 29 66 12 
+		backcolor 0 0 0 0
+		forecolor 1 1 1 1
+		textalign 0
+		decoration
+		visible 1 
+	}
+
+//MOVE - LEFT SIDE
+	itemDef {
+      		name move
+		group grpControls
+      		type ITEM_TYPE_BIND
+		text "Forward                "
+		cvar "+forward"
+		rect 79 33 238 15
+      		textalign 0//ITEM_ALIGN_RIGHT
+      		textalignx 2
+		maxPaintChars 20
+      		textaligny 11
+		textscale .2        
+      		forecolor 0.5 0.5 0.5 1
+      		visible 0 
+      		style 1
+      		backcolor 0.25 0.25 0.25 0.4
+		mouseenter { show keyBindStatus }
+		mouseexit { hide keyBindStatus }
+    		}
+
+	itemDef {
+      		name move
+		group grpControls
+      		type ITEM_TYPE_BIND
+		text "Backpedal             "
+		cvar "+back"
+		rect 79 49 238 15
+      		textalign 0//ITEM_ALIGN_RIGHT
+      		textalignx 2
+		maxPaintChars 20
+      		textaligny 11
+		textscale .2        
+      		forecolor 0.5 0.5 0.5 1
+      		visible 0 
+		mouseenter { show keyBindStatus }
+		mouseexit { hide keyBindStatus }
+    		}
+	
+	itemDef {
+      		name move
+		group grpControls
+      		type ITEM_TYPE_BIND
+		text "Move Left              "
+		cvar "+moveleft"
+		rect 79 65 238 15
+      		textalign 0
+      		textalignx 2
+		maxPaintChars 20
+      		textaligny 11
+		textscale .2        
+      		forecolor 0.5 0.5 0.5 1
+      		visible 0 
+      		style 1
+      		backcolor 0.25 0.25 0.25 0.4
+		mouseenter { show keyBindStatus }
+		mouseexit { hide keyBindStatus }
+    		}
+
+	itemDef {
+      		name move
+		group grpControls
+      		type ITEM_TYPE_BIND
+		text "Move Right            "
+		cvar "+moveright"
+		rect 79 81 238 15
+      		textalign 0
+      		textalignx 2
+		maxPaintChars 20
+      		textaligny 11
+		textscale .2        
+      		forecolor 0.5 0.5 0.5 1
+      		visible 0 
+		mouseenter { show keyBindStatus }
+		mouseexit { hide keyBindStatus }
+    		}
+//MOVE - RIGHT SIDE
+	itemDef {
+      		name move
+		group grpControls
+      		type ITEM_TYPE_BIND
+		text "Jump                      "
+		cvar "+moveup"
+		rect 320 33 238 15
+      		textalign 0
+      		textalignx 2
+		maxPaintChars 20
+      		textaligny 11
+		textscale .2        
+      		forecolor 0.5 0.5 0.5 1
+      		visible 0 
+      		style 1
+      		backcolor 0.25 0.25 0.25 0.4
+      		mouseenter { show keyBindStatus }
+		mouseexit { hide keyBindStatus }
+    		}
+
+	itemDef {
+      		name move
+		group grpControls
+      		type ITEM_TYPE_BIND
+		text "Crouch                    "
+		cvar "+movedown"
+		rect 320 49 238 15
+      		textalign 0
+      		textalignx 2
+		maxPaintChars 20
+      		textaligny 11
+		textscale .2        
+      		forecolor 0.5 0.5 0.5 1
+      		visible 0
+		mouseenter { show keyBindStatus }
+		mouseexit { hide keyBindStatus } 
+    		}
+	itemDef {
+      		name move
+		group grpControls
+      		type ITEM_TYPE_BIND
+		text "Silent Walk            "
+		cvar "+speed"
+		rect 320 65 238 15
+      		textalign 0
+      		textalignx 2
+		maxPaintChars 20
+      		textaligny 11
+		textscale .2        
+      		forecolor 0.5 0.5 0.5 1
+      		visible 0 
+      		style 1
+      		backcolor 0.25 0.25 0.25 0.4
+		mouseenter { show keyBindStatus }
+		mouseexit { hide keyBindStatus }
+    		}
+	itemDef {
+      		name move
+		group grpControls
+      		type ITEM_TYPE_BIND
+		text "Center view            "
+		cvar "centerview"
+		rect 320 81 238 15
+      		textalign 0
+      		textalignx 2
+		maxPaintChars 20
+      		textaligny 11
+		textscale .2        
+      		forecolor 0.5 0.5 0.5 1
+      		visible 0 
+		mouseenter { show keyBindStatus }
+		mouseexit { hide keyBindStatus }
+    		}
+
+
+//ACTIONS - LEFT SIDE
+	itemDef {
+      		name actions
+		group grpControls
+      		type ITEM_TYPE_BIND
+		text "Shoot                     "
+		cvar "+attack"
+		rect 79 33 238 15
+      		textalign 0//ITEM_ALIGN_RIGHT
+      		textalignx 2
+		maxPaintChars 20
+      		textaligny 11
+		textscale .2        
+      		forecolor 0.5 0.5 0.5 1
+      		visible 0 
+      		style 1
+      		backcolor 0.25 0.25 0.25 0.4
+		mouseenter { show keyBindStatus }
+		mouseexit { hide keyBindStatus }
+    		}
+
+	itemDef {
+      		name actions
+		group grpControls
+      		type ITEM_TYPE_BIND
+		text "Next Weapon         "
+		cvar "weapnext"
+		rect 79 49 238 15
+      		textalign 0//ITEM_ALIGN_RIGHT
+      		textalignx 2
+		maxPaintChars 20
+      		textaligny 11
+		textscale .2        
+      		forecolor 0.5 0.5 0.5 1
+      		visible 0 
+		mouseenter { show keyBindStatus }
+		mouseexit { hide keyBindStatus }
+    		}
+	
+	itemDef {
+      		name actions
+		group grpControls
+      		type ITEM_TYPE_BIND
+		text "Previous Weapon  "
+		cvar "weapprev"
+		rect 79 65 238 15
+      		textalign 0
+      		textalignx 2
+		maxPaintChars 20
+      		textaligny 11
+		textscale .2        
+      		forecolor 0.5 0.5 0.5 1
+      		visible 0 
+      		style 1
+      		backcolor 0.25 0.25 0.25 0.4
+		mouseenter { show keyBindStatus }
+		mouseexit { hide keyBindStatus }
+    		}
+
+	itemDef {
+      		name actions
+		group grpControls
+      		type ITEM_TYPE_BIND
+		text "Zoom                      "
+		cvar "+zoom"
+		rect 79 81 238 15
+      		textalign 0
+      		textalignx 2
+		maxPaintChars 20
+      		textaligny 13
+		textscale .2        
+      		forecolor 0.5 0.5 0.5 1
+      		visible 0 
+		mouseenter { show keyBindStatus }
+		mouseexit { hide keyBindStatus }
+    		}
+
+	itemDef {
+      		name actions
+		group grpControls
+      		type ITEM_TYPE_BIND
+		text "Use Item                "
+		cvar "+button2"
+		rect 79 97 238 15
+      		textalign 0
+      		textalignx 2
+		maxPaintChars 20
+      		textaligny 11
+		textscale .2        
+      		forecolor 0.5 0.5 0.5 1
+      		visible 0 
+      		style 1
+      		backcolor 0.25 0.25 0.25 0.4
+		mouseenter { show keyBindStatus }
+		mouseexit { hide keyBindStatus }
+    		}
+//ACTIONS - RIGHT SIDE
+	itemDef {
+      		name actions
+		group grpControls
+      		type ITEM_TYPE_BIND
+		text "Talk                        "
+		cvar "messagemode"
+		rect 320 33 238 15
+      		textalign 0
+      		textalignx 2
+		maxPaintChars 20
+      		textaligny 11
+		textscale .2        
+      		forecolor 0.5 0.5 0.5 1
+      		visible 0 
+      		style 1
+      		backcolor 0.25 0.25 0.25 0.4
+      		mouseenter { show keyBindStatus }
+		mouseexit { hide keyBindStatus }
+    		}
+
+	itemDef {
+      		name actions
+		group grpControls
+      		type ITEM_TYPE_BIND
+		text "Team Talk              "
+		cvar "messagemode2"
+		rect 320 49 238 15
+      		textalign 0
+      		textalignx 2
+		maxPaintChars 20
+      		textaligny 11
+		textscale .2        
+      		forecolor 0.5 0.5 0.5 1
+      		visible 0
+		mouseenter { show keyBindStatus }
+		mouseexit { hide keyBindStatus } 
+    		}
+	itemDef {
+      		name actions
+		group grpControls
+      		type ITEM_TYPE_BIND
+		text "Taunt                     "
+		cvar "+button3"
+		rect 320 65 238 15
+      		textalign 0
+      		textalignx 2
+		maxPaintChars 20
+      		textaligny 11
+		textscale .2        
+      		forecolor 0.5 0.5 0.5 1
+      		visible 0 
+      		style 1
+      		backcolor 0.25 0.25 0.25 0.4
+		mouseenter { show keyBindStatus }
+		mouseexit { hide keyBindStatus }
+    		}
+	itemDef {
+      		name actions
+		group grpControls
+      		type ITEM_TYPE_BIND
+		text "Drop Flag              "
+		cvar "dropflag"
+		rect 320 81 238 15
+      		textalign 0
+      		textalignx 2
+		maxPaintChars 20
+      		textaligny 11
+		textscale .2        
+      		forecolor 0.5 0.5 0.5 1
+      		visible 0 
+		mouseenter { show keyBindStatus }
+		mouseexit { hide keyBindStatus }
+    		}
+	itemDef {
+      		name actions
+		group grpControls
+      		type ITEM_TYPE_BIND
+		text "Drop Weapon           "
+		cvar "dropweapon"
+		rect 320 97 238 15
+      		textalign 0
+      		textalignx 2
+		maxPaintChars 20
+      		textaligny 11
+		textscale .2        
+      		forecolor 0.5 0.5 0.5 1
+      		visible 0 
+      		style 1
+      		backcolor 0.25 0.25 0.25 0.4
+		mouseenter { show keyBindStatus }
+		mouseexit { hide keyBindStatus }
+    		}
+//WEAPONS - LEFT SIDE
+	itemDef {
+      		name weapons
+		group grpControls
+      		type ITEM_TYPE_BIND
+		text "Gauntlet                  "
+		cvar "weapon 1"
+		rect 79 33 238 15
+      		textalign 0
+      		textalignx 2
+		maxPaintChars 20
+      		textaligny 11
+		textscale .2        
+      		forecolor 0.5 0.5 0.5 1
+      		visible 0 
+      		style 1
+      		backcolor 0.25 0.25 0.25 0.4
+		mouseenter { show keyBindStatus }
+		mouseexit { hide keyBindStatus }
+    		}
+
+	itemDef {
+      		name weapons
+		group grpControls
+      		type ITEM_TYPE_BIND
+		text "Machine Gun          "
+		cvar "weapon 2"
+		rect 79 49 238 15
+      		textalign 0
+      		textalignx 2
+		maxPaintChars 20
+      		textaligny 11
+		textscale .2        
+      		forecolor 0.5 0.5 0.5 1
+      		visible 0 
+		mouseenter { show keyBindStatus }
+		mouseexit { hide keyBindStatus }
+    		}
+	
+	itemDef {
+      		name weapons
+		group grpControls
+      		type ITEM_TYPE_BIND
+		text "Shotgun                 "
+		cvar "weapon 3"
+		rect 79 65 238 15
+      		textalign 0
+      		textalignx 2
+		maxPaintChars 20
+      		textaligny 11
+		textscale .2        
+      		forecolor 0.5 0.5 0.5 1
+      		visible 0 
+      		style 1
+      		backcolor 0.25 0.25 0.25 0.4
+		mouseenter { show keyBindStatus }
+		mouseexit { hide keyBindStatus }
+    		}
+
+	itemDef {
+      		name weapons
+		group grpControls
+      		type ITEM_TYPE_BIND
+		text "Grenade Launcher "
+		cvar "weapon 4"
+		rect 79 81 238 15
+      		textalign 0
+      		textalignx 2
+		maxPaintChars 20
+      		textaligny 13
+		textscale .2        
+      		forecolor 0.5 0.5 0.5 1
+      		visible 0 
+		mouseenter { show keyBindStatus }
+		mouseexit { hide keyBindStatus }
+    		}
+
+	itemDef {
+      		name weapons
+		group grpControls
+      		type ITEM_TYPE_BIND
+		text "Rocket Launcher   "
+		cvar "weapon 5"
+		rect 79 97 238 15
+      		textalign 0
+      		textalignx 2
+		maxPaintChars 20
+      		textaligny 11
+		textscale .2        
+      		forecolor 0.5 0.5 0.5 1
+      		visible 0 
+      		style 1
+      		backcolor 0.25 0.25 0.25 0.4
+		mouseenter { show keyBindStatus }
+		mouseexit { hide keyBindStatus }
+    		}
+	itemDef {
+      		name weapons
+		group grpControls
+      		type ITEM_TYPE_BIND
+		text "Lightning Gun        "
+		cvar "weapon 6"
+		rect 79 113 238 15
+      		textalign 0
+      		textalignx 2
+		maxPaintChars 20
+      		textaligny 11
+		textscale .2        
+      		forecolor 0.5 0.5 0.5 1
+      		visible 0 
+      		style 1
+		mouseenter { show keyBindStatus }
+		mouseexit { hide keyBindStatus }
+    		}
+//WEAPONS - RIGHT SIDE
+	itemDef {
+      		name weapons
+		group grpControls
+      		type ITEM_TYPE_BIND
+		text "Rail Gun                 "
+		cvar "weapon 7"
+		rect 320 33 238 15
+      		textalign 0
+      		textalignx 2
+		maxPaintChars 20
+      		textaligny 11
+		textscale .2        
+      		forecolor 0.5 0.5 0.5 1
+      		visible 0 
+      		style 1
+      		backcolor 0.25 0.25 0.25 0.4
+      		mouseenter { show keyBindStatus }
+		mouseexit { hide keyBindStatus }
+    		}
+
+	itemDef {
+      		name weapons
+		group grpControls
+      		type ITEM_TYPE_BIND
+		text "Plasma Gun          "
+		cvar "weapon 8"
+		rect 320 49 238 15
+      		textalign 0
+      		textalignx 2
+		maxPaintChars 20
+      		textaligny 11
+		textscale .2        
+      		forecolor 0.5 0.5 0.5 1
+      		visible 0
+		mouseenter { show keyBindStatus }
+		mouseexit { hide keyBindStatus } 
+    		}
+	itemDef {
+      		name weapons
+		group grpControls
+      		type ITEM_TYPE_BIND
+		text "BFG                       "
+		cvar "weapon 9"
+		rect 320 65 238 15
+      		textalign 0
+      		textalignx 2
+		maxPaintChars 20
+      		textaligny 11
+		textscale .2        
+      		forecolor 0.5 0.5 0.5 1
+      		visible 0 
+      		style 1
+      		backcolor 0.25 0.25 0.25 0.4
+		mouseenter { show keyBindStatus }
+		mouseexit { hide keyBindStatus }
+    		}
+	itemDef {
+      		name weapons
+		group grpControls
+      		type ITEM_TYPE_BIND
+		text "Nail Gun                "
+		cvar "weapon 11"
+		rect 320 81 238 15
+      		textalign 0
+      		textalignx 2
+		maxPaintChars 20
+      		textaligny 11
+		textscale .2        
+      		forecolor 0.5 0.5 0.5 1
+      		visible 0 
+		mouseenter { show keyBindStatus }
+		mouseexit { hide keyBindStatus }
+    		}
+	itemDef {
+      		name weapons
+		group grpControls
+      		type ITEM_TYPE_BIND
+		text "Proximity Mine     "
+		cvar "weapon 12"
+		rect 320 97 238 15
+      		textalign 0
+      		textalignx 2
+		maxPaintChars 20
+      		textaligny 11
+		textscale .2        
+      		forecolor 0.5 0.5 0.5 1
+      		visible 0 
+      		style 1
+      		backcolor 0.25 0.25 0.25 0.4
+		mouseenter { show keyBindStatus }
+		mouseexit { hide keyBindStatus }
+    		}
+	itemDef {
+      		name weapons
+		group grpControls
+      		type ITEM_TYPE_BIND
+		text "Chain Gun             "
+		cvar "weapon 13"
+		rect 320 113 238 15
+      		textalign 0
+      		textalignx 2
+		maxPaintChars 20
+      		textaligny 11
+		textscale .2        
+      		forecolor 0.5 0.5 0.5 1
+      		visible 0 
+      		style 1
+		mouseenter { show keyBindStatus }
+		mouseexit { hide keyBindStatus }
+    		}
+
+
+//
+//
+//
+//
+
+itemDef {
+      	name quit
+      	text "LEAVE MATCH"
+      	textscale .2
+      	textalign 0
+      	style 0	
+      	rect 62 274 48 30 
+      	backcolor 0 0 0 0
+      	forecolor 1 1 1 1
+      	decoration
+      	visible 1 	  
+    	}
+itemDef {
+      	name ready
+      	text "RETURN TO MATCH"
+      	textscale .2
+      	textalign 2
+      	style 0	
+      	rect 574 274 48 30 
+      	backcolor 0 0 0 0
+      	forecolor 1 1 1 1
+      	decoration
+      	visible 1 	  
+    	}
+
+itemDef {
+      	name readyCLICK
+      	style 0
+      	rect 470 259 130 20 
+      	backcolor 0 0 0 0
+	//border 1
+	//bordercolor .3 .3 .3 1
+	type ITEM_TYPE_BUTTON
+	      action { uiScript closeingame }
+      	visible 1
+		onFocus {
+			transition ready 575 274 48 30 574 274 48 30 20 10
+		}
+    	}
+itemDef {
+      	name advertCLICK
+      	style 0
+      	rect 220 243 200 50
+      	backcolor 0 0 0 0
+      	type ITEM_TYPE_BUTTON
+      	action { activateAdvert 1 }
+      	visible 1
+    	}
+itemDef {
+      	name quitCLICK
+      	style 0
+      	rect 38 259 100 20 
+      	backcolor 0 0 0 0
+	//border 1
+	//bordercolor .3 .3 .3 1
+	type ITEM_TYPE_BUTTON
+	      	action { uiScript quit }
+      	visible 1 
+		onFocus {
+			transition quit 63 274 48 30 62 274 48 30 20 10
+		}
+    	} 
+}
+
+
+}

@@ -1,0 +1,172 @@
+#include "ui/menudef.h"
+
+{
+  assetGlobalDef {
+    	font "fonts/font" 16				// font
+    	smallFont "fonts/smallfont" 12				// font
+    	bigFont "fonts/bigfont" 20				// font
+	cursor "ui/assets/3_cursor3"			// cursor	
+	gradientBar "ui/assets/gradientbar2.tga"	// gradient bar
+	itemFocusSound "sound/misc/menu2.wav"		// sound for item getting focus (via keyboard or mouse )
+	
+    	fadeClamp 1.0					// sets the fadeup alpha
+	fadeCycle 1					// how often fade happens in milliseconds
+	fadeAmount 0.1					// amount to adjust alpha per cycle
+
+	shadowColor 0.1 0.1 0.1 0.25			// shadow color
+  	}
+							   
+
+
+
+
+menuDef {
+    	name "main"
+	background "ui/assets/backscreen"			// Spinning Circle Background
+    	fullScreen MENU_TRUE				
+	rect 0 0 640 480				// Size and position of the menu
+    	visible MENU_TRUE				// Visible on open
+	focusColor 1 .75 0 1				// Menu focus color for text and items
+
+						
+	onOpen { 
+		setitemcolor fadebox backcolor 0 0 0 1 ; 
+		playlooped "music/sonic1.wav" ;
+		fadeout fadebox ;
+//		transition cinematic 390 198 250 1 390 163 250 155 20 12 ; 
+//		transition menuback_d 0 198 250 1 0 163 255 155 20 12 ;
+//		transition menuback_b 0 198 640 1 0 163 640 155 20 12 ;
+//		transition teamArenaBar 80 55 520 1 80 40 520 30 20 10 ;
+//		transition singlebar 0 95 640 1 0 80 640 30 20 10 ;
+//		transition optionbar 0 375 640 1 0 360 640 30 20 10 ; 
+//		transition quitbar 0 419 640 1 0 404 640 30 20 10 ;
+      	play "sound/misc/tim_pump.wav" ; 
+		uiScript stopRefresh ;
+		}
+		
+	onESC { open quit_popmenu }
+
+itemDef {
+      	name menuback_e					// Flashing and rotating light
+      	style WINDOW_STYLE_SHADER
+      	rect 0 20 640 430//0 135 640 200
+     	background "menuback_e"
+      	visible 0
+	decoration
+    	}
+itemDef {
+	name windowscreen				// Vertical Line Image
+	rect 0 0 640 240
+	style 3
+	background levelshotdetail
+	forecolor 0 0 0 0
+	visible 1
+	decoration
+	}
+itemDef {
+	name windowscreen				// Vertical Line Image
+	rect 0 240 640 240
+	style 3
+	background levelshotdetail
+	forecolor 0 0 0 0
+	visible 1
+	decoration
+	}
+itemDef {
+      	name menuback				// background Image
+      	style 1
+      	rect 0 0 640 480
+     	background "ui/assets/backscreen"
+      	visible 1
+	decoration
+	backcolor 1 1 1 0.98
+    	}
+itemDef {
+      	name menuback				// background Image
+      	style 3
+      	rect 116 186 400 100//62 174 505 120
+     	background "ui/assets/backscreenlogo"
+      	visible 0
+	decoration
+    	}
+itemDef {
+      	name menuback				// background Image
+      	style 3
+      	rect 0 0 640 480
+     	background "menuback_a"
+      	visible 0
+	decoration
+    	}	
+
+
+//	QUIT	//
+
+itemDef {
+      	name quitbar
+      	style 2
+      	rect 0 404 640 30 
+      	backcolor 0.5 0.1 0 .25
+      	border 4
+      	bordercolor 0.5 0.5 0.5 1
+      	bordersize 1
+      	visible 1 
+      	decoration 
+    	}
+
+
+
+itemDef {
+      	name quit
+      	text "QUIT"
+      	style 0	
+	type 1
+	textstyle 6
+      	rect 0 404 640 30
+	textalignx 320
+	textaligny 24 
+	textscale .416
+      	textalign 1	   
+   	forecolor 1 1 1 1
+      	visible 1 
+  	action { play "sound/misc/kcaction.wav" ;
+	open quit_popmenu }
+	mouseEnter { setitemcolor quitbar backcolor .75 0 0 .25 }
+      	mouseExit { setitemcolor quitbar backcolor 0.5 0.1 0 .25 }
+   	}
+
+itemDef {
+      	name copyright
+      	text "Quake Live Copyright 2008 Id Software, Inc. All rights reserved"
+      	style 0
+      	textscale .25
+      	rect 0 440 640 40
+      	textalign 1	
+      	textaligny 32
+      	textalignx 320 
+      	forecolor .75 0 0 .75
+      	visible 1 
+      	decoration 
+	}
+
+itemDef {
+      	name fadebox					// Box for fading in menus
+      	style WINDOW_STYLE_FILLED
+ 	background "ui/assets/fadebox.tga"
+	forecolor 0 0 0 1
+	backcolor 0 0 0 1
+	rect 0 0 640 480
+      	visible 1 
+	decoration
+    	}
+
+}
+}
+}
+
+   }
+
+
+
+  }
+
+}

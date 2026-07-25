@@ -32,6 +32,9 @@ Some features that our extended specification (VVM) has to offer:
 **NOTE: Using any of the VVM features is not supported in any engine
 other than FTEQW**
 
+For plain IQM player/hero setup (export, `act_*`, CSQC pitfalls), see
+[IQM player animation](IQM.md).
+
 The tool's output will let you know if you're outputting an IQM
 compatible file or not.
 

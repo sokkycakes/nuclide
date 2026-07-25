@@ -1,0 +1,1053 @@
+#include "ui/menudef.h"
+
+{
+\\ score_menu \\
+
+  assetGlobalDef {
+	itemFocusSound "sound/misc/menu2.wav"
+  	}
+  	
+  menuDef {
+    	name "endteamscore_menu"
+    	visible 0
+    	fullscreen 0
+    	rect 0 0 640 480
+    	focusColor 1 .75 0 1
+    	style 0
+    	border 1
+    	
+//*****************//*****************
+////BACKGROUND IMAGES
+//*****************//*****************
+//
+//
+
+
+//BACK FRAME
+	//top
+	itemdef {
+		name bgframeTL
+	      	rect 4 4 40 40
+	      	background "ui/assets/score/frametl.tga"
+		style 1 
+	      	visible 1 
+	      	decoration 
+	      	backcolor 1 1 1 0.9
+	}
+	itemdef {
+		name bgframeTM
+	      	rect 44 4 552 40
+	      	background "ui/assets/score/framet.tga"
+		style 1 
+	      	visible 1 
+	      	decoration 
+	      	backcolor 1 1 1 0.9
+	}
+	itemdef {
+		name bgframeTR
+	      	rect 596 4 40 40
+	      	background "ui/assets/score/frametr.tga"
+		style 1 
+	      	visible 1 
+	      	decoration 
+	      	backcolor 1 1 1 0.9
+	}
+	//mid
+	itemdef {
+		name bgframeL
+	      	rect 4 44 40 262
+	      	background "ui/assets/score/framel.tga"
+		style 1 
+	      	visible 1 
+	      	decoration 
+	      	backcolor 1 1 1 0.9
+	}
+	itemdef {
+		name bgframeM
+	      	rect 44 44 552 262
+	      	background "ui/assets/score/framem.tga"
+		style 1 
+	      	visible 1 
+	      	decoration 
+	      	backcolor 1 1 1 0.9
+	}
+	itemdef {
+		name bgframeR
+	      	rect 596 44 40 262
+	      	background "ui/assets/score/framer.tga"
+		style 1 
+	      	visible 1 
+	      	decoration 
+	      	backcolor 1 1 1 0.9
+	}
+	//bottom
+	itemdef {
+		name bgframeTL
+	      	rect 4 306 40 20
+	      	background "ui/assets/score/framebl.tga"
+		style 1 
+	      	visible 1 
+	      	decoration 
+	      	backcolor 1 1 1 0.9
+	}
+	itemdef {
+		name bgframeTM
+	      	rect 44 306 552 20
+	      	background "ui/assets/score/frameb.tga"
+		style 1 
+	      	visible 1 
+	      	decoration 
+	      	backcolor 1 1 1 0.9
+	}
+	itemdef {
+		name bgframeTR
+	      	rect 596 306 40 20
+	      	background "ui/assets/score/framebr.tga"
+		style 1 
+	      	visible 1 
+	      	decoration 
+	      	backcolor 1 1 1 0.9
+	}
+
+	//fill
+	itemdef {
+		name bgframefillB
+      		rect 141 25 322 75
+      		background "ui/assets/score/bgfill_blue.tga"
+		style 3 
+      		visible 1 
+      		ownerdrawFlag CG_SHOW_IF_BLUE_IS_FIRST_PLACE
+      		decoration 
+	}
+	//fill
+	itemdef {
+		name bgframefillR
+      		rect 141 25 322 75
+      		background "ui/assets/score/bgfill_red.tga"
+		style 3 
+      		visible 1 
+      		ownerdrawFlag CG_SHOW_IF_RED_IS_FIRST_PLACE
+      		decoration 
+	}
+	//red logo
+	itemdef {
+		name bgframeLogoR
+	      	rect 10 22 111 101
+	      	background "ui/assets/score/logo2.tga"
+		style 1
+	      	visible 1 
+	      	decoration 
+	      	ownerdrawFlag CG_SHOW_IF_RED_IS_FIRST_PLACE
+	      	backcolor 1 0.1 0.1 0.15
+	}
+	//blue logo
+	itemdef {
+		name bgframeLogoB
+	      	rect 10 22 111 101
+	      	background "ui/assets/score/logo2.tga"
+		style 1
+	      	visible 1 
+	      	ownerdrawFlag CG_SHOW_IF_BLUE_IS_FIRST_PLACE
+	      	decoration 
+	      	backcolor 0.1 0.1 1 0.15
+	}
+	//red flag
+	itemdef {
+		name bgframeLogoR
+	      	rect -10 -10 165 160
+	      	background "ui/assets/score/flagr.tga"
+    		style 1
+	      	visible 1 
+	      	decoration 
+	      	ownerdrawFlag CG_SHOW_IF_RED_IS_FIRST_PLACE
+	      	cvarTest "g_gametype"
+  	    	hideCvar { "3","4" }
+	      	backcolor 1 1 1 1
+	}
+	//blue flag
+	itemdef {
+		name bgframeLogoB
+	      	rect -10 -10 165 160
+	      	background "ui/assets/score/flagb.tga"
+		style 1
+	      	visible 1 
+	      	ownerdrawFlag CG_SHOW_IF_BLUE_IS_FIRST_PLACE
+	      	cvarTest "g_gametype"
+  	    	hideCvar { "3","4" }
+	      	backcolor 1 1 1 1
+	}
+	//MODEL WINDOW
+	itemDef {
+		name model
+		rect -2 -10 120 185 
+		backcolor 0 0 0 0
+		visible 1 
+		decoration	  
+	}
+	//arrow
+	itemdef {
+		name bgframeArrow
+	      	rect 11 9 10 10
+	      	background "ui/assets/score/arrow.tga"
+		style 3 
+	      	visible 1 
+	      	decoration 
+	}
+//AD FRAME
+	//left
+	itemdef {
+		name adframeL
+	      	rect 108 24 40 80
+	      	background "ui/assets/score/adtl.tga"
+		style 3 
+	      	visible 1 
+	      	decoration 
+	}
+	//mid
+	itemdef {
+		name adframeM
+	      	rect 148 24 160 80
+	      	background "ui/assets/score/adtm.tga"
+		style 3 
+	      	visible 1 
+	      	decoration 
+	}
+	//right
+	itemdef {
+		name adframeR
+	      	rect 308 24 320 80
+	      	background "ui/assets/score/adtr.tga"
+		style 3 
+	      	visible 1 
+	      	decoration 
+	}
+	//bottom right
+	itemdef {
+		name adframeR
+	      	rect 308 104 320 20
+	      	background "ui/assets/score/adbr.tga"
+		style 3 
+	      	visible 1 
+	      	decoration 
+	}
+	//boxes
+	itemdef {
+		name adframeBox
+	      	rect 138 27 323 11
+	      	background "ui/assets/score/gtbox.tga"
+		style 1
+		backcolor 0 0 0 0.4
+	      	visible 1 
+	      	decoration 
+	}
+//Score FRAME RED
+	//top left
+	itemdef {
+		name scoreframeTLr
+	      	rect 12 114 160 20
+	      	background "ui/assets/score/scoretl_red.tga"
+		style 3 
+	      	visible 1 
+	      	decoration 
+	}
+	//top left 2
+	itemdef {
+		name scoreframeTL2r
+	      	rect 172 114 80 20
+	      	background "ui/assets/score/scoretl2_red.tga"
+		style 3 
+	      	visible 1 
+	      	decoration 
+	}
+	//top mid
+	itemdef {
+		name scoreframeMr
+	      	rect 252 114 26 20
+	      	background "ui/assets/score/scoretm.tga"
+		style 3 
+	      	visible 1 
+	      	decoration 
+	}
+	//top right
+	itemdef {
+		name scoreframeRr
+	      	rect 278 114 40 20
+	      	background "ui/assets/score/scoretr.tga"
+		style 3 
+	      	visible 1 
+	      	decoration 
+	}
+	//mid left
+	itemdef {
+		name scoreframeLr
+	      	rect 12 134 10 133
+	      	background "ui/assets/score/scorel.tga"
+		style 3 
+	      	visible 1 
+	      	decoration 
+	}
+	//mid
+	itemdef {
+		name scoreframeMr
+	      	rect 22 134 286 133
+	      	background "ui/assets/score/scorem.tga"
+		style 3 
+	      	visible 1 
+	      	decoration 
+	}
+	//mid right
+	itemdef {
+		name scoreframeRr
+	      	rect 308 134 10 133
+	      	background "ui/assets/score/scorer.tga"
+		style 3 
+	      	visible 1 
+	      	decoration 
+	}
+	//btm left
+	itemdef {
+		name scoreframeBLr
+	      	rect 12 267 10 10
+	      	background "ui/assets/score/scorebl.tga"
+		style 3 
+	      	visible 1 
+	      	decoration 
+	}
+	//btm mid
+	itemdef {
+		name scoreframeBMr
+	      	rect 22 267 286 10
+	      	background "ui/assets/score/scoreb.tga"
+		style 3 
+	      	visible 1 
+	      	decoration 
+	}
+	//btm right
+	itemdef {
+		name scoreframeBRr
+	      	rect 308 267 10 10
+	      	background "ui/assets/score/scorebr.tga"
+		style 3 
+	      	visible 1 
+	      	decoration 
+	}
+//Score FRAME BLUE
+	//top left
+	itemdef {
+		name scoreframeTLb
+	      	rect 320 114 160 20
+	      	background "ui/assets/score/scoretl_blue.tga"
+		style 3 
+	      	visible 1 
+	      	decoration 
+	}
+	//top left 2
+	itemdef {
+		name scoreframeTL2b
+	      	rect 480 114 80 20
+	      	background "ui/assets/score/scoretl2_blue.tga"
+		style 3 
+	      	visible 1 
+	      	decoration 
+	}
+	//top mid
+	itemdef {
+		name scoreframeMb
+	      	rect 560 114 26 20
+	      	background "ui/assets/score/scoretm.tga"
+		style 3 
+	      	visible 1 
+	      	decoration 
+	}
+	//top right
+	itemdef {
+		name scoreframeRb
+	      	rect 586 114 40 20
+	      	background "ui/assets/score/scoretr.tga"
+		style 3 
+	      	visible 1 
+	      	decoration 
+	}
+	//mid left
+	itemdef {
+		name scoreframeLb
+	      	rect 320 134 10 133
+	      	background "ui/assets/score/scorel.tga"
+		style 3 
+	      	visible 1 
+	      	decoration 
+	}
+	//mid
+	itemdef {
+		name scoreframeMb
+	      	rect 330 134 286 133
+	      	background "ui/assets/score/scorem.tga"
+		style 3 
+	      	visible 1 
+	      	decoration 
+	}
+	//mid right
+	itemdef {
+		name scoreframeRb
+	      	rect 616 134 10 133
+	      	background "ui/assets/score/scorer.tga"
+		style 3 
+	      	visible 1 
+	      	decoration 
+	}
+	//btm left
+	itemdef {
+		name scoreframeBLb
+	      	rect 320 267 10 10
+	      	background "ui/assets/score/scorebl.tga"
+		style 3 
+	      	visible 1 
+	      	decoration 
+	}
+	//btm mid
+	itemdef {
+		name scoreframeBMb
+	      	rect 330 267 286 10
+	      	background "ui/assets/score/scoreb.tga"
+		style 3 
+	      	visible 1 
+	      	decoration 
+	}
+	//btm right
+	itemdef {
+		name scoreframeBRb
+	      	rect 616 267 10 10
+	      	background "ui/assets/score/scorebr.tga"
+		style 3 
+	      	visible 1 
+	      	decoration 
+	}
+//SPECTATOR FRAME
+	//left
+	itemdef {
+		name specframeL
+	      	rect 16 301 80 20
+	      	background "ui/assets/score/specl.tga"
+		style 1 
+	      	visible 1 
+	      	decoration 
+	      	backcolor 1 1 1 0.4
+	}
+	//mid
+	itemdef {
+		name specframeM
+	      	rect 96 301 518 20
+	      	background "ui/assets/score/specm.tga"
+		style 1 
+	      	visible 1 
+	      	decoration 
+	      	backcolor 1 1 1 0.4
+	}
+	//right
+	itemdef {
+		name specframeR
+	      	rect 614 301 10 20
+	      	background "ui/assets/score/specr.tga"
+		style 1 
+	      	visible 1 
+	      	decoration 
+	      	backcolor 1 1 1 0.4
+	}
+//STATS FRAME
+	//left
+	itemdef {
+		name statframeL
+	      	rect 14 280 5 20
+	      	background "ui/assets/score/statsl.tga"
+		style 1 
+	      	visible 1
+	      	decoration 
+	      	backcolor 1 1 1 0.8
+	}
+	//mid
+	itemdef {
+		name statframeM
+	      	rect 19 280 601 20
+	      	background "ui/assets/score/statsm.tga"
+		style 1 
+	      	visible 1
+	      	decoration 
+	      	backcolor 1 1 1 0.8
+	}
+	//right
+	itemdef {
+		name statframeR
+	      	rect 620 280 5 20
+	      	background "ui/assets/score/statsr.tga"
+		style 1 
+	      	visible 1
+	      	decoration 
+	      	backcolor 1 1 1 0.8
+	}
+	//FILL
+	itemdef {
+		name statframeTL
+	      	rect 14 280 5 20
+	      	background "ui/assets/score/statsfilll.tga"
+		style 1 
+	      	visible 1
+	      	decoration 
+	      	ownerdraw CG_SELECTED_PLYR_TEAM_COLOR
+      		forecolor 0.2 0.6 1 0.5
+	}
+	//FILL
+	itemdef {
+		name statframeT
+	      	rect 19 280 80 20
+	      	background "ui/assets/score/statsfillm.tga"
+		style 1 
+	      	visible 1
+	      	decoration 
+	      	ownerdraw CG_SELECTED_PLYR_TEAM_COLOR
+      		forecolor 0.2 0.6 1 0.5
+	}
+	//FILL
+	itemdef {
+		name statframeTR
+	      	rect 99 280 5 20
+	      	background "ui/assets/score/statsfillr.tga"
+		style 1 
+	      	visible 1 
+	      	decoration 
+	      	ownerdraw CG_SELECTED_PLYR_TEAM_COLOR
+      		forecolor 0.2 0.6 1 0.5
+	}
+
+//BOTTOM NAV
+	//left
+	itemdef {
+		name navframeBL
+      	rect 33 440 20 40
+      	background "ui/assets/score/navbarl.tga"
+		style 1 
+      	visible 1 
+      	decoration 
+      	backcolor 1 1 1 0.8
+	}
+	//mid
+	itemdef {
+		name navframeB
+      	rect 53 440 532 40
+      	background "ui/assets/score/navbarm.tga"
+		style 1 
+      	visible 1 
+      	decoration 
+      	backcolor 1 1 1 0.8
+	}
+	//right
+	itemdef {
+		name navframeBR
+      	rect 585 440 20 40
+      	background "ui/assets/score/navbarr.tga"
+		style 1 
+      	visible 1 
+      	decoration 
+      	backcolor 1 1 1 0.8
+	}
+	//BTN left
+	itemdef {
+		name navBTNL
+	    	rect 38 449 80 20
+	    	background "ui/assets/score/navleft.tga"
+		style 3 
+	    	visible 1 
+  	    	type ITEM_TYPE_BUTTON
+        	action { exec "quit" }
+        	onFocus {
+			transition quit 63 462 48 30 62 462 48 30 20 10
+		}
+	}
+	//BTN right
+	itemdef {
+		name navBTNL
+	    	rect 520 449 80 20
+	    	background "ui/assets/score/navright.tga"
+		style 3 
+	    	visible 1 
+  	    	type ITEM_TYPE_BUTTON
+        	action { exec "readyup" }
+        	onFocus {
+			transition ready 575 462 48 30 574 462 48 30 20 10
+		}
+	}
+
+//*****************//*****************
+////CONTENT
+//*****************//*****************
+//
+
+	
+//WINNER BAR TEXT
+
+	//GAME INFO
+	itemDef {
+		name gametype
+		ownerdraw CG_GAME_TYPE
+		text ""
+		textalign 1
+		textscale .18
+		rect 190 36 90 10		 
+		forecolor 0.8 0.8 0.8 1
+		decoration
+		visible 1 	  
+	}
+
+
+	itemdef {
+		name timelimit
+		type 4
+		text "Timelimit:"
+		rect 303 26 60 10
+		visible 1 
+		textalign 1
+		textaligny 10
+		forecolor 0.8 0.8 0.8 1
+		textscale .18
+		cvar "timelimit"
+		decoration
+	}
+
+
+
+	itemdef {
+		name gamelimit
+		type 4
+		ownerdraw CG_GAME_LIMIT
+		rect 406 36 60 10
+		visible 1 
+		align ITEM_ALIGN_CENTER
+		textalign 1
+		textaligny 10
+		forecolor 0.8 0.8 0.8 1
+		textscale .18
+		decoration
+	}
+	//map detail
+	itemDef {
+		name mapname
+		ownerdraw CG_MAP_NAME
+		textscale .2
+		style 0	
+		rect 24 18 418 10 
+		textalign 0		
+		backcolor 0 0 0 0
+		forecolor 0.8 0.8 0.8 1
+		visible 1 
+		decoration	  
+	}
+	//players current place/score
+	itemDef {
+		name winner
+		ownerdraw CG_MATCH_WINNER
+		textscale .28
+		style 0	
+		rect 133 55 330 10 
+		textalign 0		
+		backcolor 0 0 0 0
+		forecolor 0.2 0.6 1 1
+		visible 1 
+		decoration	  
+	}
+	//players current place/score
+	itemDef {
+		name wintype
+		ownerdraw CG_MATCH_END_CONDITION
+		textscale .24
+		style 0	
+		rect 133 73 330 10 
+		textalign 0		
+		backcolor 0 0 0 0
+		forecolor 1.0 1.0 1.0 0.6
+		visible 1 
+		decoration	  
+	}
+	//players final place/score
+	itemDef {
+		name score
+		ownerdraw CG_PLYR_END_GAME_SCORE
+		textscale .24
+		style 0	
+		rect 132 95 330 10 
+		textalign 0		
+		backcolor 0 0 0 0
+		forecolor 1.0 1.0 1.0 1.0
+		visible 1 
+		decoration	  
+	}
+
+//	SCOREBOARD HEADINGS RED		//
+
+itemDef {
+      	name scoreboardR
+      	ownerdraw CG_RED_PLAYER_COUNT
+	    textscale .2
+      	style 0	
+      	rect 19 127 64 30 
+      	backcolor 0 0 0 0
+      	forecolor 1 1 1 1
+      	decoration
+      	visible 1 	  
+    	}
+
+itemDef {
+      	name teamheadingsR
+      	text "Player"
+	textscale .18
+      	style 0	
+      	rect 25 143 64 30 
+      	backcolor 0 0 0 0
+      	forecolor 1 .75 0 1
+      	decoration
+      	visible 1 	  
+    	}
+
+itemDef {
+      	name teamheadingsR
+      	text "Score  Frags Deaths Ping"
+      	textscale .18
+      	style 0	
+      	rect 174 143 48 30 
+      	backcolor 0 0 0 0
+      	forecolor 1 .75 0 1
+      	decoration
+      	visible 1 	  
+    	}
+
+//	SCOREBOARD HEADINGS BLUE		//
+
+itemDef {
+      	name scoreboardB
+      	ownerdraw CG_BLUE_PLAYER_COUNT
+	    textscale .2
+      	style 0	
+      	rect 327 127 64 30 
+      	backcolor 0 0 0 0
+      	forecolor 1 1 1 1
+      	decoration
+      	visible 1 	  
+    	}
+
+itemDef {
+      	name teamheadingsB
+      	text "Player"
+	textscale .18
+      	style 0	
+      	rect 333 143 64 30 
+      	backcolor 0 0 0 0
+      	forecolor 1 .75 0 1
+      	decoration
+      	visible 1 	  
+    	}
+
+itemDef {
+      	name teamheadingsB
+      	text "Score  Frags Deaths Ping"
+      	textscale .18
+      	style 0	
+      	rect 482 143 48 30 
+      	backcolor 0 0 0 0
+      	forecolor 1 .75 0 1
+      	decoration
+      	visible 1 	  
+    	}
+	
+//	SCORE LIST	//
+itemDef	 {
+    name playerlistRED
+    rect 18 148 295 125 
+    visible 1 
+	type ITEM_TYPE_LISTBOX
+	elementwidth 12
+	elementheight 18
+    elementcolor 1.0 1.0 1.0 1.0
+    selectedcolor 0.98 0.99 0.0 1.0
+    outlinecolor 0.6 0.17 0.07 0.4
+    altrowcolor 0.25 0.25 0.25 0.4
+	textscale .18
+	elementtype LISTBOX_TEXT
+	feeder FEEDER_REDTEAM_LIST
+	notselectable
+	columns 7  1 15 1  17 15 1  32 100 16  155 16 5  194 16 5  220 16 3  247 16 4
+	}
+
+itemDef	 {
+    name playerlistBLUE
+    rect 326 148 295 125 
+    visible 1 
+	type ITEM_TYPE_LISTBOX
+	elementwidth 285
+	elementheight 18
+    elementcolor 1.0 1.0 1.0 1.0
+    selectedcolor 0.98 0.99 0.0 1.0
+    outlinecolor 0.1 0.22 0.34 1.0 
+    altrowcolor 0.25 0.25 0.25 0.4
+	textscale .18
+	elementtype LISTBOX_TEXT
+	feeder FEEDER_BLUETEAM_LIST
+	notselectable
+	columns 7  1 15 1  17 15 1  32 100 16  155 16 5  194 16 5  220 16 3  247 16 4
+	}
+	
+//	SPECTATORS	//
+itemDef {
+      	name spectators
+      	text "SPECTATORS"
+      	textscale .2
+      	style 0	
+      	rect 57 315 54 10 //16 301 -- 108 298
+      	backcolor 0 0 0 0
+      	forecolor 0.6 0.6 0.6 1
+      	decoration
+      	visible 1 
+      	textalign 1
+    	}
+itemDef {
+      	name spectators
+      	ownerdraw CG_SPECTATORS
+      	textscale .2
+      	style 0	
+      	rect 110 307 500 10 
+      	backcolor 0 0 0 0
+      	forecolor 0.6 0.6 0.6 1
+      	decoration
+      	visible 1 
+      	textalign 1
+    	}
+//	AWARDS	 //
+//award text
+itemDef {
+      	name awards
+      	text "PLAYER STATS"
+      	textscale .18
+      	textalign 1
+      	style 0	
+      	rect 60 294 48 30 
+      	backcolor 0 0 0 0
+      	forecolor 0.8 0.8 0.8 1
+      	decoration
+      	visible 1 	  
+    	}
+
+itemDef {
+      	name awards
+      	text "Best Weapon:"
+      	textscale .18
+      	textalign 0
+      	style 0	
+      	rect 460 293 48 30 
+      	backcolor 0 0 0 0
+      	forecolor 0.8 0.8 0.8 1
+      	decoration
+      	visible 1	  
+    	}
+itemDef {
+      	name awards
+      	ownerdraw CG_PLYR_BEST_WEAPON_NAME
+      	textscale .18
+      	textalign 0
+      	style 0	
+      	rect 529 293 48 30 
+      	backcolor 0 0 0 0
+      	forecolor 1 .75 0 1
+      	decoration
+      	visible 1  
+    	}
+itemDef {
+      	name awards
+      	text "Accuracy:"
+      	textscale .18
+      	textalign 0
+      	style 0	
+      	rect 373 293 48 30 
+      	backcolor 0 0 0 0
+      	forecolor 0.8 0.8 0.8 1
+      	decoration
+      	visible 1  
+    	}
+itemDef {
+      	name awards
+      	ownerdraw CG_SELECTED_PLYR_ACCURACY
+      	textscale .18
+      	textalign 0
+      	style 0	
+      	rect 422 293 48 30 
+      	backcolor 0 0 0 0
+      	forecolor 1 .75 0 1
+      	decoration
+      	visible 1 
+    	}
+	
+itemdef {
+	name medal_capture_team
+	ownerdraw CG_CAPTURES
+   	rect 110 282 16 16
+   	background "ui/assets/medal_capture.tga"
+	forecolor 1 1 1 .5
+   	visible 1
+   	decoration 
+	textscale 0.18
+	}
+itemdef {
+	name medal_assist
+	ownerdraw CG_ASSISTS
+      	rect 145 282 16 16
+      	background "ui/assets/medal_assist.tga"
+	forecolor 1 1 1 .5
+      	visible 1 
+      	decoration 
+	textscale 0.18
+	}
+
+itemdef {
+	name medal_defend
+	ownerdraw CG_DEFEND
+      	rect 180 282 16 16
+      	background "ui/assets/medal_defend.tga"
+	forecolor 1 1 1 .5
+      	visible 1 
+      	decoration 
+	textscale 0.18
+	}
+	
+itemdef {
+	name medal_excellent
+	ownerdraw CG_EXCELLENT
+      	rect 215 282 16 16
+      	background "ui/assets/medal_excellent.tga"
+	forecolor 1 1 1 .5
+      	visible 1 
+      	decoration 
+	textscale 0.18
+	}
+
+itemdef {
+	name medal_gauntlet
+	ownerdraw CG_GAUNTLET
+      	rect 250 282 16 16
+      	background "ui/assets/medal_gauntlet.tga"
+	forecolor 1 1 1 .5
+      	visible 1 
+      	decoration 
+	textscale 0.18
+	}
+
+itemdef {
+	name medal_impressive
+	ownerdraw CG_IMPRESSIVE
+   	rect 285 282 16 16
+   	background "ui/assets/medal_impressive.tga"
+	forecolor 1 1 1 .5
+   	visible 1
+   	decoration 
+	textscale 0.18
+	}
+//	NAV BUTTONS	//
+itemDef {
+      	name quit
+      	text "LEAVE MATCH"
+      	textscale .2
+      	textalign 0
+      	style 0	
+      	rect 62 462 48 30 
+      	backcolor 0 0 0 0
+      	forecolor 1 1 1 1
+      	decoration
+      	visible 1 	  
+    	}
+itemDef {
+      	name ready
+      	text "NEXT MATCH"
+      	textscale .2
+      	textalign 2
+      	style 0	
+      	rect 574 462 48 30 
+      	backcolor 0 0 0 0
+      	forecolor 1 1 1 1
+      	decoration
+      	visible 1 	  
+    	}
+itemDef {
+      	name status
+      	text "Waiting on all players to Start Next Match"
+      	textscale .2
+      	textalign 1
+      	style 0	
+      	rect 320 462 370 30 
+      	backcolor 0 0 0 0
+      	forecolor 1 0.75 0 1
+      	decoration
+      	visible 1 	  
+    	}
+
+
+//	CHAT AREA	//
+	itemDef {
+		name "scorechatBgLeft"
+		rect 3 346 16 64 
+		visible 1
+		ownerdrawflag CG_SHOW_IF_CHAT_VISIBLE
+		decoration
+		backcolor 0 0 0 0.6
+		style 1
+		background "ui/assets/hud/chatl.tga"
+	}
+	itemDef {
+		name "scorechatBgLeft"
+		rect 19 346 601 64 
+		visible 1
+		ownerdrawflag CG_SHOW_IF_CHAT_VISIBLE
+		decoration
+		backcolor 0 0 0 0.6
+		style 1
+		background "ui/assets/hud/chatm.tga"
+	}
+	itemDef {
+		name "scorechatBgLeft"
+		rect 620 346 16 64 
+		visible 1
+		ownerdrawflag CG_SHOW_IF_CHAT_VISIBLE
+		decoration
+		backcolor 0 0 0 0.6
+		style 1
+		background "ui/assets/hud/chatr.tga"
+	}
+    itemdef {
+	    name scoreChatWindow
+	    ownerdraw CG_AREA_NEW_CHAT
+   	    rect 5 288 634 120
+   	    visible 1
+	    decoration
+	}
+
+
+//
+// advert showing at the end of the game 4x1, 256x64, ~5% of screen
+itemdef {
+	name advert2
+	ownerdraw UI_ADVERT
+	ownerdrawFlag CG_SHOW_INTERMISSION
+	type ITEM_TYPE_BUTTON
+   	rect 465 26 160 80
+    defaultContent "textures/ad_content/ad2x1.jpg"
+   	cellId 2
+ 	style 3
+	forecolor 1 1 1 1.0
+   	visible 1 
+   	action { activateAdvert 2 }
+	}
+	
+
+
+
+
+
+
+}
+
+
+}

@@ -64,9 +64,9 @@ CodeCallback_StartGameType(void)
 	/* configure the arena director: 1v1, winner stays, best-of-N */
 	Arena_Configure(ARENASHAPE_1V1, ARENAPROMO_WINNERSTAYS, autocvar_duel_roundLimit);
 
-	/* Q3-faithful: auto-join the queue (no manual "ready"); hero pick is via
-	   the class menu (B / showClassSelectionMenu), not a team picker */
-	Arena_SetAutoJoin(true);
+	/* Auto Assign opens hero selection first. Queue entry is explicit:
+	   pick a hero, then cmd ready (READY UP). */
+	Arena_SetAutoJoin(false);
 
 	Arena_SetHooks(__NULL__, __NULL__, __NULL__, __NULL__, Duel_SuddenDeath);
 }
@@ -74,6 +74,8 @@ CodeCallback_StartGameType(void)
 void
 CodeCallback_PlayerConnect(entity playerEntity)
 {
+	userinfo.SetString(playerEntity, "*duel_joining", "");
+	userinfo.SetString(playerEntity, "*hero", "");
 	Arena_OnPlayerConnect(playerEntity);
 }
 
@@ -88,8 +90,8 @@ CodeCallback_PlayerSpawn(entity playerEntity)
 {
 	Arena_OnPlayerSpawn(playerEntity);
 
-	/* no team-select chain in duel; prompt hero pick on first queue spawn */
-	if ((int)userinfo.GetFloat(playerEntity, "*arena_state") != ARENASTATE_SPECTATOR
+	/* A pending Auto Assign stays on the waiting camera until hero selection. */
+	if (STRING_SET(userinfo.GetString(playerEntity, "*duel_joining"))
 		&& STRING_SET(userinfo.GetString(playerEntity, "*hero")) == false) {
 		stuffcmd(playerEntity, "showClassSelectionMenu\n");
 	}
@@ -98,6 +100,10 @@ CodeCallback_PlayerSpawn(entity playerEntity)
 bool
 CodeCallback_PlayerRequestRespawn(entity playerEntity)
 {
+	/* Don't let queued players respawn until they've chosen a hero */
+	if (STRING_SET(userinfo.GetString(playerEntity, "*hero")) == false) {
+		return (false);
+	}
 	return (Arena_OnPlayerRequestRespawn(playerEntity));
 }
 
@@ -138,20 +144,18 @@ CodeCallback_CallRequestTeam(entity playerEntity, int teamNum)
 		return (true);
 	}
 
-	/* Auto-Assign enters the duel queue (no duelist slot assignment yet) */
-	Arena_SetReady(playerEntity);
+	/* Assign the duelist team before parking on the waiting cam. */
+	ents.Input(playerEntity, "SetTeam", itos(teamNum), playerEntity);
 
-	if (g_arenaState == ARENA_WARMUP) {
-		Arena_SpawnFreeplay(playerEntity);
-	} else {
-		if (is.Alive(playerEntity)) {
-			ents.Input(playerEntity, "Damage", "1000", playerEntity);
-		}
-		Arena_DemoteToFakeSpec(playerEntity);
-	}
+	/* Auto Assign begins hero selection, but does not enter the queue yet. */
+	userinfo.SetString(playerEntity, "*duel_joining", "1");
+	userinfo.SetString(playerEntity, "*hero", "");
+	Arena_SetNotReady(playerEntity);
 
-	if ((int)userinfo.GetFloat(playerEntity, "*arena_state") != ARENASTATE_SPECTATOR
-		&& STRING_SET(userinfo.GetString(playerEntity, "*hero")) == false) {
+	/* Intermission waiting cam (MakeTempSpectator — not ChangeToClass spectator). */
+	Arena_SpawnWaitingView(playerEntity);
+
+	if (STRING_SET(userinfo.GetString(playerEntity, "*hero")) == false) {
 		stuffcmd(playerEntity, "showClassSelectionMenu\n");
 	}
 
@@ -165,26 +169,69 @@ CodeCallback_ClientCommand(entity playerEntity, string command)
 
 	switch (argv(0)) {
 	case "selecthero": {
-		string heroID = argv(1);
+			int arenaState = (int)userinfo.GetFloat(playerEntity, "*arena_state");
+			bool joining = STRING_SET(userinfo.GetString(playerEntity, "*duel_joining"));
 
-		/* queue players have no duelist slot yet; anchor roster lookups on team 1 */
-		if (teams.Valid((int)playerEntity.team) == false) {
-			ents.Input(playerEntity, "SetTeam", "1", playerEntity);
+			if (joining == false && arenaState < ARENASTATE_READY) {
+				return (true);
+			}
+
+			string heroID = argv(1);
+
+			/* queue players have no duelist slot yet; anchor roster lookups on team 1 */
+			if (teams.Valid((int)playerEntity.team) == false) {
+				ents.Input(playerEntity, "SetTeam", "1", playerEntity);
+			}
+
+			/* While the selector is open, only record the pick — applying the
+			 * class here double-spawns (ChangeToClass + freeplay) and breaks
+			 * the viewmodel. Spawn happens on menu close / READY UP. */
+			if (Hero_TrySelectEx(playerEntity, heroID, joining == false) && joining) {
+				userinfo.SetString(playerEntity, "*duel_joining", "");
+				/* Re-open selector so READY UP is on screen after the pick. */
+				stuffcmd(playerEntity, "showClassSelectionMenu\n");
+			}
+			return (true);
 		}
-
-		Hero_TrySelect(playerEntity, heroID);
+	case "arena_enter":
+		/* READY UP already entered freeplay. Only an armed/not-ready player
+		 * needs the close action to spawn, otherwise this can rebuild the same
+		 * hero inventory while the client is resolving its active weapon. */
+		if ((int)userinfo.GetFloat(playerEntity, "*arena_state") == ARENASTATE_NOTREADY) {
+			Arena_EnsureFreeplay(playerEntity);
+		}
 		return (true);
-	}
 	case "spectate":
 		if (is.Player(playerEntity)) {
+			userinfo.SetString(playerEntity, "*duel_joining", "");
 			Arena_SetSpectator(playerEntity);
 			return (true);
 		}
 		return (false);
 	case "play":
-		/* intercept the generic spectator->play path (cmd_cl.qc) so rejoining
-		   spectators are routed back through the queue, not PutClientInServer */
-		Arena_SetReady(playerEntity);
+		/* Rejoining spectators must choose a hero before entering the queue. */
+		userinfo.SetString(playerEntity, "*duel_joining", "1");
+		userinfo.SetString(playerEntity, "*hero", "");
+		Arena_SetNotReady(playerEntity);
+		Arena_SpawnWaitingView(playerEntity);
+		stuffcmd(playerEntity, "showClassSelectionMenu\n");
+		return (true);
+	case "choosehero":
+		/* Spectators re-enter via JOIN QUEUE, not hero pick. */
+		if ((int)userinfo.GetFloat(playerEntity, "*arena_state") == ARENASTATE_SPECTATOR
+			|| playerEntity.team == TEAM_SPECTATOR) {
+			return (true);
+		}
+		/* Competitors keep their match slot; selecthero applies or queues the
+		 * pick via Hero_TrySelectEx / heroswap policy (no *duel_joining). */
+		if (Arena_IsCompetitor(playerEntity)
+			|| (int)userinfo.GetFloat(playerEntity, "*arena_state") == ARENASTATE_READY) {
+			stuffcmd(playerEntity, "showClassSelectionMenu\n");
+			return (true);
+		}
+		/* Armed / not-ready: reopen picker without leaving freeplay. */
+		userinfo.SetString(playerEntity, "*duel_joining", "1");
+		stuffcmd(playerEntity, "showClassSelectionMenu\n");
 		return (true);
 	default:
 		break;

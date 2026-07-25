@@ -1,12 +1,16 @@
 /*
  * Copyright (c) 2026 Nuclide / Bulwark Protofunny.
  *
- * Base melee weapon class — TF2-inspired line+hull trace with cleave.
+ * Base melee weapon class — TF2 CTFWeaponBaseMelee line+hull swing.
  *
- * Overrides the projectile-based attack in ncWeapon to perform direct
- * melee hit detection.  Single swing does line trace (precision), then
- * hull trace (forgiveness).  When melee_cleave is 1 the swing hits
- * every damageable entity in the swept volume, one per swing.
+ * Mirrors source-sdk-2013 tf_weaponbase_melee.cpp DoSwingTraceInternal:
+ *   1. Line trace from eye along look (precision)
+ *   2. If miss, UTIL_TraceHull with ±18 AABB (forgiveness vs entity BBOX,
+ *      not mesh hitboxes — MASK_SOLID / MOVE_NORMAL equivalent)
+ * Cleave (melee_cleave 1) then hits additional targets in the swing volume.
+ *
+ * testDistance must be 0: a negative testDistance required a LINE hit in
+ * UseAmmo before FiredWeaponAttack ran, so the hull phase never executed.
  *
  * EntityDef keys added on top of ncWeapon:
  *   "melee_range"          swing distance (default 64)
@@ -17,11 +21,11 @@
  *   "melee_push"           push / knockback force
  *
  * Parent keys that still apply:
- *   "testDistance"   hit/miss animation split (UseAmmo pre-check)
- *   "fireRate"       cooldown on hit
- *   "failRate"       cooldown on miss
+ *   "testDistance"   must be 0 for TF2-style swings (see above)
+ *   "fireRate"       cooldown on fire
+ *   "failRate"       unused when testDistance is 0
  *   "snd_hit"        sound on successful hit
- *   "snd_failed"     sound on miss
+ *   "snd_failed"     sound on miss (played from DoSwingTrace)
  *   "ammoRequired"   should be 0 for pure melee
  */
 
@@ -137,31 +141,32 @@ ncWeaponBaseMelee::DoSwingTrace(void)
 	vector vecMins = GetDefVector("melee_bounds_mins");
 	vector vecMaxs = GetDefVector("melee_bounds_maxs");
 
-	/* apply defaults if no hull specified */
+	/* TF2 defaults: static Vector vecSwingMinsBase( -18, -18, -18 ); */
 	if (vecMins_x == 0 && vecMins_y == 0 && vecMins_z == 0)
 		vecMins = [-18,-18,-18];
 
 	if (vecMaxs_x == 0 && vecMaxs_y == 0 && vecMaxs_z == 0)
 		vecMaxs = [18,18,18];
 
-	/* calc swing */
 	vector vecForward = anglesToForward(pPlayer.v_angle);
 	vector vecStart = pPlayer.GetEyePos();
 	vector vecEnd = vecStart + vecForward * fRange;
 
+	/* MASK_SOLID analogue: entity BBOX (SOLID_BBOX/SLIDEBOX), not mesh
+	 * hitboxes. MOVE_HITMODEL would be the bullet/hitbox path — avoid it. */
 	int oldHitContents = pPlayer.hitcontentsmaski;
 	pPlayer.hitcontentsmaski = CONTENTBITS_POINTSOLID | CONTENTBIT_CORPSE;
 
-	/* phase 1 — line trace (precision) */
+	/* phase 1 — line (UTIL_TraceLine) */
 	traceline(vecStart, vecEnd, MOVE_NORMAL, pPlayer);
 
 	bool bLineHit = (trace_fraction < 1.0);
 	entity eLineHit = trace_ent;
 	vector vecLinePos = trace_endpos;
 
-	/* phase 2 — hull trace (forgiveness); wider Y extents let the swing
-	 * connect even when the target isn't centred on the crosshair.  The
-	 * hull sweeps at eye height so it never hits the floor. */
+	/* phase 2 — hull (UTIL_TraceHull) only when the line missed entirely.
+	 * ±18 AABB sweep connects vs player/monster collision boxes even when
+	 * the crosshair is not centred on the visual mesh. */
 	bool bHullHit = false;
 	entity eHullHit = __NULL__;
 	vector vecHullPos = vecEnd;
@@ -178,7 +183,6 @@ ncWeaponBaseMelee::DoSwingTrace(void)
 
 	pPlayer.hitcontentsmaski = oldHitContents;
 
-	/* decide what we hit (single-target path from here) */
 	entity eTarget = __NULL__;
 	vector vecHitPos = vecEnd;
 	vector vecHitDir = vecForward;
@@ -211,10 +215,15 @@ ncWeaponBaseMelee::DoSwingTrace(void)
 	if (spTarget && spTarget.IsVulnerable() && eTarget != pPlayer) {
 		ApplyMeleeDamage(eTarget, vecHitPos, vecHitDir);
 	} else {
-		return; /* missed everything */
+		/* clean miss — swing already played; impact miss cue here */
+		string sndMiss = GetDefString("snd_failed");
+		if (sndMiss) {
+			pPlayer.StartSoundDef(sndMiss, CHAN_WEAPON, true);
+		}
+		return;
 	}
 
-	/* cleave: find additional targets within the forward cone */
+	/* cleave: TF2 UTIL_EntitiesAlongRay analogue — extra targets in volume */
 	if (!GetMeleeCleave())
 		return;
 
@@ -235,6 +244,7 @@ ncWeaponBaseMelee::DoSwingTrace(void)
 
 		vector vecToTarget = eSeen.origin - vecStart;
 		float flDist = vlen(vecToTarget);
+		/* hull corner extends ~18*sqrt(3) past range — pad like TF2 */
 		if (flDist > fRange + 32)
 			{ eSeen = nextent(eSeen); continue; }
 
@@ -242,7 +252,7 @@ ncWeaponBaseMelee::DoSwingTrace(void)
 		if (vecDir * vecForward < 0.1)
 			{ eSeen = nextent(eSeen); continue; }
 
-		/* hull trace to this specific target */
+		/* hull sweep toward this target's origin (entity BBOX) */
 		tracebox(vecStart, vecMins, vecMaxs, eSeen.origin, MOVE_NORMAL, pPlayer);
 
 		if (trace_fraction < 1.0 && trace_ent == eSeen) {

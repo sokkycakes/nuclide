@@ -243,6 +243,11 @@ CSQC_Update2D(float w, float h, bool focus)
 	ncPlayer cl = (ncPlayer)pSeat->m_ePlayer;
 	self = cl;
 
+	/* Menu background maps: 3D scene only — no HUD/chrome (title menu owns UI). */
+	if (serverkeyfloat("background") == 1) {
+		return;
+	}
+
 	/* Lobby overlay: if active, draw the pre-game lobby UI on top and
 	   suppress the normal HUD. Chat and prints still show through. */
 	if (LobbyOverlay_ShouldDraw()) {
@@ -427,6 +432,16 @@ CSQC_UpdateView(float w, float h, float focus)
 	if (numclientseats > g_seats.length) {
 		numclientseats = g_seats.length;
 	}
+	/* A selector owned by this adapter must not survive non-arena or
+	 * split-screen view paths that bypass the normal player-seat loop.
+	 * While the selector is open, tolerate brief arena_state replication gaps
+	 * so we don't wipe webcore_arena_snapshot to active:false mid-load. */
+	if (numclientseats != 1.0f
+		|| (STRING_SET(serverinfo.GetString("arena_state")) == false && g_webcoreArenaSelectorOpen == false)) {
+		WebCoreArenaUI_Clear();
+	} else if (numclientseats == 1.0f) {
+		WebCoreArenaUI_Publish();
+	}
 
 	/* null our globals */
 	for (s = g_seats.length; s-- > numclientseats;) {
@@ -484,7 +499,7 @@ CSQC_UpdateView(float w, float h, float focus)
             if (pSeat->m_ePlayer == world)
                 continue;
 
-			cl = (ncPlayer)pSeat->m_ePlayer;
+            cl = (ncPlayer)pSeat->m_ePlayer;
 			setproperty(VF_ACTIVESEAT, (float)s);
 
 			/* set up our single/split viewport */
@@ -764,9 +779,10 @@ Instead of the old flat orange centerprint buffer, route every centerprint
 through the GoldSrc-style HUD message system (the same path game_text /
 env_message / titles.txt use). They then share GoldSrc HudMessage behaviour:
 fade-in/out, colour and screen positioning, drawn by GameText_Draw(). Channel 0
-is the rotating transient queue. A message whose text matches a titles.txt entry
-inherits that entry's styling; a plain string falls back to the GoldSrc defaults
-in GameMessage_Setup() (centred, lower third, 0.5s fade in/out, 2s hold).
+overwrites in place (HL game_text / Quake centerprint) — a new message restarts
+timing immediately. A message whose text matches a titles.txt entry inherits
+that entry's styling; a plain string falls back to the defaults in
+GameMessage_Setup() (centred, lower third, 0.5s fade in/out, 2s hold).
 */
 float
 CSQC_Parse_CenterPrint(string sMessage)
@@ -874,6 +890,9 @@ that is the last thing that will be called.
 void
 CSQC_Shutdown(void)
 {
+	/* Render callbacks stop before this on disconnect; release any WebCore selector
+	 * before its engine-owned input/menu state can outlive CSQC. */
+	WebCoreArenaUI_Clear();
 	InitPrint("Shutting Client Game");
 	Decal_Shutdown();
 	Sentences_Shutdown();

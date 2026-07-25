@@ -232,13 +232,13 @@
 // entity 1
 {
 "classname" "info_player_deathmatch"
-"origin" "9.924 -1033.56 -515.962"
+"origin" "9.924 -1033.56 -588.115"
 "angle" "90"
 }
 // entity 2
 {
 "classname" "info_player_deathmatch"
-"origin" "16 917.149 -515.962"
+"origin" "16 917.149 -588.115"
 "angle" "270"
 }
 // entity 3

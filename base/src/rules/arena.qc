@@ -75,6 +75,7 @@ void Arena_EndMatch(int winnerSlot, bool noWinner);
 void Arena_Promote(void);
 void Arena_SpawnCompetitor(entity pl, int slot);
 void Arena_SpawnFreeplay(entity pl);
+void Arena_EnsureFreeplay(entity pl);
 void Arena_DemoteToFakeSpec(entity pl);
 void Arena_EnterSuddenDeath(void);
 
@@ -265,12 +266,45 @@ Arena_IsCompetitor(entity pl)
 void
 Arena_SpawnFreeplay(entity pl)
 {
-	ents.ChangeToClass(pl, "player_mp");
 	/* anchor on team 1 so TeleportToSpawn uses DM points, not intermission cam */
 	if (teams.Valid((int)pl.team) == false) {
 		ents.Input(pl, "SetTeam", "1", pl);
 	}
+
+	/* Same class policy as Arena_SpawnCompetitor — do not clobber a hero pick
+	 * with player_mp (that made every selection look like the team default). */
+	if (STRING_SET(g_arenaSpawnClass)) {
+		ents.ChangeToClass(pl, g_arenaSpawnClass);
+	} else {
+		ents.ChangeToClass(pl, Hero_ResolveSpawnHero(pl));
+	}
+
 	game.TeleportToSpawnClass(pl, "info_player_deathmatch");
+}
+
+/** Spawn a warmup freeplay body once — skip if already alive as the resolved hero.
+ * Used after the arena menu closes / READY UP so hero pick does not double-spawn. */
+void
+Arena_EnsureFreeplay(entity pl)
+{
+	string heroID;
+
+	if (g_arenaState != ARENA_WARMUP) {
+		return;
+	}
+	if (Arena_PlayerState(pl) == ARENASTATE_SPECTATOR || pl.team == TEAM_SPECTATOR) {
+		return;
+	}
+	if (STRING_SET(userinfo.GetString(pl, "*hero")) == false) {
+		return;
+	}
+
+	heroID = Hero_ResolveSpawnHero(pl);
+	if (is.Alive(pl) && pl.classname == heroID) {
+		return;
+	}
+
+	Arena_SpawnFreeplay(pl);
 }
 
 /** Spawn a competitor for a live round on its assigned team. */
@@ -303,10 +337,25 @@ Arena_SpawnWaitingView(entity pl)
 {
 	float savedTeam = pl.team;
 
-	ents.Input(pl, "SetTeam", itos(TEAM_UNASSIGNED), pl);
-	ents.ChangeToClass(pl, "spectator");
-	game.TeleportToSpawnClass(pl, "info_intermission");
+	/* Never ChangeToClass("spectator") for waiting. That helper is:
+	 *   changeClass → "player" Spawn (Actor::Spawned GiveItem weapons)
+	 *   then MakeTempSpectator (Destroy those weapons).
+	 * Repeating that give/destroy cycle leaves CSQC with half-constructed
+	 * weapon edicts (truthy m_activeWeapon, NULL ClientFX / missing VM).
+	 *
+	 * If we are already a player/hero shell, only MakeTempSpectator.
+	 * ChangeToClass("player") is a last resort for a raw connect edict. */
+	if (pl.classname != "player" && substring(pl.classname, 0, 5) != "hero_") {
+		ents.ChangeToClass(pl, "player");
+	}
+
+	ents.Input(pl, "Spectate", "", pl);
+
+	if (teams.Valid((int)savedTeam) == false) {
+		savedTeam = 1;
+	}
 	ents.Input(pl, "SetTeam", itos((int)savedTeam), pl);
+	game.TeleportToSpawnClass(pl, "info_intermission");
 }
 
 /** Fake-spectator (chase-cam) - eliminated / between-round / non-competitor. */
@@ -355,22 +404,49 @@ Arena_StateName(void)
 	return ("?");
 }
 
+static string
+Arena_HeroIDs(void)
+{
+	string result = "";
+	int total = teams.TotalClasses(1);
+
+	for (int i = 0i; i < total; i++) {
+		if (i > 0i) {
+			result = strcat(result, " ");
+		}
+		result = strcat(result, teams.ClassForIndex(1, i));
+	}
+
+	return (result);
+}
+
 void
 Arena_BroadcastState(void)
 {
 	serverinfo.SetString("arena_state", Arena_StateName());
 	serverinfo.SetString("arena_round", sprintf("Round %i / %i", g_arenaRound, g_arenaRoundLimit));
 	serverinfo.SetInteger("arena_ready", g_arenaQueueCount);
+	/* The arena director owns the permitted hero capability list. */
+	serverinfo.SetString("arena_heroes", Arena_HeroIDs());
+	/* Dedicated score/name keys for the WebCore HUD (arena_p* keeps "name (score)" for menus). */
+	serverinfo.SetInteger("arena_score1", g_arenaPoints[0]);
+	serverinfo.SetInteger("arena_score2", g_arenaPoints[1]);
 
 	/* publish competitor netnames + round points for the first two slots */
 	for (int i = 0i; i < 2i; i++) {
 		entity c = g_arenaCompetitor[i];
 		string slotKey = sprintf("arena_p%i", i + 1i);
+		string nameKey = sprintf("arena_name%i", i + 1i);
 
 		if (c) {
 			serverinfo.SetString(slotKey, sprintf("%s (%i)", c.netname, g_arenaPoints[i]));
+			serverinfo.SetString(nameKey, c.netname);
+			/* Tab/+showscores reads engine playerkey "frags". Duel awards live in
+			 * g_arenaPoints only — keep the classic scoreboard in sync. */
+			c.frags = (float)g_arenaPoints[i];
 		} else {
 			serverinfo.SetString(slotKey, "");
+			serverinfo.SetString(nameKey, "");
 		}
 	}
 }
@@ -880,6 +956,10 @@ Arena_SetReady(entity pl)
 		} else {
 			Arena_DemoteToFakeSpec(pl);
 		}
+	} else {
+		/* Waiting-cam joiners stay on intermission until hero pick; enter the
+		 * world on READY UP (same as closing the menu after a pick). */
+		Arena_EnsureFreeplay(pl);
 	}
 
 	Arena_SetPlayerState(pl, ARENASTATE_READY);
@@ -940,12 +1020,20 @@ Arena_OnPlayerSpawn(entity pl)
 
 	if (g_arenaState == ARENA_WARMUP) {
 		if (Arena_PlayerState(pl) == ARENASTATE_READY) {
-			Arena_SpawnFreeplay(pl);
+			if (STRING_SET(userinfo.GetString(pl, "*hero"))) {
+				Arena_SpawnFreeplay(pl);
+			} else {
+				Arena_SpawnWaitingView(pl);
+			}
 		} else if (g_arenaAutoJoin && Arena_PlayerState(pl) == ARENASTATE_NOTREADY) {
-			/* Q3-style: auto-ready into the queue and spawn a freeplay body
-			   (SetReady alone does not spawn for a non-spectator team) */
+			/* Q3-style: auto-ready into the queue; only spawn if
+			   a hero is already picked, else wait on camera */
 			Arena_SetReady(pl);
-			Arena_SpawnFreeplay(pl);
+			if (STRING_SET(userinfo.GetString(pl, "*hero"))) {
+				Arena_SpawnFreeplay(pl);
+			} else {
+				Arena_SpawnWaitingView(pl);
+			}
 		} else {
 			Arena_SpawnWaitingView(pl);
 		}

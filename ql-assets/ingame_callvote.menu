@@ -1,0 +1,483 @@
+#include "ui/menudef.h"
+
+{
+\\ CALL VOTE MENU \\
+
+menuDef {
+    	name "ingame_callvote"
+    	visible 0
+    	fullscreen 0
+    	rect -1 129 640 351
+    	focusColor 1 .75 0 1
+    	style 1
+    	border 1
+    	disableColor .5 .5 .5 1
+	onopen { uiScript loadArenas }
+
+//BACK FRAME
+	//mid
+	itemdef {
+		name bgframeL
+	      	rect 62 0 40 214
+	      	background "ui/assets/score/framel.tga"
+		style 1 
+	      	visible 1 
+	      	decoration 
+	      	backcolor 1 1 1 0.9
+	}
+	itemdef {
+		name bgframeM
+	      	rect 102 0 436 214
+	      	background "ui/assets/score/framem.tga"
+		style 1 
+	      	visible 1 
+	      	decoration 
+	      	backcolor 1 1 1 0.9
+	}
+	itemdef {
+		name bgframeR
+	      	rect 538 0 40 214
+	      	background "ui/assets/score/framer.tga"
+		style 1 
+	      	visible 1 
+	      	decoration 
+	      	backcolor 1 1 1 0.9
+	}
+	//bottom
+	itemdef {
+		name bgframeTL
+	      	rect 62 214 40 20
+	      	background "ui/assets/score/framebl.tga"
+		style 1 
+	      	visible 1 
+	      	decoration 
+	      	backcolor 1 1 1 0.9
+	}
+	itemdef {
+		name bgframeTM
+	      	rect 102 214 436 20
+	      	background "ui/assets/score/frameb.tga"
+		style 1 
+	      	visible 1 
+	      	decoration 
+	      	backcolor 1 1 1 0.9
+	}
+	itemdef {
+		name bgframeTR
+	      	rect 538 214 40 20
+	      	background "ui/assets/score/framebr.tga"
+		style 1 
+	      	visible 1 
+	      	decoration 
+	      	backcolor 1 1 1 0.9
+	}
+//Score FRAME
+	//top left
+	itemdef {
+		name scoreframeTL
+	      	rect 71 0 20 20
+	      	background "ui/assets/score/scoretl3.tga"
+		style 3 
+	      	visible 1 
+	      	decoration 
+	}
+	//top mid
+	itemdef {
+		name scoreframeM
+	      	rect 91 0 458 20
+	      	background "ui/assets/score/scoretm3.tga"
+		style 3 
+	      	visible 1 
+	      	decoration 
+	}
+	//top right
+	itemdef {
+		name scoreframeR
+	      	rect 549 0 20 20
+	      	background "ui/assets/score/scoretr3.tga"
+		style 3 
+	      	visible 1 
+	      	decoration 
+	}
+	//mid left
+	itemdef {
+		name scoreframeL
+	      	rect 71 20 10 195
+	      	background "ui/assets/score/scorel.tga"
+		style 3 
+	      	visible 1 
+	      	decoration 
+	}
+	//mid
+	itemdef {
+		name scoreframeM
+	      	rect 81 20 478 195
+	      	background "ui/assets/score/scorem.tga"
+		style 3 
+	      	visible 1 
+	      	decoration 
+	}
+	//mid right
+	itemdef {
+		name scoreframeR
+	      	rect 559 20 10 195
+	      	background "ui/assets/score/scorer.tga"
+		style 3 
+	      	visible 1 
+	      	decoration 
+	}
+	//btm left
+	itemdef {
+		name scoreframeBL
+	      	rect 71 215 10 10
+	      	background "ui/assets/score/scorebl.tga"
+		style 3 
+	      	visible 1 
+	      	decoration 
+	}
+	//btm mid
+	itemdef {
+		name scoreframeBM
+	      	rect 81 215 478 10
+	      	background "ui/assets/score/scoreb.tga"
+		style 3 
+	      	visible 1 
+	      	decoration 
+	}
+	//btm right
+	itemdef {
+		name scoreframeBR
+	      	rect 559 215 10 10
+	      	background "ui/assets/score/scorebr.tga"
+		style 3 
+	      	visible 1 
+	      	decoration 
+	}
+	itemDef {
+		name title
+		text "CALL VOTE OPTIONS"
+		    textscale .18
+		style 0	
+		rect 78 12 64 30 
+		backcolor 0 0 0 0
+		forecolor 1 1 1 1
+		decoration
+		visible 1 	  
+		}
+////
+
+//LEFT BOX 1	
+ 	itemDef {
+		name basic
+		group grpCallVote
+		style 1	
+		rect 84 26 230 80 
+		border 1
+		bordercolor .6 .6 .6 0.5
+		backcolor 0.22 0.22 0.22 0.5
+		textalign 1
+		decoration
+		visible 1
+	}
+ 	itemDef {
+		name "mapOpt"
+		group grpCallVote
+		style 1	
+		rect 86 28 228 14
+		backcolor 0.12 0.12 0.12 1
+		textalign 0
+		decoration
+		visible 1
+		text "Map Options"
+		textscale .18
+		textalignx 4
+      		textaligny 10
+	}
+	itemDef {
+      		name "restart"
+		group grpCallVote
+		rect 90 47 220 15
+		textaligny 11
+      		textalign 0
+		textscale .2               
+      		forecolor 1 1 1 1
+      		visible 1
+      		style 1
+      		border 0
+		bordercolor .5 .5 .5 .5
+		text "Restart Map"
+			action { exec "cmd callvote map_restart" ; uiScript closeingame }
+    		}
+	itemDef {
+      		name "nxtMap"
+		group grpCallVote
+		rect 90 67 220 15
+		textaligny 11
+      		textalign 0
+		textscale .2               
+      		forecolor 1 1 1 1
+      		visible 1
+      		style 1
+      		border 0
+		bordercolor .5 .5 .5 .5
+		text "Next Map"
+			action { exec "cmd callvote nextmap" ; uiScript closeingame }
+    		}
+	itemDef {
+      		name "shuffleTeams"
+		group grpCallVote
+		rect 90 87 220 15
+		textaligny 11
+      		textalign 0
+		textscale .2
+      		forecolor 1 1 1 1
+      		visible 1
+      		style 1
+      		border 0
+		bordercolor .5 .5 .5 .5
+		text "Shuffle Teams"
+			action { exec "cmd callvote shuffle" ; uiScript closeingame }
+    		}			
+//LEFT BOX 2	
+ 	itemDef {
+		name basic
+		group grpControls
+		style 1	
+		rect 84 113 230 100 
+		border 1
+		bordercolor .6 .6 .6 0.5
+		backcolor 0.22 0.22 0.22 0.5
+		textalign 0
+		decoration
+		visible 1
+	}
+ 	itemDef {
+		name basic
+		group grpControls
+		style 1	
+		rect 86 115 228 14
+		backcolor 0.12 0.12 0.12 1
+		textalign 0
+		decoration
+		visible 1
+		text "Kick Player"
+		textscale .18
+		textalignx 4
+      		textaligny 10
+	}
+	itemDef {
+		name kick
+		group grpCallVote
+		rect 87 130 160 80
+		style WINDOW_STYLE_FILLED
+		type ITEM_TYPE_LISTBOX
+		elementwidth 120
+		elementheight 18
+		textscale .18
+		elementtype LISTBOX_TEXT
+		feeder FEEDER_PLAYER_LIST
+		border 1
+		bordercolor .5 .5 .5 .5
+		forecolor 1 1 1 1
+		backcolor 0 0 0 .25
+		outlinecolor .1 .1 .7 .5
+		visible 1
+		mouseEnter { setitemcolor kick bordercolor .7 0 0 1 } 
+		mouseExit { setitemcolor kick bordercolor .5 .5 .5 1 }
+		}
+		itemDef {
+			name basic
+			text "   Call Vote"
+			type 1
+			textscale .2
+			group grpCallVote
+			style WINDOW_STYLE_FILLED
+			background "ui/assets/button_back.tga"
+			rect 252 195 58 15
+			textalign 1
+			textalignx 25
+			textaligny 11
+			forecolor 1 1 1 1
+			backcolor .37 .1 .1 1 
+			visible 1
+			action { uiScript voteKick ; uiScript closeingame }
+			mouseEnter { setcolor backcolor .5 .2 0 1 }
+			mouseExit { setcolor backcolor .37 .1 .1 1 }	
+			}
+
+//RIGHT BOX
+ 	itemDef {
+		name basic
+		group grpControls
+		style 1	
+		rect 325 26 230 187 
+		border 1
+		bordercolor .6 .6 .6 0.5
+		backcolor 0.22 0.22 0.22 0.5
+		textalign 0
+		decoration
+		visible 1
+	}
+ 	itemDef {
+		name basic
+		group grpControls
+		style 1	
+		rect 327 28 228 14 
+		backcolor 0.12 0.12 0.12 1
+		textalign 0
+		decoration
+		visible 1
+		text "Change Map"
+		textscale .18
+		textalignx 4
+      		textaligny 10
+	}
+	itemDef {
+		name map
+		group grpCallVote
+		rect 327 43 139 167
+		style WINDOW_STYLE_FILLED
+		type ITEM_TYPE_LISTBOX
+		elementwidth 120
+		elementheight 18
+		textscale .18
+		elementtype LISTBOX_TEXT
+		feeder FEEDER_ALLMAPS
+		border 1
+		bordercolor .5 .5 .5 .5
+		forecolor 1 1 1 1
+		backcolor 0 0 0 .25
+		outlinecolor .1 .1 .7 .5
+		visible 1
+		mouseEnter { setitemcolor map bordercolor .7 0 0 1 } 
+		mouseExit { setitemcolor map bordercolor .5 .5 .5 1 }
+		}
+ 	itemDef {
+		name mappreview_underlay
+		group grpCallVote
+		style WINDOW_STYLE_FILLED
+		rect 470 44 82 78
+		backcolor 0 0 0 0.65
+		decoration
+		visible 1
+	}
+ 	itemDef {
+		name mappreview_underlay2
+		group grpCallVote
+		style WINDOW_STYLE_FILLED
+		rect 471 106 80 15
+		backcolor .16 .16 .16 0.5
+		decoration
+		visible 1
+	}	
+ 	itemDef {
+		name mappreview
+		group grpCallVote
+		rect 471 45 80 60
+		decoration
+		visible 1
+		ownerdraw UI_MAPPREVIEW
+	}
+	itemDef {
+		name title
+		text "Map Preview"
+		textscale .18
+		textalign 0
+		style 0
+		rect 481 117 64 20
+		backcolor 0 0 0 1
+		forecolor 1 1 1 .65
+		decoration
+		visible 1
+		}	
+		itemDef {
+			name basic
+			text "   Call Vote"
+			type 1
+			textscale .2
+			group grpCallVote
+			style WINDOW_STYLE_FILLED
+			background "ui/assets/button_back.tga"
+			rect 482 195 58 15
+			textalign 1
+			textalignx 25
+			textaligny 11
+			forecolor 1 1 1 1
+			backcolor .37 .1 .1 1 
+			visible 1
+			action { uiScript voteMap ; uiScript closeingame }
+			mouseEnter { setcolor backcolor .5 .2 0 1 }
+			mouseExit { setcolor backcolor .37 .1 .1 1 }
+			}
+
+//
+//
+//
+//
+
+itemDef {
+      	name quit
+      	text "LEAVE MATCH"
+      	textscale .2
+      	textalign 0
+      	style 0	
+      	rect 62 274 48 30 
+      	backcolor 0 0 0 0
+      	forecolor 1 1 1 1
+      	decoration
+      	visible 1 	  
+    	}
+itemDef {
+      	name ready
+      	text "RETURN TO MATCH"
+      	textscale .2
+      	textalign 2
+      	style 0	
+      	rect 574 274 48 30 
+      	backcolor 0 0 0 0
+      	forecolor 1 1 1 1
+      	decoration
+      	visible 1 	  
+    	}
+
+itemDef {
+      	name readyCLICK
+      	style 0
+      	rect 470 259 130 20 
+      	backcolor 0 0 0 0
+	//border 1
+	//bordercolor .3 .3 .3 1
+	type ITEM_TYPE_BUTTON
+	      action { uiScript closeingame }
+      	visible 1
+		onFocus {
+			transition ready 575 274 48 30 574 274 48 30 20 10
+		}
+    	}
+itemDef {
+      	name advertCLICK
+      	style 0
+      	rect 220 243 200 50
+      	backcolor 0 0 0 0
+      	type ITEM_TYPE_BUTTON
+      	action { activateAdvert 1 }
+      	visible 1
+    	}
+itemDef {
+      	name quitCLICK
+      	style 0
+      	rect 38 259 100 20 
+      	backcolor 0 0 0 0
+	//border 1
+	//bordercolor .3 .3 .3 1
+	type ITEM_TYPE_BUTTON
+	      	action { uiScript quit }
+      	visible 1 
+		onFocus {
+			transition quit 63 274 48 30 62 274 48 30 20 10
+		}
+    	} 
+}
+
+
+}

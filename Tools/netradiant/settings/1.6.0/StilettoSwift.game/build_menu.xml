@@ -4,9 +4,11 @@
   q3map2 writes the .bsp beside the .map; installbsp copies it into base/maps/ for devmap.
 -->
 <project version="2.0">
-<var name="q3map2">"[EnginePath]Tools/q3map2/q3map2.exe" -v -game quake3 -fs_basepath "[EnginePath]" -fs_game [GameName]</var>
+<var name="q3map2">"[EnginePath]Tools/netradiant/q3map2.exe" -v -game quake3 -fs_basepath "[EnginePath]" -fs_game [GameName]</var>
 <var name="installbsp">"[EnginePath]Tools/netradiant/install_bsp_for_fte.bat" "[BspFile]" "[EnginePath][GameName]/maps" "[MapName]"</var>
 <var name="fte">"[EnginePath]fteqw64.exe" +game [GameName] +devmap [MapName]</var>
+<!-- Menu backgrounds: no player control / no HUD. Inline sv_background (map_background is MenuQC-only; forceqmenu 1 skips menu.dat). -->
+<var name="fte_background">"[EnginePath]fteqw64.exe" +game [GameName] +set g_gametype singleplayer +set sv_playerslots 2 +set coop 1 +set sv_background 1 +map [MapName]</var>
 <build name="qbsp">
 <command>[q3map2] -meta "[MapFile]"</command>
 <command>[installbsp]</command>
@@ -28,6 +30,10 @@
 <build name="run in engine">
 <command>[installbsp]</command>
 <command>[fte]</command>
+</build>
+<build name="run as menu background">
+<command>[installbsp]</command>
+<command>[fte_background]</command>
 </build>
 <separator />
 <build name="qbsp, qvis">

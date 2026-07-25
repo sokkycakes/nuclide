@@ -1,0 +1,281 @@
+FTEQCC: git-6739-afbf1743d-dirty (2026-06-17)
+Source file: base/src/client/progs.src
+Outputfile: base/src/client/../../csprogs.dat
+including base/src/client/../../../src/common/include.src
+including base/src/client/../../../src/common/fteextensions.qc
+including base/src/client/../../../src/common/common.h
+including base/src/client/../../../src/common/c_colors.h
+including base/src/client/../../../src/common/c_events.h
+including base/src/client/../../../src/common/c_flags.h
+including base/src/client/../../../src/common/c_materials.h
+including base/src/client/../../../src/common/c_math.h
+including base/src/client/../../../src/common/c_math_vector.h
+including base/src/client/../../../src/common/c_memory.h
+including base/src/client/../../../src/common/c_platform.h
+including base/src/client/../../../src/common/c_teams.h
+including base/src/client/../../../src/shared/defs.h
+base/src/client/../../../src/shared/defs.h:127:
+base/src/client/../../../src/shared/physics/Portal.h:36: warning Q100: #warning:  Needs documentation
+including base/src/client/../../../src/client/defs.h
+including base/src/client/defs.h
+including base/src/client/../../../src/vgui/include.src
+including base/src/client/../../../src/vgui/Color.qc
+including base/src/client/../../../src/vgui/Theme.qc
+including base/src/client/../../../src/vgui/ui.qc
+base/src/client/../../../src/vgui/ui.qc:17: warning Q100: #warning:  vguiWidget needs methods to deal with .res/.gui type files.
+including base/src/client/../../../src/vgui/Widget.qc
+including base/src/client/../../../src/vgui/Control.qc
+including base/src/client/../../../src/vgui/Button.qc
+including base/src/client/../../../src/vgui/CommandButton.qc
+including base/src/client/../../../src/vgui/MenuButton.qc
+including base/src/client/../../../src/vgui/Radio.qc
+including base/src/client/../../../src/vgui/CheckBox.qc
+including base/src/client/../../../src/vgui/View.qc
+including base/src/client/../../../src/vgui/Window.qc
+including base/src/client/../../../src/vgui/Frame.qc
+including base/src/client/../../../src/vgui/Label.qc
+including base/src/client/../../../src/vgui/MenuTitle.qc
+including base/src/client/../../../src/vgui/Pic.qc
+including base/src/client/../../../src/vgui/Rect.qc
+including base/src/client/../../../src/vgui/3DView.qc
+including base/src/client/../../../src/vgui/ScrollBar.qc
+including base/src/client/../../../src/vgui/Slider.qc
+including base/src/client/../../../src/vgui/List.qc
+including base/src/client/../../../src/vgui/ListPicker.qc
+including base/src/client/../../../src/vgui/ListBox.qc
+including base/src/client/../../../src/vgui/TextBox.qc
+including base/src/client/../../../src/vgui/TabViewItem.qc
+including base/src/client/../../../src/vgui/TabView.qc
+base/src/client/../../../src/vgui/TabView.qc:17: warning Q100: #warning:  TabView: Complete me.
+including base/src/client/../../../src/vgui/ProgressBar.qc
+including base/src/client/../../../src/vgui/LoadingPanel.qc
+including base/src/client/../../../src/vgui/TextView.qc
+including base/src/client/../../../src/gs-entbase/client.src
+including base/src/client/../../../src/gs-entbase/client/defs.h
+including base/src/client/../../../src/gs-entbase/client/env_cubemap.qc
+including base/src/client/../../../src/gs-entbase/client/env_sun.qc
+including base/src/client/../../../src/gs-entbase/client/env_soundscape.qc
+including base/src/client/../../../src/gs-entbase/client/env_particle.qc
+including base/src/client/../../../src/gs-entbase/client/func_dustmotes.qc
+including base/src/client/../../../src/gs-entbase/client/func_dustcloud.qc
+including base/src/client/../../../src/gs-entbase/client/light_environment.qc
+including base/src/client/../../../src/gs-entbase/client/func_smokevolume.qc
+including base/src/client/../../../src/gs-entbase/client/prop_static.qc
+including base/src/client/../../../src/gs-entbase/client/infodecal.qc
+including base/src/client/../../../src/gs-entbase/client/sky_camera.qc
+including base/src/client/../../../src/gs-entbase/client/point_message.qc
+including base/src/client/../../../src/gs-entbase/shared.src
+including base/src/client/../../../src/gs-entbase/shared/ambient_generic.qc
+including base/src/client/../../../src/gs-entbase/shared/func_friction.qc
+including base/src/client/../../../src/gs-entbase/shared/env_beam.qc
+including base/src/client/../../../src/gs-entbase/shared/env_sprite.qc
+including base/src/client/../../../src/gs-entbase/shared/env_bubbles.qc
+including base/src/client/../../../src/gs-entbase/shared/env_funnel.qc
+including base/src/client/../../../src/gs-entbase/shared/env_laser.qc
+including base/src/client/../../../src/gs-entbase/shared/env_glow.qc
+including base/src/client/../../../src/gs-entbase/shared/env_projectedtexture.qc
+including base/src/client/../../../src/gs-entbase/shared/env_fog.qc
+including base/src/client/../../../src/gs-entbase/shared/env_fog_controller.qc
+including base/src/client/../../../src/gs-entbase/shared/env_cascade_light.qc
+including base/src/client/../../../src/gs-entbase/shared/env_smoker.qc
+including base/src/client/../../../src/gs-entbase/shared/env_muzzleflash.qc
+including base/src/client/../../../src/gs-entbase/shared/env_steam.qc
+including base/src/client/../../../src/gs-entbase/shared/env_rain.qc
+including base/src/client/../../../src/gs-entbase/shared/env_shockwave.qc
+including base/src/client/../../../src/gs-entbase/shared/light_dynamic.qc
+including base/src/client/../../../src/gs-entbase/shared/logic_achievement.qc
+including base/src/client/../../../src/gs-entbase/shared/func_monitor.qc
+including base/src/client/../../../src/gs-entbase/shared/func_lod.qc
+including base/src/client/../../../src/gs-entbase/shared/func_illusionary.qc
+including base/src/client/../../../src/gs-entbase/shared/func_useableladder.qc
+including base/src/client/../../../src/gs-entbase/shared/func_ladder.qc
+including base/src/client/../../../src/gs-entbase/shared/func_wall.qc
+including base/src/client/../../../src/gs-entbase/shared/func_vehicle.qc
+including base/src/client/../../../src/gs-entbase/server/func_tracktrain.qc
+including base/src/client/../../../src/gs-entbase/shared/func_tankmortar.qc
+including base/src/client/../../../src/gs-entbase/shared/trigger_camera.qc
+including base/src/client/../../../src/gs-entbase/shared/trigger_gravity.qc
+including base/src/client/../../../src/gs-entbase/shared/info_particle_system.qc
+base/src/client/../../../src/gs-entbase/shared/info_particle_system.qc:18: warning Q100: #warning:  needs Save/Restore
+including base/src/client/../../../src/gs-entbase/shared/env_hudcounter.qc
+including base/src/client/../../../src/gs-entbase/shared/info_waypoint.qc
+including base/src/client/../../../src/gs-entbase/shared/info_notnull.qc
+including base/src/client/../../../src/gs-entbase/shared/env_instructor_hint.qc
+including base/src/client/../../../src/gs-entbase/shared/prop_physics_multiplayer.qc
+including base/src/client/../../../src/gs-entbase/shared/prop_vehicle_driveable.qc
+including base/src/client/../../../src/gs-entbase/shared/point_spotlight.qc
+including base/src/client/../../../src/gs-entbase/shared/point_viewcontrol.qc
+including base/src/client/../../../src/gs-entbase/shared/trigger_push.qc
+including base/src/client/../../../src/gs-entbase/shared/func_conveyor.qc
+including base/src/client/../../../src/gs-entbase/shared/prop_rope.qc
+including base/src/client/../../../src/gs-entbase/shared/phys_rope.qc
+including base/src/client/../../../src/gs-entbase/shared/worldspawn.qc
+including base/src/client/../../../src/gs-entbase/shared/speaker.qc
+including base/src/client/../shared/include.src
+including base/src/client/../shared/flags.h
+including base/src/client/main.qc
+including base/src/client/lobby_overlay.qc
+in function Lb_DrawRoster (line 34),
+base/src/client/lobby_overlay.qc:39: warning F324: sprintf: %i requires int at arg 3 (got float)
+base/src/client/lobby_overlay.qc:39: warning F324: sprintf: %i requires int at arg 3 (got float)
+base/src/client/lobby_overlay.qc:39: note: use %g or %f or %hx for floats
+including base/src/client/../../../src/client/include.src
+including base/src/client/../../../src/client/InteractiveSurface.qc
+including base/src/client/../../../src/client/View.qc
+including base/src/client/../../../src/client/Radar.qc
+including base/src/client/../../../src/client/hud.qc
+including base/src/client/../../../src/client/InterfaceSpriteSheet.qc
+including base/src/client/../../../src/client/UserInfo.qc
+including base/src/client/../../../src/client/UserInfoManager.qc
+including base/src/client/../../../src/client/ServerInfo.qc
+including base/src/client/../../../src/client/fog.qc
+including base/src/client/../../../src/client/font.qc
+in function Font_Load (line 25),
+base/src/client/../../../src/client/font.qc:78: warning Q207: segments duplicate definition ignored
+base/src/client/../../../src/client/font.qc:66:    float segments is defined here
+including base/src/client/../../../src/client/sky.qc
+including base/src/client/../../../src/client/music.qc
+including base/src/client/../../../src/client/prints.qc
+including base/src/client/../../../src/client/voice.qc
+including base/src/client/../../../src/client/fade.qc
+including base/src/client/../../../src/client/titles.qc
+including base/src/client/../../../src/client/text.qc
+including base/src/client/../../../src/client/predict.qc
+including base/src/client/../../../src/client/entities.qc
+including base/src/client/../../../src/client/modelevent.qc
+including base/src/client/../../../src/client/viewmodel.qc
+in function View_DebugViewModel (line 153),
+base/src/client/../../../src/client/viewmodel.qc:208: warning F324: sprintf: %i requires int at arg 5 (got float)
+base/src/client/../../../src/client/viewmodel.qc:208: warning F324: sprintf: %i requires int at arg 5 (got float)
+base/src/client/../../../src/client/viewmodel.qc:208: note: use %g or %f or %hx for floats
+base/src/client/../../../src/client/viewmodel.qc:211: warning F324: sprintf: %g requires float at arg 5 (got __int32)
+base/src/client/../../../src/client/viewmodel.qc:211: note: use %i or %lx for 32bit ints
+including base/src/client/../../../src/client/damage.qc
+including base/src/client/../../../src/client/chat.qc
+including base/src/client/../../../src/client/textmenu.qc
+including base/src/client/../../../src/client/vgui.qc
+including base/src/client/../../../src/client/vgui_changeclass.qc
+including base/src/client/../../../src/client/vgui_chooseteam.qc
+including base/src/client/../../../src/client/vgui_motd.qc
+including base/src/client/../../../src/client/vgui_modelspawner.qc
+including base/src/client/../../../src/client/vgui_playerlist.qc
+including base/src/client/../../../src/client/vgui_observers.qc
+including base/src/client/../../../src/client/vgui_serverinfo.qc
+including base/src/client/../../../src/client/webcore_arena.qc
+including base/src/client/../../../src/client/Editor.qc
+including base/src/client/../../../src/client/EditorSun.qc
+at global scope,
+base/src/client/../../../src/client/EditorSun.qc:49: warning F335: ncSunEdit::RedColorChanged is not part of class ncSunEdit
+base/src/client/../../../src/client/EditorSun.qc:56: warning F335: ncSunEdit::GreenColorChanged is not part of class ncSunEdit
+base/src/client/../../../src/client/EditorSun.qc:63: warning F335: ncSunEdit::BlueColorChanged is not part of class ncSunEdit
+base/src/client/../../../src/client/EditorSun.qc:70: warning F335: ncSunEdit::PitchChanged is not part of class ncSunEdit
+base/src/client/../../../src/client/EditorSun.qc:76: warning F335: ncSunEdit::YawChanged is not part of class ncSunEdit
+base/src/client/../../../src/client/EditorSun.qc:82: warning F335: ncSunEdit::RollChanged is not part of class ncSunEdit
+base/src/client/../../../src/client/EditorSun.qc:88: warning F335: ncSunEdit::DistanceChanged is not part of class ncSunEdit
+including base/src/client/../../../src/client/way.qc
+including base/src/client/../../../src/client/detailtex.qc
+including base/src/client/../../../src/client/shake.qc
+including base/src/client/../../../src/client/cmd.qc
+including base/src/client/../../../src/client/event.qc
+including base/src/client/../../../src/client/commandmenu.qc
+including base/src/client/../../../src/client/entry.qc
+including base/src/client/../../../src/client/crosshair.qc
+including base/src/client/../../../src/client/util.qc
+including base/src/client/../../../src/client/api.qc
+including base/src/client/../../../src/client/spectatorhud.qc
+including base/src/client/../../../src/client/../platform/localize.qc
+including base/src/client/../../../src/shared/include.src
+including base/src/client/../../../src/shared/system/IO.qc
+including base/src/client/../../../src/shared/system/Dict.qc
+including base/src/client/../../../src/shared/system/Trigger.qc
+including base/src/client/../../../src/shared/system/Entity.qc
+including base/src/client/../../../src/shared/system/Timer.qc
+including base/src/client/../../../src/shared/environment/Decal.qc
+including base/src/client/../../../src/shared/system/RenderableEntity.qc
+including base/src/client/../../../src/shared/environment/SurfacePropEntity.qc
+including base/src/client/../../../src/shared/environment/BreakableBrush.qc
+including base/src/client/../../../src/shared/environment/Mover.qc
+including base/src/client/../../../src/shared/physics/PhysicsConstraint.qc
+including base/src/client/../../../src/shared/physics/PhysicsEntity.qc
+including base/src/client/../../../src/shared/triggers/BrushTrigger.qc
+including base/src/client/../../../src/shared/triggers/PointTrigger.qc
+including base/src/client/../../../src/shared/physics/pmove.qc
+including base/src/client/../../../src/shared/physics/Vehicle.qc
+including base/src/client/../../../src/shared/game/Attack.qc
+including base/src/client/../../../src/shared/game/Actor.qc
+in function ncActor::__FiredWeapon (line 174),
+base/src/client/../../../src/shared/game/Actor.qc:175: warning Q100: #warning:  Predict once we can map fireInfo numerically over the network
+including base/src/client/../../../src/shared/ai/Monster.qc
+including base/src/client/../../../src/shared/ai/SquadMonster.qc
+including base/src/client/../../../src/shared/ai/TalkMonster.qc
+including base/src/client/../../../src/shared/game/Projectile.qc
+including base/src/client/../../../src/shared/game/SpawnPoint.qc
+including base/src/client/../../../src/shared/audio/SoundScape.qc
+including base/src/client/../../../src/shared/game/Item.qc
+including base/src/client/../../../src/shared/game/Dispenser.qc
+including base/src/client/../../../src/shared/game/Weapon.qc
+at global scope,
+base/src/client/../../../src/shared/game/Weapon.qc:1235: warning F335: ncWeapon::DoAbilityAction is not part of class ncWeapon
+base/src/client/../../../src/shared/game/Weapon.qc:1253: warning F335: ncWeapon::OnAbilityReleased is not part of class ncWeapon
+including base/src/client/../../../src/shared/game/WeaponBaseMelee.qc
+including base/src/client/../../../src/shared/game/WeaponVagrantKnife.qc
+including base/src/client/../../../src/shared/game/WeaponArchstiletto.qc
+including base/src/client/../../../src/shared/physics/Portal.qc
+including base/src/client/../../../src/shared/physics/Debris.qc
+including base/src/client/../../../src/shared/audio/Sound.qc
+including base/src/client/../../../src/shared/game/Client.qc
+including base/src/client/../../../src/shared/game/Spectator.qc
+including base/src/client/../../../src/shared/physics/pmove_custom.qc
+including base/src/client/../../../src/shared/physics/stiletto_tuning.qc
+including base/src/client/../../../src/shared/physics/stiletto_combat.qc
+including base/src/client/../../../src/shared/system/cloader.qc
+including base/src/client/../../../src/shared/audio/soundDef.qc
+in function SoundDef_Shutdown (line 37),
+base/src/client/../../../src/shared/audio/soundDef.qc:39: warning F314: Implicit cast from entity to class ncSoundDict
+in function SoundDef_FindSoundByName (line 362),
+base/src/client/../../../src/shared/audio/soundDef.qc:363: warning F314: Implicit cast from entity to class ncSoundDict
+in function SoundDef_FindSoundByModelIndex (line 796),
+base/src/client/../../../src/shared/audio/soundDef.qc:801: warning F314: Implicit cast from entity to class ncSoundDict
+in function SoundDef_DebugList (line 964),
+base/src/client/../../../src/shared/audio/soundDef.qc:967: warning F314: Implicit cast from entity to class ncSoundDict
+including base/src/client/../../../src/shared/physics/Ragdoll.qc
+including base/src/client/../../../src/shared/game/Player.qc
+including base/src/client/../../../src/shared/physics/slide.qc
+including base/src/client/../../../src/shared/physics/player_pmove.qc
+including base/src/client/../../../src/shared/environment/propdata.qc
+at global scope,
+base/src/client/../../../src/shared/environment/propdata.qc:17: warning Q100: #warning:  PropData should be stored in ncDict
+including base/src/client/../../../src/shared/environment/surfaceproperties.qc
+base/src/client/../../../src/shared/environment/surfaceproperties.qc:17: warning Q100: #warning:  SurfaceProperties should be stored in ncDict
+including base/src/client/../../../src/shared/environment/decalgroups.qc
+base/src/client/../../../src/shared/environment/decalgroups.qc:17: warning Q100: #warning:  There's no way we can spawn these from within the particle system. Investigate how we can handle most of this from within the particle system.
+including base/src/client/../../../src/shared/environment/materials.qc
+including base/src/client/../../../src/shared/audio/sentences.qc
+including base/src/client/../../../src/shared/game/Charger.qc
+including base/src/client/../../../src/shared/environment/Spraylogo.qc
+including base/src/client/../../../src/shared/system/util.qc
+including base/src/client/../../../src/shared/game/motd.qc
+including base/src/client/../../../src/shared/environment/bodyque.qc
+including base/src/client/../../../src/shared/system/entityDef.qc
+including base/src/client/../../../src/shared/game/ammo.qc
+including base/src/client/../../../src/shared/system/activities.qc
+including base/src/client/../../../src/shared/system/api.qc
+including base/src/client/../../../src/shared/input/XRSpace.qc
+including base/src/client/../../../src/shared/input/XRInput.qc
+including base/src/client/../../../src/shared/input/XRManager.qc
+in function FindXRSpace (line 32),
+base/src/client/../../../src/shared/input/XRManager.qc:35: warning F314: Implicit cast from entity to class NSXRSpace
+base/src/client/../../../src/shared/input/XRManager.qc:35: warning F314: Implicit cast from entity to class NSXRSpace
+in function FindXRInput (line 50),
+base/src/client/../../../src/shared/input/XRManager.qc:54: warning F314: Implicit cast from entity to class NSXRInput
+base/src/client/../../../src/shared/input/XRManager.qc:54: warning F314: Implicit cast from entity to class NSXRInput
+including base/src/client/../../../src/shared/../botlib/Bot.qc
+in function SoundDef_PrecacheFile (line 291),
+base/src/client/../../../src/shared/audio/soundDef.qc:358: warning Q206: SoundDef_PrecacheFile: not all control paths return a value
+in function SoundDef_Precache (line 387),
+base/src/client/../../../src/shared/audio/soundDef.qc:391: warning Q302: __int32 index  no references.
+in function Slide_ApplyGravityProjection (line 109),
+base/src/client/../../../src/shared/physics/slide.qc:113: warning Q302: float horiz  no references.
+Writing base/src/client/../../csprogs.dat
+Compile finished: base/src/client/../../csprogs.dat (fte format)
+Done. 34 warnings

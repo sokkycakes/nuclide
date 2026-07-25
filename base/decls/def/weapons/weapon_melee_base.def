@@ -9,10 +9,10 @@ entityDef weapon_melee_base
 {
 	"spawnclass"			"ncWeaponBaseMelee"
 
-	// ---- Melee-specific keys ----
+	// ---- Melee-specific keys (TF2 CTFWeaponBaseMelee) ----
 	"melee_range"			"64"
-	"melee_bounds_mins"		"-18 -32 -18"
-	"melee_bounds_maxs"		"18 32 18"
+	"melee_bounds_mins"		"-18 -18 -18"
+	"melee_bounds_maxs"		"18 18 18"
 	"melee_cleave"			"0"
 	"melee_damage"			"20"
 	"melee_push"			"100"
@@ -25,7 +25,10 @@ entityDef weapon_melee_base
 	// ---- ncWeapon defaults for melee ----
 	"ammoRequired"			"0"
 	"silent_fire"			"1"
-	"testDistance"			"-64"
+	// TF2 always swings; hit/miss is decided in DoSwingTrace (line+hull).
+	// Negative testDistance required a LINE hit before the swing ran, which
+	// made the hull-forgiveness path unreachable.
+	"testDistance"			"0"
 	"snd_swing"				"Melee_Swing"
 	"fireRate"				"0.5"
 	"failRate"				"0.5"

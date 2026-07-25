@@ -71,6 +71,8 @@ We usually just read the flags field (which we assume is a float for most entiti
 
 As you can tell, it's the same setup as in `SendEntity` - which is by design. This will make keeping fields in check much easier. A simple find-and-replace of the word **SEND** with **READ** will do the job most of the time.
 
+> **Important — inherited virtual decoders:** An `ENT_*` discriminator selects a fixed wire schema. Avoid sharing a virtual receiver signature across a base and derived class when those classes interpret changed-mask bits differently. FTEQCC may resolve the call to the inherited receiver even while `classname` and `declclass` still identify the derived entity. Merely marking the derived method nonvirtual can expose the base virtual instead. If the decoder has no legitimate subclass overrides, give it a unique nonvirtual name and call it directly from its `ENT_*` case. See [FTEQCC virtual `ReceiveEntity` dispatch causes CSQC player underreads](../docs/solutions/runtime-errors/fteqcc-virtual-receiveentity-csqc-underread.md) for the player/lobby failure, byte-level evidence, and fix.
+
 We'd like to streamline a lot of this further in the future, so this may be subject to change.
 
 ## Event updates

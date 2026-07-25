@@ -48,6 +48,8 @@ Spawn_ObserverCam(ncPlayer pl)
 	}
 
 	Client_FixAngle(pl, pl.angles);
+	setorigin(pl, pl.origin);
+	pl.SendFlags |= (PLAYER_ORIGIN | PLAYER_ANGLES);
 }
 
 /*
@@ -203,6 +205,10 @@ Spawn_PlaceAtSpot(entity targetEnt, entity spawnPoint)
 	targetEnt.origin = testorg;
 	targetEnt.angles = spawnPoint.angles;
 	setorigin(targetEnt, testorg);
+	/* MakePlayer() often sets SendFlags=UPDATE_ALL before teleport. A full
+	 * CSQC update can leave with origin still at 0/death; after placement, force
+	 * origin+angles so observers are not stuck at world origin until movement. */
+	targetEnt.SendFlags |= (PLAYER_ORIGIN | PLAYER_ANGLES);
 	Spawn_SendAngles(targetEnt, spawnPoint);
 	return (true);
 }
@@ -272,6 +278,7 @@ Spawn_TeleportToSpawn(entity targetEnt)
 	if (STRING_SET(startspot)) {
 		targetEnt.origin = Landmark_GetSpot();
 		setorigin_safe(targetEnt, targetEnt.origin);
+		targetEnt.SendFlags |= (PLAYER_ORIGIN | PLAYER_ANGLES);
 		return;
 	}
 

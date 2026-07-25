@@ -1,0 +1,309 @@
+#include "ui/menudef.h"
+
+{
+\\ ADDBOT MENU \\
+
+menuDef {
+    	name "ingame_addbot"
+    	visible 0
+    	fullscreen 0
+    	rect -1 129 640 351
+    	focusColor 1 .75 0 1
+    	style 1
+    	border 1
+    	disableColor .5 .5 .5 1
+
+//BACK FRAME
+	//mid
+	itemdef {
+		name bgframeL
+	      	rect 62 0 40 107
+	      	background "ui/assets/score/framel.tga"
+		style 1 
+	      	visible 1 
+	      	decoration 
+	      	backcolor 1 1 1 0.9
+	}
+	itemdef {
+		name bgframeM
+	      	rect 102 0 436 107
+	      	background "ui/assets/score/framem.tga"
+		style 1 
+	      	visible 1 
+	      	decoration 
+	      	backcolor 1 1 1 0.9
+	}
+	itemdef {
+		name bgframeR
+	      	rect 538 0 40 107
+	      	background "ui/assets/score/framer.tga"
+		style 1 
+	      	visible 1 
+	      	decoration 
+	      	backcolor 1 1 1 0.9
+	}
+	//bottom
+	itemdef {
+		name bgframeTL
+	      	rect 62 107 40 20
+	      	background "ui/assets/score/framebl.tga"
+		style 1 
+	      	visible 1 
+	      	decoration 
+	      	backcolor 1 1 1 0.9
+	}
+	itemdef {
+		name bgframeTM
+	      	rect 102 107 436 20
+	      	background "ui/assets/score/frameb.tga"
+		style 1 
+	      	visible 1 
+	      	decoration 
+	      	backcolor 1 1 1 0.9
+	}
+	itemdef {
+		name bgframeTR
+	      	rect 538 107 40 20
+	      	background "ui/assets/score/framebr.tga"
+		style 1 
+	      	visible 1 
+	      	decoration 
+	      	backcolor 1 1 1 0.9
+	}
+//Score FRAME
+	//top left
+	itemdef {
+		name scoreframeTL
+	      	rect 371 0 20 20
+	      	background "ui/assets/score/scoretl3.tga"
+		style 3 
+	      	visible 1 
+	      	decoration 
+	}
+	//top mid
+	itemdef {
+		name scoreframeM
+	      	rect 391 0 158 20
+	      	background "ui/assets/score/scoretm3.tga"
+		style 3 
+	      	visible 1 
+	      	decoration 
+	}
+	//top right
+	itemdef {
+		name scoreframeR
+	      	rect 549 0 20 20
+	      	background "ui/assets/score/scoretr3.tga"
+		style 3 
+	      	visible 1 
+	      	decoration 
+	}
+	//mid left
+	itemdef {
+		name scoreframeL
+	      	rect 371 20 10 88
+	      	background "ui/assets/score/scorel.tga"
+		style 3 
+	      	visible 1 
+	      	decoration 
+	}
+	//mid
+	itemdef {
+		name scoreframeM
+	      	rect 381 20 178 88
+	      	background "ui/assets/score/scorem.tga"
+		style 3 
+	      	visible 1 
+	      	decoration 
+	}
+	//mid right
+	itemdef {
+		name scoreframeR
+	      	rect 559 20 10 88
+	      	background "ui/assets/score/scorer.tga"
+		style 3 
+	      	visible 1 
+	      	decoration 
+	}
+	//btm left
+	itemdef {
+		name scoreframeBL
+	      	rect 371 108 10 10
+	      	background "ui/assets/score/scorebl.tga"
+		style 3 
+	      	visible 1 
+	      	decoration 
+	}
+	//btm mid
+	itemdef {
+		name scoreframeBM
+	      	rect 381 108 178 10
+	      	background "ui/assets/score/scoreb.tga"
+		style 3 
+	      	visible 1 
+	      	decoration 
+	}
+	//btm right
+	itemdef {
+		name scoreframeBR
+	      	rect 559 108 10 10
+	      	background "ui/assets/score/scorebr.tga"
+		style 3 
+	      	visible 1 
+	      	decoration 
+	 }
+itemDef {
+      	name scoreboard
+      	text "ADD BOT OPTIONS"
+	    textscale .18
+      	style 0	
+      	rect 378 12 64 30 
+      	backcolor 0 0 0 0
+      	forecolor 1 1 1 1
+      	decoration
+      	visible 1 	  
+    	}
+
+
+
+
+
+
+itemDef {
+      	name gametypefield
+	style 0
+	text "Name:"	
+ 	ownerdraw UI_BOTNAME
+      	rect 440 24 128 15
+      	textalign 1		
+      	textaligny 11   
+	textscale .22
+      	forecolor 1 1 1 1
+      	border 0
+      	bordercolor 0 0 0 0
+      	visible 1 
+    	}
+
+itemDef {
+      	name gametypefield
+      	style 0
+	text "Team:"	
+	ownerdraw UI_REDBLUE
+      	rect 440 44 128 15 
+      	textalign 1		
+      	textaligny 11    
+	textscale .22
+	cvarTest "g_gametype"
+	disableCvar { "0" ; "1" }     
+      	forecolor 1 1 1 1
+      	border 0
+      	bordercolor 0 0 0 0
+      	visible 1 
+    	}
+
+itemDef {
+      	name gametypefield
+      	style 0	
+	text "Skill:"
+ 	ownerdraw UI_BOTSKILL
+      	rect 440 64 128 15 
+      	textalign 1		
+      	textaligny 11     
+	textscale .22
+      	forecolor 1 1 1 1
+      	border 0
+	bordercolor 0 0 0 0
+	visible 1 
+    	}
+
+
+itemDef {
+	name ok
+	text "Add Bot"
+	type 1
+	textscale .24
+	style WINDOW_STYLE_FILLED
+	background "ui/assets/button_back.tga"
+	rect 425 85 80 20
+	textalign 1
+	textalignx 40
+	textaligny 15
+	forecolor 1 1 1 1
+	backcolor .37 .1 .1 1 
+	visible 1
+	action { uiScript addBot ; uiScript closeingame }
+	mouseEnter { setitemcolor ok backcolor .1 .37 .1 1 }
+      	mouseExit { setitemcolor ok backcolor .37 .1 .1 1 }
+	}
+	
+//
+//
+//
+//
+
+itemDef {
+      	name quit
+      	text "LEAVE MATCH"
+      	textscale .2
+      	textalign 0
+      	style 0	
+      	rect 62 274 48 30 
+      	backcolor 0 0 0 0
+      	forecolor 1 1 1 1
+      	decoration
+      	visible 1 	  
+    	}
+itemDef {
+      	name ready
+      	text "RETURN TO MATCH"
+      	textscale .2
+      	textalign 2
+      	style 0	
+      	rect 574 274 48 30 
+      	backcolor 0 0 0 0
+      	forecolor 1 1 1 1
+      	decoration
+      	visible 1 	  
+    	}
+
+itemDef {
+      	name readyCLICK
+      	style 0
+      	rect 470 259 130 20 
+      	backcolor 0 0 0 0
+	//border 1
+	//bordercolor .3 .3 .3 1
+	type ITEM_TYPE_BUTTON
+	      action { uiScript closeingame }
+      	visible 1
+		onFocus {
+			transition ready 575 274 48 30 574 274 48 30 20 10
+		}
+    	}
+itemDef {
+      	name advertCLICK
+      	style 0
+      	rect 220 243 200 50
+      	backcolor 0 0 0 0
+      	type ITEM_TYPE_BUTTON
+      	action { activateAdvert 1 }
+      	visible 1
+    	}
+itemDef {
+      	name quitCLICK
+      	style 0
+      	rect 38 259 100 20 
+      	backcolor 0 0 0 0
+	//border 1
+	//bordercolor .3 .3 .3 1
+	type ITEM_TYPE_BUTTON
+	      	action { uiScript quit }
+      	visible 1 
+		onFocus {
+			transition quit 63 274 48 30 62 274 48 30 20 10
+		}
+    	} 
+}
+
+
+}

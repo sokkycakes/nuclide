@@ -424,9 +424,10 @@ HLHUD_DrawAmmo3(vector pos, float ammoValue)
 	}
 }
 
-/* WebCore HTML HUD overlay (second decoder view). Gate: webcore_hud 1 */
-var float autocvar_webcore_hud = 0;
-var string autocvar_webcore_hud_url = "fte://data/web/webcore-test/hud-smoke.html";
+/* WebCore HTML HUD overlay (second decoder view). Gate: webcore_hud 1
+ * Default on — replaces Slint HUD (set slint_hud 0 so CSQC runs). */
+var float autocvar_webcore_hud = 1;
+var string autocvar_webcore_hud_url = "fte://data/web/hud/index.html?v=3";
 var float g_webcoreHudAlive;
 
 void
@@ -456,6 +457,17 @@ WebCoreHud_Ensure(void)
 void
 WebCoreHud_Draw(void)
 {
+	float showtime;
+	float minutes, secs;
+	string timerStr;
+	string name1;
+	string name2;
+	int score1;
+	int score2;
+	int i;
+	int frags;
+	string pname;
+
 	if (autocvar_webcore_hud <= 0) {
 		WebCoreHud_Shutdown();
 		return;
@@ -464,6 +476,52 @@ WebCoreHud_Draw(void)
 	WebCoreHud_Ensure();
 	if (!g_webcoreHudAlive)
 		return;
+
+	/* Publish live fields for plugin fte_query("gethud") — STAT_TIME is often
+	   unset in Nuclide, so drive the clock from CSQC time like Slint does. */
+	showtime = time;
+	if (showtime < 0)
+		showtime = -showtime;
+	minutes = floor(showtime / 60);
+	secs = floor(showtime - (minutes * 60));
+	timerStr = sprintf("%d:%02d", minutes, secs);
+	cvar_set("webcore_hud_timer", timerStr);
+	cvar_set("webcore_hud_health", ftos(player.GetHealth()));
+	cvar_set("webcore_hud_ammo", ftos(weapon.GetAmmo1()));
+
+	/* Duel/arena: match points + competitor names from serverinfo.
+	 * Otherwise: top two frag leaders (so placeholders aren't stuck at 2/5). */
+	score1 = 0;
+	score2 = 0;
+	name1 = "";
+	name2 = "";
+	if (STRING_SET(serverinfo.GetString("arena_state"))) {
+		score1 = serverinfo.GetInteger("arena_score1");
+		score2 = serverinfo.GetInteger("arena_score2");
+		name1 = serverinfo.GetString("arena_name1");
+		name2 = serverinfo.GetString("arena_name2");
+	} else {
+		for (i = 0; i < 32; i++) {
+			pname = getplayerkeyvalue(i, "name");
+			if (STRING_SET(pname) == false) {
+				continue;
+			}
+			frags = (int)getplayerkeyfloat(i, "frags");
+			if (STRING_SET(name1) == false || frags > score1) {
+				score2 = score1;
+				name2 = name1;
+				score1 = frags;
+				name1 = pname;
+			} else if (STRING_SET(name2) == false || frags > score2) {
+				score2 = frags;
+				name2 = pname;
+			}
+		}
+	}
+	cvar_set("webcore_hud_score_left", itos(score1));
+	cvar_set("webcore_hud_score_right", itos(score2));
+	cvar_set("webcore_hud_player1", name1);
+	cvar_set("webcore_hud_player2", name2);
 
 	gecko_resize("webcore_hud", g_hudRes[0], g_hudRes[1]);
 	drawpic(g_hudMins, "webcore_hud", g_hudRes, [1, 1, 1], 1, 0);
@@ -556,11 +614,6 @@ HUD_Draw(void)
 		g_damageAlpha -= clframetime;
 	}
 
-	pos = hud_mins + [88, hud_size[1] - 42];
-	HLHUD_DrawHealth(pos, healthValue); 
-	pos = hud_mins + [198, hud_size[1] - 42];
-	HLHUD_DrawArmor(pos, armorValue);
-
 	weaponSelectionHUD.Draw();
 
 	if (g_spriteCrosshair != -1i && g_spritesLoaded) {
@@ -571,13 +624,23 @@ HUD_Draw(void)
 		draw.Text_RGBA(crosshairPos + [0, 0], "+", g_fg_color, g_fg_alphaScale, FONT_20);
 	}
 
+	/* WebCore primary HUD — skip HL sprite chrome (same role as Slint). */
+	if (autocvar_webcore_hud > 0) {
+		HLHUD_ClampTimers();
+		WebCoreHud_Draw();
+		return;
+	}
+
+	pos = hud_mins + [88, hud_size[1] - 42];
+	HLHUD_DrawHealth(pos, healthValue);
+	pos = hud_mins + [198, hud_size[1] - 42];
+	HLHUD_DrawArmor(pos, armorValue);
+
 	pos = hud_mins + [hud_size[0] - 52, 16];
 	HLHUD_DrawFlashlight(pos, staminaValue);
 
 	if (weapon.AmmoRequired() == false) {
 		HLHUD_ClampTimers();
-		/* Still composite WebCore HUD (melee / ammoRequired 0). */
-		WebCoreHud_Draw();
 		return;
 	}
 
@@ -607,9 +670,6 @@ HUD_Draw(void)
 	HLHUD_DrawAmmo2(pos, ammoValue);
 
 	HLHUD_ClampTimers();
-
-	/* Letterboxed WebCore HUD last so it composites over HudC chrome. */
-	WebCoreHud_Draw();
 }
 
 /* Framework chrome (watching bar, top bar, timer/score, key hints,

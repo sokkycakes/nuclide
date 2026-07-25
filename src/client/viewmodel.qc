@@ -16,6 +16,8 @@
 
 var bool autocvar_cg_viewmodelLag = 0;
 var bool autocvar_r_showViewModels = true;
+var bool autocvar_cl_viewmodelDebug = false;
+var int g_viewmodelDebugState = -1i;
 
 void
 View_Init(void)
@@ -147,6 +149,70 @@ muzzleflash, dynamic lights and so on appear
 ====================
 */
 void
+View_DebugViewModel(ncPlayer pl)
+{
+	if (autocvar_cl_viewmodelDebug == false) {
+		g_viewmodelDebugState = -1i;
+		return;
+	}
+
+	ncRenderableEntity viewModel = (ncRenderableEntity)pSeat->m_eViewModel;
+	ncWeapon weapon = pl ? pl.m_activeWeapon : __NULL__;
+	int state = 0i;
+
+	if (!viewModel) {
+		state = 1i;
+	} else if (!weapon) {
+		state = 2i;
+	} else if (wasfreed(weapon)) {
+		state = 3i;
+	} else if (!weapon._isWeapon) {
+		state = 4i;
+	} else if (!weapon.ClientFX) {
+		state = 5i;
+	} else if (!weapon.m_viewModel) {
+		state = 6i;
+	} else if (pl.health <= 0) {
+		state = 7i;
+	} else if (autocvar_r_showViewModels == false) {
+		state = 8i;
+	} else if (autocvar_pm_thirdPerson == true) {
+		state = 9i;
+	} else if (viewModel.IsHidden()) {
+		state = 10i;
+	} else if (!viewModel.modelindex) {
+		state = 11i;
+	} else if (viewModel.GetRenderMode() == RM_DONTRENDER && pl.viewzoom >= 1.0f) {
+		state = 12i;
+	}
+
+	if (state == g_viewmodelDebugState) {
+		return;
+	}
+	g_viewmodelDebugState = state;
+
+	string debugLine = sprintf("VMDBG state=%i view=%g hp=%g fake=%g awnum=%g",
+		state, g_view.GetViewMode(), pl ? pl.health : 0.0f,
+		pl ? pl.IsFakeSpectator() : false, pl ? pl.activeweapon : 0);
+
+	if (weapon && !wasfreed(weapon)) {
+		debugLine = strcat(debugLine, sprintf(" aw=%g def=%S weaponvm=%g desired=%g",
+			weapon.entnum, weapon.declclass, weapon.m_viewModel, pSeat->m_weaponModel));
+	} else {
+		debugLine = strcat(debugLine, sprintf(" aw=nil desired=%g", pSeat->m_weaponModel));
+	}
+
+	debugLine = strcat(debugLine, sprintf(" last=%i actual=%g hidden=%g rm=%i",
+		pSeat->m_iLastWeapon, viewModel ? viewModel.modelindex : 0,
+		viewModel ? viewModel.IsHidden() : false,
+		viewModel ? viewModel.GetRenderMode() : -1));
+	debugLine = strcat(debugLine, sprintf(" amt=%g zoom=%g show=%g third=%g\n",
+		viewModel ? viewModel.GetRenderAmt() : 0.0f, pl ? pl.viewzoom : 0.0f,
+		autocvar_r_showViewModels, autocvar_pm_thirdPerson));
+	print(debugLine);
+}
+
+void
 View_DrawViewModel(void)
 {
 	vector currentAngle = g_view.GetCameraAngle();
@@ -174,6 +240,13 @@ View_DrawViewModel(void)
 
 	if (!pl)
 		return;
+
+	/* The player reference may precede the active weapon's CSQC spawnfunc.
+	 * Bail before any weapon field or entityDef lookup is dereferenced. */
+	if (!pl.m_activeWeapon || wasfreed(pl.m_activeWeapon)
+		|| !pl.m_activeWeapon._isWeapon || !pl.m_activeWeapon.ClientFX) {
+		return;
+	}
 
 	m_eViewModelL.frame = m_eViewModel.frame = pl.m_weaponAnimSequence;
 	m_eViewModelL.frame1time =
@@ -294,9 +367,7 @@ View_DrawViewModel(void)
 		m_eViewModelL.angles = pl.m_xrInputLeft.GetAngles();
 	}
 
-	if (pl.m_activeWeapon) {
-		pl.m_activeWeapon.ClientFX(false);
-	}
+	pl.m_activeWeapon.ClientFX(false);
 
 	/* this is currently broken */
 #if 0

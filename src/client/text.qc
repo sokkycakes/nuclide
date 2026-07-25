@@ -264,34 +264,41 @@ GameMessage_Setup(string message, int channel)
 	hudText_t *next;
 	int findid = -1;
 
+	/* channels 0-5; channel 5 is reserved for text menus */
+	if (!(channel >= 0 && channel <= 5)) {
+		return;
+	}
+
 	for (int i = 0; i < g_titles_count; i++) {
 		if (g_titles[i].m_strName == message) {
 			findid = i;
+			break;
 		}
 	}
 
-	/* channel 0 is a rotating queue */
-	if (channel == 0) {
-		/* clear the oldest message if needed */
-		if (g_textqueue_next + 1 >= TEXTQUEUE_MAX)
-			GameText_QueueNext();
+	/*
+	 * Same-channel overwrite — matches HL game_text ("channel" is for
+	 * overriding messages) and Quake/Q3 centerprint (new text replaces
+	 * immediately and restarts timing). Channel 0 used to enqueue behind a
+	 * full fade-in + hold + fade-out, so arena 3-2-1 / FIGHT could lag by
+	 * seconds per message.
+	 */
+	next = &g_textchannels[channel];
 
-		channel = g_textqueue_next++;
-		next = &g_textqueue[channel];
-		g_textqueue_count++;
-
-	} else {
-		next = &g_textchannels[channel];
-	}
+	/* Drop the legacy channel-0 queue so it cannot dual-draw with channels. */
+	g_textqueue_count = 0;
+	g_textqueue_next = 0;
 
 	if (findid < 0) {
 		next->m_strMessage = Titles_ParseFunString(message);
 		next->m_flTime = 0.0f;
 		next->m_flPosX = -1;
 		next->m_flPosY = 0.75f;
+		next->m_iEffect = 0;
 		next->m_flFadeIn = 0.5f;
 		next->m_flFadeOut = 0.5f;
 		next->m_flHoldTime = 2.0f;
+		next->m_flFXTime = 0.0f;
 		next->m_vecColor1 = [1,1,1];
 		next->m_vecColor2 = [1,1,1];
 	} else {
@@ -302,6 +309,7 @@ GameMessage_Setup(string message, int channel)
 		next->m_flFadeIn = g_titles[findid].m_flFadeIn;
 		next->m_flFadeOut = g_titles[findid].m_flFadeOut;
 		next->m_flHoldTime = g_titles[findid].m_flHoldTime;
+		next->m_flFXTime = g_titles[findid].m_flFXTime;
 		next->m_vecColor1 = g_titles[findid].m_vecColor1;
 		next->m_vecColor2 = g_titles[findid].m_vecColor2;
 		next->m_iEffect = g_titles[findid].m_iEffect;

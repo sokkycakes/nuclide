@@ -14,6 +14,8 @@
  * OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
+var bool autocvar_g_weaponDebug = false;
+
 enum
 {
 	ANIMATIONMODEL_SKELETAL,
@@ -512,25 +514,31 @@ ncPlayer::UpdatePlayerAnimation_Skeletal(float timelength)
 	/* Correct the legs */
 	angles[1] -= fCorrect;
 
-
 	/* TODO: Needs interpolation */
-	/* lower body */
+	/* lower body — full skeleton (QC 0,0 = all bones; FTE bones are 1-based) */
 	frame = anim_bottom;
 	frame1time = anim_bottom_time;
 	skel_build(skeletonindex, this, modelindex, 0, 0, 0, 1);
 
-	// Build the top body
-	frame = anim_top;
-	frame1time = anim_top_time;
-//  	lerpfrac = 1.0f;
+	/* Torso overlay needs valid 1-based tag indices (Bip01 HL/CSO). Missing
+	 * tags → gettagindex 0; skel_build(0,0) means all bones and nearly
+	 * replaces the gait with the aim pose. Full-body IQM (Joker) skips this. */
+	if (m_torsoFirst >= 1 && m_torsoLast > m_torsoFirst) {
+		frame = anim_top;
+		frame1time = anim_top_time;
 
-	/* Up/down aim rides the second blend axis (dim1) of the aim sequence; the
-	 * first axis (dim0) is a yaw/roll lean and must stay centered or the torso
-	 * twists sideways as you look up or down. */
-	subblendfrac = 0.0f;
-	subblend2frac = v_angle[0] / 90;
+		/* Up/down aim rides the second blend axis (dim1) of the aim sequence; the
+		 * first axis (dim0) is a yaw/roll lean and must stay centered or the torso
+		 * twists sideways as you look up or down. */
+		subblendfrac = 0.0f;
+		subblend2frac = v_angle[0] / 90;
 
-	skel_build(skeletonindex, this, modelindex, 0.001, m_torsoFirst, m_torsoLast );
+		skel_build(skeletonindex, this, modelindex, 0.001, m_torsoFirst, m_torsoLast );
+	} else {
+		/* Keep entity frame fields on the gait — skeleton already has it. */
+		frame = anim_bottom;
+		frame1time = anim_bottom_time;
+	}
 
 	/* No skel_postmul_bone here — the leg correction in angles[1] already hides
 	 * foot-skate, and applying the full fCorrect yaw to a single spine bone
@@ -589,6 +597,8 @@ ncPlayer::UpdatePlayerAnimation(float timelength)
 {
 	float maxTopTime;
 	float maxBottomTime;
+	float prevBottom = anim_bottom;
+	float oneshot;
 
 	if (anim_top_delay <= 0.0f) {
 		anim_top = m_actAim;
@@ -602,7 +612,9 @@ ncPlayer::UpdatePlayerAnimation(float timelength)
 		} else {
 			anim_bottom = m_actIdle;
 		}
-	} else if (vlen(velocity) < 150) {
+	} else if (vlen(velocity) < 200) {
+		/* Was <150 walk / >200 run with a 150..200 dead zone that left the
+		 * previous gait stuck (often idle) while still clearly moving. */
 		if (IsCrouching()) {
 			anim_bottom = m_actWalkCrouch;
 		} else if (IsProne()) {
@@ -610,7 +622,7 @@ ncPlayer::UpdatePlayerAnimation(float timelength)
 		} else {
 			anim_bottom = m_actWalk;
 		}
-	} else if (vlen(velocity) > 200) {
+	} else {
 		if (IsCrouching()) {
 			anim_bottom = m_actWalkCrouch;
 		} else if (IsProne()) {
@@ -636,6 +648,12 @@ ncPlayer::UpdatePlayerAnimation(float timelength)
 		}
 	}
 
+	/* BYTE-networked anim indices; NOTFOUND (-1) becomes 255 and picks garbage. */
+	if (anim_bottom == ACTIVITY_NOTFOUND)
+		anim_bottom = 0;
+	if (anim_top == ACTIVITY_NOTFOUND)
+		anim_top = anim_bottom;
+
 	if (HasVFlags(VFL_INVEHICLE)) {
 		float rq = -1;
 		ncVehicle veh = (ncVehicle)vehicle;
@@ -655,10 +673,24 @@ ncPlayer::UpdatePlayerAnimation(float timelength)
 		}
 	}
 
+	/* Jump/crouch are one-shots: play once and hold. QC used to wrap
+	 * anim_*_time unconditionally, which forced a loop even when the IQM
+	 * had IQM_LOOP cleared. */
+	oneshot = (anim_bottom == m_actJump
+		|| anim_bottom == m_actIdleCrouch
+		|| anim_bottom == m_actWalkCrouch);
+	if (oneshot && anim_bottom != prevBottom)
+		anim_bottom_time = 0;
+
 	maxTopTime = frameduration(modelindex, anim_top);
 	maxBottomTime = frameduration(modelindex, anim_bottom);
 
-	if (anim_bottom_time > maxBottomTime) {
+	if (oneshot) {
+		if (anim_bottom_time > maxBottomTime)
+			anim_bottom_time = maxBottomTime;
+		else if (anim_bottom_time < 0.0f)
+			anim_bottom_time = 0;
+	} else if (anim_bottom_time > maxBottomTime) {
 		anim_bottom_time = (anim_bottom_time - maxBottomTime);
 	} else if (anim_bottom_time < 0.0f) {
 		anim_bottom_time = (maxBottomTime - anim_bottom_time);
@@ -666,7 +698,7 @@ ncPlayer::UpdatePlayerAnimation(float timelength)
 
 	if (anim_top_time > maxTopTime) {
 		anim_top_time = (anim_top_time - maxTopTime);
-	} else if (anim_bottom_time < 0.0f) {
+	} else if (anim_top_time < 0.0f) {
 		anim_top_time = (maxTopTime - anim_top_time);
 	}
 
@@ -695,6 +727,14 @@ ncPlayer::UpdatePlayerAnimation(float timelength)
 		anim_bottom_time -= timelength;
 	} else {
 		anim_bottom_time += timelength;
+	}
+
+	/* Keep one-shots parked on the last pose (don't let time run away). */
+	if (oneshot && maxBottomTime > 0) {
+		if (anim_bottom_time > maxBottomTime)
+			anim_bottom_time = maxBottomTime;
+		else if (anim_bottom_time < 0.0f)
+			anim_bottom_time = 0;
 	}
 }
 
@@ -1138,6 +1178,11 @@ ncPlayer::ReceivePlayerEntity(float isNew, float flChanged)
 	READENTITY_BYTE(m_renderAmount, PLAYER_MODELINDEX)
 	READENTITY_ENTNUM(m_itemStart, PLAYER_ITEMS)
 	READENTITY_ENTNUM(activeweapon, PLAYER_WEAPON)
+	/* This numeric entity reference is authoritative network state. Preserve it
+	 * separately before prediction can save a transient local zero over it. */
+	if (flChanged & PLAYER_WEAPON) {
+		activeweapon_net = activeweapon;
+	}
 	READENTITY_COORD(origin[0], PLAYER_ORIGIN)
 	READENTITY_COORD(origin[1], PLAYER_ORIGIN)
 	READENTITY_COORD(origin[2], PLAYER_ORIGIN)
@@ -1222,9 +1267,20 @@ ncPlayer::ReceivePlayerEntity(float isNew, float flChanged)
 	READENTITY_FLOAT(m_stilettoLungeCooldownEnd, PLAYER_STILETTO)
 	READENTITY_INT(m_stilettoLungeLaunch, PLAYER_STILETTO)
 
-	/* we only really care about the declclass for decl lookups. */
+	/* we only really care about the declclass for decl lookups.
+	 * Always sync from entityDefID when present — CSQC prediction overwrites
+	 * anim_bottom from m_act*, and IQM has no HL activity codes to fall back on. */
+	if (entityDefID != 0) {
+		string fromNet = EntityDef_NameFromNetID(entityDefID);
+		if (STRING_SET(fromNet))
+			declclass = fromNet;
+	}
+
 	if (flChanged & PLAYER_MODELINDEX) {
-		declclass = EntityDef_NameFromNetID(entityDefID);
+		if (skeletonindex) {
+			skel_delete(skeletonindex);
+			skeletonindex = 0;
+		}
 	}
 
 	if (isNew || flChanged & PLAYER_MODELINDEX || flChanged == UPDATE_ALL) {
@@ -1253,6 +1309,13 @@ ncPlayer::ReceivePlayerEntity(float isNew, float flChanged)
 	PredictPreFrame();
 	Relink();
 
+	/* Snap interpolation anchor when origin is authoritative this update.
+	 * Otherwise remotes can visually linger at oldorigin (often 0,0,0) until
+	 * the next velocity/origin delta. */
+	if (isNew || (flChanged & PLAYER_ORIGIN) || flChanged == UPDATE_ALL) {
+		oldorigin = origin;
+	}
+
 	if (flChanged & PLAYER_SPECTATE) {
 		m_flLastSpecTargetChange = time;
 	}
@@ -1261,13 +1324,29 @@ ncPlayer::ReceivePlayerEntity(float isNew, float flChanged)
 void
 ncPlayer::PredictPreFrame(void)
 {
+#ifdef CLIENT
+	/* Client reinitialization/focus transitions can clear the working numeric
+	 * reference without a PLAYER_WEAPON update. The last received snapshot stays
+	 * authoritative until the server explicitly sends another value. */
+	if (activeweapon == 0 && activeweapon_net != 0) {
+		if (cvar("cl_viewmodelDebug")) {
+			printf("VMDBG restore authoritative weapon=%g\n", activeweapon_net);
+		}
+		activeweapon = activeweapon_net;
+		m_activeWeapon = (ncWeapon)findentity(world, ::entnum, activeweapon);
+	}
+#endif
 	if (vehicle) {
 		ncVehicle veh = (ncVehicle)vehicle;
 		veh.PredictPreFrame();
 	}
 
+	/* Same race as ProcessInput: findfloat can hit a weapon whose ReceiveEntity
+	   set _isItem before spawnfunc filled the CSQC vtable — PredictPreFrame null. */
 	for (ncItem items = __NULL__; (items = (ncItem)findfloat(items, ::_isItem, true));) {
-		items.PredictPreFrame();
+		if (!wasfreed(items) && items.PredictPreFrame) {
+			items.PredictPreFrame();
+		}
 	}
 
 	SAVE_STATE(modelindex)
@@ -1421,7 +1500,9 @@ ncPlayer::PredictPostFrame(void)
 	ROLL_BACK(m_itemList)
 
 	for (ncItem items = __NULL__; (items = (ncItem)findfloat(items, ::_isItem, true));) {
-		items.PredictPostFrame();
+		if (!wasfreed(items) && items.PredictPostFrame) {
+			items.PredictPostFrame();
+		}
 	}
 
 	if (vehicle) {
@@ -1761,6 +1842,13 @@ for the first time before selecting a loadout or something.
 void
 ncPlayer::MakeTempSpectator(void)
 {
+#ifdef SERVER
+	if (autocvar_g_weaponDebug) {
+		printf("SVVMDBG MakeTempSpectator class=%S hp=%g active=%g inventory=%g\n",
+			classname, health, m_activeWeapon ? num_for_edict(m_activeWeapon) : 0,
+			m_itemList ? num_for_edict(m_itemList) : 0);
+	}
+#endif
 	flags = FL_CLIENT;
 	SetModelindex(0);
 	SetSolid(SOLID_NOT);
@@ -1770,15 +1858,13 @@ ncPlayer::MakeTempSpectator(void)
 	max_health = health = 0;
 	armor = 0;
 
-	if (m_activeWeapon) {
-		m_activeWeapon.Destroy();
-		m_activeWeapon = __NULL__;
-	}
-
-	if (m_itemList) {
-		m_itemList.Destroy();
-		m_itemList = __NULL__;
-	}
+	/* The active weapon is part of m_itemList. Tear the inventory down through
+	 * its normal unlink/removal path instead of destroying the active weapon
+	 * and then destroying the same entity again through the list head. */
+	RemoveAllItems(false);
+	m_activeWeapon = __NULL__;
+	m_firstWeapon = __NULL__;
+	m_itemList = __NULL__;
 
 	effects = 0;
 	alpha = 0.0f;
@@ -1882,14 +1968,18 @@ ncPlayer::MakePlayer(void)
 	SetGravity(1.0f);
 	SendFlags = UPDATE_ALL;
 	customphysics = Empty;
-	SetScale(1.0f);
+	/* Per-hero visual size (e.g. Smash IQM vs Quake hull). Missing key → 0. */
+	float modelScale = GetSpawnFloat("modelscale");
+	if (modelScale <= 0)
+		modelScale = 1.0f;
+	SetScale(modelScale);
 	Physics_SetViewParms();
 	SetSize(m_pmoveVars.GetStandingMins(), m_pmoveVars.GetStandingMaxs());
 
-	if (m_animBackend == ANIMATIONMODEL_HLMDL_VALVE
-		|| m_animBackend == ANIMATIONMODEL_HLMDL_GOOSE) {
-		RefreshPlayerAnimations();
-	}
+	/* Resolve act_* → sequence indices now that modelindex is valid. Must run
+	 * for ANIMATIONMODEL_SKELETAL too (CSO alice2-family + IQM); skipping left
+	 * m_actWalk/etc at 0 so gait always picked sequence 0 (idle). */
+	RefreshPlayerAnimations();
 
 	userinfo.SetFloat(this, "*deaths", deaths);
 	userinfo.SetBool(this, "*spectator", false);
@@ -1924,6 +2014,13 @@ ncPlayer::EvaluateEntity(void)
 	hudStatReload = m_timeUntilReloaded;
 	hudStatCharges = m_stilettoGrappleCharges;
 	hudStatMaxHealth = max_health;
+
+	if (autocvar_g_weaponDebug && m_activeWeapon != m_activeWeapon_net) {
+		printf("SVVMDBG publish weapon old=%g new=%g class=%S hp=%g fake=%g\n",
+			m_activeWeapon_net ? num_for_edict(m_activeWeapon_net) : 0,
+			m_activeWeapon ? num_for_edict(m_activeWeapon) : 0,
+			classname, health, IsFakeSpectator());
+	}
 
 	EVALUATE_FIELD(entityDefID, PLAYER_MODELINDEX)
 	EVALUATE_FIELD(modelindex, PLAYER_MODELINDEX)
@@ -2371,15 +2468,18 @@ ncPlayer::Spawned(void)
 
 	m_animBackend = GetSpawnFloat("animBackend");
 
-	if (m_animBackend == ANIMATIONMODEL_HLMDL_VALVE
-		|| m_animBackend == ANIMATIONMODEL_HLMDL_GOOSE) {
-		RefreshPlayerAnimations();
-	}
+	/* Same as MakePlayer — skeletal backends need act_* resolved too. */
+	RefreshPlayerAnimations();
 }
 
 void
 ncPlayer::RefreshPlayerAnimations(void)
 {
+	/* CSQC may Refresh before/without a MODELINDEX bit; ensure declclass. */
+	if (!STRING_SET(declclass) && entityDefID != 0) {
+		declclass = EntityDef_NameFromNetID(entityDefID);
+	}
+
 	if (m_activeWeapon) {
 		SetAnimationPrefix(m_activeWeapon.classname);
 	} else {

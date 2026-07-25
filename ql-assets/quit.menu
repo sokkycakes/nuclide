@@ -1,0 +1,86 @@
+#include "ui/menudef.h"
+
+{
+\\ QUIT POPUP MENU \\
+
+menuDef {
+	name "quit_popmenu"
+    	visible 0
+    	fullscreen 0
+    	//rect 217 200 210 85
+	rect 0 0 640 480//204 215 235 235
+	focusColor 1 .75 0 1
+    	style 1
+    	backcolor 0 0 0 0.6
+    	border 1
+	popup
+	onESC { close quit_popmenu ; open main }
+
+
+	// QUIT	//
+
+itemDef {
+	name confirm
+	text "Quit Quake Live?"
+	style 0
+	textscale .3 
+	textstyle 3
+	rect 204 290 110 20
+	textalign 1
+	textalignx 117
+	textaligny 16
+	decoration
+	forecolor 1 1 1 1
+	visible 1
+	}
+
+
+itemDef {
+	name yes
+	text "YES"
+	type 1
+	textscale .25
+	style WINDOW_STYLE_FILLED
+	background "ui/assets/button_back.tga"
+	rect 279 320 30 26
+	textalign 1
+	textalignx 15
+	textaligny 20
+	forecolor 1 1 1 1
+	backcolor 0.17 0.32 0.47 .25 
+	visible 1
+	action { play "sound/misc/nomenu.wav"; 
+	close main ;
+	close quit_popmenu ; 
+	uiScript "quit"  }
+	mouseEnter { setitemcolor yes backcolor .37 .1 .1 1 } 
+	mouseExit { setitemcolor yes backcolor 0.17 0.32 0.47 .25 } 	
+	}
+
+itemDef {
+	name no
+	text "NO"
+	type 1
+	textscale .25
+	style WINDOW_STYLE_FILLED
+	background "ui/assets/button_back.tga"
+	rect 332 320 30 26
+	textalign 1
+	textalignx 15
+	textaligny 20
+	forecolor 1 1 1 1
+	backcolor 0.17 0.32 0.47 .25
+	visible 1
+	action { play "sound/misc/nomenu.wav" ; 
+	close quit_popmenu ; open main }
+	mouseEnter { setitemcolor no backcolor .37 .1 .1 1 } 
+	mouseExit { setitemcolor no backcolor 0.17 0.32 0.47 .25 } 		
+	}
+
+
+}
+
+
+}
+
+

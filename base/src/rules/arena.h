@@ -120,6 +120,7 @@ void Arena_SetSpectator(entity pl);
 void Arena_SpawnWaitingView(entity pl);
 void Arena_DemoteToFakeSpec(entity pl);
 void Arena_BroadcastState(void);
+void Arena_EnsureFreeplay(entity pl);
 
 /* --- queries --- */
 int Arena_ReadyCount(void);

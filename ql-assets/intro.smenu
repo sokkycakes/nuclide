@@ -1,0 +1,930 @@
+#include "ui/menudef.h"
+
+{
+\\ score_menu \\
+
+  assetGlobalDef {
+	itemFocusSound "sound/misc/menu2.wav"
+  	}
+
+  menuDef {
+    	name "joingame_menu"
+    	visible 0
+    	fullscreen 0
+    	rect 0 -10 640 480
+    	focusColor 1 .75 0 1
+    	style 0
+    	border 1
+//*****************//*****************
+////BACKGROUND IMAGES
+//*****************//*****************
+//
+//
+
+//BACK FRAME
+	//top
+	itemdef {
+		name bgframeTL
+	      	rect 62 74 40 40
+	      	background "ui/assets/score/frametl.tga"
+		style 1 
+	      	visible 1 
+	      	decoration 
+	      	backcolor 1 1 1 0.9
+	}
+	itemdef {
+		name bgframeTM
+	      	rect 102 74 436 40
+	      	background "ui/assets/score/framet.tga"
+		style 1 
+	      	visible 1 
+	      	decoration 
+	      	backcolor 1 1 1 0.9
+	}
+	itemdef {
+		name bgframeTR
+	      	rect 538 74 40 40
+	      	background "ui/assets/score/frametr.tga"
+		style 1 
+	      	visible 1 
+	      	decoration 
+	      	backcolor 1 1 1 0.9
+	}
+	//mid
+	itemdef {
+		name bgframeL
+	      	rect 62 114 40 210
+	      	background "ui/assets/score/framel.tga"
+		style 1 
+	      	visible 1 
+	      	decoration 
+	      	backcolor 1 1 1 0.9
+	}
+	itemdef {
+		name bgframeM
+	      	rect 102 114 436 210
+	      	background "ui/assets/score/framem.tga"
+		style 1 
+	      	visible 1 
+	      	decoration 
+	      	backcolor 1 1 1 0.9
+	}
+	itemdef {
+		name bgframeR
+	      	rect 538 114 40 210
+	      	background "ui/assets/score/framer.tga"
+		style 1 
+	      	visible 1 
+	      	decoration 
+	      	backcolor 1 1 1 0.9
+	}
+	//bottom
+	itemdef {
+		name bgframeTL
+	      	rect 62 324 40 20
+	      	background "ui/assets/score/framebl.tga"
+		style 1 
+	      	visible 1 
+	      	decoration 
+	      	backcolor 1 1 1 0.9
+	}
+	itemdef {
+		name bgframeTM
+	      	rect 102 324 436 20
+	      	background "ui/assets/score/frameb.tga"
+		style 1 
+	      	visible 1 
+	      	decoration 
+	      	backcolor 1 1 1 0.9
+	}
+	itemdef {
+		name bgframeTR
+	      	rect 538 324 40 20
+	      	background "ui/assets/score/framebr.tga"
+		style 1 
+	      	visible 1 
+	      	decoration 
+	      	backcolor 1 1 1 0.9
+	}
+	//fill
+	itemdef {
+		name bgframefill
+	      	rect 83 94 322 75
+	      	background "ui/assets/score/bgfill.tga"
+		style 3 
+	      	visible 1 
+	      	ownerdrawflag CG_SHOW_ANYNONTEAMGAME
+	      	decoration 
+	}
+	//fill
+	itemdef {
+		name bgframefillTeam
+	      	rect 83 94 322 75
+	      	background "ui/assets/score/bgfill_red.tga"
+		style 3 
+	      	visible 1 
+	      	ownerdrawflag CG_SHOW_ANYTEAMGAME
+	      	decoration 
+	}
+	//logo
+	itemdef {
+		name bgframeLogo
+	      	rect 68 91 111 101
+	      	background "ui/assets/score/logo2.tga"
+		style 1
+	      	visible 1 
+	      	decoration 
+	      	backcolor 0.91 0.37 0.01 0.15
+	}
+	itemdef {
+		name bgframeArrow
+	      	rect 69 79 10 10
+	      	background "ui/assets/score/arrow.tga"
+		style 3 
+	      	visible 1 
+	      	decoration 
+	}
+	//boxes
+	itemdef {
+		name adframeBox
+	      	rect 78 96 323 11
+	      	background "ui/assets/score/gtbox.tga"
+		style 1
+		backcolor 0 0 0 0.4
+	      	visible 1 
+	      	decoration 
+	}
+//AD FRAME//
+	//left
+	itemdef {
+		name adframeL
+	      	rect 50 93 40 80
+	      	background "ui/assets/score/adtl.tga"
+		style 3 
+	      	visible 1 
+	      	decoration 
+	}
+	//mid
+	itemdef {
+		name adframeM
+	      	rect 90 93 160 80
+	      	background "ui/assets/score/adtm.tga"
+		style 3 
+	      	visible 1 
+	      	decoration 
+	}
+	//right
+	itemdef {
+		name adframeR
+	      	rect 250 93 320 80
+	      	background "ui/assets/score/adtr.tga"
+		style 3 
+	      	visible 1 
+	      	decoration 
+	}
+	//bottom right
+	itemdef {
+		name adframeR
+	      	rect 250 173 320 20
+	      	background "ui/assets/score/adbr.tga"
+		style 3 
+	      	visible 1 
+	      	decoration 
+	}
+//Score FRAME
+	//top left
+	itemdef {
+		name scoreframeTL
+	      	rect 71 185 160 20
+	      	background "ui/assets/score/scoretl.tga"
+		style 3 
+	      	visible 1 
+	      	decoration 
+	}
+	//top left 2
+	itemdef {
+		name scoreframeTL2
+	      	rect 231 185 80 20
+	      	background "ui/assets/score/scoretl2.tga"
+		style 3 
+	      	visible 1 
+	      	decoration 
+	}
+	//top mid
+	itemdef {
+		name scoreframeM
+	      	rect 311 185 107 20
+	      	background "ui/assets/score/scoretm.tga"
+		style 3 
+	      	visible 1 
+	      	decoration 
+	}
+	//top right
+	itemdef {
+		name scoreframeR
+	      	rect 418 185 40 20
+	      	background "ui/assets/score/scoretr2.tga"
+		style 3 
+	      	visible 1 
+	      	decoration 
+	}
+	//mid left
+	itemdef {
+		name scoreframeL
+	      	rect 71 205 10 88
+	      	background "ui/assets/score/scorel.tga"
+		style 3 
+	      	visible 1 
+	      	decoration 
+	}
+	//mid
+	itemdef {
+		name scoreframeM
+	      	rect 81 205 367 88
+	      	background "ui/assets/score/scorem.tga"
+		style 3 
+	      	visible 1 
+	      	decoration 
+	}
+	//mid right
+	itemdef {
+		name scoreframeR
+	      	rect 448 205 10 88
+	      	background "ui/assets/score/scorer.tga"
+		style 3 
+	      	visible 1 
+	      	decoration 
+	}
+	//btm left
+	itemdef {
+		name scoreframeBL
+	      	rect 71 293 10 10
+	      	background "ui/assets/score/scorebl.tga"
+		style 3 
+	      	visible 1 
+	      	decoration 
+	}
+	//btm mid
+	itemdef {
+		name scoreframeBM
+	      	rect 81 293 367 10
+	      	background "ui/assets/score/scoreb.tga"
+		style 3 
+	      	visible 1 
+	      	decoration 
+	}
+	//btm right
+	itemdef {
+		name scoreframeBR
+	      	rect 448 293 10 10
+	      	background "ui/assets/score/scorebr.tga"
+		style 3 
+	      	visible 1 
+	      	decoration 
+	}
+//SPECTATOR FRAME
+	//left
+	itemdef {
+		name specframeL
+	      	rect 71 346 80 20
+	      	background "ui/assets/score/specl.tga"
+		style 1 
+	      	visible 1 
+	      	decoration 
+	      	backcolor 1 1 1 0.5
+	}
+	//mid
+	itemdef {
+		name specframeM
+	      	rect 151 346 338 20
+	      	background "ui/assets/score/specm.tga"
+		style 1 
+	      	visible 1 
+	      	decoration 
+	      	backcolor 1 1 1 0.5
+	}
+	//right
+	itemdef {
+		name specframeR
+	      	rect 489 346 80 20
+	      	background "ui/assets/score/specflip.tga"
+		style 1 
+	      	visible 1 
+	      	decoration 
+	      	backcolor 1 1 1 0.5
+	}
+
+
+//*****************//*****************
+////CONTENT
+//*****************//*****************
+//
+//
+// advert
+itemdef {
+	name advert1
+	ownerdraw UI_ADVERT
+	type ITEM_TYPE_BUTTON
+   	rect 407 95 160 80
+    defaultContent "textures/ad_content/ad2x1.jpg"
+   	cellId 182
+ 	style 3
+	forecolor 1 1 1 1.0
+   	visible 1 
+   	action { activateAdvert 182 }
+	}
+	
+//TEXT
+	//map detail
+	itemDef {
+		name mapname
+		ownerdraw CG_MAP_NAME
+		textscale .2
+		style 0	
+		rect 82 88 418 10 
+		textalign 0		
+		backcolor 0 0 0 0
+		forecolor 0.8 0.8 0.8 1
+		visible 1 
+		decoration	  
+	}
+	//GAME INFO
+
+	itemDef {
+		name gametype
+		ownerdraw CG_GAME_TYPE
+		textscale .18
+		rect 108 105 90 10		 
+		forecolor 0.8 0.8 0.8 1
+		decoration
+		visible 1 	  
+	}
+	itemdef {
+		name timelimit
+		type 4
+		text "Timelimit:"
+		rect 245 95 60 10
+		visible 1 
+		align ITEM_ALIGN_CENTER
+		textalign 1
+		textaligny 10
+		forecolor 0.8 0.8 0.8 1
+		textscale .18
+		cvar "timelimit"
+		decoration
+	}
+	itemdef {
+		name gamelimit
+		type 4
+		ownerdraw CG_GAME_LIMIT
+		rect 348 105 60 10
+		visible 1 
+		align ITEM_ALIGN_CENTER
+		textalign 1
+		textaligny 10
+		forecolor 0.8 0.8 0.8 1
+		textscale .18
+		decoration
+	}
+	//server info
+	itemDef {
+		name welcome
+		text "Welcome to Quake Live"
+		textscale .35
+		style 0	
+		rect 77 127 330 10 
+		textalign 0		
+		backcolor 0 0 0 0
+		forecolor 1 1 1 1
+		visible 1 
+		decoration	  
+	}
+	
+	//ranked/unranked
+	itemDef {
+		name wintype
+		text "Ranked Match"
+		textscale .24
+		style 0	
+		rect 80 143 330 10 
+		textalign 0		
+		backcolor 0 0 0 0
+		forecolor 0.7 0.7 0.7 1//0.8 .3 0 1
+		cvarTest "sv_ranked"
+		hideCvar {"0"}
+		visible 1 
+		decoration	  
+	}
+	itemDef {
+		name wintype
+		text "Unranked Match"
+		textscale .24
+		style 0	
+		rect 80 143 330 10 
+		textalign 0		
+		backcolor 0 0 0 0
+		forecolor 0.7 0.7 0.7 1//0.8 .3 0 1
+		cvarTest "sv_ranked"
+		hideCvar {"1"}
+		visible 1 
+		decoration	  
+	}
+
+
+	//host name
+	itemDef {
+		name score
+		text "This game is hosted by Quake Live"
+		textscale .24
+		style 0	
+		rect 80 164 330 10
+		textalign 0	
+		backcolor 0 0 0 0
+		forecolor 1 .75 0 1
+		visible 1 
+		decoration	  
+	}
+
+//	SCOREBOARD HEADINGS
+
+itemDef {
+      	name scoreboard
+      	text "ABOUT THIS MATCH"
+	    textscale .18
+      	style 0	
+      	rect 78 197 64 30 
+      	backcolor 0 0 0 0
+      	forecolor 1 1 1 1
+      	decoration
+      	visible 1 	  
+    	}
+
+itemDef {
+      	name teamheadings
+      	cvar "cg_gameInfo1"
+	    textscale .2
+      	style 0	
+      	rect 86 218 64 30 
+      	backcolor 0 0 0 0
+      	forecolor 1 1 1 1
+      	decoration
+      	visible 1 	  
+    	}
+
+itemDef {
+      	name gamerules1
+      	cvar "cg_gameInfo2"
+      	textscale .2
+      	style 0	
+      	rect 95 236 48 30 
+      	backcolor 0 0 0 0
+      	forecolor 0.6 .6 0.6 1
+      	decoration
+      	visible 1 	  
+    	}
+itemDef {
+      	name gamerules2
+      	cvar "cg_gameInfo3"
+      	textscale .2
+      	style 0	
+      	rect 95 249 48 30 
+      	backcolor 0 0 0 0
+      	forecolor 0.6 .6 0.6 1
+      	decoration
+      	visible 1 	  
+    	}
+itemDef {
+      	name gamerules3
+      	cvar "cg_gameInfo4"
+      	textscale .2
+      	style 0	
+      	rect 95 262 48 30 
+      	backcolor 0 0 0 0
+      	forecolor 0.6 .6 0.6 1
+      	decoration
+      	visible 1 	  
+    	}
+itemDef {
+      	name gamerules4
+      	cvar "cg_gameInfo5"
+      	textscale .2
+      	style 0	
+      	rect 95 275 48 30 
+      	backcolor 0 0 0 0
+      	forecolor 0.6 .6 0.6 1
+      	decoration
+      	visible 1 	  
+    	}    	
+itemDef {
+      	name gamerules5
+      	cvar "cg_gameInfo6"
+      	textscale .2
+      	style 0	
+      	rect 95 288 48 30 
+      	backcolor 0 0 0 0
+      	forecolor 0.6 .6 0.6 1
+      	decoration
+      	visible 1 	  
+    	}      	
+    	
+    	
+//	BOTTOM BAR	//
+    //GAME TIME
+	itemDef {
+		name "Timer"
+		textalign 0
+		style 0
+		rect 96 360 50 12
+		visible 1
+		textstyle 1
+		decoration
+		forecolor 0.73 0.73 0.73 0.7
+		textscale .22
+		ownerdraw CG_LEVELTIMER
+	}
+	itemDef {
+		name "timerIcon"
+		rect 78 350 12 12
+		style 1
+		backcolor 1 1 1 0.5
+		background "icons/icon_time.tga"
+		visible 1
+		decoration
+	}
+
+itemDef {
+      	name winner
+      	ownerdraw CG_MATCH_WINNER
+      	textscale .2
+      	style 0	
+      	align ITEM_ALIGN_CENTER
+      	rect 320 360 338 10 
+      	backcolor 0 0 0 0
+      	forecolor 0.6 0.6 0.6 1
+      	decoration
+      	visible 1 
+      	textalign 1
+    	}
+itemDef {
+      	name spectators
+      	ownerdraw CG_PLAYER_COUNTS
+      	textscale .2
+      	style 0	
+      	align ITEM_ALIGN_CENTER
+      	rect 529 360 54 10 
+      	backcolor 0 0 0 0
+      	forecolor 0.6 0.6 0.6 1
+      	decoration
+      	visible 1 
+      	textalign 1
+    	}
+
+//BOTTOM NAV
+	//left
+	itemdef {
+		name navframeBL
+      	rect 88 300 20 40
+      	background "ui/assets/score/navbarl.tga"
+		style 1 
+      	visible 0 
+      	decoration 
+      	backcolor 1 1 1 0.8
+	}
+	//mid
+	itemdef {
+        name navframeB
+        rect 88 300 462 40
+        background "ui/assets/score/navbarm.tga"
+		style 1 
+      	visible 0 
+      	decoration 
+      	backcolor 1 1 1 0.8
+	}
+	//right
+	itemdef {
+		name navframeBR
+      	rect 550 300 20 40
+      	background "ui/assets/score/navbarr.tga"
+		style 1 
+      	visible 0
+      	decoration 
+      	backcolor 1 1 1 0.8
+	}
+	//BTN left
+	itemdef {
+		name navBTNL
+      		rect 73 312 80 20
+      		background "ui/assets/score/navlefty.tga"
+		style 3 
+      		visible 1 
+  	    	type ITEM_TYPE_BUTTON
+        	action { exec "quit" }
+        	onFocus {
+			transition quit 100 326 48 30 99 326 48 30 20 10
+		}
+	}
+	//BTN right
+	itemdef {
+		name navBTNL
+      		rect 485 312 80 20
+      		background "ui/assets/score/navrighty.tga"
+		style 3 
+      		visible 1
+  	    	cvarTest "g_training"
+  	    	showCvar { "0" }
+  	    	type ITEM_TYPE_BUTTON
+        	action { exec "team s" } 
+        	onFocus {
+			transition spectate 540 326 48 30 539 326 48 30 20 10
+		}
+	}
+
+//	NAV BUTTONS	//
+itemDef {
+      	name quit
+      	text "LEAVE MATCH"
+      	textscale .2
+      	textalign 0
+      	style 0	
+      	rect 99 326 48 30 
+      	backcolor 0 0 0 0
+      	forecolor 0.8 0.8 0.8 1
+      	decoration
+      	visible 1 	  
+    	}
+itemDef {
+      	name spectate
+      	text "SPECTATE"
+      	textscale .2
+      	textalign 2
+      	style 0	
+      	rect 539 326 48 30 
+      	backcolor 0 0 0 0
+      	forecolor 0.8 0.8 0.8 1
+      	decoration
+      	visible 1
+  	    cvarTest "g_training"
+  	    showCvar { "0" }
+    	}
+itemDef {
+      	name status
+      	text "Join Match to Begin Playing"
+      	textscale .2
+      	textalign 1
+      	style 0	
+      	rect 320 326 290 30 
+      	backcolor 0 0 0 0
+      	forecolor 1 0.75 0 1
+      	decoration
+      	visible 1 	  
+    	}
+    	
+// if match is in warmup AND is CTF, show these buttons
+	
+	//BTN join red
+	itemdef {
+		name navBTNL
+      		rect 485 206 80 20
+      		background "ui/assets/score/navright.tga"
+		style 3 
+      		cvarTest "g_gametype"
+      		hideCvar { "0","1","2" }
+      		ownerdrawflag CG_SHOW_IF_WARMUP
+  	    	type ITEM_TYPE_BUTTON
+        	action { exec "team r" }
+		onFocus {
+			transition joinRed 540 220 48 30 539 220 48 30 20 10
+		}
+	}
+	itemDef {
+		name joinRed
+		text "JOIN RED"
+		textscale .2
+		textalign 2
+		style 0	
+		rect 539 220 48 30 
+		backcolor 0 0 0 0
+		forecolor 1 1 1 1
+		decoration
+      		cvarTest "g_gametype"
+      		hideCvar { "0","1","2" }
+		ownerdrawflag CG_SHOW_IF_WARMUP
+    	}
+    	
+    //BTN join blue
+	itemdef {
+		name navBTNL
+      		rect 485 236 80 20
+      		background "ui/assets/score/navrightb.tga"
+		style 3 
+      		cvarTest "g_gametype"
+      		hideCvar { "0","1","2" }
+      		ownerdrawflag CG_SHOW_IF_WARMUP
+  	    	type ITEM_TYPE_BUTTON
+        	action { exec "team b" }
+		onFocus {
+			transition joinBlue 540 250 48 30 539 250 48 30 20 10
+		}
+	}
+	itemDef {
+		name joinBlue
+		text "JOIN BLUE"
+		textscale .2
+		textalign 2
+		style 0	
+		rect 539 250 48 30 
+		backcolor 0 0 0 0
+		forecolor 1 1 1 1
+		decoration
+      		cvarTest "g_gametype"
+      		hideCvar { "0","1","2" }
+		ownerdrawflag CG_SHOW_IF_WARMUP
+    	}
+    	
+    // auto join
+	itemdef {
+		name navBTNL
+      		rect 485 266 80 20
+      		background "ui/assets/score/navrighty.tga"
+		style 3 
+      		cvarTest "g_gametype"
+      		hideCvar { "0","1","2" }
+		ownerdrawflag CG_SHOW_IF_WARMUP
+  	    	type ITEM_TYPE_BUTTON
+        	action { exec "team a" }
+		onFocus {
+			transition autoJoin 540 280 48 30 539 280 48 30 20 10
+		}
+	}
+	itemDef {
+		name autoJoin
+		text "AUTO JOIN"
+		textscale .2
+		textalign 2
+		style 0	
+		rect 539 280 48 30 
+		backcolor 0 0 0 0
+		forecolor 1 1 1 1
+      		cvarTest "g_gametype"
+      		hideCvar { "0","1","2" }
+      		ownerdrawflag CG_SHOW_IF_WARMUP
+    	}
+    	
+    //join CTF in progress
+	//BTN big
+	itemdef {
+        	name navBTNL
+        	rect 464 272 103 24
+        	background "ui/assets/score/bigred.tga"
+	    	style 3 
+  	    	visible 1
+  	    	cvarTest "g_gametype"
+  	    	hideCvar { "0","1","2" }
+  	    	ownerdrawflag CG_SHOW_IF_NOT_WARMUP
+        	type ITEM_TYPE_BUTTON
+        	action { exec "team a" }
+		onFocus {
+			transition joinTeam 551 289 48 30 550 289 48 30 20 10
+		}
+	}
+	itemDef {
+		name joinTeam
+		text "JOIN MATCH"
+		textscale .25
+		textalign 2
+		style 0	
+		rect 550 289 48 30 
+		backcolor 0 0 0 0
+		forecolor 1 1 1 1
+		decoration
+  	    	cvarTest "g_gametype"
+  	    	hideCvar { "0","1","2" }
+  	    	ownerdrawflag CG_SHOW_IF_NOT_WARMUP
+	}
+
+    // non-team game, non-training
+	//BTN big
+	itemdef {
+        	name navBTNL
+        	rect 464 272 103 24
+        	background "ui/assets/score/bigred.tga"
+	    	style 3 
+  	    	visible 1
+  	    	cvarTest "g_training"
+  	    	showCvar { "0" }
+  	    	ownerdrawflag CG_SHOW_ANYNONTEAMGAME
+        	type ITEM_TYPE_BUTTON
+        	action { exec "team a" }
+		onFocus {
+			transition joinDm 551 289 48 30 550 289 48 30 20 10
+		}
+	}
+	itemDef {
+		name joinDm
+		text "JOIN MATCH"
+		textscale .25
+		textalign 2
+		style 0	
+		rect 550 289 48 30 
+		backcolor 0 0 0 0
+		forecolor 1 1 1 1
+		decoration
+      		visible 1
+ 		ownerdrawflag CG_SHOW_ANYNONTEAMGAME
+  	    	cvarTest "g_training"
+  	    	showCvar { "0" }
+	}
+
+    // training map
+	//BTN big
+	itemdef {
+        	name navBTNL
+        	rect 464 272 103 24
+        	background "ui/assets/score/biggreen.tga"
+	    	style 3 
+  	    	visible 1
+  	    	cvarTest "g_training"
+  	    	hideCvar { "0" }
+  	    	ownerdrawflag CG_SHOW_ANYNONTEAMGAME
+        	type ITEM_TYPE_BUTTON
+        	action { exec "team a" }
+		onFocus {
+			transition joinTraining 551 288 48 30 550 288 48 30 20 10
+		}
+	}
+	itemDef {
+		name joinTraining
+		text "START TRAINING"
+		textscale .182
+		textalign 2
+		style 0	
+		rect 550 288 48 30 
+		backcolor 0 0 0 0
+		forecolor 1 1 1 1
+      		visible 1
+		decoration
+		ownerdrawflag CG_SHOW_ANYNONTEAMGAME
+  	    	cvarTest "g_training"
+  	    	hideCvar { "0" }
+	}
+
+itemDef {
+      	name status
+      	text "Press Tab for Scoreboard"
+      	textscale .2
+      	textalign 1
+      	style 0	
+      	rect 320 462 370 30 
+      	backcolor 0 0 0 0
+      	forecolor 1 0.75 0 1
+      	decoration
+      	visible 1 	  
+    	}
+itemDef {
+	name fullscreenbutton
+	text "PLAY FULLSCREEN"
+	type ITEM_TYPE_BUTTON
+	textscale .18
+	style WINDOW_STYLE_FILLED
+	visible 1
+	rect 464 31 134 13
+	textalign 1
+	textalignx 66
+	textaligny 14
+	//bordercolor 1 0 0 1
+	//border 1
+	forecolor 1 1 1 0.7
+	cvarTest "r_fullscreen"
+	hideCvar { "1" }
+	//disableCvar { "1" }
+	action { uiScript setFullScreen	}
+	mouseEnter { setitemcolor fullscreenbutton forecolor 1 .75 0 1  }
+	mouseExit { setitemcolor fullscreenbutton forecolor 1 1 1 0.7 }
+	}
+itemDef {
+	name browserbutton
+	text "PLAY IN BROWSER"
+	type ITEM_TYPE_BUTTON
+	textscale .18
+	style WINDOW_STYLE_FILLED
+	visible 1
+	rect 464 45 134 13
+	textalign 1
+	textalignx 66
+	textaligny 14
+	forecolor 1 1 1 0.7
+	backcolor .37 .1 .1 0
+	//border 1
+	//bordercolor 0 1 0 1
+	cvarTest "r_fullscreen"
+	hideCvar { "0" }
+	//disableCvar { "0" }
+	action { uiScript setWindowed }
+	mouseEnter { setitemcolor browserbutton forecolor 1 .75 0 1  }
+  	mouseExit { setitemcolor browserbutton forecolor 1 1 1 0.7 }
+	}
+}
+}
+
+
+}

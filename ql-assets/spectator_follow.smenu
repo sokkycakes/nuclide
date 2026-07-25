@@ -1,0 +1,537 @@
+#include "ui/menudef.h"
+
+// spec hud
+// 
+// defines from ui_shared.h
+
+{
+  assetGlobalDef {
+        cursor "ui/assets/3_cursor2"			// cursor	
+        gradientBar "ui/assets/gradientbar2.tga"	// gradient bar
+        fadeClamp 1.0					// sets the fadeup alpha
+        fadeCycle 1					// how often fade happens in milliseconds
+        fadeAmount 0.1					// amount to adjust alpha per cycle
+        shadowX  5					// x amount for shadow offset
+        shadowY  5					// y amount for shadow offset
+        shadowColor 0.1 0.1 0.1 0.25			// shadow color
+        font "fonts/font" 24				// font
+        smallFont "fonts/smallfont" 16			// font
+        bigFont "fonts/bigfont" 48			// font
+        }
+
+//spec hud data
+
+menuDef {
+	name "specfollowhud_menu"
+	fullScreen 0
+	visible 0
+	rect 0 0 64 36
+
+    itemdef {
+	    name hudObit
+	    ownerdraw CG_PLAYER_OBIT
+   	    rect 190 18 65 12
+   	    visible 1
+	    decoration
+	    textscale .22
+	}
+	
+    //Score FRAME
+	//top left
+	itemdef {
+		name scoreframeTL
+      	rect 2 435 20 20
+      	background "ui/assets/score/scoretl3.tga"
+		style 3 
+      	visible 1 
+      	decoration 
+	}
+	//top mid
+	itemdef {
+		name scoreframeM
+      	rect 22 435 596 20
+      	background "ui/assets/score/scoretm3.tga"
+		style 3 
+      	visible 1 
+      	decoration 
+	}
+	//top right
+	itemdef {
+		name scoreframeR
+      	rect 618 435 20 20
+      	background "ui/assets/score/scoretr3.tga"
+		style 3 
+      	visible 1 
+      	decoration 
+	}
+	//mid left
+	itemdef {
+		name scoreframeL
+      	rect 2 455 10 12
+      	background "ui/assets/score/scorel.tga"
+		style 3 
+      	visible 1 
+      	decoration 
+	}
+	//mid
+	itemdef {
+		name scoreframeM
+      	rect 12 455 616 12
+      	background "ui/assets/score/scorem.tga"
+		style 3 
+      	visible 1 
+      	decoration 
+	}
+	//mid right
+	itemdef {
+		name scoreframeR
+      	rect 628 455 10 12
+      	background "ui/assets/score/scorer.tga"
+		style 3 
+      	visible 1 
+      	decoration 
+	}
+	//btm left
+	itemdef {
+		name scoreframeBL
+      	rect 2 467 10 10
+      	background "ui/assets/score/scorebl.tga"
+		style 3 
+      	visible 1 
+      	decoration 
+	}
+	//btm mid
+	itemdef {
+		name scoreframeBM
+      	rect 12 467 616 10
+      	background "ui/assets/score/scoreb.tga"
+		style 3 
+      	visible 1 
+      	decoration 
+	}
+	//btm right
+	itemdef {
+		name scoreframeBR
+      	rect 628 467 10 10
+      	background "ui/assets/score/scorebr.tga"
+		style 3 
+      	visible 1 
+      	decoration 
+	}	
+    itemDef {
+      	name scoreboard
+      	ownerdraw CG_FOLLOW_PLAYER_NAME
+	    textscale .18
+      	style 0	
+      	rect 9 446 64 30 
+      	backcolor 0 0 0 0
+      	forecolor 1 1 1 0.6
+      	decoration
+      	visible 1 	  
+    	}	
+
+	itemDef {
+		name specMode
+		text "SPECTATOR MODE"
+		textalign 0
+		style 0
+		rect 370 18 50 12
+		visible 1
+		textstyle 3
+		decoration
+		forecolor 1 1 1 1
+		textscale .22
+	}
+	itemDef {
+		name specMode
+		text "Press mouse button 1 to cycle through players"
+		textalign 0
+		style 0
+		rect 370 30 50 12
+		visible 1
+		textstyle 3
+		decoration
+		forecolor 0.73 0.73 0.73 0.7
+		textscale .18
+	}
+	
+    itemdef {
+	    name advert1
+	    ownerdraw UI_ADVERT
+   	    rect 348 437 288 36
+        defaultContent "textures/ad_content/ad8x1.jpg"
+   	    cellId 4
+ 	    style 3
+	    forecolor 1 1 1 1.0
+   	    visible 1 
+	}
+
+//	Notification AREA
+    itemdef {
+	    name tourneyMsg
+   	    rect 470 4 32 32
+    	style 1
+        background "sprites/foe2.png"
+   	    visible 1
+        ownerdrawflag CG_SHOW_IF_NOTICE_PRESENT
+	    decoration
+	    backcolor 1 1 1 1.0
+	}
+    itemdef {
+	    name gotMsg
+   	    rect 504 4 32 32
+    	style 1
+        background "sprites/balloon4.png"
+   	    visible 1
+        ownerdrawflag CG_SHOW_IF_MSG_PRESENT
+	    decoration
+	    backcolor 1 1 1 1.0
+	}
+
+//*****AMMO*****//
+	itemDef {
+ 	    name "a"
+	    rect 94 453 18 18
+	    visible 1
+	    decoration
+	    ownerdraw CG_PLAYER_AMMO_ICON2D
+	}
+
+	itemDef {
+        name "a"
+        rect 110 458 63 12
+        visible 1
+        textstyle 3
+        decoration
+        textscale .45
+        forecolor 1 1 1 1
+        ownerdraw CG_PLAYER_AMMO_VALUE
+        addColorRange -999 5 1 0 0 1
+	}
+	
+    //health value/icon
+	itemDef {
+	    name "playerRect"
+	    rect 44 449 40 28
+	    style 3
+	    background "ui/assets/hud/healthalert"
+	    visible 1
+	    ownerdrawflag CG_SHOW_HEALTHCRITICAL            
+	}
+
+	itemDef {
+     	name "healthiconshadow"
+     	backcolor 0 0 0 0.8
+        rect 10 454 18 18
+        visible 1
+        decoration
+        style 1
+        background "ui/assets/hud/health.tga"
+	}
+	
+	itemDef {
+     	name "health"
+	    rect 9 453 18 18
+	    ownerdraw CG_TEAM_COLORIZED
+	    visible 1
+   	    decoration
+	    style 1
+	    background "ui/assets/hud/health.tga"
+	}
+	
+	itemDef {
+      	name "healthok"
+        rect 23 448 63 22
+        visible 1
+        textalign 0
+        decoration
+        textstyle 3
+        forecolor 1 1 1 1
+        textscale .45
+        ownerdraw CG_PLAYER_HEALTH
+        addColorRange -999 25 1 0 0 1
+	}
+	
+    //armor value/icon
+	itemDef {
+     	name "armoriconshadow"
+     	backcolor 0 0 0 0.8
+	    rect 182 454 18 18 
+	    visible 1
+   	    decoration
+	    style 1
+	    background "ui/assets/hud/armor.tga"
+	}
+	
+	itemDef {
+     	name "armor"
+     	backcolor 0.0 0.0 0.0 0.8
+	    ownerdraw CG_TEAM_COLORIZED
+	    rect 181 453 18 18 
+	    visible 1
+   	    decoration
+	    style 1
+	    background "ui/assets/hud/armor.tga"
+	}
+
+	itemDef {
+      	name "armor2"
+        rect 195 448 63 22
+	    visible 1
+	    decoration
+	    textstyle 3	
+	    textscale .45
+	    textalign 0
+	    ownerdraw CG_PLAYER_ARMOR_VALUE 
+	    addColorRange -999 25 .67 0 0 1
+	}
+
+
+//*****TOP LEFT SCORE BOX*****//
+	itemDef {
+     	name "scoreboxl"
+	    rect 2 0 32 64 
+	    visible 1
+   	    decoration
+	    backcolor 1 1 1 0.8
+	    style 1
+	    background "ui/assets/hud/scoreboxl.tga"
+	}
+	itemDef {
+     	name "scorebox2"
+	    rect 34 0 143 64 
+	    visible 1
+   	    decoration
+	    backcolor 1 1 1 0.8
+	    style 1
+	    background "ui/assets/hud/scoreboxm.tga"
+	}
+	itemDef {
+     	name "scorebox3"
+	    rect 177 0 8 64 
+	    visible 1
+   	    decoration
+	    backcolor 1 1 1 0.8
+	    style 1
+	    background "ui/assets/hud/scoreboxr.tga"
+	}
+    //GAMETYPE ICON
+    itemDef {
+	    name "gameType"
+	    rect 8 7 19 19
+	    style 0
+	    backcolor 1 1 1 1
+	    ownerdraw CG_GAME_TYPE_ICON
+	    visible 1
+	    decoration
+    }	
+    //WIN VALUE
+	itemDef {
+      	name "WinLimit"
+      	textalign 1
+        rect 9 37 40 12
+	    visible 1
+    	decoration
+	    forecolor 0 0 0 1
+	    textscale .26
+	    ownerdraw CG_CAPFRAGLIMIT 
+	}
+    //GAME TIME
+	itemDef {
+		name "Timer"
+		textalign 0
+		style 0
+		rect 15 61 50 12//201 18 50 12//185 7 14 14
+		visible 1
+		textstyle 3
+		decoration
+		forecolor 1 1 1 0.9
+		textscale .28
+		ownerdraw CG_LEVELTIMER
+	}
+	itemDef {
+		name "roundTimer"
+		textalign 0
+		style 0
+		rect 15 72 50 12
+		visible 1
+		textstyle 3
+		decoration
+		forecolor 0.73 0.73 0.73 0.7
+		textscale .22
+		ownerdraw CG_ROUNDTIMER
+	}
+	itemDef {
+		name "timerIcon"
+		rect 0 49 14 14
+		style 1
+		backcolor 0 0 0 0.7
+		background "icons/icon_time.tga"
+		visible 1
+		decoration
+	}
+	itemDef {
+		name "timerIcon"
+		rect -1 48 14 14
+		style 1
+		backcolor 0.7 0.7 0.7 0.7
+		background "icons/icon_time.tga"
+		visible 1
+		decoration
+	}
+
+//powerup
+
+	itemDef {
+	name "powerupArea"
+	rect 570 220 35 35
+    	visible 1
+	    decoration
+	    ownerdraw CG_AREA_POWERUP
+	    special 4			// spacing
+	    align HUD_VERTICAL
+	}
+
+// scores
+
+    itemdef {
+	    name "1stplace"
+	    ownerdraw CG_1ST_PLACE_SCORE
+   	    rect 40 19 136 40
+   	    visible 1
+		textscale .22
+	    decoration
+	}
+
+    itemdef {
+	    name "2ndplace"
+	    ownerdraw CG_2ND_PLACE_SCORE
+   	    rect 40 36 136 40
+   	    visible 1
+		textscale .22
+	    decoration
+	}
+
+// pickups
+
+	itemDef {
+      	name "playeritem"
+        rect 290 454 16 16
+	    visible 1
+	    decoration
+	    ownerdraw CG_PLAYER_ITEM  
+	}
+	itemDef {
+      	name "CTFPOWERUP"
+        rect 320 454 16 16
+	    visible 1
+	    decoration
+	    ownerdraw CG_CTF_POWERUP
+	}
+	itemDef {
+	    name "playerRect"
+	    rect 285 50 50 45
+	    style 3
+	    background "ui/assets/hud/flag"
+	    visible 1
+	    ownerdrawflag CG_SHOW_IF_PLAYER_HAS_FLAG            
+	}
+	itemDef {
+      	name "flag"
+        rect 274 36 68 68
+	    visible 1
+	    decoration
+	    style 1
+	    ownerdraw CG_PLAYER_HASFLAG 
+	}
+	    itemDef {
+		name scoreboard
+		ownerdrawflag CG_SHOW_IF_PLAYER_HAS_FLAG    
+		text "FLAG CARRIER"
+		textscale .18
+		textalign 2
+		style 0	
+		rect 340 446 64 30 
+		backcolor 0 0 0 0
+		forecolor 1 0 0 1
+		decoration
+		visible 1 	  
+	   }
+	itemDef {
+      	name "skulls"
+        rect 301 6 34 34
+	    visible 1
+	    decoration
+	    textaligny 12
+	    textalignx 0
+	    textscale 0.333
+	    textstyle 3
+	    ownerdraw CG_HARVESTER_SKULLS
+	}
+
+// DM/TOURNAMENT BAR
+
+	//self top highlight
+	itemDef {
+     	name "SelfTLeft"
+	    rect 34 7 16 16 
+	    visible 1
+   	    decoration
+	    ownerdraw CG_TEAM_COLORIZED
+	    ownerdrawflag CG_SHOW_IF_PLYR_IS_FIRST_PLACE
+	    style 1
+	    background "ui/assets/hud/teamonl.tga"
+	}
+	itemDef {
+     	name "SelfTMid"
+	    rect 50 7 115 16 
+	    visible 1
+   	    decoration
+	    ownerdraw CG_TEAM_COLORIZED
+	    ownerdrawflag CG_SHOW_IF_PLYR_IS_FIRST_PLACE
+	    style 1
+	    background "ui/assets/hud/teamonm.tga"
+	}
+	itemDef {
+     	name "SelfTLeft"
+	    rect 165 7 16 16 
+	    visible 1
+   	    decoration
+	    ownerdraw CG_TEAM_COLORIZED
+	    ownerdrawflag CG_SHOW_IF_PLYR_IS_FIRST_PLACE
+	    style 1
+	    background "ui/assets/hud/teamonr.tga"
+	}
+	//self bottom highlight
+	itemDef {
+     	name "SelfBLeft"
+	    rect 34 24 16 16 
+	    visible 1
+   	    decoration
+	    ownerdraw CG_TEAM_COLORIZED
+	    ownerdrawflag CG_SHOW_IF_PLYR_IS_NOT_FIRST_PLACE
+	    style 1
+	    background "ui/assets/hud/teamonl.tga"
+	}
+	itemDef {
+     	name "SelfBMid"
+	    rect 50 24 115 16 
+	    visible 1
+   	    decoration
+	    ownerdraw CG_TEAM_COLORIZED
+	    ownerdrawflag CG_SHOW_IF_PLYR_IS_NOT_FIRST_PLACE
+	    style 1
+	    background "ui/assets/hud/teamonm.tga"
+	}
+	itemDef {
+     	name "SelfBLeft"
+	    rect 165 24 16 16 
+	    visible 1
+   	    decoration
+	    ownerdraw CG_TEAM_COLORIZED
+	    ownerdrawflag CG_SHOW_IF_PLYR_IS_NOT_FIRST_PLACE
+	    style 1
+	    background "ui/assets/hud/teamonr.tga"
+	}
+
+}

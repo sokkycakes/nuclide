@@ -24,7 +24,7 @@ entityDef weapon_axe
 
 	// weapon specific
 	"def_onFire"		"projectile_axe"
-	"testDistance"		"-64"
+	"testDistance"		"0"
 	"inv_name"			"#WEAPON_AXE"
 	"ammoRequired"		"0"
 	"silent_fire"		"1"

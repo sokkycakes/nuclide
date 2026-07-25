@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quake Live v495 Menus — Verbatim Layout</title>
+<style>
+:root { --ql-w: 640px; --ql-h: 480px; }
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  background: #1a1a1a;
+  display: flex; flex-direction: column; align-items: center;
+  min-height: 100vh; font-family: monospace; color: #ccc;
+}
+.tab-bar { margin: 10px 0; display: flex; gap: 3px; flex-wrap: wrap; justify-content: center; }
+.tab-bar button {
+  background: #333; color: #aaa; border: 1px solid #555;
+  padding: 5px 14px; cursor: pointer; font-size: 12px; border-radius: 3px;
+}
+.tab-bar button.active { background: #555; color: #fff; }
+
+.ql-stage {
+  position: relative; width: var(--ql-w); height: var(--ql-h);
+  background: #1a0a0a; border: 2px solid #444; overflow: hidden;
+  background-image: linear-gradient(180deg, #2a0a0a 0%, #0a0000 50%, #3a1010 100%);
+}
+.ql-view { display: none; position: absolute; inset: 0; }
+.ql-view.active { display: block; }
+
+.ql-elm { position: absolute; image-rendering: pixelated; }
+.ql-text { position: absolute; color: #fff; white-space: nowrap; overflow: hidden; pointer-events: none; }
+.ql-btn { cursor: pointer; }
+.ql-btn:hover { filter: brightness(1.4); }
+
+.ql-asset {
+  outline: none;
+  font-size: 0; color: transparent;
+  overflow: hidden;
+}
+.ql-asset[data-src]:after { content: none; }
+.ql-ownerdraw {
+  outline: none;
+  font-size: 8px; color: rgba(255,255,255,0.5);
+  overflow: hidden; padding: 1px;
+  pointer-events: none;
+}
+.ql-ownerdraw:after { content: none; }
+.fade-overlay { pointer-events: none; }
+</style>
+</head>
+<body>
+
+<div class="tab-bar">
+  <button onclick="show('warmup',this)" class="active">WARMUP LOBBY (intro.smenu)</button>
+  <button onclick="show('about',this)">ABOUT MATCH (ingame_about)</button>
+  <button onclick="show('join',this)">ingame_join</button>
+  <button onclick="show('fight',this)">fight</button>
+  <button onclick="show('endofgame',this)">endofgame</button>
+  <button onclick="show('scoreboard',this)">ingamescorenoteam</button>
+</div>
+
+<div class="ql-stage" id="stage" data-view="warmup">
+
+<!-- ================================================================ -->
+<!-- WARMUP LOBBY — intro.smenu  (joingame_menu)                      -->
+<!-- ================================================================ -->
+<div class="ql-view active" id="view-warmup" style="top:-10px;">
+
+  <!-- === 9-slice BACKGROUND FRAME (backcolor 1,1,1,0.9) === -->
+  <!-- frametl [62,74,40,40] -->
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/score/frametl.png" style="left:62px; top:74px; width:40px; height:40px; background-color:rgba(255,255,255,0.15);"></div>
+  <!-- framet [102,74,436,40] -->
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/score/framet.png" style="left:102px; top:74px; width:436px; height:40px; background-color:rgba(255,255,255,0.15);"></div>
+  <!-- frametr [538,74,40,40] -->
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/score/frametr.png" style="left:538px; top:74px; width:40px; height:40px; background-color:rgba(255,255,255,0.15);"></div>
+  <!-- framel [62,114,40,210] -->
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/score/framel.png" style="left:62px; top:114px; width:40px; height:210px; background-color:rgba(255,255,255,0.15);"></div>
+  <!-- framem [102,114,436,210] -->
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/score/framem.png" style="left:102px; top:114px; width:436px; height:210px; background-color:rgba(255,255,255,0.15);"></div>
+  <!-- framer [538,114,40,210] -->
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/score/framer.png" style="left:538px; top:114px; width:40px; height:210px; background-color:rgba(255,255,255,0.15);"></div>
+  <!-- framebl [62,324,40,20] -->
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/score/framebl.png" style="left:62px; top:324px; width:40px; height:20px; background-color:rgba(255,255,255,0.15);"></div>
+  <!-- frameb [102,324,436,20] -->
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/score/frameb.png" style="left:102px; top:324px; width:436px; height:20px; background-color:rgba(255,255,255,0.15);"></div>
+  <!-- framebr [538,324,40,20] -->
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/score/framebr.png" style="left:538px; top:324px; width:40px; height:20px; background-color:rgba(255,255,255,0.15);"></div>
+
+  <!-- bgfill (non-team) [83,94,322,75] CG_SHOW_ANYNONTEAMGAME -->
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/score/bgfill2.png" style="left:83px; top:94px; width:322px; height:75px; opacity:0.15;"></div>
+  <!-- bgfill_red (team) [83,94,322,75] CG_SHOW_ANYTEAMGAME -->
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/score/bgfill2_red.png" style="left:83px; top:94px; width:322px; height:75px; opacity:0.12;"></div>
+
+  <!-- Logo [68,91,111,101] bg="ui/assets/score/logo2.png" backcolor 0.91,0.37,0.01,0.15 -->
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/score/logo2.png" style="left:68px; top:91px; width:111px; height:101px; background-color:rgba(232,94,3,0.15);">QL LOGO</div>
+
+  <!-- arrow [69,79,10,10] -->
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/score/arrow.png" style="left:69px; top:79px; width:10px; height:10px;"></div>
+
+  <!-- gtbox [78,96,323,11] bg="ui/assets/score/gtbox.png" backcolor 0,0,0,0.4 -->
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/score/gtbox.png" style="left:78px; top:96px; width:323px; height:11px; background-color:rgba(0,0,0,0.06);"></div>
+
+  <!-- === AD FRAME === -->
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/score/adtl.png" style="left:50px; top:93px; width:40px; height:80px;"></div>
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/score/adtm.png" style="left:90px; top:93px; width:160px; height:80px;"></div>
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/score/adtr.png" style="left:250px; top:93px; width:320px; height:80px;"></div>
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/score/adbr.png" style="left:250px; top:173px; width:320px; height:20px;"></div>
+
+  <!-- Advert UI_ADVERT [407,95,160,80] -->
+  <div class="ql-ownerdraw" data-draw="UI_ADVERT (ad2x1.jpg)" style="left:407px; top:95px; width:160px; height:80px;"> </div>
+
+  <!-- === SCORE FRAME (inner 9-slice) === -->
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/score/scoretl.png" style="left:71px; top:185px; width:160px; height:20px;"></div>
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/score/scoretl2.png" style="left:231px; top:185px; width:80px; height:20px;"></div>
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/score/scoretm.png" style="left:311px; top:185px; width:107px; height:20px;"></div>
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/score/scoretr2.png" style="left:418px; top:185px; width:40px; height:20px;"></div>
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/score/scorel.png" style="left:71px; top:205px; width:10px; height:88px;"></div>
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/score/scorem.png" style="left:81px; top:205px; width:367px; height:88px;"></div>
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/score/scorer.png" style="left:448px; top:205px; width:10px; height:88px;"></div>
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/score/scorebl.png" style="left:71px; top:293px; width:10px; height:10px;"></div>
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/score/scoreb.png" style="left:81px; top:293px; width:367px; height:10px;"></div>
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/score/scorebr.png" style="left:448px; top:293px; width:10px; height:10px;"></div>
+
+  <!-- === SPECTATOR FRAME === -->
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/score/specl.png" style="left:71px; top:346px; width:80px; height:20px; background-color:rgba(255,255,255,0.12);"></div>
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/score/specm.png" style="left:151px; top:346px; width:338px; height:20px; background-color:rgba(255,255,255,0.12);"></div>
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/score/specflip.png" style="left:489px; top:346px; width:80px; height:20px; background-color:rgba(255,255,255,0.12);"></div>
+
+  <!-- ===================== TEXT CONTENT ===================== -->
+
+  <!-- Map name CG_MAP_NAME [82,88,418,10] scale .2 forecolor 0.8,0.8,0.8,1 -->
+  <div class="ql-ownerdraw" data-draw="CG_MAP_NAME" style="left:82px; top:88px; width:418px; height:10px; font-size:5px; color:rgb(204,204,204);">ARENA GATE</div>
+
+  <!-- Game type CG_GAME_TYPE [108,105,90,10] scale .18 forecolor 0.8,0.8,0.8,1 -->
+  <div class="ql-ownerdraw" data-draw="CG_GAME_TYPE" style="left:108px; top:105px; width:90px; height:10px; font-size:4px; color:rgb(204,204,204);">Duel</div>
+
+  <!-- Timelimit cvar [245,95,60,10] text "Timelimit:" scale .18 -->
+  <div class="ql-text" style="left:245px; top:95px; width:60px; height:10px; font-size:4px; text-align:center; color:rgb(204,204,204);">Timelimit: 0</div>
+
+  <!-- Game limit CG_GAME_LIMIT [348,105,60,10] scale .18 -->
+  <div class="ql-ownerdraw" data-draw="CG_GAME_LIMIT" style="left:348px; top:105px; width:60px; height:10px; font-size:4px; color:rgb(204,204,204);">Fraglimit: 0</div>
+
+  <!-- "Welcome to Quake Live" [77,127,330,10] scale .35 forecolor 1,1,1,1 -->
+  <div class="ql-text" style="left:77px; top:127px; width:330px; height:10px; font-size:8px;">
+    Welcome to Quake Live
+  </div>
+
+  <!-- "Ranked Match" / "Unranked Match" [80,143,330,10] scale .24 forecolor 0.7,0.7,0.7,1 -->
+  <!-- Shown when sv_ranked=1 -->
+  <div class="ql-text" style="left:80px; top:143px; width:330px; height:10px; font-size:6px; color:rgb(179,179,179);">
+    Ranked Match
+  </div>
+  <!-- Shown when sv_ranked≠1 -->
+  <div class="ql-text" style="left:80px; top:143px; width:330px; height:10px; font-size:6px; color:rgb(179,179,179);">
+    Unranked Match
+  </div>
+
+  <!-- "This game is hosted by Quake Live" [80,164,330,10] scale .24 forecolor 1,0.75,0,1 -->
+  <div class="ql-text" style="left:80px; top:164px; width:330px; height:10px; font-size:6px; color:rgb(255,191,0);">
+    This game is hosted by Quake Live
+  </div>
+
+  <!-- === SCOREBOARD / ABOUT THIS MATCH SECTION === -->
+
+  <!-- "ABOUT THIS MATCH" [78,197,64,30] scale .18 forecolor 1,1,1,1 -->
+  <div class="ql-text" style="left:78px; top:197px; width:120px; height:30px; font-size:4px;">
+    ABOUT THIS MATCH
+  </div>
+
+  <!-- Game info rules — cvars cg_gameInfo1 through cg_gameInfo6 -->
+  <!-- [86,218,64,30] scale .2 forecolor 1,1,1,1 -->
+  <div class="ql-text" style="left:86px; top:218px; width:300px; height:30px; font-size:5px;">
+    This is a 1 vs 1 Duel game
+  </div>
+  <!-- [95,236,48,30] scale .2 forecolor 0.6,0.6,0.6,1 -->
+  <div class="ql-text" style="left:95px; top:236px; width:300px; height:30px; font-size:5px; color:rgb(153,153,153);">
+    Defeat your opponent!
+  </div>
+  <!-- [95,249,48,30] -->
+  <div class="ql-text" style="left:95px; top:249px; width:300px; height:30px; font-size:5px; color:rgb(153,153,153);">
+    First player to reach the Frag Limit wins.
+  </div>
+  <!-- [95,262,48,30] -->
+  <div class="ql-text" style="left:95px; top:262px; width:300px; height:30px; font-size:5px; color:rgb(153,153,153);">
+    If time runs out, the player with the highest score wins.
+  </div>
+  <!-- [95,275,48,30] -->
+  <div class="ql-text" style="left:95px; top:275px; width:300px; height:30px; font-size:5px; color:rgb(153,153,153);">
+    If the time limit is hit and there is a tie, a Sudden Death round begins.
+  </div>
+  <!-- [95,288,48,30] -->
+  <div class="ql-text" style="left:95px; top:288px; width:300px; height:30px; font-size:5px; color:rgb(153,153,153);">
+ 
+  </div>
+
+  <!-- ===================== NON-TEAM JOIN BUTTON (big red) ===================== -->
+  <!-- For non-team games (g_gametype 0,1,2): -->
+  <!-- bigred.tga [464,272,103,24] -->
+  <div class="ql-elm ql-asset ql-btn" data-src="ql-assets/assets/score/bigred.png" style="left:464px; top:272px; width:103px; height:24px; background-color:rgba(180,40,40,0.8);"></div>
+  <!-- "JOIN MATCH" text [550,289,48,30] scale .25 forecolor 1,1,1,1 -->
+  <div class="ql-text" style="left:464px; top:282px; width:103px; height:30px; font-size:6px; text-align:center; color:#fff;">
+    JOIN MATCH &gt;&gt;
+  </div>
+
+  <!-- ===================== TEAM JOIN BUTTONS (navright) ===================== -->
+  <!-- JOIN RED: navright.tga [485,206,80,20] CG_SHOW_IF_WARMUP, hideCvar g_gametype 0,1,2 -->
+  <div class="ql-elm ql-asset ql-btn" data-src="ql-assets/assets/score/navright.png" style="left:485px; top:206px; width:80px; height:20px; opacity:0.2;"></div>
+  <div class="ql-text" style="left:539px; top:216px; width:48px; height:30px; font-size:5px; text-align:center; opacity:0.2;">JOIN RED</div>
+
+  <!-- JOIN BLUE: navrightb.tga [485,236,80,20] -->
+  <div class="ql-elm ql-asset ql-btn" data-src="ql-assets/assets/score/navrightb.png" style="left:485px; top:236px; width:80px; height:20px; opacity:0.2;"></div>
+  <div class="ql-text" style="left:539px; top:246px; width:48px; height:30px; font-size:5px; text-align:center; opacity:0.2;">JOIN BLUE</div>
+
+  <!-- AUTO JOIN: navrighty.tga [485,266,80,20] -->
+  <div class="ql-elm ql-asset ql-btn" data-src="ql-assets/assets/score/navrighty.png" style="left:485px; top:266px; width:80px; height:20px; opacity:0.2;"></div>
+  <div class="ql-text" style="left:539px; top:276px; width:48px; height:30px; font-size:5px; text-align:center; opacity:0.2;">AUTO JOIN</div>
+
+  <!-- ===================== BOTTOM BAR ===================== -->
+
+  <!-- Timer CG_LEVELTIMER [96,360,50,12] scale .22 forecolor 0.73,0.73,0.73,0.7 -->
+  <div class="ql-ownerdraw" data-draw="CG_LEVELTIMER" style="left:96px; top:360px; width:50px; height:12px; font-size:5px; color:rgba(186,186,186,0.7);">0:00</div>
+
+  <!-- Timer icon [78,350,12,12] bg="icons/icon_time.png" backcolor 1,1,1,0.5 -->
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/icon_time.png" style="left:78px; top:350px; width:12px; height:12px; background-color:rgba(255,255,255,0.12);"></div>
+
+  <!-- Match winner CG_MATCH_WINNER [320,360,338,10] scale .2 center -->
+  <div class="ql-ownerdraw" data-draw="CG_MATCH_WINNER" style="left:320px; top:360px; width:338px; height:10px; font-size:5px; text-align:center; color:rgb(153,153,153);"> </div>
+
+  <!-- Player counts CG_PLAYER_COUNTS [529,360,54,10] scale .2 -->
+  <div class="ql-ownerdraw" data-draw="CG_PLAYER_COUNTS" style="left:529px; top:360px; width:54px; height:10px; font-size:5px; text-align:center; color:rgb(153,153,153);">2/16</div>
+
+  <!-- Bottom nav bar (navbarl/m/r) — visible=0 initially -->
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/score/navbarl.png" style="left:88px; top:300px; width:20px; height:40px; background-color:rgba(255,255,255,0.15); opacity:0.3;"></div>
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/score/navbarm.png" style="left:88px; top:300px; width:462px; height:40px; background-color:rgba(255,255,255,0.15); opacity:0.3;"></div>
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/score/navbarr.png" style="left:550px; top:300px; width:20px; height:40px; background-color:rgba(255,255,255,0.15); opacity:0.3;"></div>
+
+  <!-- "LEAVE MATCH" navlefty.tga [73,312,80,20] action: quit -->
+  <div class="ql-elm ql-asset ql-btn" data-src="ql-assets/assets/score/navlefty.png" style="left:73px; top:312px; width:80px; height:20px;"></div>
+  <div class="ql-text" style="left:73px; top:322px; width:80px; height:30px; font-size:5px; text-align:center; color:rgb(204,204,204);">
+    &lt;&lt; LEAVE MATCH
+  </div>
+
+  <!-- "SPECTATE" navrighty.tga [485,312,80,20] showCvar g_training=0 action: team s -->
+  <div class="ql-elm ql-asset ql-btn" data-src="ql-assets/assets/score/navrighty.png" style="left:485px; top:312px; width:80px; height:20px;"></div>
+  <div class="ql-text" style="left:485px; top:322px; width:80px; height:30px; font-size:5px; text-align:center; color:rgb(204,204,204);">
+    SPECTATE &gt;&gt;
+  </div>
+
+  <!-- "Join Match to Begin Playing" [320,326,290,30] scale .2 center forecolor 1,0.75,0,1 -->
+  <div class="ql-text" style="left:175px; top:326px; width:290px; height:30px; font-size:5px; text-align:center; color:rgb(255,191,0);">
+    Join Match to Begin Playing
+  </div>
+
+  <!-- "Press Tab for Scoreboard" [320,462,370,30] scale .2 center forecolor 1,0.75,0,1 -->
+  <div class="ql-text" style="left:135px; top:452px; width:370px; height:30px; font-size:5px; text-align:center; color:rgb(255,191,0);">
+    Press Tab for Scoreboard
+  </div>
+
+  <!-- "PLAY FULLSCREEN" button [464,31,134,13] scale .18 forecolor 1,1,1,0.7 hideCvar r_fullscreen=1 -->
+  <div class="ql-text" style="left:464px; top:31px; width:134px; height:13px; font-size:4px; text-align:center; color:rgba(255,255,255,0.7);">
+    PLAY FULLSCREEN
+  </div>
+
+  <!-- "PLAY IN BROWSER" [464,45,134,13] hideCvar r_fullscreen=0 -->
+  <div class="ql-text" style="left:464px; top:45px; width:134px; height:13px; font-size:4px; text-align:center; color:rgba(255,255,255,0.3);">
+    PLAY IN BROWSER
+  </div>
+
+</div>
+
+<!-- ================================================================ -->
+<!-- ABOUT THIS MATCH — ingame_about.menu                            -->
+<!-- ================================================================ -->
+<div class="ql-view" id="view-about" style="top:129px;">
+
+  <!-- === 9-slice frame (shorter — 107px tall mid) === -->
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/score/framel.png" style="left:62px; top:0; width:40px; height:107px; background-color:rgba(255,255,255,0.15);"></div>
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/score/framem.png" style="left:102px; top:0; width:436px; height:107px; background-color:rgba(255,255,255,0.15);"></div>
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/score/framer.png" style="left:538px; top:0; width:40px; height:107px; background-color:rgba(255,255,255,0.15);"></div>
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/score/framebl.png" style="left:62px; top:107px; width:40px; height:20px; background-color:rgba(255,255,255,0.15);"></div>
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/score/frameb.png" style="left:102px; top:107px; width:436px; height:20px; background-color:rgba(255,255,255,0.15);"></div>
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/score/framebr.png" style="left:538px; top:107px; width:40px; height:20px; background-color:rgba(255,255,255,0.15);"></div>
+
+  <!-- Inner score frame -->
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/score/scoretl3.png" style="left:71px; top:0; width:20px; height:20px;"></div>
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/score/scoretm3.png" style="left:91px; top:0; width:347px; height:20px;"></div>
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/score/scoretr3.png" style="left:438px; top:0; width:20px; height:20px;"></div>
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/score/scorel.png" style="left:71px; top:20px; width:10px; height:88px;"></div>
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/score/scorem.png" style="left:81px; top:20px; width:367px; height:88px;"></div>
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/score/scorer.png" style="left:448px; top:20px; width:10px; height:88px;"></div>
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/score/scorebl.png" style="left:71px; top:108px; width:10px; height:10px;"></div>
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/score/scoreb.png" style="left:81px; top:108px; width:367px; height:10px;"></div>
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/score/scorebr.png" style="left:448px; top:108px; width:10px; height:10px;"></div>
+
+  <!-- "ABOUT THIS MATCH" [78,12,64,30] scale .18 -->
+  <div class="ql-text" style="left:78px; top:12px; width:120px; height:30px; font-size:4px;">
+    ABOUT THIS MATCH
+  </div>
+
+  <!-- Game info cvars -->
+  <div class="ql-text" style="left:86px; top:34px; width:300px; height:30px; font-size:5px;"> </div>
+  <div class="ql-text" style="left:95px; top:52px; width:300px; height:30px; font-size:5px; color:rgb(153,153,153);"> </div>
+  <div class="ql-text" style="left:95px; top:70px; width:300px; height:30px; font-size:5px; color:rgb(153,153,153);"> </div>
+  <div class="ql-text" style="left:95px; top:88px; width:300px; height:30px; font-size:5px; color:rgb(153,153,153);"> </div>
+  <div class="ql-text" style="left:95px; top:106px; width:300px; height:30px; font-size:5px; color:rgb(153,153,153);"> </div>
+
+  <!-- Non-team: JOIN MATCH button bigred.tga [463,63,103,24] showCvar g_gametype=0,1,2 -->
+  <div class="ql-elm ql-asset ql-btn" data-src="ql-assets/assets/score/bigred.png" style="left:463px; top:63px; width:103px; height:24px; background-color:rgba(180,40,40,0.8);"></div>
+  <div class="ql-text" style="left:463px; top:73px; width:103px; height:30px; font-size:6px; text-align:center;">JOIN MATCH</div>
+
+  <!-- Team: JOIN RED [485,6,80,20] navright.tga hideCvar g_gametype=0,1,2 CG_SHOW_IF_WARMUP -->
+  <div class="ql-elm ql-asset ql-btn" data-src="ql-assets/assets/score/navright.png" style="left:485px; top:6px; width:80px; height:20px; opacity:0.2;"></div>
+  <div class="ql-text" style="left:512px; top:16px; width:48px; height:30px; font-size:5px; text-align:center; opacity:0.2;">JOIN RED</div>
+
+  <!-- JOIN BLUE [485,36,80,20] navrightb.tga -->
+  <div class="ql-elm ql-asset ql-btn" data-src="ql-assets/assets/score/navrightb.png" style="left:485px; top:36px; width:80px; height:20px; opacity:0.2;"></div>
+  <div class="ql-text" style="left:512px; top:46px; width:48px; height:30px; font-size:5px; text-align:center; opacity:0.2;">JOIN BLUE</div>
+
+  <!-- AUTO JOIN [485,66,80,20] navrighty.tga -->
+  <div class="ql-elm ql-asset ql-btn" data-src="ql-assets/assets/score/navrighty.png" style="left:485px; top:66px; width:80px; height:20px; opacity:0.2;"></div>
+  <div class="ql-text" style="left:512px; top:76px; width:48px; height:30px; font-size:5px; text-align:center; opacity:0.2;">AUTO JOIN</div>
+
+  <!-- SPECTATE [485,96,80,20] navrighty.tga -->
+  <div class="ql-elm ql-asset ql-btn" data-src="ql-assets/assets/score/navrighty.png" style="left:485px; top:96px; width:80px; height:20px; opacity:0.3;"></div>
+  <div class="ql-text" style="left:512px; top:106px; width:48px; height:30px; font-size:5px; text-align:center; opacity:0.3;">SPECTATE</div>
+
+  <!-- "LEAVE MATCH" [62,274,48,30] scale .2 -->
+  <div class="ql-text" style="left:62px; top:224px; width:100px; height:30px; font-size:5px;">LEAVE MATCH</div>
+  <!-- "RETURN TO MATCH" [574,274,48,30] scale .2 textalign=2 -->
+  <div class="ql-text" style="left:520px; top:224px; width:100px; height:30px; font-size:5px; text-align:right;">RETURN TO MATCH</div>
+
+</div>
+
+<!-- ================================================================ -->
+<!-- ingame_join.menu  (128×128 popup, centered in 640×480)          -->
+<!-- ================================================================ -->
+<div class="ql-view" id="view-join">
+  <div style="position:relative; left:121px; top:78px; width:128px; height:128px;">
+    <div class="ql-elm ql-asset" data-src="(style=1 filled, backcolor 0,0,0,0.8)" style="left:4px; top:10px; width:120px; height:108px; background-color:rgba(0,0,0,0.8);"></div>
+    <div class="ql-elm ql-asset" data-src="ql-assets/assets/menu/fade.png" style="left:5px; top:14px; width:118px; height:102px; background-color:rgba(255,255,255,0.12);"></div>
+    <div class="ql-elm ql-asset" data-src="ql-assets/assets/menu/boxtl.png" style="left:0; top:0; width:64px; height:64px;"></div>
+    <div class="ql-elm ql-asset" data-src="ql-assets/assets/menu/boxtr.png" style="left:64px; top:0; width:64px; height:64px;"></div>
+    <div class="ql-elm ql-asset" data-src="ql-assets/assets/menu/boxbl.png" style="left:0; top:64px; width:64px; height:64px;"></div>
+    <div class="ql-elm ql-asset" data-src="ql-assets/assets/menu/boxbr.png" style="left:64px; top:64px; width:64px; height:64px;"></div>
+    <div class="ql-text" style="left:0; top:20px; width:128px; height:20px; font-size:6px; text-align:center; line-height:20px;">Auto TEAM</div>
+    <div class="ql-text" style="left:0; top:40px; width:128px; height:20px; font-size:6px; text-align:center; line-height:20px;">Team RED</div>
+    <div class="ql-text" style="left:0; top:60px; width:128px; height:20px; font-size:6px; text-align:center; line-height:20px;">Team BLUE</div>
+    <div class="ql-text" style="left:0; top:80px; width:128px; height:20px; font-size:6px; text-align:center; line-height:20px;">Spectate</div>
+  </div>
+</div>
+
+<!-- ================================================================ -->
+<!-- fight.menu  (640×480 fullscreen)                                 -->
+<!-- ================================================================ -->
+<div class="ql-view" id="view-fight">
+
+  <div class="ql-elm ql-asset" data-src="fight (shader/texture)" style="left:0; top:45px; width:512px; height:128px;"></div>
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/halfgradleft.png" style="left:64px; top:249px; width:256px; height:102px; background-color:rgba(191,0,0,0.5);"></div>
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/halfgradright.png" style="left:320px; top:249px; width:256px; height:102px; background-color:rgba(0,0,191,0.5);"></div>
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/verticalgradient.png" style="left:16px; top:249px; width:128px; height:102px; background-color:rgba(191,0,0,0.5);"></div>
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/verticalgradient.png" style="left:496px; top:249px; width:128px; height:102px; background-color:rgba(0,0,191,0.5);"></div>
+
+  <div style="position:absolute; left:0; top:5px; width:640px; height:40px; background-color:rgba(0,0,191,0.5); border:2px solid rgba(128,128,128,0.5);"></div>
+  <div class="ql-ownerdraw" data-draw="UI_TIER" style="left:0; top:10px; width:320px; height:31px; font-size:10px;">Tier 4</div>
+  <div class="ql-ownerdraw" data-draw="UI_SKILL" style="left:320px; top:10px; width:320px; height:31px; font-size:10px;">Skill:</div>
+
+  <div class="ql-ownerdraw" data-draw="UI_PLAYERLOGO_METAL" style="left:28px; top:250px; width:100px; height:100px; background-color:rgba(255,179,179,0.3);"> </div>
+  <div class="ql-ownerdraw" data-draw="UI_OPPONENTLOGO_METAL" style="left:488px; top:250px; width:100px; height:100px; background-color:rgba(179,179,255,0.3);"> </div>
+
+  <div style="position:absolute; left:14px; top:247px; width:612px; height:105px; background-color:rgba(0,0,0,0.25); border:1px solid rgba(128,128,128,0.5);"></div>
+
+  <div class="ql-text" style="left:192px; top:325px; width:256px; height:30px; font-size:24px; text-align:center; line-height:30px; color:rgba(255,255,255,0.5);">VS</div>
+
+  <div class="ql-ownerdraw" data-draw="UI_TIER_MAPNAME" style="left:14px; top:220px; width:222px; height:20px; font-size:8px;">ARENA GATE</div>
+  <div class="ql-ownerdraw" data-draw="UI_TIER_GAMETYPE" style="left:236px; top:220px; width:122px; height:20px; font-size:8px;">Duel</div>
+  <div class="ql-text" style="left:480px; top:220px; width:72px; height:20px; font-size:8px;">Time 999</div>
+  <div class="ql-text" style="left:552px; top:220px; width:72px; height:20px; font-size:8px;">Frags 999</div>
+
+  <div class="ql-ownerdraw" data-draw="UI_PLAYERLOGO_NAME" style="left:128px; top:295px; width:128px; height:64px;"> </div>
+  <div class="ql-ownerdraw" data-draw="UI_OPPONENTLOGO_NAME" style="left:388px; top:295px; width:128px; height:64px;"> </div>
+
+  <div style="position:absolute; left:14px; top:354px; width:612px; height:34px; background-color:rgba(0,0,0,0.25); border:1px solid rgba(128,128,128,0.5);"></div>
+  <div class="ql-text" style="left:0; top:363px; width:128px; height:30px; font-size:8px; text-align:center; line-height:30px;">Name: player</div>
+  <div class="ql-text" style="left:246px; top:363px; width:128px; height:30px; font-size:8px; text-align:right; line-height:30px;">Score:</div>
+  <div class="ql-text" style="left:404px; top:363px; width:128px; height:30px; font-size:8px; text-align:center; line-height:30px;">Wins:</div>
+
+  <div style="position:absolute; left:14px; top:390px; width:612px; height:38px; background-color:rgba(0,0,0,0.25); border:1px solid rgba(128,128,128,0.5);"></div>
+
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/medal_accuracy.png" style="left:48px; top:394px; width:32px; height:32px; opacity:.25;"></div>
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/medal_assist.png" style="left:112px; top:394px; width:32px; height:32px; opacity:.25;"></div>
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/medal_accuracy.png" style="left:176px; top:394px; width:32px; height:32px; opacity:.25;"></div>
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/medal_defend.png" style="left:240px; top:394px; width:32px; height:32px; opacity:.25;"></div>
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/medal_excellent.png" style="left:304px; top:394px; width:32px; height:32px; opacity:.25;"></div>
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/medal_frags.png" style="left:368px; top:394px; width:32px; height:32px; opacity:.25;"></div>
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/medal_gauntlet.png" style="left:432px; top:394px; width:32px; height:32px; opacity:.25;"></div>
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/medal_impressive.png" style="left:496px; top:394px; width:32px; height:32px; opacity:.25;"></div>
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/medal_victory.png" style="left:560px; top:394px; width:32px; height:32px; opacity:.25;"></div>
+
+  <div style="position:absolute; left:14px; top:52px; width:612px; height:158px; background-color:rgba(0,0,0,0.25); border:1px solid rgba(128,128,128,0.5);"></div>
+  <div class="ql-ownerdraw" data-draw="UI_TIERMAP1" style="left:19px; top:57px; width:198px; height:148px;"> </div>
+  <div class="ql-ownerdraw" data-draw="UI_TIERMAP2" style="left:221px; top:57px; width:198px; height:148px;"> </div>
+  <div class="ql-ownerdraw" data-draw="UI_TIERMAP3" style="left:423px; top:57px; width:198px; height:148px;"> </div>
+
+  <div style="position:absolute; left:0; top:430px; width:640px; height:30px; background-color:rgba(0,0,191,0.5); border:2px solid rgba(128,128,128,0.5);"></div>
+  <div class="ql-elm ql-asset ql-btn" data-src="ql-assets/assets/backarrow.png" style="left:16px; top:424px; width:50px; height:50px;"></div>
+  <div class="ql-elm ql-asset ql-btn" data-src="ql-assets/assets/forwardarrow.png" style="left:574px; top:424px; width:50px; height:50px;"></div>
+
+  <div class="ql-elm ql-asset" data-src="lightningkc (shader)" style="left:46px; top:385px; width:246px; height:128px; opacity:.15;"></div>
+  <div class="ql-elm ql-asset" data-src="lightningkc (shader)" style="left:345px; top:385px; width:246px; height:128px; opacity:.15;"></div>
+
+  <div class="ql-text" style="left:280px; top:435px; width:200px; height:20px; font-size:4px; text-align:center; color:rgba(255,255,255,0.3);">Exit to Main Menu</div>
+  <div class="ql-text" style="left:200px; top:435px; width:200px; height:20px; font-size:4px; text-align:center; color:rgba(255,255,255,0.3);">Enter Arena</div>
+
+</div>
+
+<!-- ================================================================ -->
+<!-- endofgame.menu  (640×480 fullscreen)                             -->
+<!-- ================================================================ -->
+<div class="ql-view" id="view-endofgame">
+
+  <div style="position:absolute; inset:0; background:#000;"></div>
+  <div class="ql-elm ql-asset" data-src="menuback_e (shader)" style="left:0; top:163px; width:640px; height:155px;"></div>
+  <div class="ql-elm ql-asset" data-src="menuback_b (shader)" style="left:0; top:163px; width:640px; height:155px; border:1px solid rgba(128,128,128,0.7);"></div>
+
+  <div class="ql-ownerdraw" data-draw="UI_MAPCINEMATIC" style="left:120px; top:111px; width:400px; height:300px; background-color:rgba(255,255,255,0.15); border:1px solid rgba(128,128,128,0.5);"> </div>
+
+  <div class="ql-elm ql-asset" data-src="levelshotdetail (shader)" style="left:0; top:0; width:640px; height:240px;"></div>
+  <div class="ql-elm ql-asset" data-src="levelshotdetail (shader)" style="left:0; top:240px; width:640px; height:240px;"></div>
+
+  <div style="position:absolute; left:0; top:50px; width:640px; height:40px; background-color:rgba(0,0,191,0.5); border:2px solid rgba(128,128,128,0.5);"></div>
+  <div class="ql-text" style="left:0; top:70px; width:640px; height:12px; font-size:10px; text-align:center;">GAME STATS</div>
+
+  <div class="ql-ownerdraw" data-draw="UI_PLAYERLOGO_METAL" style="left:110px; top:30px; width:80px; height:80px; background-color:rgba(255,179,179,0.3);"> </div>
+  <div class="ql-ownerdraw" data-draw="UI_OPPONENTLOGO_METAL" style="left:450px; top:30px; width:80px; height:80px; background-color:rgba(179,179,255,0.3);"> </div>
+
+  <!-- Medals — team game row (UI_SHOW_ANYTEAMGAME) -->
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/medal_assist.png" style="left:185px; top:360px; width:30px; height:30px;"></div>
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/medal_accuracy.png" style="left:225px; top:360px; width:30px; height:30px;"></div>
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/medal_excellent.png" style="left:265px; top:360px; width:30px; height:30px;"></div>
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/medal_gauntlet.png" style="left:305px; top:360px; width:30px; height:30px;"></div>
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/medal_impressive.png" style="left:345px; top:360px; width:30px; height:30px;"></div>
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/medal_defend.png" style="left:385px; top:360px; width:30px; height:30px;"></div>
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/medal_capture.png" style="left:425px; top:360px; width:30px; height:30px;"></div>
+
+  <!-- Non-team: perfect [230,360,30,30], accuracy [270,360,30,30], excellent [310,360,30,30], gauntlet [350,360,30,30], impressive [390,360,30,30] -->
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/medal_perfect.png" style="left:230px; top:360px; width:30px; height:30px; opacity:0.5;"></div>
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/medal_accuracy.png" style="left:270px; top:360px; width:30px; height:30px; opacity:0.5;"></div>
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/medal_excellent.png" style="left:310px; top:360px; width:30px; height:30px; opacity:0.5;"></div>
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/medal_gauntlet.png" style="left:350px; top:360px; width:30px; height:30px; opacity:0.5;"></div>
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/medal_impressive.png" style="left:390px; top:360px; width:30px; height:30px; opacity:0.5;"></div>
+
+  <!-- Score stats text (right-aligned at textalignx=320) -->
+  <div class="ql-text" style="left:256px; top:140px; width:64px; height:12px; font-size:5px; text-align:right;">Map:</div>
+  <div class="ql-text" style="left:256px; top:155px; width:64px; height:12px; font-size:5px; text-align:right;">Frag limit:</div>
+  <div class="ql-text" style="left:256px; top:170px; width:64px; height:12px; font-size:5px; text-align:right;">Time to Beat:</div>
+  <div class="ql-text" style="left:256px; top:185px; width:64px; height:12px; font-size:5px; text-align:right;">Skill Multiplier:</div>
+  <div class="ql-text" style="left:192px; top:200px; width:256px; height:12px; font-size:5px; text-align:center;">Record Game:</div>
+  <div class="ql-text" style="left:256px; top:225px; width:64px; height:12px; font-size:5px; text-align:right;">Game Score:</div>
+  <div class="ql-text" style="left:256px; top:240px; width:64px; height:12px; font-size:5px; text-align:right;">Completion Time:</div>
+  <div class="ql-text" style="left:256px; top:265px; width:64px; height:12px; font-size:5px; text-align:right;">Base Score:</div>
+  <div class="ql-text" style="left:256px; top:280px; width:64px; height:12px; font-size:5px; text-align:right;">Time Bonus:</div>
+  <div class="ql-text" style="left:256px; top:295px; width:64px; height:12px; font-size:5px; text-align:right;">Shutout Bonus:</div>
+  <div class="ql-text" style="left:256px; top:310px; width:64px; height:12px; font-size:5px; text-align:right;">Skill Bonus:</div>
+  <div class="ql-text" style="left:256px; top:325px; width:64px; height:12px; font-size:5px; text-align:right;">Total Score:</div>
+
+  <div class="ql-text" style="left:160px; top:345px; width:320px; height:20px; font-size:8px; text-align:center; color:#ff0000; animation:blink 0.5s infinite;">New High Score</div>
+
+  <!-- Bottom buttons: Replay, Demo, Menu, Next -->
+  <div class="ql-text" style="left:178px; top:430px; width:45px; height:26px; font-size:5px; text-align:center; line-height:26px; background-color:rgba(94,26,26,1);">Replay</div>
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/leftbutton.png" style="left:166px; top:430px; width:13px; height:26px;"></div>
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/rightbutton.png" style="left:221px; top:430px; width:13px; height:26px;"></div>
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/framebutton.png" style="left:178px; top:430px; width:45px; height:26px;"></div>
+
+  <div class="ql-text" style="left:257px; top:430px; width:45px; height:26px; font-size:5px; text-align:center; line-height:26px; background-color:rgba(94,26,26,1); color:rgba(128,128,128,1);">Demo</div>
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/leftbutton.png" style="left:245px; top:430px; width:13px; height:26px;"></div>
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/rightbutton.png" style="left:301px; top:430px; width:13px; height:26px;"></div>
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/framebutton.png" style="left:257px; top:430px; width:45px; height:26px;"></div>
+
+  <div class="ql-text" style="left:338px; top:430px; width:45px; height:26px; font-size:5px; text-align:center; line-height:26px; background-color:rgba(94,26,26,1);">Menu</div>
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/leftbutton.png" style="left:326px; top:430px; width:13px; height:26px;"></div>
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/rightbutton.png" style="left:382px; top:430px; width:13px; height:26px;"></div>
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/framebutton.png" style="left:338px; top:430px; width:45px; height:26px;"></div>
+
+  <div class="ql-text" style="left:419px; top:430px; width:45px; height:26px; font-size:5px; text-align:center; line-height:26px; background-color:rgba(94,26,26,1);">Next</div>
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/leftbutton.png" style="left:407px; top:430px; width:13px; height:26px;"></div>
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/rightbutton.png" style="left:463px; top:430px; width:13px; height:26px;"></div>
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/framebutton.png" style="left:419px; top:430px; width:45px; height:26px;"></div>
+
+  <!-- fadebox overlay -->
+  <div class="ql-elm" data-src="ql-assets/assets/fadebox.png" style="left:0; top:0; width:640px; height:480px; background-color:rgba(0,0,0,0.08); pointer-events:none;"></div>
+
+</div>
+
+<!-- ================================================================ -->
+<!-- ingamescorenoteam.smenu  (score_menu)                            -->
+<!-- ================================================================ -->
+<div class="ql-view" id="view-scoreboard" style="top:-30px;">
+
+  <!-- 9-slice background frame -->
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/score/frametl.png" style="left:62px; top:74px; width:40px; height:40px; background-color:rgba(255,255,255,0.12);"></div>
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/score/framet.png" style="left:102px; top:74px; width:436px; height:40px; background-color:rgba(255,255,255,0.12);"></div>
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/score/frametr.png" style="left:538px; top:74px; width:40px; height:40px; background-color:rgba(255,255,255,0.12);"></div>
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/score/framel.png" style="left:62px; top:114px; width:40px; height:261px; background-color:rgba(255,255,255,0.12);"></div>
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/score/framem.png" style="left:102px; top:114px; width:436px; height:261px; background-color:rgba(255,255,255,0.12);"></div>
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/score/framer.png" style="left:538px; top:114px; width:40px; height:261px; background-color:rgba(255,255,255,0.12);"></div>
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/score/framebl.png" style="left:62px; top:375px; width:40px; height:20px; background-color:rgba(255,255,255,0.12);"></div>
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/score/frameb.png" style="left:102px; top:375px; width:436px; height:20px; background-color:rgba(255,255,255,0.12);"></div>
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/score/framebr.png" style="left:538px; top:375px; width:40px; height:20px; background-color:rgba(255,255,255,0.12);"></div>
+
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/score/arrow.png" style="left:69px; top:79px; width:10px; height:10px;"></div>
+
+  <!-- Ad frame -->
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/score/adtl.png" style="left:50px; top:37px; width:40px; height:80px;"></div>
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/score/adtm.png" style="left:90px; top:37px; width:160px; height:80px;"></div>
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/score/adtr.png" style="left:250px; top:37px; width:320px; height:80px;"></div>
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/score/adbr.png" style="left:250px; top:117px; width:320px; height:20px;"></div>
+
+  <!-- Score frame -->
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/score/scoretl.png" style="left:71px; top:127px; width:160px; height:20px;"></div>
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/score/scoretl2.png" style="left:231px; top:127px; width:80px; height:20px;"></div>
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/score/scoretm.png" style="left:311px; top:127px; width:218px; height:20px;"></div>
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/score/scoretr.png" style="left:529px; top:127px; width:40px; height:20px;"></div>
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/score/scorel.png" style="left:71px; top:147px; width:10px; height:189px;"></div>
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/score/scorem.png" style="left:81px; top:147px; width:478px; height:189px;"></div>
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/score/scorer.png" style="left:559px; top:147px; width:10px; height:189px;"></div>
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/score/scorebl.png" style="left:71px; top:336px; width:10px; height:10px;"></div>
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/score/scoreb.png" style="left:81px; top:336px; width:478px; height:10px;"></div>
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/score/scorebr.png" style="left:559px; top:336px; width:10px; height:10px;"></div>
+
+  <!-- Spectator frame -->
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/score/specl.png" style="left:71px; top:370px; width:80px; height:20px; background-color:rgba(255,255,255,0.1);"></div>
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/score/specm.png" style="left:151px; top:370px; width:408px; height:20px; background-color:rgba(255,255,255,0.1);"></div>
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/score/specr.png" style="left:559px; top:370px; width:10px; height:20px; background-color:rgba(255,255,255,0.1);"></div>
+
+  <!-- Stats frame -->
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/score/statsl.png" style="left:71px; top:349px; width:5px; height:20px; background-color:rgba(255,255,255,0.15);"></div>
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/score/statsm.png" style="left:76px; top:349px; width:488px; height:20px; background-color:rgba(255,255,255,0.15);"></div>
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/score/statsr.png" style="left:564px; top:349px; width:5px; height:20px; background-color:rgba(255,255,255,0.15);"></div>
+  <div class="ql-ownerdraw" data-draw="CG_SELECTED_PLYR_TEAM_COLOR" style="left:71px; top:349px; width:90px; height:20px; background-color:rgba(255,153,0,0.4);"></div>
+
+  <!-- Advert -->
+  <div class="ql-ownerdraw" data-draw="UI_ADVERT (ad2x1.jpg)" style="left:407px; top:39px; width:160px; height:80px;"> </div>
+
+  <!-- TEXT -->
+  <div class="ql-ownerdraw" data-draw="CG_MAP_NAME" style="left:82px; top:88px; width:418px; height:10px; font-size:5px;">ARENA GATE</div>
+  <div class="ql-ownerdraw" data-draw="CG_KILLER" style="left:30px; top:49px; width:330px; height:10px; font-size:8px;"> </div>
+  <div class="ql-ownerdraw" data-draw="CG_GAME_STATUS" style="left:74px; top:99px; width:330px; height:10px; font-size:6px; color:rgb(255,191,0);"> </div>
+
+  <div class="ql-text" style="left:78px; top:140px; width:100px; height:30px; font-size:5px;">SCOREBOARD</div>
+  <div class="ql-text" style="left:88px; top:156px; width:60px; height:30px; font-size:4px; color:rgb(255,191,0);">Player</div>
+  <div class="ql-text" style="left:317px; top:156px; width:48px; height:30px; font-size:4px; color:rgb(255,191,0);">Wins</div>
+  <div class="ql-text" style="left:360px; top:156px; width:200px; height:30px; font-size:4px; color:rgb(255,191,0);">Score &nbsp;&nbsp;Frags &nbsp;Deaths &nbsp;Time &nbsp;Ping</div>
+
+  <div class="ql-ownerdraw" data-draw="FEEDER_SCOREBOARD" style="left:77px; top:161px; width:486px; height:180px; font-size:4px; background-color:rgba(0,0,0,0.1); border:1px dashed rgba(255,255,255,0.08);">FEEDER_SCOREBOARD (9 columns)</div>
+
+  <div class="ql-text" style="left:112px; top:384px; width:54px; height:10px; font-size:5px; text-align:center; color:rgb(153,153,153);">SPECTATORS</div>
+  <div class="ql-ownerdraw" data-draw="CG_SPECTATORS" style="left:160px; top:376px; width:410px; height:10px; font-size:5px; color:rgb(153,153,153);"> </div>
+
+  <div class="ql-text" style="left:115px; top:363px; width:48px; height:30px; font-size:4px; color:rgb(204,204,204);">PLAYER STATS</div>
+  <div class="ql-text" style="left:415px; top:362px; width:48px; height:30px; font-size:4px; color:rgb(204,204,204);">Best Weapon:</div>
+  <div class="ql-ownerdraw" data-draw="CG_PLYR_BEST_WEAPON_NAME" style="left:484px; top:362px; width:48px; height:30px; font-size:4px; color:rgb(255,191,0);">Rocket Launcher</div>
+  <div class="ql-text" style="left:328px; top:362px; width:48px; height:30px; font-size:4px; color:rgb(204,204,204);">Accuracy:</div>
+  <div class="ql-ownerdraw" data-draw="CG_SELECTED_PLYR_ACCURACY" style="left:377px; top:362px; width:48px; height:30px; font-size:4px; color:rgb(255,191,0);">42%</div>
+
+  <!-- Medal icons -->
+  <div class="ql-ownerdraw" data-draw="CG_EXCELLENT" style="left:169px; top:351px; width:16px; height:16px; opacity:.5;">E</div>
+  <div class="ql-ownerdraw" data-draw="CG_GAUNTLET" style="left:209px; top:351px; width:16px; height:16px; opacity:.5;">G</div>
+  <div class="ql-ownerdraw" data-draw="CG_IMPRESSIVE" style="left:249px; top:351px; width:16px; height:16px; opacity:.5;">I</div>
+
+  <!-- Chat area -->
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/hud/chatl.png" style="left:3px; top:374px; width:16px; height:64px; background-color:rgba(0,0,0,0.08);"></div>
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/hud/chatm.png" style="left:19px; top:374px; width:601px; height:64px; background-color:rgba(0,0,0,0.08);"></div>
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/hud/chatr.png" style="left:620px; top:374px; width:16px; height:64px; background-color:rgba(0,0,0,0.08);"></div>
+
+  <!-- Timer -->
+  <div class="ql-ownerdraw" data-draw="CG_LEVELTIMER" style="left:16px; top:90px; width:50px; height:12px; font-size:7px; color:rgba(255,255,255,0.9);">0:00</div>
+  <div class="ql-elm ql-asset" data-src="ql-assets/assets/icon_time.png" style="left:0; top:77px; width:14px; height:14px; background-color:rgba(179,179,179,0.7);"></div>
+
+  <div class="ql-ownerdraw" data-draw="CG_PLAYER_COUNTS" style="left:350px; top:88px; width:50px; height:12px; font-size:5px; text-align:center; color:rgb(153,153,153);">2/16 Players</div>
+
+</div>
+
+</div><!-- end .ql-stage -->
+
+<style>
+@keyframes blink { 50% { opacity: 0; } }
+</style>
+<script>
+function show(view, btn) {
+  document.querySelectorAll('.ql-view').forEach(v => v.classList.remove('active'));
+  document.getElementById('view-' + view).classList.add('active');
+  document.getElementById('stage').setAttribute('data-view', view);
+  document.querySelectorAll('.tab-bar button').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+}
+
+// Load actual assets as background images from data-src
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('.ql-asset[data-src]').forEach(function(el) {
+    var src = el.getAttribute('data-src');
+    if (src.match(/\.(png|jpg|jpeg)$/i)) {
+      el.style.backgroundImage = 'url(' + src + ')';
+      el.style.backgroundSize = 'contain';
+      el.style.backgroundRepeat = 'no-repeat';
+      el.style.backgroundPosition = 'center';
+    }
+  });
+  // Also load ownerdraw backgrounds
+  document.querySelectorAll('.ql-ownerdraw[data-draw]').forEach(function(el) {
+    // ownerdraw are engine-rendered, but some reference .tga → .png assets too
+    var src = el.getAttribute('data-draw');
+    // check if data-draw contains asset paths
+    var match = src.match(/(ql-assets\/assets\/[^\s]+\.(png|jpg))/i);
+    if (match) {
+      el.style.backgroundImage = 'url(' + match[1] + ')';
+      el.style.backgroundSize = 'contain';
+      el.style.backgroundRepeat = 'no-repeat';
+      el.style.backgroundPosition = 'center';
+    }
+  });
+});
+</script>
+</body>
+</html>

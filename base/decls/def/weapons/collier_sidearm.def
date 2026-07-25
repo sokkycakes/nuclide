@@ -8,13 +8,14 @@ entityDef weapon_collier_sidearm
 
 	"spawnclass"		"ncWeapon"
 	"model"				"progs/g_nail.mdl"
-	"model_view"		"models/v_collier.iqm"
+	"model_view"		"models/v_kingcobra.mdl"
 	"snd_acquire"		"weapon.pickup"
 	"snd_respawn"		"item.respawn"
-	"spin"				"1"
+	"spin"			"1"
 	"pickupFlash"		"1"
-	"animPrefix"		"nailgun"
 
+	// GoldSrc mdl sequence indices are unknown; all map to 0 as placeholder.
+	// Check v_kingcobra.mdl sequence order and set the correct indices here.
 	"def_fireInfo"		"fireInfo_collierPrimary"
 	"inv_name"			"Collier"
 	"ammoType"			"ammo_nails"
@@ -24,9 +25,9 @@ entityDef weapon_collier_sidearm
 	"clipSize"			"6"
 	"clipSizeDefault"	"6"
 
-	"act_fire"			"shootA"
-	"act_idle"			"idle"
-	"act_draw"			"draw"
+	"act_fire"			"0"
+	"act_idle"			"0"
+	"act_draw"			"0"
 
 	"snd_fire"			"weapon_collier_sidearm.shoot"
 	"snd_empty"			"weapon.empty"
@@ -46,8 +47,8 @@ entityDef fireInfo_collierPrimary
 	"semiAuto"			"1"
 	"snd_fire"			"weapon_collier_sidearm.shoot"
 	"punchSpring"		"-1.2 0.6 0"
-	"act_reload"		"reload"
-	"act_reloadEmpty"	"reload"
+	"act_reload"		"0"
+	"act_reloadEmpty"	"0"
 }
 
 entityDef damage_collierDirect

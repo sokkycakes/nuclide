@@ -1,0 +1,341 @@
+FTEQCC: git-6739-afbf1743d-dirty (2026-06-17)
+Source file: base/src/server/progs.src
+Outputfile: base/src/server/../../progs.dat
+including base/src/server/../../../src/common/include.src
+including base/src/server/../../../src/common/fteextensions.qc
+including base/src/server/../../../src/common/common.h
+including base/src/server/../../../src/common/c_colors.h
+including base/src/server/../../../src/common/c_events.h
+including base/src/server/../../../src/common/c_flags.h
+including base/src/server/../../../src/common/c_materials.h
+including base/src/server/../../../src/common/c_math.h
+including base/src/server/../../../src/common/c_math_vector.h
+including base/src/server/../../../src/common/c_memory.h
+including base/src/server/../../../src/common/c_platform.h
+including base/src/server/../../../src/common/c_teams.h
+including base/src/server/../../../src/shared/defs.h
+base/src/server/../../../src/shared/defs.h:127:
+base/src/server/../../../src/shared/physics/Portal.h:36: warning Q100: #warning:  Needs documentation
+including base/src/server/../../../src/server/defs.h
+including base/src/server/../../../src/gs-entbase/server.src
+including base/src/server/../../../src/gs-entbase/server/info_null.qc
+including base/src/server/../../../src/gs-entbase/server/path_corner.qc
+including base/src/server/../../../src/gs-entbase/server/path_track.qc
+including base/src/server/../../../src/gs-entbase/server/button_target.qc
+including base/src/server/../../../src/gs-entbase/server/cycler.qc
+including base/src/server/../../../src/gs-entbase/server/cycler_sprite.qc
+including base/src/server/../../../src/gs-entbase/server/cycler_weapon.qc
+including base/src/server/../../../src/gs-entbase/server/cycler_wreckage.qc
+including base/src/server/../../../src/gs-entbase/server/env_beverage.qc
+including base/src/server/../../../src/gs-entbase/server/env_cubemap.qc
+including base/src/server/../../../src/gs-entbase/server/env_explosion.qc
+including base/src/server/../../../src/gs-entbase/server/env_fade.qc
+including base/src/server/../../../src/gs-entbase/server/env_global.qc
+including base/src/server/../../../src/gs-entbase/server/env_hudhint.qc
+including base/src/server/../../../src/gs-entbase/server/env_message.qc
+including base/src/server/../../../src/gs-entbase/server/env_model.qc
+including base/src/server/../../../src/gs-entbase/server/env_physexplosion.qc
+including base/src/server/../../../src/gs-entbase/server/env_render.qc
+including base/src/server/../../../src/gs-entbase/server/env_shake.qc
+including base/src/server/../../../src/gs-entbase/server/env_shooter.qc
+including base/src/server/../../../src/gs-entbase/server/env_sound.qc
+including base/src/server/../../../src/gs-entbase/server/env_soundscape.qc
+including base/src/server/../../../src/gs-entbase/server/env_spark.qc
+including base/src/server/../../../src/gs-entbase/server/env_sun.qc
+including base/src/server/../../../src/gs-entbase/server/momentarybase.qc
+including base/src/server/../../../src/gs-entbase/server/momentary_door.qc
+including base/src/server/../../../src/gs-entbase/server/momentary_rot_button.qc
+including base/src/server/../../../src/gs-entbase/server/func_areaportal.qc
+including base/src/server/../../../src/gs-entbase/server/func_breakable.qc
+including base/src/server/../../../src/gs-entbase/server/func_brush.qc
+including base/src/server/../../../src/gs-entbase/server/func_button.qc
+including base/src/server/../../../src/gs-entbase/server/func_detail.qc
+including base/src/server/../../../src/gs-entbase/server/func_detail_illusionary.qc
+including base/src/server/../../../src/gs-entbase/server/func_door.qc
+including base/src/server/../../../src/gs-entbase/server/func_door_rotating.qc
+including base/src/server/../../../src/gs-entbase/server/func_dustmotes.qc
+including base/src/server/../../../src/gs-entbase/server/func_group.qc
+including base/src/server/../../../src/gs-entbase/server/func_guntarget.qc
+including base/src/server/../../../src/gs-entbase/server/func_healthcharger.qc
+including base/src/server/../../../src/gs-entbase/server/func_monsterclip.qc
+including base/src/server/../../../src/gs-entbase/server/func_mortar_field.qc
+including base/src/server/../../../src/gs-entbase/server/func_pendulum.qc
+including base/src/server/../../../src/gs-entbase/server/func_physbox.qc
+including base/src/server/../../../src/gs-entbase/server/func_plat.qc
+including base/src/server/../../../src/gs-entbase/server/func_platrot.qc
+including base/src/server/../../../src/gs-entbase/server/func_pushable.qc
+including base/src/server/../../../src/gs-entbase/server/func_recharge.qc
+including base/src/server/../../../src/gs-entbase/server/func_rot_button.qc
+including base/src/server/../../../src/gs-entbase/server/func_rotating.qc
+including base/src/server/../../../src/gs-entbase/server/func_tank.qc
+base/src/server/../../../src/gs-entbase/server/func_tank.qc:352: warning Q100: #warning:  Unbreak
+including base/src/server/../../../src/gs-entbase/server/func_tankcontrols.qc
+including base/src/server/../../../src/gs-entbase/server/func_trackchange.qc
+including base/src/server/../../../src/gs-entbase/server/func_trackautochange.qc
+including base/src/server/../../../src/gs-entbase/server/func_train.qc
+including base/src/server/../../../src/gs-entbase/server/func_traincontrols.qc
+including base/src/server/../../../src/gs-entbase/server/func_vehiclecontrols.qc
+including base/src/server/../../../src/gs-entbase/server/func_wall_toggle.qc
+including base/src/server/../../../src/gs-entbase/server/multisource.qc
+including base/src/server/../../../src/gs-entbase/server/game_counter.qc
+including base/src/server/../../../src/gs-entbase/server/game_counter_set.qc
+including base/src/server/../../../src/gs-entbase/server/game_end.qc
+including base/src/server/../../../src/gs-entbase/server/game_team_master.qc
+including base/src/server/../../../src/gs-entbase/server/game_player_equip.qc
+including base/src/server/../../../src/gs-entbase/server/game_player_hurt.qc
+including base/src/server/../../../src/gs-entbase/server/game_player_team.qc
+including base/src/server/../../../src/gs-entbase/server/game_score.qc
+including base/src/server/../../../src/gs-entbase/server/game_team_set.qc
+including base/src/server/../../../src/gs-entbase/server/game_text.qc
+including base/src/server/../../../src/gs-entbase/server/game_zone_player.qc
+including base/src/server/../../../src/gs-entbase/server/gibshooter.qc
+including base/src/server/../../../src/gs-entbase/server/info_hint.qc
+including base/src/server/../../../src/gs-entbase/server/info_intermission.qc
+including base/src/server/../../../src/gs-entbase/server/info_node.qc
+including base/src/server/../../../src/gs-entbase/server/info_node_air.qc
+including base/src/server/../../../src/gs-entbase/server/info_target.qc
+including base/src/server/../../../src/gs-entbase/server/info_teleport_destination.qc
+including base/src/server/../../../src/gs-entbase/server/infodecal.qc
+including base/src/server/../../../src/gs-entbase/server/item_eyescanner.qc
+including base/src/server/../../../src/gs-entbase/server/item_food.qc
+including base/src/server/../../../src/gs-entbase/server/item_generic.qc
+including base/src/server/../../../src/gs-entbase/server/item_healthcharger.qc
+including base/src/server/../../../src/gs-entbase/server/item_recharge.qc
+including base/src/server/../../../src/gs-entbase/server/item_item_crate.qc
+including base/src/server/../../../src/gs-entbase/server/light.qc
+including base/src/server/../../../src/gs-entbase/server/logic_auto.qc
+including base/src/server/../../../src/gs-entbase/server/logic_case.qc
+including base/src/server/../../../src/gs-entbase/server/logic_relay.qc
+including base/src/server/../../../src/gs-entbase/server/logic_timer.qc
+including base/src/server/../../../src/gs-entbase/server/math_counter.qc
+including base/src/server/../../../src/gs-entbase/server/monster_furniture.qc
+including base/src/server/../../../src/gs-entbase/server/monster_generic.qc
+including base/src/server/../../../src/gs-entbase/server/monstermaker.qc
+including base/src/server/../../../src/gs-entbase/server/multi_manager.qc
+including base/src/server/../../../src/gs-entbase/server/npc_furniture.qc
+including base/src/server/../../../src/gs-entbase/server/phys_ballsocket.qc
+including base/src/server/../../../src/gs-entbase/server/phys_constraint.qc
+including base/src/server/../../../src/gs-entbase/server/phys_constraintsystem.qc
+including base/src/server/../../../src/gs-entbase/server/phys_convert.qc
+including base/src/server/../../../src/gs-entbase/server/phys_hinge.qc
+including base/src/server/../../../src/gs-entbase/server/phys_keepupright.qc
+including base/src/server/../../../src/gs-entbase/server/phys_slideconstraint.qc
+including base/src/server/../../../src/gs-entbase/server/player_loadsaved.qc
+including base/src/server/../../../src/gs-entbase/server/player_weaponstrip.qc
+including base/src/server/../../../src/gs-entbase/server/point_camera.qc
+including base/src/server/../../../src/gs-entbase/server/point_servercommand.qc
+including base/src/server/../../../src/gs-entbase/server/point_trigger.qc
+including base/src/server/../../../src/gs-entbase/server/prop_door_rotating.qc
+including base/src/server/../../../src/gs-entbase/server/prop_dynamic.qc
+including base/src/server/../../../src/gs-entbase/server/prop_physics.qc
+including base/src/server/../../../src/gs-entbase/server/prop_portal.qc
+including base/src/server/../../../src/gs-entbase/server/random_speaker.qc
+including base/src/server/../../../src/gs-entbase/server/random_trigger.qc
+including base/src/server/../../../src/gs-entbase/server/reserved_spot.qc
+including base/src/server/../../../src/gs-entbase/server/script_brushmodel.qc
+including base/src/server/../../../src/gs-entbase/server/script_model.qc
+including base/src/server/../../../src/gs-entbase/server/script_origin.qc
+including base/src/server/../../../src/gs-entbase/server/script_struct.qc
+including base/src/server/../../../src/gs-entbase/server/script_vehicle.qc
+including base/src/server/../../../src/gs-entbase/server/scripted_sentence.qc
+including base/src/server/../../../src/gs-entbase/server/scripted_sequence.qc
+including base/src/server/../../../src/gs-entbase/server/sky_camera.qc
+including base/src/server/../../../src/gs-entbase/server/stubs.qc
+including base/src/server/../../../src/gs-entbase/server/targ_speaker.qc
+including base/src/server/../../../src/gs-entbase/server/target_cdaudio.qc
+including base/src/server/../../../src/gs-entbase/server/target_speaker.qc
+including base/src/server/../../../src/gs-entbase/server/trigger_auto.qc
+including base/src/server/../../../src/gs-entbase/server/trigger_autosave.qc
+including base/src/server/../../../src/gs-entbase/server/trigger_cdaudio.qc
+including base/src/server/../../../src/gs-entbase/server/trigger_transition.qc
+including base/src/server/../../../src/gs-entbase/server/trigger_changelevel.qc
+including base/src/server/../../../src/gs-entbase/server/trigger_changetarget.qc
+including base/src/server/../../../src/gs-entbase/server/trigger_counter.qc
+including base/src/server/../../../src/gs-entbase/server/trigger_damage.qc
+including base/src/server/../../../src/gs-entbase/server/trigger_endround.qc
+including base/src/server/../../../src/gs-entbase/server/trigger_endsection.qc
+including base/src/server/../../../src/gs-entbase/server/trigger_hurt.qc
+including base/src/server/../../../src/gs-entbase/server/trigger_look.qc
+including base/src/server/../../../src/gs-entbase/server/trigger_monsterjump.qc
+including base/src/server/../../../src/gs-entbase/server/trigger_multiple.qc
+including base/src/server/../../../src/gs-entbase/server/trigger_once.qc
+including base/src/server/../../../src/gs-entbase/server/trigger_playerfreeze.qc
+including base/src/server/../../../src/gs-entbase/server/trigger_random.qc
+including base/src/server/../../../src/gs-entbase/server/trigger_relay.qc
+including base/src/server/../../../src/gs-entbase/server/trigger_teleport.qc
+including base/src/server/../../../src/gs-entbase/server/trigger_use.qc
+including base/src/server/../../../src/gs-entbase/server/trigger_capture_area.qc
+including base/src/server/../../../src/gs-entbase/server/trigger_capture_point.qc
+including base/src/server/../../../src/gs-entbase/server/team_control_point.qc
+including base/src/server/../../../src/gs-entbase/shared.src
+including base/src/server/../../../src/gs-entbase/shared/ambient_generic.qc
+including base/src/server/../../../src/gs-entbase/shared/func_friction.qc
+including base/src/server/../../../src/gs-entbase/shared/env_beam.qc
+including base/src/server/../../../src/gs-entbase/shared/env_sprite.qc
+including base/src/server/../../../src/gs-entbase/shared/env_bubbles.qc
+including base/src/server/../../../src/gs-entbase/shared/env_funnel.qc
+including base/src/server/../../../src/gs-entbase/shared/env_laser.qc
+including base/src/server/../../../src/gs-entbase/shared/env_glow.qc
+including base/src/server/../../../src/gs-entbase/shared/env_projectedtexture.qc
+including base/src/server/../../../src/gs-entbase/shared/env_fog.qc
+including base/src/server/../../../src/gs-entbase/shared/env_fog_controller.qc
+including base/src/server/../../../src/gs-entbase/shared/env_cascade_light.qc
+including base/src/server/../../../src/gs-entbase/shared/env_smoker.qc
+including base/src/server/../../../src/gs-entbase/shared/env_muzzleflash.qc
+including base/src/server/../../../src/gs-entbase/shared/env_steam.qc
+including base/src/server/../../../src/gs-entbase/shared/env_rain.qc
+including base/src/server/../../../src/gs-entbase/shared/env_shockwave.qc
+including base/src/server/../../../src/gs-entbase/shared/light_dynamic.qc
+including base/src/server/../../../src/gs-entbase/shared/logic_achievement.qc
+including base/src/server/../../../src/gs-entbase/shared/func_monitor.qc
+including base/src/server/../../../src/gs-entbase/shared/func_lod.qc
+including base/src/server/../../../src/gs-entbase/shared/func_illusionary.qc
+including base/src/server/../../../src/gs-entbase/shared/func_useableladder.qc
+including base/src/server/../../../src/gs-entbase/shared/func_ladder.qc
+including base/src/server/../../../src/gs-entbase/shared/func_wall.qc
+including base/src/server/../../../src/gs-entbase/shared/func_vehicle.qc
+including base/src/server/../../../src/gs-entbase/server/func_tracktrain.qc
+including base/src/server/../../../src/gs-entbase/shared/func_tankmortar.qc
+including base/src/server/../../../src/gs-entbase/shared/trigger_camera.qc
+in function trigger_camera::Input (line 453),
+base/src/server/../../../src/gs-entbase/shared/trigger_camera.qc:464: warning Q100: #warning:  Toggle doesn't work
+including base/src/server/../../../src/gs-entbase/shared/trigger_gravity.qc
+including base/src/server/../../../src/gs-entbase/shared/info_particle_system.qc
+at global scope,
+base/src/server/../../../src/gs-entbase/shared/info_particle_system.qc:18: warning Q100: #warning:  needs Save/Restore
+including base/src/server/../../../src/gs-entbase/shared/env_hudcounter.qc
+including base/src/server/../../../src/gs-entbase/shared/info_waypoint.qc
+including base/src/server/../../../src/gs-entbase/shared/info_notnull.qc
+including base/src/server/../../../src/gs-entbase/shared/env_instructor_hint.qc
+including base/src/server/../../../src/gs-entbase/shared/prop_physics_multiplayer.qc
+including base/src/server/../../../src/gs-entbase/shared/prop_vehicle_driveable.qc
+including base/src/server/../../../src/gs-entbase/shared/point_spotlight.qc
+including base/src/server/../../../src/gs-entbase/shared/point_viewcontrol.qc
+including base/src/server/../../../src/gs-entbase/shared/trigger_push.qc
+including base/src/server/../../../src/gs-entbase/shared/func_conveyor.qc
+including base/src/server/../../../src/gs-entbase/shared/prop_rope.qc
+including base/src/server/../../../src/gs-entbase/shared/phys_rope.qc
+including base/src/server/../../../src/gs-entbase/shared/worldspawn.qc
+including base/src/server/../../../src/gs-entbase/shared/speaker.qc
+including base/src/server/../shared/include.src
+including base/src/server/../shared/flags.h
+including base/src/server/../../../src/botlib/include.src
+including base/src/server/../../../src/botlib/defs.h
+including base/src/server/../../../src/botlib/profiles.qc
+including base/src/server/../../../src/botlib/chat.qc
+including base/src/server/../../../src/botlib/combat.qc
+including base/src/server/../../../src/botlib/cmd.qc
+including base/src/server/main.qc
+including base/src/server/../../../src/server/include.src
+including base/src/server/../../../src/server/Output.qc
+including base/src/server/../../../src/server/plugins.qc
+including base/src/server/../../../src/server/Stats.qc
+base/src/server/../../../src/server/Stats.qc:35: warning F335: ncStats::OutputFilename is not part of class ncStats
+in function ncStats::OutputFilename (line 35),
+base/src/server/../../../src/server/Stats.qc:42: warning Q207: currentTime duplicate definition ignored
+base/src/server/../../../src/server/Stats.qc:38:    string currentTime is defined here
+base/src/server/../../../src/server/Stats.qc:43: warning Q207: fileName duplicate definition ignored
+base/src/server/../../../src/server/Stats.qc:39:    string fileName is defined here
+at global scope,
+base/src/server/../../../src/server/Stats.qc:90: warning F335: ncStats::Game is not part of class ncStats
+base/src/server/../../../src/server/Stats.qc:106: warning F335: ncStats::Player is not part of class ncStats
+base/src/server/../../../src/server/Stats.qc:122: warning F335: ncStats::Map is not part of class ncStats
+in function ncStats::UseItem (line 524),
+base/src/server/../../../src/server/Stats.qc:540: warning F302: Potentially uninitialised variable ngItemID
+in function ncStats::DropItem (line 548),
+base/src/server/../../../src/server/Stats.qc:563: warning F302: Potentially uninitialised variable ngItemID
+at global scope,
+base/src/server/../../../src/server/Stats.qc:597: warning F335: ncStats::JoinTeam is not part of class ncStats
+base/src/server/../../../src/server/Stats.qc:624: warning F335: ncStats::LeaveTeam is not part of class ncStats
+including base/src/server/../../../src/server/skill.qc
+including base/src/server/../../../src/server/spawn.qc
+including base/src/server/../../../src/server/GameRules.qc
+including base/src/server/../../../src/server/vote.qc
+including base/src/server/../../../src/server/lament.qc
+including base/src/server/../../../src/server/mapcycle.qc
+including base/src/server/../../../src/server/maptweaks.qc
+including base/src/server/../../../src/server/cmd_cl.qc
+in function Cmd_ParseClientCommand (line 19),
+base/src/server/../../../src/server/cmd_cl.qc:126: warning Q207: pl duplicate definition ignored
+base/src/server/../../../src/server/cmd_cl.qc:40:    class ncPlayer pl is defined here
+including base/src/server/../../../src/server/cmd_sv.qc
+including base/src/server/../../../src/server/entry.qc
+in function initents (line 523),
+base/src/server/../../../src/server/entry.qc:562: warning F302: Potentially uninitialised variable currentRule
+base/src/server/../../../src/server/entry.qc:563: warning F302: Potentially uninitialised variable currentMap
+including base/src/server/../../../src/server/Schedule.qc
+including base/src/server/../../../src/server/AddonDelegate.qc
+including base/src/server/../../../src/server/MapDelegate.qc
+in function SpawnEntityWithSpawnData (line 128),
+base/src/server/../../../src/server/MapDelegate.qc:130: warning F314: Implicit cast from entity to class ncEntity
+including base/src/server/../../../src/server/SessionManager.qc
+including base/src/server/../../../src/server/CaptureItem.qc
+including base/src/server/../../../src/server/CapturePoint.qc
+including base/src/server/../../../src/server/Auth.qc
+including base/src/server/../../../src/server/../nav/includes.src
+including base/src/server/../../../src/server/../nav/Hint.qc
+including base/src/server/../../../src/server/../nav/nodes.qc
+including base/src/server/../../../src/server/../nav/route.qc
+including base/src/server/../../../src/server/../nav/NodeEditor.qc
+including base/src/server/../../../src/server/../nav/way_convert.qc
+including base/src/server/../../../src/server/../nav/NavInfo.qc
+including base/src/server/../../../src/server/api.qc
+in function SVPF_game_TeleportToSpawn (line 88),
+base/src/server/../../../src/server/api.qc:90: warning F314: Implicit cast from entity to class ncPlayer
+in function SVPF_game_TeleportToSpawnClass (line 95),
+base/src/server/../../../src/server/api.qc:99: warning F314: Implicit cast from entity to class ncPlayer
+including base/src/server/../../../src/server/HLScientist.qc
+including base/src/server/../../../src/server/HLSuit.qc
+including base/src/server/../../../src/server/XenDecore.qc
+including base/src/server/../../../src/shared/include.src
+including base/src/server/../../../src/shared/system/IO.qc
+including base/src/server/../../../src/shared/system/Dict.qc
+including base/src/server/../../../src/shared/system/Trigger.qc
+in function ncTrigger::SetTeam (line 408),
+base/src/server/../../../src/shared/system/Trigger.qc:418: warning F314: Implicit cast from class ncTrigger to class ncPlayer
+including base/src/server/../../../src/shared/system/Entity.qc
+including base/src/server/../../../src/shared/system/Timer.qc
+including base/src/server/../../../src/shared/environment/Decal.qc
+including base/src/server/../../../src/shared/system/RenderableEntity.qc
+including base/src/server/../../../src/shared/environment/SurfacePropEntity.qc
+including base/src/server/../../../src/shared/environment/BreakableBrush.qc
+at global scope,
+base/src/server/../../../src/shared/environment/BreakableBrush.qc:162: warning F335: ncBreakableBrush::generatebboxbrush is not part of class ncBreakableBrush
+in function ncBreakableBrush::Spawned (line 186),
+base/src/server/../../../src/shared/environment/BreakableBrush.qc:210: warning F314: Implicit cast from struct <struct>** to struct <struct>*
+including base/src/server/../../../src/shared/environment/Mover.qc
+including base/src/server/../../../src/shared/physics/PhysicsConstraint.qc
+including base/src/server/../../../src/shared/physics/PhysicsEntity.qc
+in function ncPhysicsEntity::Touch (line 449),
+base/src/server/../../../src/shared/physics/PhysicsEntity.qc:476: warning Q100: #warning:  TODO: differentiate between rough & smooth
+base/src/server/../../../src/shared/physics/PhysicsEntity.qc:483: warning Q100: #warning:  TODO: Move this into typeinfo decl
+base/src/server/../../../src/shared/physics/PhysicsEntity.qc:519: warning Q100: #warning:  TODO: differentiate between rough & smooth
+including base/src/server/../../../src/shared/triggers/BrushTrigger.qc
+including base/src/server/../../../src/shared/triggers/PointTrigger.qc
+including base/src/server/../../../src/shared/physics/pmove.qc
+including base/src/server/../../../src/shared/physics/Vehicle.qc
+including base/src/server/../../../src/shared/game/Attack.qc
+in function ncAttack::Launch (line 126),
+base/src/server/../../../src/shared/game/Attack.qc:184: warning Q207: src duplicate definition ignored
+base/src/server/../../../src/shared/game/Attack.qc:172:    vector src is defined here
+including base/src/server/../../../src/shared/game/Actor.qc
+in function ncActor::__FiredWeapon (line 174),
+base/src/server/../../../src/shared/game/Actor.qc:175: warning Q100: #warning:  Predict once we can map fireInfo numerically over the network
+in function ncActor::Input (line 670),
+base/src/server/../../../src/shared/game/Actor.qc:686: warning F314: Implicit cast from class ncActor to class ncPlayer
+including base/src/server/../../../src/shared/ai/Monster.qc
+including base/src/server/../../../src/shared/ai/SquadMonster.qc
+including base/src/server/../../../src/shared/ai/TalkMonster.qc
+including base/src/server/../../../src/shared/game/Projectile.qc
+in function ncProjectile::_FireSingle (line 988),
+base/src/server/../../../src/shared/game/Projectile.qc:1001: warning Q100: #warning:  TODO: add bubble trail when underwater
+including base/src/server/../../../src/shared/game/SpawnPoint.qc
+including base/src/server/../../../src/shared/audio/SoundScape.qc
+including base/src/server/../../../src/shared/game/Item.qc
+including base/src/server/../../../src/shared/game/Dispenser.qc
+including base/src/server/../../../src/shared/game/Weapon.qc
+including base/src/server/../../../src/shared/game/WeaponBaseMelee.qc
+including base/src/server/../../../src/shared/game/WeaponVagrantKnife.qc
+including base/src/server/../../../src/shared/game/WeaponArchstiletto.qc
+including base/src/server/../../../src/shared/physics/Portal.qc
+including base/src/server/../

@@ -1,27 +1,31 @@
 // Archstiletto primary: melee swing derived from the Quake axe (weapon_axe).
-// Uses the v_archstiletto IQM viewmodel. NOTE: that model currently ships a
-// single 8-frame sequence, so every viewmodel activity maps to sequence 0 until
-// separate idle/fire/draw clips are authored. Placeholder tuning -- the boss kit
-// is undesigned (see hero_archstiletto); to be deepened in a later pass.
+// Uses the CSO v_skullaxe.mdl viewmodel (GoldSrc format). All activity mappings
+// currently default to sequence 0; update these indices once the skullaxe model's
+// sequence layout is known (idle/draw/swing/hit). Placeholder tuning -- the boss
+// kit is undesigned (see hero_archstiletto); to be deepened in a later pass.
 entityDef weapon_archstiletto
 {
 	"inherit"			"weapon_axe"
 
 	"editor_usage"		"Archstiletto melee (axe-derived) + lunge"
 
-	"model_view"		"models/v_reference.iqm"
+	"model_view"		"models/v_skullaxe.mdl"
 	"inv_name"			"Archstiletto"
 
 	// melee override: boss kit hits hard, double range, cleave enabled
+	// TF2-style AABB swing (line then ±18 hull); never gate on line-only aim
 	"melee_damage"		"1"
 	"melee_range"		"128"
 	"melee_cleave"		"1"
+	"melee_bounds_mins"	"-18 -18 -18"
+	"melee_bounds_maxs"	"18 18 18"
+	"testDistance"		"0"
 
 	// sound
 	"snd_swing"			"Melee_Swing"
 
-	// v_archstiletto.iqm has one sequence (index 0); map all activities to it
-	// until the model gains separate idle/fire/draw clips.
+	// GoldSrc mdl sequence indices are unknown; all map to 0 as placeholder.
+	// Check v_skullaxe.mdl sequence order and set the correct indices here.
 	"act_idle"			"0"
 	"act_draw"			"0"
 	"act_fireFailed"	"0"

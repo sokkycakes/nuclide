@@ -296,6 +296,7 @@ ncView::GetSoundScape(void)
 void View_PreDraw();
 void View_PostDraw();
 void View_DrawViewModel();
+void View_DebugViewModel(ncPlayer);
 
 void
 ncView::UpdateView(void)
@@ -319,7 +320,11 @@ ncView::UpdateView(void)
 		pSeat->m_weaponAnimSequence = cl.m_weaponAnimSequence;
 		pSeat->m_weaponAnimTime = cl.m_weaponAnimTime;
 
-		if (cl.m_activeWeapon) {
+		/* A PLAYER_WEAPON update can arrive before the weapon entity's CSQC
+		 * spawnfunc has installed its vtable. Do not cache fields from that
+		 * half-constructed edict or retain the previous viewmodel. */
+		if (cl.m_activeWeapon && !wasfreed(cl.m_activeWeapon)
+			&& cl.m_activeWeapon._isWeapon && cl.m_activeWeapon.ClientFX) {
 			pSeat->m_weaponModel = cl.m_activeWeapon.m_viewModel;
 			pSeat->m_weaponClass = cl.m_activeWeapon.declclass;
 			pSeat->m_weaponFireInfo = cl.m_activeWeapon.m_weaponLastFireInfo;
@@ -327,6 +332,9 @@ ncView::UpdateView(void)
 			pSeat->m_weaponModel = 0;
 			pSeat->m_weaponClass = "";
 			pSeat->m_weaponFireInfo = "";
+			/* Force a full bind when this weapon entity becomes ready. A newly
+			 * spawned weapon can legitimately reuse the previous model index. */
+			pSeat->m_iLastWeapon = 0;
 		}
 
 		SetCameraOrigin(cl.origin);
@@ -511,6 +519,7 @@ ncView::UpdateView(void)
 		break;
 	}
 
+	View_DebugViewModel(pl);
 	View_PreDraw();
 
 	}

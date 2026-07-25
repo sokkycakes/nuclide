@@ -1,0 +1,368 @@
+#include "ui/menudef.h"
+
+{
+\\ SETUP MENU \\
+
+menuDef {
+   	name "ingame_player"
+   	visible 0
+   	fullscreen 0
+	outOfBoundsClick			// this closes the window if it gets a click out of the rectangle
+   	rect 121 37 300 326
+   	focusColor 1 .75 0 1
+   	style 1
+   	border 1
+	onOpen  { uiScript update "ui_GetName" }
+	onClose { uiScript update "ui_SetName" }
+
+
+itemDef {
+	name window
+	rect 4 10 292 306
+	style 1
+	backcolor 0 0 0 0.8
+	visible 1
+	decoration
+	}
+itemDef {
+	name window
+	rect 5 39 290 200
+	style 1
+	backcolor 1 1 1 0.12
+	background "ui/assets/menu/fade.tga"
+	visible 1
+	decoration
+	}
+
+
+//	FRAME 	//
+
+itemDef {
+	name navfill
+	rect 5 14 290 27
+	style 1
+	visible 1
+	decoration
+	backcolor 0 0 0 1
+	}
+itemDef {
+	name navfillinner
+	rect 5 15 290 25
+	style 1
+	visible 1
+	decoration
+	backcolor 0.11 0.11 0.11 1
+	}
+
+itemDef {
+	name window
+	rect 0 0 64 64
+	style 3
+	background "ui/assets/menu/boxtl.tga"
+	visible 1
+	decoration
+	}
+itemDef {
+	name window
+	rect 64 0 172 64
+	style 3
+	background "ui/assets/menu/boxt.tga"
+	visible 1
+	decoration
+	}
+itemDef {
+	name window
+	rect 236 0 64 64
+	style 3
+	background "ui/assets/menu/boxtr.tga"
+	visible 1
+	decoration
+	}
+	
+
+itemDef {
+	name window
+	rect 0 64 64 198
+	style 3
+	background "ui/assets/menu/boxl.tga"
+	visible 1
+	decoration
+	}
+itemDef {
+	name window
+	rect 236 64 64 198
+	style 3
+	background "ui/assets/menu/boxr.tga"
+	visible 1
+	decoration
+	}
+
+
+
+itemDef {
+	name window
+	rect 0 262 64 64
+	style 3
+	background "ui/assets/menu/boxbl.tga"
+	visible 1
+	decoration
+	}
+itemDef {
+	name window
+	rect 64 262 172 64
+	style 3
+	background "ui/assets/menu/boxb.tga"
+	visible 1
+	decoration
+	}	
+itemDef {
+	name window
+	rect 236 262 64 64
+	style 3
+	background "ui/assets/menu/boxbr.tga"
+	visible 1
+	decoration
+	}
+
+// BUTTON BACK IMAGES //
+
+itemDef {
+	name lit_player
+	text "PLAYER"
+	textscale .22
+	style 3
+	decoration
+	background "ui/assets/menu/buttonlit.tga"
+	rect 94 15 56 25
+	textalign 1
+	textalignx 28
+	textaligny 18
+	forecolor 1 1 1 1
+	backcolor 1 1 1 1 
+	visible 1
+	decoration
+	}
+
+// 	BUTTONS	//
+itemDef {
+	name ctr_controls
+	text "CONTROLS"
+	textscale .22
+	group grpbutton
+	style WINDOW_STYLE_FILLED
+	background "ui/assets/menu/button.tga"
+	rect 38 15 56 25
+	type 1
+	textalign 1
+	textalignx 28
+	textaligny 18
+	forecolor 1 1 1 1
+	backcolor 1 1 1 1 
+	visible 1
+	action { open ingame_controls ; close ingame_player ; close ingame_options ; close ingame_system  }
+	}
+itemDef {
+	name ctr_options
+	text "OPTIONS"
+	textscale .22
+	group grpbutton
+	style WINDOW_STYLE_FILLED
+	background "ui/assets/menu/button.tga"
+	rect 150 15 56 25
+	type 1
+	textalign 1
+	textalignx 28
+	textaligny 18
+	forecolor 1 1 1 1
+	backcolor 1 1 1 1 
+	visible 1
+	action { open ingame_options ; close ingame_controls ; close ingame_player ; close ingame_system  }
+	}
+itemDef {
+	name ctr_system
+	text "SYSTEM"
+	textscale .22
+	group grpbutton
+	style WINDOW_STYLE_FILLED
+	background "ui/assets/menu/button.tga"
+	rect 206 15 56 25
+	type 1
+	textalign 1
+	textalignx 28
+	textaligny 18
+	forecolor 1 1 1 1
+	backcolor 1 1 1 1
+	visible 1
+	action { open ingame_system; close ingame_controls ; close ingame_player ; close ingame_options  }
+	}
+
+
+//PLAYER SETTINGS
+
+
+itemDef {
+   	name namefield
+	group "playersettinggroup"
+   	type ITEM_TYPE_EDITFIELD
+	style 0
+	text "Player Name:"
+	cvar "ui_Name"
+	maxchars 26
+   	rect 0 70 290 20
+   	textalign ITEM_ALIGN_RIGHT		
+   	textalignx 148
+   	textaligny 17
+	textscale .25        
+   	outlinecolor 1 .5 .5 .5
+   	backcolor 0 0 0 0
+   	forecolor 1 1 1 1
+   	border 0
+   	bordercolor 0 0 0 0
+   	visible 1 
+}
+/*
+itemDef {
+      	name handicapfield
+	group "playersettinggroup"
+      	style 0	
+	text "Handicap:"
+	ownerdraw UI_HANDICAP
+	rect 20 45 256 20
+      	textalign ITEM_ALIGN_LEFT		
+      	textalignx 10
+      	textaligny 18
+	textscale .25        
+      	outlinecolor 1 .5 .5 .5
+      	backcolor 0 0 0 0
+      	forecolor 1 1 1 1
+      	border 0
+      	bordercolor 0 0 0 0
+      	visible 1 
+    	}
+*/
+itemDef {
+      	name effectentry
+	group "playersettinggroup"
+      	text "Railgun Effect:"
+	type 1
+      	style 0	
+      	rect 0 93 290 20
+	textalign ITEM_ALIGN_RIGHT	 	
+      	textalignx 148
+      	textaligny 17
+	textscale .25        
+      	outlinecolor 1 .5 .5 .5
+      	backcolor 0 0 0 0
+      	forecolor 1 1 1 1
+      	border 0
+      	bordercolor 0 0 0 0
+      	visible 1 
+      	decoration 
+      	mouseEnterText { setitemcolor effectentry forecolor 1 .75 0 1 ; setfocus effectfield } 
+      	mouseExitText { setitemcolor playersettinggroup forecolor 1 1 1 1 }
+    	}
+
+itemDef {
+      	name effectfield
+	group "playersettinggroup"
+      	style 0	
+	ownerdraw UI_EFFECTS
+      	rect 0 93 290 20
+      	textalign ITEM_ALIGN_RIGHT		
+      	textalignx 150
+      	textaligny 22
+      	outlinecolor 1 .5 .5 .5
+      	backcolor 0 0 0 0
+      	forecolor 1 1 1 1
+      	border 0
+      	bordercolor 0 0 0 0
+      	visible 1     
+    	}
+
+itemDef {
+      	name headname
+	group "playersettinggroup"
+      	text "Player Model"
+//	type 1
+	style 1
+      	backcolor 0.25 0.25 0.25 0.4
+      	rect 22 145 258 20
+	textalign ITEM_ALIGN_RIGHT 	
+     	textalignx 160
+      	textaligny 16
+	textscale .25        
+      	forecolor 1 1 1 1
+      	visible 1 
+      	decoration 
+    	}
+   	
+itemDef {
+	name headlist
+      	rect 21 164 258 50
+	type ITEM_TYPE_LISTBOX
+	style WINDOW_STYLE_FILLED
+	elementwidth 32
+	elementheight 32
+	elementtype LISTBOX_IMAGE
+	feeder FEEDER_HEADS
+	horizontalscroll
+	backcolor 0 0 0 0.24
+	border 1
+	bordercolor .5 .5 .5 1
+	forecolor 1 1 1 1
+	visible 1
+	cvarTest "g_gametype"
+	showCvar { "3" ; "4" ; "5" ; "6" ; "7" ; "8" }
+	mouseenter { setitemcolor headlist bordercolor 1 0 0 1 }
+	mouseexit { setitemcolor headlist bordercolor .5 .5 .5 1 }
+	}
+/* 
+itemDef {
+	name headlist
+      	rect 21 124 256 168
+	type ITEM_TYPE_LISTBOX
+	style WINDOW_STYLE_FILLED
+	elementwidth 32
+	elementheight 32
+	elementtype LISTBOX_IMAGE
+	feeder FEEDER_Q3HEADS
+	verticalscroll
+	backcolor 0 0 0 1
+	border 1
+	bordercolor .5 .5 .5 1
+	forecolor 1 1 1 1
+	visible 1
+	//cvarTest "g_gametype"
+	//showCvar { "0" ; "1" }
+	mouseenter { setitemcolor headlist bordercolor 1 0 0 1 }
+	mouseexit { setitemcolor headlist bordercolor .5 .5 .5 1 }
+	}
+*/
+
+itemDef {
+	name headlist
+      	rect 21 164 258 50
+	type ITEM_TYPE_LISTBOX
+	style WINDOW_STYLE_FILLED
+	elementwidth 32
+	elementheight 32
+	elementtype LISTBOX_IMAGE
+	feeder FEEDER_Q3HEADS
+	horizontalscroll
+	backcolor 0 0 0 0.24
+	border 1
+	bordercolor .5 .5 .5 1
+	forecolor 1 1 1 1
+	visible 1
+	cvarTest "g_gametype"
+	showCvar { "0" ; "1" }
+	mouseenter { setitemcolor headlist bordercolor 1 0 0 1 }
+	mouseexit { setitemcolor headlist bordercolor .5 .5 .5 1 }
+	}
+
+
+
+}
+
+
+}

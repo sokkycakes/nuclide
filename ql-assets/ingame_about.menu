@@ -1,0 +1,444 @@
+#include "ui/menudef.h"
+
+{
+// INGAME ABOUT BOX \\
+
+menuDef {
+    	name "ingame_about"
+    	visible 0
+    	fullscreen 0
+    	rect -1 129 640 351
+    	focusColor 1 .75 0 1
+    	style 1
+    	border 1
+    	disableColor .5 .5 .5 1
+
+
+//BACK FRAME
+	//mid
+	itemdef {
+		name bgframeL
+	      	rect 62 0 40 107
+	      	background "ui/assets/score/framel.tga"
+		style 1 
+	      	visible 1 
+	      	decoration 
+	      	backcolor 1 1 1 0.9
+	}
+	itemdef {
+		name bgframeM
+	      	rect 102 0 436 107
+	      	background "ui/assets/score/framem.tga"
+		style 1 
+	      	visible 1 
+	      	decoration 
+	      	backcolor 1 1 1 0.9
+	}
+	itemdef {
+		name bgframeR
+	      	rect 538 0 40 107
+	      	background "ui/assets/score/framer.tga"
+		style 1 
+	      	visible 1 
+	      	decoration 
+	      	backcolor 1 1 1 0.9
+	}
+	//bottom
+	itemdef {
+		name bgframeTL
+	      	rect 62 107 40 20
+	      	background "ui/assets/score/framebl.tga"
+		style 1 
+	      	visible 1 
+	      	decoration 
+	      	backcolor 1 1 1 0.9
+	}
+	itemdef {
+		name bgframeTM
+	      	rect 102 107 436 20
+	      	background "ui/assets/score/frameb.tga"
+		style 1 
+	      	visible 1 
+	      	decoration 
+	      	backcolor 1 1 1 0.9
+	}
+	itemdef {
+		name bgframeTR
+	      	rect 538 107 40 20
+	      	background "ui/assets/score/framebr.tga"
+		style 1 
+	      	visible 1 
+	      	decoration 
+	      	backcolor 1 1 1 0.9
+	}
+//Score FRAME
+	//top left
+	itemdef {
+		name scoreframeTL
+	      	rect 71 0 20 20
+	      	background "ui/assets/score/scoretl3.tga"
+		style 3 
+	      	visible 1 
+	      	decoration 
+	}
+	//top mid
+	itemdef {
+		name scoreframeM
+	      	rect 91 0 347 20
+	      	background "ui/assets/score/scoretm3.tga"
+		style 3 
+	      	visible 1 
+	      	decoration 
+	}
+	//top right
+	itemdef {
+		name scoreframeR
+	      	rect 438 0 20 20
+	      	background "ui/assets/score/scoretr3.tga"
+		style 3 
+	      	visible 1 
+	      	decoration 
+	}
+	//mid left
+	itemdef {
+		name scoreframeL
+	      	rect 71 20 10 88
+	      	background "ui/assets/score/scorel.tga"
+		style 3 
+	      	visible 1 
+	      	decoration 
+	}
+	//mid
+	itemdef {
+		name scoreframeM
+	      	rect 81 20 367 88
+	      	background "ui/assets/score/scorem.tga"
+		style 3 
+	      	visible 1 
+	      	decoration 
+	}
+	//mid right
+	itemdef {
+		name scoreframeR
+	      	rect 448 20 10 88
+	      	background "ui/assets/score/scorer.tga"
+		style 3 
+	      	visible 1 
+	      	decoration 
+	}
+	//btm left
+	itemdef {
+		name scoreframeBL
+	      	rect 71 108 10 10
+	      	background "ui/assets/score/scorebl.tga"
+		style 3 
+	      	visible 1 
+	      	decoration 
+	}
+	//btm mid
+	itemdef {
+		name scoreframeBM
+	      	rect 81 108 367 10
+	      	background "ui/assets/score/scoreb.tga"
+		style 3 
+	      	visible 1 
+	      	decoration 
+	}
+	//btm right
+	itemdef {
+		name scoreframeBR
+	      	rect 448 108 10 10
+	      	background "ui/assets/score/scorebr.tga"
+		style 3 
+	      	visible 1 
+	      	decoration 
+	}
+//
+//	SCOREBOARD HEADINGS
+
+itemDef {
+      	name scoreboard
+      	text "ABOUT THIS MATCH"
+	    textscale .18
+      	style 0	
+      	rect 78 12 64 30 
+      	backcolor 0 0 0 0
+      	forecolor 1 1 1 1
+      	decoration
+      	visible 1 	  
+    	}
+
+itemDef {
+      	name teamheadings
+      	cvar "cg_gameInfo1"
+	    textscale .2
+      	style 0	
+      	rect 86 34 64 30 
+      	backcolor 0 0 0 0
+      	forecolor 1 1 1 1
+      	decoration
+      	visible 1 	  
+    	}
+
+itemDef {
+      	name gamerules1
+      	cvar "cg_gameInfo2"
+      	textscale .2
+      	style 0	
+      	rect 95 52 48 30 
+      	backcolor 0 0 0 0
+      	forecolor 0.6 .6 0.6 1
+      	decoration
+      	visible 1 	  
+    	}
+itemDef {
+      	name gamerules2
+      	cvar "cg_gameInfo3"
+      	textscale .2
+      	style 0	
+      	rect 95 70 48 30 
+      	backcolor 0 0 0 0
+      	forecolor 0.6 .6 0.6 1
+      	decoration
+      	visible 1 	  
+    	}
+itemDef {
+      	name gamerules3
+      	cvar "cg_gameInfo4"
+      	textscale .2
+      	style 0	
+      	rect 95 88 48 30 
+      	backcolor 0 0 0 0
+      	forecolor 0.6 .6 0.6 1
+      	decoration
+      	visible 1 	  
+    	}
+itemDef {
+      	name gamerules4
+      	cvar "cg_gameInfo5"
+      	textscale .2
+      	style 0	
+      	rect 95 106 48 30 
+      	backcolor 0 0 0 0
+      	forecolor 0.6 .6 0.6 1
+      	decoration
+      	visible 1 	  
+    	}    	
+     	
+	//BTN join red
+	itemdef {
+		name navBTNL
+      		rect 485 6 80 20
+      		background "ui/assets/score/navright.tga"
+		style 3 
+      		visible 1
+      		cvarTest "g_gametype"
+      		hideCvar { "0","1","2" }
+      		ownerdrawflag CG_SHOW_IF_WARMUP
+  	    	type ITEM_TYPE_BUTTON
+        	action { exec "team r"; uiScript closeingame }
+		onFocus {
+			transition joinRed 540 20 48 30 539 20 48 30 20 10
+		}
+	}
+	itemDef {
+		name joinRed
+		text "JOIN RED"
+		textscale .2
+		textalign 2
+		style 0	
+      		visible 1
+		rect 539 20 48 30 
+		backcolor 0 0 0 0
+		forecolor 1 1 1 1
+		decoration
+      		cvarTest "g_gametype"
+      		hideCvar { "0","1","2" }
+		ownerdrawflag CG_SHOW_IF_WARMUP
+    	}
+    	
+    //BTN join blue
+	itemdef {
+		name navBTNL
+      		rect 485 36 80 20
+      		background "ui/assets/score/navrightb.tga"
+		style 3 
+      		visible 1
+      		cvarTest "g_gametype"
+      		hideCvar { "0","1","2" }
+  	    	type ITEM_TYPE_BUTTON
+        	action { exec "team b"; uiScript closeingame }      	
+		onFocus {
+			transition joinBlue 540 50 48 30 539 50 48 30 20 10
+		}
+	}
+	itemDef {
+		name joinBlue
+		text "JOIN BLUE"
+		textscale .2
+		textalign 2
+		style 0	
+      		visible 1
+		rect 539 50 48 30 
+		backcolor 0 0 0 0
+		forecolor 1 1 1 1
+		decoration
+      		cvarTest "g_gametype"
+      		hideCvar { "0","1","2" }
+    	}
+    	
+    // auto join
+	itemdef {
+		name navBTNL
+      		rect 485 66 80 20
+      		background "ui/assets/score/navrighty.tga"
+		style 3 
+      		visible 1
+      		cvarTest "g_gametype"
+      		hideCvar { "0","1","2" }
+  	    	type ITEM_TYPE_BUTTON
+        	action { exec "team a"; uiScript closeingame }
+		onFocus {
+			transition autoJoin 540 80 48 30 539 80 48 30 20 10
+		}
+	}
+	itemDef {
+		name autoJoin
+		text "AUTO JOIN"
+		textscale .2
+		textalign 2
+		style 0	
+      		visible 1
+		rect 539 80 48 30
+		backcolor 0 0 0 0
+		forecolor 1 1 1 1
+      		cvarTest "g_gametype"
+      		hideCvar { "0","1","2" }
+    	}
+    // spectate
+	itemdef {
+		name navBTNL
+      		rect 485 96 80 20
+      		background "ui/assets/score/navrighty.tga"
+		style 3 
+      		visible 1
+  	 	type ITEM_TYPE_BUTTON
+        	action { exec "team s"; uiScript closeingame }
+		onFocus {
+			transition spectate 540 110 48 30 539 110 48 30 20 10
+		}
+	}
+	itemDef {
+		name spectate
+		text "SPECTATE"
+		textscale .2
+		textalign 2
+		style 0	
+      		visible 1
+		rect 539 110 48 30
+		backcolor 0 0 0 0
+		forecolor 1 1 1 1
+    	}
+    	
+    // non-team game
+	//BTN big
+	itemdef {
+        	name navBTNL
+        	rect 463 63 103 24
+        	background "ui/assets/score/bigred.tga"
+	    	style 3 
+  	    	visible 1
+  	    	cvarTest "g_gametype"
+  	    	showCvar { "0","1","2" }
+        	type ITEM_TYPE_BUTTON
+        	action { exec "team a"; uiScript closeingame }
+		onFocus {
+			transition gogogo 550 80 48 30 549 80 48 30 20 10
+		}
+	}
+	itemDef {
+		name gogogo
+		text "JOIN MATCH"
+		textscale .25
+		textalign 2
+		style 0	
+      		visible 1
+		rect 549 80 48 30 
+		backcolor 0 0 0 0
+		forecolor 1 1 1 1
+		decoration
+  	    	cvarTest "g_gametype"
+  	    	showCvar { "0","1","2" }
+	}
+
+//
+//
+//
+//
+
+itemDef {
+      	name quit
+      	text "LEAVE MATCH"
+      	textscale .2
+      	textalign 0
+      	style 0	
+      	rect 62 274 48 30 
+      	backcolor 0 0 0 0
+      	forecolor 1 1 1 1
+      	decoration
+      	visible 1 	  
+    	}
+itemDef {
+      	name ready
+      	text "RETURN TO MATCH"
+      	textscale .2
+      	textalign 2
+      	style 0	
+      	rect 574 274 48 30 
+      	backcolor 0 0 0 0
+      	forecolor 1 1 1 1
+      	decoration
+      	visible 1 	  
+    	}
+
+itemDef {
+      	name readyCLICK
+      	style 0
+      	rect 470 259 130 20 
+      	backcolor 0 0 0 0
+	//border 1
+	//bordercolor .3 .3 .3 1
+	type ITEM_TYPE_BUTTON
+	      action { uiScript closeingame }
+      	visible 1
+		onFocus {
+			transition ready 575 274 48 30 574 274 48 30 20 10
+		}
+    	}
+itemDef {
+      	name advertCLICK
+      	style 0
+      	rect 220 243 200 50
+      	backcolor 0 0 0 0
+      	type ITEM_TYPE_BUTTON
+      	action { activateAdvert 1 }
+      	visible 1
+    	}
+itemDef {
+      	name quitCLICK
+      	style 0
+      	rect 38 259 100 20 
+      	backcolor 0 0 0 0
+	//border 1
+	//bordercolor .3 .3 .3 1
+	type ITEM_TYPE_BUTTON
+	      	action { uiScript quit }
+      	visible 1 
+		onFocus {
+			transition quit 63 274 48 30 62 274 48 30 20 10
+		}
+    	} 
+}
+
+
+}

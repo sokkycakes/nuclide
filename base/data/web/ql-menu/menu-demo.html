@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Quake Live In-Game Menu — WebCore test</title>
+  <style>
+    :root {
+      --bg: #0a0c10;
+      --panel: #12161c;
+      --ink: #d8dde6;
+      --muted: #8a93a3;
+      --amber: #ffbf00;
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      height: 100%;
+      background: transparent;
+      color: var(--ink);
+      font-family: "Segoe UI Condensed", "Arial Narrow", "Helvetica Neue Condensed", sans-serif;
+    }
+    .wrap {
+      min-height: 100%;
+      display: grid;
+      place-items: center;
+      padding: 24px 16px 40px;
+      gap: 16px;
+    }
+    h1 {
+      margin: 0;
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .stage {
+      position: relative;
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,0.06),
+        0 28px 80px rgba(0,0,0,0.55);
+      border-radius: 2px;
+      overflow: hidden;
+      background: #000;
+    }
+    canvas {
+      display: block;
+      width: min(96vw, 960px);
+      height: auto;
+      cursor: none;
+      image-rendering: auto;
+    }
+    .help {
+      max-width: 960px;
+      width: min(96vw, 960px);
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px 24px;
+      align-items: start;
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+    .help kbd {
+      display: inline-block;
+      padding: 1px 6px;
+      border: 1px solid #3a4354;
+      border-bottom-width: 2px;
+      border-radius: 3px;
+      background: #1a2030;
+      color: #c9d0dc;
+      font: 11px/1.4 ui-monospace, Consolas, monospace;
+    }
+    .toast {
+      justify-self: end;
+      min-height: 1.45em;
+      color: var(--amber);
+      font-weight: 600;
+      letter-spacing: 0.04em;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Quake Live · Arena selector</h1>
+    <div class="stage">
+      <canvas id="c" width="640" height="480" aria-label="Quake Live in-game menu demo"></canvas>
+    </div>
+    <div class="help">
+      <div>
+        WebCore test page. Standalone browser mode is a local demo; live arena interaction is available only through <code>?mode=arena</code>.
+        In arena mode, actions use the restricted arena bridge.
+      </div>
+      <div class="toast" id="toast"></div>
+    </div>
+  </div>
+  <script src="assets/fonts/fonts-data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

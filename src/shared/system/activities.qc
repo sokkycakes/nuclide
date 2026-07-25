@@ -65,6 +65,16 @@ Activities_ResolveActValue(float seqLookupModidx, string rawToken)
 		return (ACTIVITY_NOTFOUND);
 	}
 
+	if (r == "0" || r == "-0" || r == "0.0" || r == "+0") {
+		return (0);
+	}
+
+	/* Numeric framegroup index (hero IQM defs). Check before frameforname. */
+	bynum = stof(r);
+	if (bynum != 0 && r == ftos(bynum)) {
+		return (bynum);
+	}
+
 	if (seqLookupModidx > 0) {
 		byname = frameforname(seqLookupModidx, r);
 		if (byname >= 0) {
@@ -72,14 +82,8 @@ Activities_ResolveActValue(float seqLookupModidx, string rawToken)
 		}
 	}
 
-	bynum = stof(r);
-
 	if (bynum != 0) {
 		return (bynum);
-	}
-
-	if (r == "0" || r == "-0" || r == "0.0" || r == "+0") {
-		return (0);
 	}
 
 	return (ACTIVITY_NOTFOUND);
@@ -92,24 +96,12 @@ Activities_GetSequenceForEntity(ncEntity targetEntity, string activityName)
 	string actNameCheck;
 	string fireValue;
 
-	if (Activities_Enabled() == false) {
-		return (ACTIVITY_NOTFOUND);
-	}
-
-	/* check within sub-def, then classname decl */
+	/* EntityDef act_* keys must resolve even if activities.decl is missing —
+	 * IQM players have no HL activity codes for the frameforaction fallback. */
 	actNameCheck = strcat("act_", activityName);
 	fireValue = targetEntity.GetSpawnString(actNameCheck);
 
-	/* not in class decl either. look it up in the model */
-	if (!STRING_SET(fireValue)) {
-		float actValue = Activities_GetActID(actNameCheck);
-
-		if (actValue != ACTIVITY_NOTFOUND) {
-			/* look it up in the model itself now */
-			float frameGroup = frameforaction(targetEntity.modelindex, actValue);
-			return (frameGroup);
-		}
-	} else {
+	if (STRING_SET(fireValue)) {
 		actCount = tokenizebyseparator(fireValue, ",");
 
 		if (actCount == 1) {
@@ -121,7 +113,18 @@ Activities_GetSequenceForEntity(ncEntity targetEntity, string activityName)
 		}
 	}
 
-	/* not in fireInfo, not in model... skip! */
+	if (Activities_Enabled() == false) {
+		return (ACTIVITY_NOTFOUND);
+	}
+
+	/* not in class decl — look up activity id → model frameforaction */
+	float actValue = Activities_GetActID(actNameCheck);
+
+	if (actValue != ACTIVITY_NOTFOUND) {
+		float frameGroup = frameforaction(targetEntity.modelindex, actValue);
+		return (frameGroup);
+	}
+
 	return (ACTIVITY_NOTFOUND);
 }
 

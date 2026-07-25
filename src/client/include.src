@@ -31,6 +31,7 @@ vgui_modelspawner.qc
 vgui_playerlist.qc
 vgui_observers.qc
 vgui_serverinfo.qc
+webcore_arena.qc
 Editor.qc
 EditorSun.qc
 way.qc

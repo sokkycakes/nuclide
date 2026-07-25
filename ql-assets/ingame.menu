@@ -1,0 +1,556 @@
+#include "ui/menudef.h"
+{
+
+  assetGlobalDef {
+	font "fonts/font" 24				// font
+	smallFont "fonts/smallfont" 16				// font
+	bigFont "fonts/bigfont" 48				// font
+	cursor "ui/assets/3_cursor3"			// cursor	
+	gradientBar "ui/assets/gradientbar2.tga"	// gradient bar
+	itemFocusSound "sound/misc/menu2.wav"		// sound for item getting focus (via keyboard or mouse )
+	
+	fadeClamp 1.0					// sets the fadeup alpha
+	fadeCycle 1					// how often fade happens in milliseconds
+	fadeAmount 0.1					// amount to adjust alpha per cycle
+
+	shadowColor 0.1 0.1 0.1 0.25			// shadow color
+  	}
+							   
+
+\\ INGAME MENU \\
+
+  menuDef {
+	name "ingame"
+	visible 0
+	fullScreen 0
+	rect 0 0 640 480
+	focusColor 1 .75 0 1
+	disableColor .5 .5 .5 1
+
+   	onClose {
+        setitemcolor navbtn1o backcolor 1 1 1 1
+        setitemcolor navbtn2o backcolor 1 1 1 0
+        setitemcolor navbtn3o backcolor 1 1 1 0
+        setitemcolor navbtn4o backcolor 1 1 1 0
+        setitemcolor navbtn5o backcolor 1 1 1 0
+      	}
+
+	itemDef {
+		name "ingameRect"
+		visible 1
+		rect 0 0 640 480
+		style WINDOW_STYLE_FILLED
+		backcolor 0 0 0 .25
+		visible 1
+		decoration
+	}
+
+itemDef {
+      	name menuback				// background Image
+      	style 3
+      	rect 200 18 240 60//62 174 505 120
+     	background "ui/assets/backscreenlogo"
+      	visible 1
+	decoration
+    	}
+//*****************//*****************
+////BACKGROUND IMAGES
+//*****************//*****************
+//
+//
+//BOTTOM NAV
+	//left
+	itemdef {
+		name navframeBL
+	      	rect 33 382 20 40
+	      	background "ui/assets/score/navbarl.tga"
+		style 1 
+	      	visible 1 
+	      	decoration 
+	      	backcolor 1 1 1 0.6
+	}
+	//mid
+	itemdef {
+		name navframeB
+	      	rect 53 382 532 40
+	      	background "ui/assets/score/navbarm.tga"
+		style 1 
+	      	visible 1 
+	      	decoration 
+	      	backcolor 1 1 1 0.6
+	}
+	//right
+	itemdef {
+		name navframeBR
+	      	rect 585 382 20 40
+	      	background "ui/assets/score/navbarr.tga"
+		style 1 
+	      	visible 1 
+	      	decoration 
+	      	backcolor 1 1 1 0.6
+	}
+	//left
+	itemdef {
+		name navframeBL
+	      	rect 33 382 20 40
+	      	background "ui/assets/score/navbarl.tga"
+		style 1 
+	      	visible 1 
+	      	decoration 
+	      	backcolor 1 1 1 1
+	}
+	//mid
+	itemdef {
+		name navframeB
+	      	rect 53 382 532 40
+	      	background "ui/assets/score/navbarm.tga"
+		style 1 
+	      	visible 1 
+	      	decoration 
+	      	backcolor 1 1 1 1
+	}
+	//right
+	itemdef {
+		name navframeBR
+	      	rect 585 382 20 40
+	      	background "ui/assets/score/navbarr.tga"
+		style 1 
+	      	visible 1 
+	      	decoration 
+	      	backcolor 1 1 1 1
+	}
+	//BTN left
+	itemdef {
+		name navBTNL
+	      	rect 38 391 80 20
+	      	background "ui/assets/score/navleft.tga"
+		style 3 
+	      	visible 1 
+	      	decoration 
+	}
+	//BTN right
+	itemdef {
+		name navBTNL
+	      	rect 520 391 80 20
+	      	background "ui/assets/score/navright.tga"
+		style 3 
+	      	visible 1 
+	      	decoration 
+	}
+	
+//	ADVERTS	 //
+itemDef {
+  	name adbg
+  	rect 218 373 204 54
+	style WINDOW_STYLE_FILLED
+	//border 1
+	//bordercolor 0 0 0 .75
+	forecolor 1 1 1 1
+	backcolor 0 0 0 .75//.3 .3 .3 1
+	visible 1
+	decoration
+	}
+//AD CONTENT
+// advert showing at the end of the game 4x1, 256x64, ~5% of screen
+itemdef {
+	name pauseAdvert
+	ownerdraw UI_ADVERT
+   	rect 220 375 200 50
+   	style 3
+    defaultContent "textures/ad_content/ad4x1.jpg"
+   	cellId 1
+	forecolor 1 1 1 1.0
+   	visible 1
+	}
+/*
+itemDef {
+      	name quit
+      	text "LEAVE MATCH"
+      	textscale .2
+      	textalign 0
+      	style 0	
+      	rect 62 404 48 30 
+      	backcolor 0 0 0 0
+      	forecolor 1 1 1 1
+      	decoration
+      	visible 1 	  
+    	}
+itemDef {
+      	name ready
+      	text "RETURN TO MATCH"
+      	textscale .2
+      	textalign 2
+      	style 0	
+      	rect 574 404 48 30 
+      	backcolor 0 0 0 0
+      	forecolor 1 1 1 1
+      	decoration
+      	visible 1 	  
+    	}
+*/  	
+    	
+//BACK FRAME
+	//top
+	itemdef {
+		name bgframeTL
+	      	rect 62 90 40 40
+	      	background "ui/assets/score/frametl.tga"
+		style 1 
+	      	visible 1 
+	      	decoration 
+	      	backcolor 1 1 1 0.9
+	}
+	itemdef {
+		name bgframeTM
+	      	rect 102 90 436 40
+	      	background "ui/assets/score/framet.tga"
+		style 1 
+	      	visible 1 
+	      	decoration 
+	      	backcolor 1 1 1 0.9
+	}
+	itemdef {
+		name bgframeTR
+	      	rect 538 90 40 40
+	      	background "ui/assets/score/frametr.tga"
+		style 1 
+	      	visible 1 
+	      	decoration 
+	      	backcolor 1 1 1 0.9
+	}
+
+	itemdef {
+		name bgframeArrow
+	      	rect 69 95 10 10
+	      	background "ui/assets/score/arrow.tga"
+		style 3 
+	      	visible 1 
+	      	decoration 
+	}
+	//title
+	itemDef {
+		name mapname
+		text "GAME MENU"
+		textscale .2
+		style 0	
+		rect 82 104 418 10 
+		textalign 0		
+		backcolor 0 0 0 0
+		forecolor 0.8 0.8 0.8 1
+		visible 1 
+		decoration	  
+	}
+//TOP NAV
+    // current match
+	itemdef {
+		name navbtn1
+      		rect 72 108 94 25
+      		background "ui/assets/score/btn.tga"
+		style 1 
+	      	visible 1 
+	      	type 1
+		action { open ingame_about
+		 setitemcolor navbtn1o backcolor 1 1 1 1
+		 setitemcolor navbtn2o backcolor 1 1 1 0
+		 setitemcolor navbtn3o backcolor 1 1 1 0
+		 setitemcolor navbtn4o backcolor 1 1 1 0
+		 setitemcolor navbtn5o backcolor 1 1 1 0
+		}
+		onFocus {
+		transition navbtn1t 80 108 80 20 79 108 80 20 20 10
+		}
+	      	backcolor 1 1 1 0.2
+	}
+	itemdef {
+		name navbtn1o
+      		rect 72 108 94 25
+      		background "ui/assets/score/btno.tga"
+		style 1 
+	      	visible 1 
+	      	decoration 
+	      	backcolor 1 1 1 1
+	}
+	itemDef {
+		name navbtn1t
+		text "CURRENT MATCH"
+		textscale .18
+		style 0	
+		rect 79 108 80 20
+      		textalignx 40      
+      		textaligny 14
+		textalign 1		
+		forecolor 1 1 1 1
+		visible 1 
+		decoration
+	}
+    // controls
+	itemdef {
+		name navbtn2
+      		rect 167 108 94 25
+      		background "ui/assets/score/btn.tga"
+		style 1 
+	      	visible 1 
+	      	type 1
+		action { open ingame_controls
+		 setitemcolor navbtn1o backcolor 1 1 1 0
+		 setitemcolor navbtn2o backcolor 1 1 1 1
+		 setitemcolor navbtn3o backcolor 1 1 1 0
+		 setitemcolor navbtn4o backcolor 1 1 1 0
+		 setitemcolor navbtn5o backcolor 1 1 1 0
+		}
+		onFocus {
+		transition navbtn2t 175 108 80 20 174 108 80 20 20 10
+		}
+	      	backcolor 1 1 1 0.2
+	}
+	itemdef {
+		name navbtn2o
+      		rect 167 108 94 25
+      		background "ui/assets/score/btno.tga"
+		style 1 
+	      	visible 1 
+	      	decoration 
+	      	backcolor 1 1 1 0
+	}
+	itemDef {
+		name navbtn2t
+		text "CONTROLS"
+		textscale .18
+		style 0	
+		rect 174 108 80 20
+      		textalignx 40      
+      		textaligny 14 
+		textalign 1		
+		forecolor 1 1 1 1
+		visible 1 
+		
+		decoration
+	}
+    // game settings
+	itemdef {
+		name navbtn3
+      		rect 262 108 94 25
+      		background "ui/assets/score/btn.tga"
+		style 1
+	      	visible 1 
+		type 1
+		action { open ingame_options
+		 setitemcolor navbtn1o backcolor 1 1 1 0
+		 setitemcolor navbtn2o backcolor 1 1 1 0
+		 setitemcolor navbtn3o backcolor 1 1 1 1
+		 setitemcolor navbtn4o backcolor 1 1 1 0
+		 setitemcolor navbtn5o backcolor 1 1 1 0
+		}
+		onFocus {
+		transition navbtn3t 270 108 80 20 269 108 80 20 20 10
+		}
+	      	backcolor 1 1 1 0.2
+	}
+	itemdef {
+		name navbtn3o
+      		rect 262 108 94 25
+      		background "ui/assets/score/btno.tga"
+		style 1 
+	      	visible 1 
+	      	decoration 
+	      	backcolor 1 1 1 0
+	}
+	itemDef {
+		name navbtn3t
+		text "GAME SETTINGS"
+		textscale .18
+		style 0	
+		rect 269 108 80 20
+      		textalignx 40      
+      		textaligny 14
+		textalign 1		
+		forecolor 1 1 1 1
+		visible 1 
+		decoration
+	}
+    // call vote
+	itemdef {
+		name navbtn4
+      		rect 357 108 94 25
+      		background "ui/assets/score/btn.tga"
+		style 1 
+	      	visible 1 
+		type 1
+		cvarTest "ui_voteactive"
+		showCvar { "0" }
+		action { open ingame_callvote
+		 setitemcolor navbtn1o backcolor 1 1 1 0
+		 setitemcolor navbtn2o backcolor 1 1 1 0
+		 setitemcolor navbtn3o backcolor 1 1 1 0
+		 setitemcolor navbtn4o backcolor 1 1 1 1
+		 setitemcolor navbtn5o backcolor 1 1 1 0
+		}
+		onFocus {
+		transition navbtn4t 365 108 80 20 364 108 80 20 20 10
+		}
+	      	backcolor 1 1 1 0.2
+	}
+/*
+	itemdef {
+		name navbtn4
+      		rect 357 108 94 25
+      		background "ui/assets/score/btn.tga"
+		style 1 
+	      	visible 1 
+		type 1
+		cvarTest "ui_voteactive"
+		showCvar { "1" }
+		action { open ingame_vote
+		 setitemcolor navbtn1o backcolor 1 1 1 0
+		 setitemcolor navbtn2o backcolor 1 1 1 0
+		 setitemcolor navbtn3o backcolor 1 1 1 0
+		 setitemcolor navbtn4o backcolor 1 1 1 1
+		 setitemcolor navbtn5o backcolor 1 1 1 0
+		}
+	      	backcolor 1 1 1 0.2
+	}
+*/
+	itemdef {
+		name navbtn4o
+      		rect 357 108 94 25
+      		background "ui/assets/score/btno.tga"
+		style 1 
+	      	visible 1 
+	      	decoration 
+	      	backcolor 1 1 1 0
+	}
+	itemDef {
+		name navbtn4t
+		text "CALL VOTE"
+		textscale .18
+		style 0	
+		rect 364 108 80 20
+      		textalignx 40      
+      		textaligny 14
+		textalign 1		
+		forecolor 1 1 1 1
+		visible 1 
+		decoration
+		cvarTest "ui_voteactive"
+		showCvar { "0" }
+	}
+/*	
+	itemDef {
+		name navbtn4t
+		text "VOTE NOW"
+		textscale .18
+		style 0	
+		rect 364 108 80 20
+      		textalignx 40      
+      		textaligny 14 
+		textalign 1		
+		forecolor 1 1 1 1
+		visible 1 
+		decoration
+		cvarTest "ui_voteactive"
+		showCvar { "1" }
+	}	
+*/
+	itemdef {
+		name navbtn5
+      		rect 452 108 94 25
+      		background "ui/assets/score/btn.tga"
+		style 1 
+	      	visible 1 
+		type 1
+		cvarTest "ui_singleplayeractive"
+		showCvar { "1" }
+		action { open ingame_addbot
+		 setitemcolor navbtn1o backcolor 1 1 1 0
+		 setitemcolor navbtn2o backcolor 1 1 1 0
+		 setitemcolor navbtn3o backcolor 1 1 1 0
+		 setitemcolor navbtn4o backcolor 1 1 1 0
+		 setitemcolor navbtn5o backcolor 1 1 1 1
+		}
+	      	backcolor 1 1 1 0.2
+	}
+	itemdef {
+		name navbtn5o
+      		rect 452 108 94 25
+      		background "ui/assets/score/btno.tga"
+		style 1 
+	      	visible 1 
+	      	decoration 
+	      	backcolor 1 1 1 0
+	}
+	itemDef {
+		name navbtn5t
+		text "ADD BOT"
+		textscale .18
+		style 0	
+		rect 459 108 80 20
+      		textalignx 40      
+      		textaligny 14 
+		textalign 1		
+		forecolor 1 1 1 1
+		visible 1 
+		decoration
+		cvarTest "ui_singleplayeractive"
+		showCvar { "1" }
+	}
+
+itemDef {
+	name fullscreenbutton
+	text "PLAY FULLSCREEN"
+	type ITEM_TYPE_BUTTON
+	textscale .18
+	style WINDOW_STYLE_FILLED
+	visible 1
+	rect 464 31 134 13
+	textalign 1
+	textalignx 66
+	textaligny 14
+	//bordercolor 1 0 0 1
+	//border 1
+	forecolor 1 1 1 0.7
+	cvarTest "r_fullscreen"
+	hideCvar { "1" }
+	//disableCvar { "1" }
+	action { uiScript setFullScreen ; open ingame_about
+		 setitemcolor navbtn1o backcolor 1 1 1 1
+		 setitemcolor navbtn2o backcolor 1 1 1 0
+		 setitemcolor navbtn3o backcolor 1 1 1 0
+		 setitemcolor navbtn4o backcolor 1 1 1 0
+		 setitemcolor navbtn5o backcolor 1 1 1 0
+		}
+	mouseEnter { setitemcolor fullscreenbutton forecolor 1 .75 0 1  }
+	mouseExit { setitemcolor fullscreenbutton forecolor 1 1 1 0.7 }
+	}
+itemDef {
+	name browserbutton
+	text "PLAY IN BROWSER"
+	type ITEM_TYPE_BUTTON
+	textscale .18
+	style WINDOW_STYLE_FILLED
+	visible 1
+	rect 464 45 134 13
+	textalign 1
+	textalignx 66
+	textaligny 14
+	forecolor 1 1 1 0.7
+	backcolor .37 .1 .1 0
+	//border 1
+	//bordercolor 0 1 0 1
+	cvarTest "r_fullscreen"
+	hideCvar { "0" }
+	//disableCvar { "0" }
+	action { uiScript setWindowed ; open ingame_about
+		 setitemcolor navbtn1o backcolor 1 1 1 1
+		 setitemcolor navbtn2o backcolor 1 1 1 0
+		 setitemcolor navbtn3o backcolor 1 1 1 0
+		 setitemcolor navbtn4o backcolor 1 1 1 0
+		 setitemcolor navbtn5o backcolor 1 1 1 0
+		}
+	mouseEnter { setitemcolor browserbutton forecolor 1 .75 0 1  }
+  	mouseExit { setitemcolor browserbutton forecolor 1 1 1 0.7 }
+	}
+}
+
+}
+
+}

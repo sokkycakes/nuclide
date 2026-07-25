@@ -720,12 +720,15 @@ ncWeapon::ReceiveEvent(float eventID)
 void
 ncWeapon::PredictPreFrame(void)
 {
-	super::PredictPreFrame();
-
 	/* may no longer be valid */
 	if (wasfreed(this)) {
 		return;
 	}
+
+	/* Item fields inlined — avoid super::PredictPreFrame(). On CSQC the parent
+	   vtable slot can be null for networked weapons (NULL inside PredictPreFrame). */
+	SAVE_STATE(owner)
+	SAVE_STATE(m_nextItem)
 
 	SAVE_STATE(modelindex)
 	SAVE_STATE(origin)
@@ -761,7 +764,9 @@ ncWeapon::PredictPreFrame(void)
 void
 ncWeapon::PredictPostFrame(void)
 {
-	super::PredictPostFrame();
+	/* Item fields inlined — same super:: null trap as PredictPreFrame. */
+	ROLL_BACK(owner)
+	ROLL_BACK(m_nextItem)
 
 	ROLL_BACK(modelindex)
 	ROLL_BACK(origin)
@@ -793,6 +798,25 @@ ncWeapon::PredictPostFrame(void)
 	/* relink these */
 	ROLL_BACK(m_nextWeapon)
 	ROLL_BACK(m_prevWeapon)
+
+	if (owner_entnum != 0) {
+		owner = findentity(world, ::entnum, owner_entnum);
+	} else {
+		owner = __NULL__;
+	}
+
+	if (owner != m_oldOwner) {
+		if (owner == pSeat->m_ePlayer) {
+			_AddedCallback();
+		}
+		m_oldOwner = owner;
+	}
+
+	if (chain_entnum != 0) {
+		m_nextItem = (ncItem)findentity(world, ::entnum, chain_entnum);
+	} else {
+		m_nextItem = __NULL__;
+	}
 
 	if (m_nextWeapon_entnum != 0) {
 		m_nextWeapon = (ncWeapon)findentity(world, ::entnum, m_nextWeapon_entnum);

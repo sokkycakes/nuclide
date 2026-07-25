@@ -30,3 +30,8 @@ Formats available in plugin-form:
 | File Extension | Type | Description |
 |----------------|------|-------------|
 | mdl | Animated, Skeletal | Source Engine Model |
+
+## Format guides
+
+- [Vera Visions Model (VVM / IQM-FTE)](Models/VVM.md)
+- [IQM player / hero animation](Models/IQM.md) — export, `act_*`, skeletal CSQC pitfalls (Smash / non-Bip01)

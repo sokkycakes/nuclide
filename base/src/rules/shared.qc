@@ -186,9 +186,10 @@ Hero_Notify(entity pl, string msg)
 }
 
 /** Validates and applies a hero selection, honoring swap + composition policy.
- * Returns true if the request was accepted (applied now or queued). */
+ * Returns true if the request was accepted (applied now or queued).
+ * applyNow=false records *hero only — no ChangeToClass/teleport (menu still open). */
 bool
-Hero_TrySelect(entity pl, string heroID)
+Hero_TrySelectEx(entity pl, string heroID, bool applyNow)
 {
 	int teamNum = (int)pl.team;
 
@@ -219,6 +220,11 @@ Hero_TrySelect(entity pl, string heroID)
 	/* record the pick: clients can read *hero, and it's consumed on respawn */
 	userinfo.SetString(pl, "*hero", heroID);
 
+	if (applyNow == false) {
+		Hero_Notify(pl, sprintf("Selected %S.", heroID));
+		return (true);
+	}
+
 	/* swap policy decides when the pick takes effect */
 	if (g_heroSwapPolicy == HEROSWAP_ATSPAWN || is.Alive(pl) == false) {
 		ents.ChangeToClass(pl, heroID);
@@ -229,4 +235,12 @@ Hero_TrySelect(entity pl, string heroID)
 	}
 
 	return (true);
+}
+
+/** Validates and applies a hero selection, honoring swap + composition policy.
+ * Returns true if the request was accepted (applied now or queued). */
+bool
+Hero_TrySelect(entity pl, string heroID)
+{
+	return (Hero_TrySelectEx(pl, heroID, true));
 }

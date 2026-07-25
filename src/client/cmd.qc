@@ -631,6 +631,11 @@ Cmd_Parse(string sCMD)
 	/* can be overriden as well */
 	case "showClassSelectionMenu":
 	case "showHeroSelectionMenu": {
+		string webcoreSelector = argv(0) == "showHeroSelectionMenu" ? "hero" : "class";
+		if (argv(1) != "vgui" && WebCoreArenaUI_OpenSelector(webcoreSelector)) {
+			break;
+		}
+
 		int wishTeam = userinfo.GetInteger(pSeat->m_ePlayer, "*team");
 
 		/* duel queue players may lack a team until promoted; roster is shared */
@@ -642,6 +647,9 @@ Cmd_Parse(string sCMD)
 		break;
 	}
 	case "showTeamSelectionMenu":
+		if (argv(1) != "vgui" && WebCoreArenaUI_OpenSelector("team")) {
+			break;
+		}
 		VGUI_ShowTeamSelectionMenu();
 		break;
 	case "showMOTD":

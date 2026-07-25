@@ -30,9 +30,14 @@ Predict_EntityUpdate(ncPlayer pl, float new)
 	if (Util_IsPaused())
 		return;
 
-	/* this is a new client entity, let's set it up right */
-	if (new || !is.Player(pl)) {
+	/* Class-setup only on first appearance. Do NOT re-run on !is.Player(pl):
+	 * IsPlayer() is virtual on the Client→Spectator→Player hierarchy that already
+	 * had FTEQCC virtual-dispatch failures (ReceiveEntity). A false negative here
+	 * called Util_ChangeClass on later deltas that omit PLAYER_ORIGIN, wiping the
+	 * remote back to world origin until they move. Gate on the networked bool. */
+	if (new || !pl._isPlayer) {
 		Util_ChangeClass(pl, "player");
+		pl._isPlayer = true;
 
 		/* is this **us** ? */
 		if (pl.entnum == player_localentnum) {

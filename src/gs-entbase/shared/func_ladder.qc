@@ -83,7 +83,9 @@ func_ladder::Respawn(void)
 
 	SetMovetype(MOVETYPE_NONE);
 	SetFrame(0);
-	Hide();
+	/* Brush uses measure/ladder (or map texture) — keep it drawn so climb
+	   volumes are visible instead of HL-style invisible triggers. */
+	Show();
 	SetSolid(SOLID_BSP);
 	SetSkin(CONTENT_LADDER);
 }

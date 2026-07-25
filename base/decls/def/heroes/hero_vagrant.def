@@ -1,13 +1,32 @@
-// Vagrant -- knife brawler. Roster baseline: 4 HP, shared movement + speeds.
-// Placeholder model (yuri2) + inherited alice2-family animations.
+// Vagrant -- knife brawler. Roster baseline: 4 HP; always moves at sprint pace (no sprint).
+// Third-person: Smash Joker IQM (own anim set; not alice2-family).
 entityDef hero_vagrant
 {
 	"inherit"				"hero_base"
 
-	"model"					"models/player/yuri2/yuri2.mdl"
+	"model"					"models/player/joker.iqm"
+	/* Visual size is baked into the IQM (export Scale 4.0). Player ents do not
+	 * network .scale, so modelscale here would not change what clients see. */
+
+	/* Numeric IQM framegroup indices (avoid name lookup; IQM has no HL act codes).
+	 * 0 eyelid, 1 wait1, 3 walkfast, 4 walkmiddle, 9 jumpf, 11 damagefall, 16 squat
+	 * Do not use empty "" overrides — they break entityDef key pairing and/or
+	 * fall through to activities.decl frameforaction (wrong on IQM). */
+	"act_idle"				"1"
+	"act_walk"				"4"
+	"act_run"				"3"
+	"act_jump"				"9"
+	"act_idle_crouch"		"16"
+	"act_walk_crouch"		"16"
+	"act_pain"				"1"
+	"act_death"				"11"
 
 	"health"				"4"
 	"max_health"			"4"
+
+	/* Always at roster sprint pace; CanSprint() is false when runspeed is 0. */
+	"pm_walkspeed"			"400"
+	"pm_runspeed"			"0"
 
 	"weapon"				"weapon_vagrant_knife"
 	"current_weapon"		"0"

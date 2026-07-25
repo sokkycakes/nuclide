@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- Browser: open index.html for QL warmup/esc demos.
+       Arena selector fixture: index.html?mode=arena  (keys 1–4 cycle states). -->
+  <title>Quake Live In-Game Menu</title>
+  <link rel="stylesheet" href="fonts.css" />
+  <style>
+    /* Match HUD/pause WebCore layout: % + absolute, never vw/vh.
+       WebCore's CSS viewport units often resolve to 0 and hide the canvas. */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      width: 100%;
+      height: 100%;
+      background: transparent;
+      overflow: hidden;
+      font-family: "standard_07_57", monospace;
+    }
+    canvas {
+      position: absolute;
+      display: block;
+      cursor: none;
+      image-rendering: auto;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="c" width="640" height="480" aria-label="Quake Live in-game menu"></canvas>
+  <script src="assets-data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

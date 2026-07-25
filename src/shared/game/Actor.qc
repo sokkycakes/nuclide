@@ -94,6 +94,12 @@ ncActor::SetAnimationPrefix(string animPrefix)
 	m_torsoLast = gettagindex(this, GetDefString("torsoEnd"));
 	m_torsoTwistYaw = gettagindex(this, GetDefString("twistYaw"));
 
+	/* Enable: anim_debug 1 */
+	if (autocvar(anim_debug, 0)) {
+		dprint(sprintf("SetAnimationPrefix decl=%s idle=%g walk=%g run=%g jump=%g aim=%g\n",
+			declclass, m_actIdle, m_actWalk, m_actRun, m_actJump, m_actAim));
+	}
+
 #if 0
 	EntLog("Activity Set for prefix %S:", animPrefix);
 	EntLog("\tm_boneSpine: %i", m_boneSpine);
