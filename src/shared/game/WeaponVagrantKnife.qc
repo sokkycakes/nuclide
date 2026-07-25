@@ -153,11 +153,13 @@ void ncWeaponVagrantKnife::FreezeEndThink(void)
 {
 	ncPlayer o = (ncPlayer)GetOwner(); if (o) o.RemoveVFlags(VFL_FROZEN);
 }
+#endif
 
 /* ---- Auxiliary Vagrant melee (line+hull base + backstab) ---- */
 
 void ncWeaponVagrantMelee::ncWeaponVagrantMelee(void) {}
 
+#ifdef SERVER
 void ncWeaponVagrantMelee::ApplyMeleeDamage(entity t, vector hp, vector dir)
 {
 	ncPlayer p = (ncPlayer)GetOwner();
