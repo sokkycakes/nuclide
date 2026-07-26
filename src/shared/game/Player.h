@@ -373,6 +373,14 @@ private:
 
 	/* Non-selectable auxiliary melee entity (server-owned). */
 	ncWeapon m_heroMeleeWeapon;
+
+	/* Player-owned warpknife tool state (Vagrant). */
+	entity m_heroWarpKnife;
+	bool m_heroToolHeld;
+	float m_heroWarpThrowTime;
+	float m_heroWarpNextTime;
+	float m_heroWarpPickupHoldStart;
+	float m_heroWarpReloadEnd;
 #endif
 
 	entity m_holdingEntity;

@@ -31,4 +31,5 @@ entityDef hero_vagrant
 	"weapon"				"weapon_vagrant_knife"
 	"current_weapon"		"0"
 	"hero_melee_weapon"		"hero_vagrant_melee"
+	"hero_tool"				"warpknife"
 }

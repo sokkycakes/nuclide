@@ -35,4 +35,5 @@ entityDef hero_archstiletto
 	"weapon"				"weapon_archstiletto"
 	"current_weapon"		"0"
 	"hero_melee_weapon"		"hero_archstiletto_melee"
+	"hero_tool"				"lunge"
 }

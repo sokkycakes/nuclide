@@ -6,10 +6,9 @@
 
 #ifdef SERVER
 void
-Archstiletto_AbilityPress(entity weapEnt)
+Archstiletto_AbilityPress(entity playerEnt)
 {
-	ncWeapon w = (ncWeapon)weapEnt;
-	ncPlayer o = (ncPlayer)w.GetOwner();
+	ncPlayer o = (ncPlayer)playerEnt;
 
 	if (!o) {
 		return;
@@ -40,10 +39,9 @@ Archstiletto_AbilityPress(entity weapEnt)
 }
 
 void
-Archstiletto_AbilityRelease(entity weapEnt)
+Archstiletto_AbilityRelease(entity playerEnt)
 {
-	ncWeapon w = (ncWeapon)weapEnt;
-	ncPlayer o = (ncPlayer)w.GetOwner();
+	ncPlayer o = (ncPlayer)playerEnt;
 	float held;
 	float strength;
 

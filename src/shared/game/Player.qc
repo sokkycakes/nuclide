@@ -107,6 +107,12 @@ ncPlayer::ncPlayer(void)
 	m_stilettoJumpKicked = false;
 #ifdef SERVER
 	m_heroMeleeWeapon = __NULL__;
+	m_heroWarpKnife = __NULL__;
+	m_heroToolHeld = false;
+	m_heroWarpThrowTime = 0;
+	m_heroWarpNextTime = 0;
+	m_heroWarpPickupHoldStart = 0;
+	m_heroWarpReloadEnd = 0;
 #endif
 
 #ifdef SERVER
@@ -1883,7 +1889,7 @@ ncPlayer::MakeTempSpectator(void)
 	m_activeWeapon = __NULL__;
 	m_firstWeapon = __NULL__;
 	m_itemList = __NULL__;
-	HeroActions_ClearMeleeWeapon(this);
+	HeroActions_Reset(this);
 
 	effects = 0;
 	alpha = 0.0f;

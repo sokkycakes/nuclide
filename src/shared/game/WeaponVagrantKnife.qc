@@ -67,34 +67,24 @@ void ncWeaponVagrantKnife::SecondaryAttack(void)
 
 void ncWeaponVagrantKnife::DoAbilityAction(void)
 {
-	ncPlayer o = (ncPlayer)GetOwner(); if (!o) return;
-	if (m_entWarpKnife) {
-		float d = vlen(o.origin - m_entWarpKnife.origin);
-		if (d <= WARP_PICKUP_RANGE) m_flPickupHoldStart = time;
-		else if (time >= m_flNextWarpTime) DoWarpTeleport(o, d);
-	} else FireWarpKnife(o);
-	m_bAbilityHeld = true;
+	/* Compatibility: warpknife is player-owned via HeroActions. */
+	ncPlayer o = (ncPlayer)GetOwner();
+	if (o) {
+		HeroActions_HeroToolPress(o);
+	}
 }
 
-void ncWeaponVagrantKnife::OnAbilityReleased(void) { m_bAbilityHeld = false; }
+void ncWeaponVagrantKnife::OnAbilityReleased(void)
+{
+	ncPlayer o = (ncPlayer)GetOwner();
+	if (o) {
+		HeroActions_HeroToolRelease(o);
+	}
+}
 
 void ncWeaponVagrantKnife::InputFrame(void)
 {
-	ncPlayer o = (ncPlayer)GetOwner();
-	if (m_entWarpKnife && o) {
-		if (m_bAbilityHeld) {
-			if (vlen(o.origin - m_entWarpKnife.origin) <= WARP_PICKUP_RANGE && m_flPickupHoldStart > 0 && (time - m_flPickupHoldStart) >= WARP_PICKUP_HOLD) {
-				remove(m_entWarpKnife); m_entWarpKnife = __NULL__; m_bWarpQueued = false; m_flPickupHoldStart = 0;
-				m_weaponClip = min(m_weaponClip + 1, m_weaponClipSize); return;
-			}
-		} else m_flPickupHoldStart = 0;
-	}
-	if (!m_entWarpKnife) return;
-	if (!o) return;
-	if (wasfreed(m_entWarpKnife)) { m_entWarpKnife = __NULL__; m_bWarpQueued = false; return; }
-	if (o.health <= 0) { remove(m_entWarpKnife); m_entWarpKnife = __NULL__; m_bWarpQueued = false; return; }
-	if (o.m_stilettoLastDamageTime > m_flWarpThrowTime) { remove(m_entWarpKnife); m_entWarpKnife = __NULL__; m_bWarpQueued = false; }
-	if (m_weaponFireInfoValue && time >= m_flReloadEnd) m_weaponFireInfoValue = 0;
+	/* Warpknife tick runs from HeroActions_InputFrame. */
 }
 
 void ncWeaponVagrantKnife::DoWarpTeleport(entity e, float dist)

@@ -28,4 +28,7 @@ entityDef hero_base
 	// Auxiliary melee entityDef name. Spawned as a non-selectable weapon
 	// owned by the player; empty = no ALT melee.
 	"hero_melee_weapon"		""
+
+	// Signature tool id: grapple | lunge | warpknife
+	"hero_tool"				"grapple"
 }

@@ -1236,14 +1236,9 @@ ncWeapon::DoAbilityAction(void)
 #ifdef SERVER
 	entity o = GetOwner();
 
-	/* Arch lunge is def-gated (no QC subclass — keeps CSQC weapon vtables stable). */
-	if (declclass == "weapon_archstiletto") {
-		Archstiletto_AbilityPress(this);
-		return;
-	}
-
+	/* Compatibility adapter: tools are owned by the hero-action router. */
 	if (o) {
-		Stiletto_FireGrapple(o);
+		HeroActions_HeroToolPress(o);
 	}
 #endif
 }
@@ -1252,8 +1247,10 @@ void
 ncWeapon::OnAbilityReleased(void)
 {
 #ifdef SERVER
-	if (declclass == "weapon_archstiletto") {
-		Archstiletto_AbilityRelease(this);
+	entity o = GetOwner();
+
+	if (o) {
+		HeroActions_HeroToolRelease(o);
 	}
 #endif
 }
