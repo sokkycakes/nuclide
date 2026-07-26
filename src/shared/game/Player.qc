@@ -498,6 +498,13 @@ ncPlayer::ProcessInput(void)
 
 	m_activeWeapon.InputFrame();
 
+	/* Guard blocks weapon fire and reload. */
+	if (!HeroActions_CanAttack(this)) {
+		m_activeWeapon._WeaponStoppedFiring();
+		m_activeWeapon.Release();
+		return;
+	}
+
 	/* weapon system */
 	if (input_buttons & INPUT_SECONDARY) {
 		m_activeWeapon._SecondaryAttack();
@@ -1291,6 +1298,13 @@ ncPlayer::ReceivePlayerEntity(float isNew, float flChanged)
 	READENTITY_FLOAT(m_stilettoLungeCooldownEnd, PLAYER_STILETTO)
 	READENTITY_INT(m_stilettoLungeLaunch, PLAYER_STILETTO)
 
+	READENTITY_INT(m_heroGuardState, PLAYER_HERO_ACTIONS)
+	READENTITY_INT(m_heroWeaponMode, PLAYER_HERO_ACTIONS)
+	READENTITY_INT(m_drive, PLAYER_HERO_ACTIONS)
+	READENTITY_INT(m_driveMax, PLAYER_HERO_ACTIONS)
+	READENTITY_INT(m_ex, PLAYER_HERO_ACTIONS)
+	READENTITY_INT(m_exMax, PLAYER_HERO_ACTIONS)
+
 	/* we only really care about the declclass for decl lookups.
 	 * Always sync from entityDefID when present — CSQC prediction overwrites
 	 * anim_bottom from m_act*, and IQM has no HL activity codes to fall back on. */
@@ -1299,7 +1313,6 @@ ncPlayer::ReceivePlayerEntity(float isNew, float flChanged)
 		if (STRING_SET(fromNet))
 			declclass = fromNet;
 	}
-
 	if (flChanged & PLAYER_MODELINDEX) {
 		if (skeletonindex) {
 			skel_delete(skeletonindex);
@@ -2013,6 +2026,7 @@ ncPlayer::MakePlayer(void)
 #ifdef SERVER
 	/* reset combat-reaction state and read the Arch flag from the hero def */
 	Stiletto_Combat_Respawn(this);
+	HeroActions_InitResources(this);
 	HeroActions_EnsureMeleeWeapon(this);
 #endif
 }
@@ -2143,6 +2157,13 @@ ncPlayer::EvaluateEntity(void)
 	EVALUATE_FIELD(m_stilettoLungeFlight, PLAYER_STILETTO)
 	EVALUATE_FIELD(m_stilettoLungeCooldownEnd, PLAYER_STILETTO)
 	EVALUATE_FIELD(m_stilettoLungeLaunch, PLAYER_STILETTO)
+
+	EVALUATE_FIELD(m_heroGuardState, PLAYER_HERO_ACTIONS)
+	EVALUATE_FIELD(m_heroWeaponMode, PLAYER_HERO_ACTIONS)
+	EVALUATE_FIELD(m_drive, PLAYER_HERO_ACTIONS)
+	EVALUATE_FIELD(m_driveMax, PLAYER_HERO_ACTIONS)
+	EVALUATE_FIELD(m_ex, PLAYER_HERO_ACTIONS)
+	EVALUATE_FIELD(m_exMax, PLAYER_HERO_ACTIONS)
 
 	for (int i = 0i; i < MAX_AMMO_TYPES; i++) {
 		EVALUATE_VECTOR(m_ammoTypes, i, PLAYER_AMMOTYPES)
@@ -2278,6 +2299,13 @@ ncPlayer::SendEntity(entity ePEnt, float flChanged)
 	SENDENTITY_INT(m_stilettoLungeFlight, PLAYER_STILETTO)
 	SENDENTITY_FLOAT(m_stilettoLungeCooldownEnd, PLAYER_STILETTO)
 	SENDENTITY_INT(m_stilettoLungeLaunch, PLAYER_STILETTO)
+
+	SENDENTITY_INT(m_heroGuardState, PLAYER_HERO_ACTIONS)
+	SENDENTITY_INT(m_heroWeaponMode, PLAYER_HERO_ACTIONS)
+	SENDENTITY_INT(m_drive, PLAYER_HERO_ACTIONS)
+	SENDENTITY_INT(m_driveMax, PLAYER_HERO_ACTIONS)
+	SENDENTITY_INT(m_ex, PLAYER_HERO_ACTIONS)
+	SENDENTITY_INT(m_exMax, PLAYER_HERO_ACTIONS)
 
 	for (int i = 0i; i < MAX_AMMO_TYPES; i++) {
 		SENDENTITY_BYTE(m_ammoTypes[i], PLAYER_AMMOTYPES)
@@ -2653,6 +2681,8 @@ ncPlayer::Damage(entity inflictor, entity attacker, ncDict damageDecl, float dam
 	if (Stiletto_Combat_DamageBlocked(this, damageDecl)) {
 		return;
 	}
+
+	damagePoints = HeroActions_ApplyGuardDamageRules(this, attacker, damagePoints);
 
 	/* skip armor */
 	if (damageDecl.GetBool("noArmor") == false) {

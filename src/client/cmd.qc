@@ -463,16 +463,11 @@ Cmd_Parse(string sCMD)
 		break;
 	case "+hero_guard":
 		pSeat->m_iInputHeroGuard = true;
-		/* Phase 4: reliable press/release. Placeholder logs only. */
-		if (cvar("hero_actions_debug")) {
-			print("[hero_actions] +hero_guard (noop until phase 4)\n");
-		}
+		localcmd("cmd hero_guard 1\n");
 		break;
 	case "-hero_guard":
 		pSeat->m_iInputHeroGuard = false;
-		if (cvar("hero_actions_debug")) {
-			print("[hero_actions] -hero_guard (noop until phase 4)\n");
-		}
+		localcmd("cmd hero_guard 0\n");
 		break;
 	case "+groove":
 		pSeat->m_iInputGroove = true;

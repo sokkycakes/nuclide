@@ -1,4 +1,4 @@
-/* Live HUD via fte_query("gethud") — mirrors cl_slint_hud.c SyncProperties. */
+﻿/* Live HUD via fte_query("gethud") ΓÇö mirrors cl_slint_hud.c SyncProperties. */
 
 (function () {
   var AMMO_PIPS = [
@@ -124,11 +124,27 @@
     }
   }
 
+  function cvarNum(name, fallback) {
+    if (typeof fte_query !== "function") return fallback;
+    try {
+      var raw = fte_query("cvar:" + name);
+      if (raw === "" || raw == null) raw = fte_query("get_cvar " + name);
+      var n = parseFloat(raw);
+      return isNaN(n) ? fallback : n;
+    } catch (e) {
+      return fallback;
+    }
+  }
+
   function refresh() {
     var data = queryHud();
     var health = 100;
     var ammo = 0;
     var charges = 3;
+    var drive = cvarNum("webcore_hud_drive", -1);
+    var driveMax = Math.max(1, cvarNum("webcore_hud_drive_max", 1000));
+    var ex = cvarNum("webcore_hud_ex", -1);
+    var guard = cvarNum("webcore_hud_guard", 0) > 0;
 
     if (data) {
       if (typeof data.health === "number") health = data.health;
@@ -143,6 +159,17 @@
       if (data.player1 != null) setText("player1-name", data.player1);
       if (data.player2 != null) setText("player2-name", data.player2);
     }
+
+    /* Authoritative Groove meters from CSQC-published cvars when present. */
+    if (ex >= 0) setText("ex-level", Math.round(ex));
+    if (drive >= 0) {
+      var drivePips = Math.round((drive / driveMax) * 5);
+      setFilled(document.querySelectorAll("#drive-left .drive-pip"), drivePips);
+      setFilled(document.querySelectorAll("#drive-right .drive-pip"), drivePips);
+    }
+
+    var stage = document.getElementById("stage");
+    if (stage) stage.classList.toggle("is-guarding", guard);
 
     setHp(health);
     setFilled(ammoPips, ammo);

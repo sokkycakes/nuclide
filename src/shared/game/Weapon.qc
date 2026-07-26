@@ -1256,6 +1256,12 @@ ncWeapon::OnAbilityReleased(void)
 }
 
 void
+ncWeapon::OnWeaponModeChanged(int mode)
+{
+	/* Default: no mode behavior. Weapons may override. */
+}
+
+void
 ncWeapon::ReleasedWeaponAttack(string fireInfo)
 {
 	ncPlayer ourOwner = (ncPlayer)GetOwner();

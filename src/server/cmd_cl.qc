@@ -134,17 +134,19 @@ Cmd_ParseClientCommand(ncClient sender, string cmd, int commandArguments)
 			}
 		}
 		break;
+	case "hero_guard":
+		if (is.Player(sender)) {
+			HeroActions_SetGuardHeld((ncPlayer)sender, argv(1) == "1");
+		}
+		break;
 	case "hero_action":
-		/* Phase 7 implements validation + spend. */
-		if (cvar("hero_actions_debug")) {
-			print(sprintf("[hero_actions] hero_action slot=%s ctx=%s (noop until phase 7)\n",
-				argv(1), argv(2)));
+		if (is.Player(sender)) {
+			HeroActions_RequestSlot((ncPlayer)sender, stoi(argv(1)), argv(2));
 		}
 		break;
 	case "weapon_mode":
-		/* Phase 5 implements mode cycle. */
-		if (cvar("hero_actions_debug")) {
-			print("[hero_actions] weapon_mode (noop until phase 5)\n");
+		if (is.Player(sender)) {
+			HeroActions_CycleWeaponMode((ncPlayer)sender);
 		}
 		break;
 	default:

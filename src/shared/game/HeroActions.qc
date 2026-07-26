@@ -28,6 +28,7 @@ HeroActions_Reset(entity player)
 {
 	HeroActions_ClearMeleeWeapon(player);
 	HeroActions_WarpknifeClear(player);
+	HeroActions_InitResources(player);
 }
 
 #ifdef SERVER
@@ -399,6 +400,9 @@ HeroActions_MeleePress(entity player)
 	}
 
 #ifdef SERVER
+	if (!HeroActions_CanAttack(pl)) {
+		return;
+	}
 	HeroActions_EnsureMeleeWeapon(pl);
 	melee = pl.m_heroMeleeWeapon;
 	if (!melee || wasfreed(melee)) {
@@ -440,5 +444,373 @@ HeroActions_InputFrame(entity player, int currentButtons, int previousButtons)
 
 #ifdef SERVER
 	HeroActions_WarpknifeFrame(pl);
+
+	/* Guard heartbeat expiry: lost -hero_guard cannot stick forever. */
+	if (pl.m_heroGuardHeld && pl.m_heroGuardExpire > 0 && time > pl.m_heroGuardExpire) {
+		HeroActions_SetGuardHeld(pl, false);
+	}
 #endif
 }
+
+/* ===================== Phase 4+: Guard ===================== */
+
+void
+HeroActions_SetGuardHeld(entity player, bool held)
+{
+	ncPlayer pl;
+
+	if (!player) {
+		return;
+	}
+
+	pl = (ncPlayer)player;
+
+#ifdef SERVER
+	if (held && !pl.m_heroGuardHeld) {
+		if (pl.m_activeWeapon) {
+			pl.m_activeWeapon.Release();
+		}
+	}
+
+	pl.m_heroGuardHeld = held;
+	pl.m_heroGuardState = held ? 1 : 0;
+	if (held) {
+		pl.m_heroGuardExpire = time + 1.5;
+	} else {
+		pl.m_heroGuardExpire = 0;
+	}
+
+	if (autocvar_hero_actions_debug) {
+		print(sprintf("[hero_actions] guard=%d player=%d\n",
+			held, num_for_edict(pl)));
+	}
+#endif
+}
+
+bool
+HeroActions_CanAttack(entity player)
+{
+	ncPlayer pl;
+
+	if (!player) {
+		return (false);
+	}
+
+	pl = (ncPlayer)player;
+	if (pl.m_heroGuardState) {
+		return (false);
+	}
+	return (true);
+}
+
+float
+HeroActions_ApplyGuardDamageRules(entity victim, entity attacker, float damage)
+{
+	ncPlayer pl;
+	vector toAtk;
+	vector fwd;
+	float facing;
+
+	if (damage <= 0) {
+		return damage;
+	}
+
+	pl = (ncPlayer)victim;
+	if (!pl || !pl.m_heroGuardState) {
+		return damage;
+	}
+
+	/* Directional block: must roughly face the attacker. */
+	if (attacker && attacker != world && attacker != victim) {
+		toAtk = attacker.origin - pl.origin;
+		toAtk_z = 0;
+		if (vlen(toAtk) > 1) {
+			fwd = anglesToForward(pl.v_angle);
+			fwd_z = 0;
+			facing = normalize(toAtk) * normalize(fwd);
+			if (facing < 0.25) {
+				return damage;
+			}
+		}
+	}
+
+#ifdef SERVER
+	/* 50% reduction; award Drive on a successful block. */
+	damage = rint(damage * 0.5);
+	if (damage < 1 && damage > 0) {
+		damage = 1;
+	}
+	HeroActions_AddDrive(pl, 50);
+#endif
+	return damage;
+}
+
+void
+HeroActions_InitResources(entity player)
+{
+	ncPlayer pl;
+	int dmax;
+	int emax;
+
+	if (!player) {
+		return;
+	}
+
+	pl = (ncPlayer)player;
+	dmax = pl.GetDefInt("groove_drive_max");
+	emax = pl.GetDefInt("groove_ex_max");
+	if (dmax <= 0) {
+		dmax = 1000;
+	}
+	if (emax <= 0) {
+		emax = 3;
+	}
+
+	pl.m_driveMax = dmax;
+	pl.m_exMax = emax;
+	pl.m_drive = 0;
+	pl.m_ex = 0;
+	pl.m_heroWeaponMode = 0;
+	HeroActions_SetGuardHeld(pl, false);
+}
+
+/* ===================== Phase 5: Weapon mode ===================== */
+
+void
+HeroActions_CycleWeaponMode(entity player)
+{
+	ncPlayer pl;
+	int modes;
+	ncWeapon w;
+
+	if (!player) {
+		return;
+	}
+
+	pl = (ncPlayer)player;
+#ifdef SERVER
+	if (!HeroActions_CanAttack(pl)) {
+		return;
+	}
+
+	w = pl.m_activeWeapon;
+	modes = 0;
+	if (w) {
+		modes = w.GetDefInt("weapon_modes");
+	}
+	if (modes <= 0) {
+		modes = pl.GetDefInt("hero_weapon_modes");
+	}
+	if (modes <= 1) {
+		pl.m_heroWeaponMode = 0;
+		if (autocvar_hero_actions_debug) {
+			print("[hero_actions] weapon_mode unsupported (stay 0)\n");
+		}
+		return;
+	}
+
+	pl.m_heroWeaponMode = (pl.m_heroWeaponMode + 1) % modes;
+	if (w) {
+		w.OnWeaponModeChanged(pl.m_heroWeaponMode);
+	}
+
+	if (autocvar_hero_actions_debug) {
+		print(sprintf("[hero_actions] weapon_mode=%d / %d\n",
+			pl.m_heroWeaponMode, modes));
+	}
+#endif
+}
+
+/* ===================== Phase 6: Drive / EX ===================== */
+
+void
+HeroActions_AddDrive(entity player, int amount)
+{
+	ncPlayer pl;
+
+	if (!player || amount == 0) {
+		return;
+	}
+
+	pl = (ncPlayer)player;
+#ifdef SERVER
+	pl.m_drive = bound(0, pl.m_drive + amount, pl.m_driveMax);
+	if (autocvar_hero_actions_debug) {
+		print(sprintf("[hero_actions] drive=%d/%d\n", pl.m_drive, pl.m_driveMax));
+	}
+#endif
+}
+
+bool
+HeroActions_SpendDrive(entity player, int amount)
+{
+	ncPlayer pl;
+
+	if (!player || amount <= 0) {
+		return (false);
+	}
+
+	pl = (ncPlayer)player;
+#ifdef SERVER
+	if (pl.m_drive < amount) {
+		return (false);
+	}
+	pl.m_drive -= amount;
+	return (true);
+#else
+	return (false);
+#endif
+}
+
+void
+HeroActions_AddEX(entity player, int amount)
+{
+	ncPlayer pl;
+
+	if (!player || amount == 0) {
+		return;
+	}
+
+	pl = (ncPlayer)player;
+#ifdef SERVER
+	pl.m_ex = bound(0, pl.m_ex + amount, pl.m_exMax);
+	if (autocvar_hero_actions_debug) {
+		print(sprintf("[hero_actions] ex=%d/%d\n", pl.m_ex, pl.m_exMax));
+	}
+#endif
+}
+
+bool
+HeroActions_SpendEX(entity player, int amount)
+{
+	ncPlayer pl;
+
+	if (!player || amount <= 0) {
+		return (false);
+	}
+
+	pl = (ncPlayer)player;
+#ifdef SERVER
+	if (pl.m_ex < amount) {
+		return (false);
+	}
+	pl.m_ex -= amount;
+	return (true);
+#else
+	return (false);
+#endif
+}
+
+bool
+HeroActions_CanUseAction(entity player, string actionId)
+{
+	ncPlayer pl;
+
+	if (!player || !STRING_SET(actionId)) {
+		return (false);
+	}
+
+	pl = (ncPlayer)player;
+	if (pl.health <= 0 || pl.HasVFlags(VFL_FAKESPEC)) {
+		return (false);
+	}
+	if (pl.m_heroGuardState) {
+		return (false);
+	}
+	if (actionId == "drive_pulse") {
+		return (pl.m_drive >= 200);
+	}
+	if (actionId == "ex_pulse") {
+		return (pl.m_ex >= 1);
+	}
+	return (false);
+}
+
+/* ===================== Phase 7: Slot protocol ===================== */
+
+void
+HeroActions_RequestSlot(entity player, int slot, string context)
+{
+	ncPlayer pl;
+	string key;
+	string actionId;
+	float now;
+
+	if (!player) {
+		return;
+	}
+
+	pl = (ncPlayer)player;
+#ifdef SERVER
+	now = time;
+	if (now < pl.m_heroActionNextTime) {
+		if (autocvar_hero_actions_debug) {
+			print("[hero_actions] slot rate-limited\n");
+		}
+		return;
+	}
+
+	if (slot < 0 || slot > 2) {
+		return;
+	}
+	if (pl.health <= 0 || pl.HasVFlags(VFL_FAKESPEC)) {
+		return;
+	}
+	if (!STRING_SET(context)) {
+		context = "normal";
+	}
+
+	/* Resolve whitelisted action from hero def only — never from client. */
+	if (context == "groove") {
+		if (slot == 0) key = "groove_action_z";
+		else if (slot == 1) key = "groove_action_x";
+		else key = "groove_action_c";
+	} else {
+		if (slot == 0) key = "groove_normal_action_z";
+		else if (slot == 1) key = "groove_normal_action_x";
+		else key = "groove_normal_action_c";
+	}
+
+	actionId = pl.GetDefString(key);
+	if (!STRING_SET(actionId)) {
+		if (autocvar_hero_actions_debug) {
+			print(sprintf("[hero_actions] empty action slot=%d ctx=%s\n", slot, context));
+		}
+		return;
+	}
+
+	/* Whitelist */
+	if (actionId != "drive_pulse" && actionId != "ex_pulse") {
+		if (autocvar_hero_actions_debug) {
+			print(sprintf("[hero_actions] rejected action '%s'\n", actionId));
+		}
+		return;
+	}
+
+	if (!HeroActions_CanUseAction(pl, actionId)) {
+		return;
+	}
+
+	if (actionId == "drive_pulse") {
+		if (!HeroActions_SpendDrive(pl, 200)) {
+			return;
+		}
+		pl.AddVelocity(anglesToForward(pl.v_angle) * 320);
+	} else if (actionId == "ex_pulse") {
+		if (!HeroActions_SpendEX(pl, 1)) {
+			return;
+		}
+		if (pl.health < pl.max_health) {
+			pl.SetHealth(min(pl.max_health, pl.health + 1));
+		}
+	}
+
+	pl.m_heroActionNextTime = now + 0.35;
+
+	if (autocvar_hero_actions_debug) {
+		print(sprintf("[hero_actions] ran '%s' slot=%d ctx=%s\n",
+			actionId, slot, context));
+	}
+#endif
+}
+

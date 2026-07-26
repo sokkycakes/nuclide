@@ -331,6 +331,9 @@ public:
 
 	/* Called when the ability key is released. */
 	virtual void OnAbilityReleased(void);
+
+	/* Optional weapon mode cycle (R / weapon_mode). Default no-op. */
+	virtual void OnWeaponModeChanged(int mode);
 #endif
 
 	virtual bool TestFireAbility(string);

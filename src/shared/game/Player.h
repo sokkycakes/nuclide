@@ -337,6 +337,14 @@ private:
 
 	int m_stilettoPrevButtons;
 
+	/* Hero actions / Groove (PLAYER_HERO_ACTIONS). */
+	NETWORKED_INT(m_heroGuardState)
+	NETWORKED_INT(m_heroWeaponMode)
+	NETWORKED_INT(m_drive)
+	NETWORKED_INT(m_driveMax)
+	NETWORKED_INT(m_ex)
+	NETWORKED_INT(m_exMax)
+
 #ifdef CLIENT
 	int sequence;
 
@@ -381,6 +389,10 @@ private:
 	float m_heroWarpNextTime;
 	float m_heroWarpPickupHoldStart;
 	float m_heroWarpReloadEnd;
+
+	bool m_heroGuardHeld;
+	float m_heroGuardExpire;
+	float m_heroActionNextTime;
 #endif
 
 	entity m_holdingEntity;
@@ -423,6 +435,7 @@ enumflags
 	PLAYER_TOPFRAME,
 	PLAYER_BOTTOMFRAME,
 	PLAYER_STILETTO,
+	PLAYER_HERO_ACTIONS,
 	PLAYER_CUSTOMFIELDSTART,
 };
 

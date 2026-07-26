@@ -1,6 +1,5 @@
 /*
- * Player-owned hero action router. Phase 1: tool press/release + input edges.
- * Grow this surface per phase — do not stub later-phase APIs here.
+ * Player-owned hero action router.
  */
 
 var bool autocvar_hero_actions_debug = false;
@@ -12,3 +11,22 @@ void HeroActions_HeroToolRelease(entity player);
 void HeroActions_MeleePress(entity player);
 void HeroActions_EnsureMeleeWeapon(entity player);
 void HeroActions_ClearMeleeWeapon(entity player);
+
+/* Phase 4+ */
+void HeroActions_SetGuardHeld(entity player, bool held);
+bool HeroActions_CanAttack(entity player);
+float HeroActions_ApplyGuardDamageRules(entity victim, entity attacker, float damage);
+void HeroActions_InitResources(entity player);
+
+/* Phase 5+ */
+void HeroActions_CycleWeaponMode(entity player);
+
+/* Phase 6+ */
+void HeroActions_AddDrive(entity player, int amount);
+bool HeroActions_SpendDrive(entity player, int amount);
+void HeroActions_AddEX(entity player, int amount);
+bool HeroActions_SpendEX(entity player, int amount);
+bool HeroActions_CanUseAction(entity player, string actionId);
+
+/* Phase 7+ */
+void HeroActions_RequestSlot(entity player, int slot, string context);

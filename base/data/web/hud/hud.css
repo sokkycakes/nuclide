@@ -1,0 +1,49 @@
+html, body {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: transparent;
+  font-family: "Trade Gothic", "Arial Narrow", sans-serif;
+  color: #f2f2f2;
+}
+
+#hud-root {
+  position: absolute;
+  left: 4%;
+  bottom: 8%;
+  width: 28%;
+  min-width: 180px;
+}
+
+.meter { margin-bottom: 10px; }
+.label { font-size: 12px; letter-spacing: 0.12em; opacity: 0.85; }
+.bar {
+  height: 10px;
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+}
+.fill {
+  height: 100%;
+  width: 0%;
+  background: #d8d8d8;
+}
+.value { font-size: 11px; margin-top: 2px; opacity: 0.8; }
+.pips { display: flex; gap: 6px; margin-top: 4px; }
+.pip {
+  width: 14px;
+  height: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  background: transparent;
+}
+.pip.on { background: #f0f0f0; }
+.guard {
+  display: inline-block;
+  margin-top: 8px;
+  padding: 4px 10px;
+  border: 1px solid #fff;
+  letter-spacing: 0.16em;
+  font-size: 12px;
+  background: rgba(0, 0, 0, 0.35);
+}
+.guard[hidden] { display: none; }

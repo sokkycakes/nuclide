@@ -457,6 +457,7 @@ WebCoreHud_Ensure(void)
 void
 WebCoreHud_Draw(void)
 {
+	ncPlayer pl;
 	float showtime;
 	float minutes, secs;
 	string timerStr;
@@ -471,6 +472,17 @@ WebCoreHud_Draw(void)
 	if (autocvar_webcore_hud <= 0) {
 		WebCoreHud_Shutdown();
 		return;
+	}
+
+	/* Publish authoritative local hero-action snapshot for the WebCore HUD. */
+	pl = (ncPlayer)player;
+	if (pl) {
+		cvar_set("webcore_hud_drive", ftos(pl.m_drive));
+		cvar_set("webcore_hud_drive_max", ftos(pl.m_driveMax));
+		cvar_set("webcore_hud_ex", ftos(pl.m_ex));
+		cvar_set("webcore_hud_ex_max", ftos(pl.m_exMax));
+		cvar_set("webcore_hud_guard", ftos(pl.m_heroGuardState));
+		cvar_set("webcore_hud_mode", ftos(pl.m_heroWeaponMode));
 	}
 
 	WebCoreHud_Ensure();
