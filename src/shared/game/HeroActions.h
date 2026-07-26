@@ -30,3 +30,8 @@ bool HeroActions_CanUseAction(entity player, string actionId);
 
 /* Phase 7+ */
 void HeroActions_RequestSlot(entity player, int slot, string context);
+
+#ifdef CLIENT
+/* CSQC: publish Drive/EX/guard for WebCore HUD (hud.dat has no ncPlayer). */
+void HeroActions_PublishHud(entity player);
+#endif

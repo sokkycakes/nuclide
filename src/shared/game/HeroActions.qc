@@ -814,3 +814,23 @@ HeroActions_RequestSlot(entity player, int slot, string context)
 #endif
 }
 
+#ifdef CLIENT
+void
+HeroActions_PublishHud(entity player)
+{
+	ncPlayer pl;
+
+	if (!player) {
+		return;
+	}
+
+	pl = (ncPlayer)player;
+	cvar_set("webcore_hud_drive", ftos(pl.m_drive));
+	cvar_set("webcore_hud_drive_max", ftos(pl.m_driveMax));
+	cvar_set("webcore_hud_ex", ftos(pl.m_ex));
+	cvar_set("webcore_hud_ex_max", ftos(pl.m_exMax));
+	cvar_set("webcore_hud_guard", ftos(pl.m_heroGuardState));
+	cvar_set("webcore_hud_mode", ftos(pl.m_heroWeaponMode));
+}
+#endif
+

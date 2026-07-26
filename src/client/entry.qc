@@ -281,6 +281,8 @@ CSQC_Update2D(float w, float h, bool focus)
 					cl.m_activeWeapon.UpdateGUI();
 				}
 
+				HeroActions_PublishHud(cl);
+
 				/* native HUD replaces the game HUD when enabled, otherwise
 				 * fall back to the Nuclide hud.dat HUD. */
 				if (nativeHudActive) {
