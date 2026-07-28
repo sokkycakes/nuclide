@@ -125,6 +125,29 @@ Player.AirStall
 	sample player/airstall.wav
 }
 
+Player.WallJump
+{
+	attenuation static
+	pitch_min 0.95
+	pitch_max 1.05
+	volume 0.75
+	sample player/kickbackv3.ogg
+}
+
+Player.GoombaStomp
+{
+	attenuation static
+	pitch_min 0.95
+	pitch_max 1.05
+	volume 1.0
+	sample player/goombastomp1.ogg
+	sample player/goombastomp2.ogg
+	sample player/goombastomp3.ogg
+	sample player/goombastomp4.ogg
+	sample player/goombastomp5.ogg
+	sample player/goombastomprare.ogg
+}
+
 Player.Gib
 {
 	sample player/udeath.wav

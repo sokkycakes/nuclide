@@ -459,6 +459,9 @@ PMoveCustom_DoTouch(entity tother)
 		other = tother;
 		self.touch();
 	}
+
+	/* Goomba stomp: impact on another solid while falling (server-only inside). */
+	GoombaStomp_OnTouch(self, tother);
 }
 
 /* bounce us back off a place normal */

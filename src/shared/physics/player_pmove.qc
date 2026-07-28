@@ -627,6 +627,12 @@ ncPlayer::Physics_Run(void)
 	bool sprintFail = false;
 	float stilettoGravSave = gravity;
 
+	/* Stamp for goomba touch path — Rebound may clear velocity[2] before DoTouch. */
+	m_goombaFallSpeed = flFallVel - flBaseVel;
+	if (m_goombaFallSpeed < 0.0f) {
+		m_goombaFallSpeed = 0.0f;
+	}
+
 	saved_input_movevalues = input_movevalues;
 	saved_input_buttons = input_buttons;
 
@@ -750,6 +756,9 @@ ncPlayer::Physics_Run(void)
 		}
 		Physics_Fall(flFallVel - flBaseVel);
 	}
+
+	/* Goomba stomp: short downward contact probe using pre-move fall speed */
+	GoombaStomp_PostMove(this, flFallVel - flBaseVel);
 
 	/* tool punish: start the landing stun, expire it, run OOC regen (server) */
 	Stiletto_Combat_PostMove(this);

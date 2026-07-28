@@ -1,0 +1,7 @@
+// Goomba stomp gates (tunable). Both minFallSpeed and minAirtime must pass.
+typeInfo goombastomp
+{
+	"minFallSpeed"	"350"	// downward speed (qu/s) required
+	"minAirtime"	"0.55"	// seconds airborne required
+	"probeDistance"	"18"	// short downward contact probe after move
+}

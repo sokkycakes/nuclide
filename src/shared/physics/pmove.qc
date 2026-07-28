@@ -831,6 +831,7 @@ PMove_Init(void)
 	g_slimeDecl = ncDict::LoadDeclFromFile("slime", "typeinfo/slime.decl");
 	g_lavaDecl = ncDict::LoadDeclFromFile("lava", "typeinfo/lava.decl");
 	g_fallDamageDecl = ncDict::LoadDeclFromFile("falldamage", "typeinfo/falldamage.decl");
+	GoombaStomp_Init();
 
 	if (g_waterDecl.GetString("def_damage") == "") {
 		g_waterDamageDecl = spawn(ncDict);

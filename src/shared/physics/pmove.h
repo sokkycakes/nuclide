@@ -134,9 +134,14 @@ ncDict g_waterDecl;
 ncDict g_slimeDecl;
 ncDict g_lavaDecl;
 ncDict g_fallDamageDecl;
+ncDict g_goombaStompDecl;
 ncDict g_waterDamageDecl;
 ncDict g_slimeDamageDecl;
 ncDict g_lavaDamageDecl;
+
+void GoombaStomp_Init(void);
+void GoombaStomp_OnTouch(entity stomper, entity other);
+void GoombaStomp_PostMove(entity e, float fallSpeed);
 
 #define STILETTO_GRAPPLE_HOOK_SPEED_QUAKE	(40.0f * 39.37008f)
 

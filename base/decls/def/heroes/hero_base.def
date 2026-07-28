@@ -19,6 +19,15 @@ entityDef hero_base
 	// trajectory-preserving tool punish). 0 = standard 4 HP roster behavior.
 	"stiletto_arch"			"0"
 
+	// Per-hero air mobility flags. Set to "0" to disable air dash
+	// (horizontal-movement jump while airborne) or air stall (no-movement
+	// hover). Both default "1" (enabled); read by Stiletto_OnPhysicsStart.
+	"stiletto_air_dodge"		"1"
+	"stiletto_air_stall"		"1"
+
+	// Goomba stomp (land-on-head instakill). Default on; set "0" to opt out.
+	"goomba_stomp"			"1"
+
 	// --- RESERVED FOR FUTURE ABILITY SYSTEM (inert, do not rely on) ---
 	"def_ability_passive"	""
 	"def_ability_primary"	""
