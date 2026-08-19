@@ -537,6 +537,7 @@ int updater_run_apply(void)
                         _snprintf_s(msg, sizeof(msg), _TRUNCATE,
                             "Couldn't hash download (err %lu)", GetLastError());
                         status_write(status_path, "error", 0.0, msg, NULL);
+                        DeleteFileW(partial_path);
                         free(manifest);
                         return 9;
                     }
@@ -545,6 +546,7 @@ int updater_run_apply(void)
                         _snprintf_s(msg, sizeof(msg), _TRUNCATE,
                             "SHA256 mismatch (%s)", file_path);
                         status_write(status_path, "error", 0.0, msg, NULL);
+                        DeleteFileW(partial_path);
                         free(manifest);
                         return 9;
                     }
