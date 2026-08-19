@@ -124,6 +124,64 @@ try {
     Remove-PublishFixture $fx
 }
 
+# --- -AdditionalFiles outside repo root (containment) ---
+$fx = New-PublishFixture
+$outsideExtra = Join-Path $env:TEMP ("maps-extra-" + [guid]::NewGuid().ToString("n") + ".dat")
+try {
+    [IO.File]::WriteAllText($outsideExtra, "outside")
+
+    & (Join-Path $here "publish-staging.ps1") `
+        -DropRoot $fx.Drop `
+        -SkipSync `
+        -LauncherRoot $fx.LauncherFake `
+        -EngineExe (Join-Path $fx.Drop "fteqw64.exe") `
+        -OutputDirectory $fx.Out `
+        -Version "test.outside" `
+        -AdditionalFiles $outsideExtra
+
+    $manifestPath = Join-Path $fx.Out "manifest.json"
+    $manifest = Get-Content -Raw -Path $manifestPath | ConvertFrom-Json
+    $paths = @($manifest.files | ForEach-Object { $_.path })
+    if ($paths -contains "maps-extra.dat") { throw "outside-repo AdditionalFiles must not be in manifest" }
+    $stagedOutside = Get-ChildItem -Path $fx.Out -Recurse -Filter "maps-extra.dat" -ErrorAction SilentlyContinue
+    if ($stagedOutside) { throw "outside-repo AdditionalFiles must not be staged" }
+} finally {
+    Remove-PublishFixture $fx
+    if (Test-Path $outsideExtra) { Remove-Item -Force $outsideExtra }
+}
+
+# --- -AdditionalFiles media path segment (maps in resolved path) ---
+$fx = New-PublishFixture
+$mapsSegmentRoot = Join-Path $env:TEMP ("playtest-maps-" + [guid]::NewGuid().ToString("n"))
+$mapsSegmentFile = Join-Path $mapsSegmentRoot "maps\bar.dat"
+try {
+    New-Item -ItemType Directory -Path (Split-Path $mapsSegmentFile) -Force | Out-Null
+    [IO.File]::WriteAllText($mapsSegmentFile, "maps-segment")
+
+    & (Join-Path $here "publish-staging.ps1") `
+        -DropRoot $fx.Drop `
+        -SkipSync `
+        -LauncherRoot $fx.LauncherFake `
+        -EngineExe (Join-Path $fx.Drop "fteqw64.exe") `
+        -OutputDirectory $fx.Out `
+        -Version "test.maps" `
+        -AdditionalFiles $mapsSegmentFile
+
+    $manifestPath = Join-Path $fx.Out "manifest.json"
+    $manifest = Get-Content -Raw -Path $manifestPath | ConvertFrom-Json
+    $paths = @($manifest.files | ForEach-Object { $_.path })
+    foreach ($p in $paths) {
+        if ($p -match '(^|/)maps(/|$)' -or $p -like '*bar.dat') {
+            throw "media-path AdditionalFiles must not be in manifest: $p"
+        }
+    }
+    $stagedMaps = Get-ChildItem -Path $fx.Out -Recurse -Filter "bar.dat" -ErrorAction SilentlyContinue
+    if ($stagedMaps) { throw "media-path AdditionalFiles must not be staged" }
+} finally {
+    Remove-PublishFixture $fx
+    if (Test-Path $mapsSegmentRoot) { Remove-Item -Recurse -Force $mapsSegmentRoot }
+}
+
 # --- -AdditionalFiles under repo root (repoRoot restore) ---
 $repoExtra = Join-Path $here "..\README.txt"
 if (Test-Path $repoExtra -PathType Leaf) {

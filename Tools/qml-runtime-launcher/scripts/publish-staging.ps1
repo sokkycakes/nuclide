@@ -212,6 +212,8 @@ foreach ($rel in @("app/main.qml", "app/MainForm.ui.qml", "app/config.json")) {
     }
 }
 
+$mediaSegmentPattern = '(^|[\\/])(runtime|maps|models|sound|textures|music)([\\/]|$)'
+
 foreach ($f in $AdditionalFiles) {
     if ([string]::IsNullOrWhiteSpace($f)) {
         continue
@@ -228,13 +230,22 @@ foreach ($f in $AdditionalFiles) {
         Write-Host "  skipping additional file (.qc): $leaf"
         continue
     }
-    if (-not $resolved.StartsWith($repoRoot, [StringComparison]::OrdinalIgnoreCase)) {
+    $underRepoRoot = (
+        $resolved -eq $repoRoot -or
+        $resolved.StartsWith($repoRoot + '\', [StringComparison]::OrdinalIgnoreCase) -or
+        $resolved.StartsWith($repoRoot + '/', [StringComparison]::OrdinalIgnoreCase)
+    )
+    if (-not $underRepoRoot) {
         Write-Host "  skipping additional file (outside repo root): $f"
         continue
     }
     $rel = $resolved.Substring($repoRoot.Length).TrimStart("/", "\")
     if (Test-PlaytestRecursiveSkip -RelativePath $rel -LeafName $leaf) {
         Write-Host "  skipping additional file (recursive skip): $rel"
+        continue
+    }
+    if ($rel -match $mediaSegmentPattern -or $resolved -match $mediaSegmentPattern) {
+        Write-Host "  skipping additional file (media path): $rel"
         continue
     }
     $candidates += [PSCustomObject]@{

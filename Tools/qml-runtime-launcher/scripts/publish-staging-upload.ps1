@@ -38,12 +38,26 @@ foreach ($name in @("EngineExe", "Version", "Notes", "PreviousManifest", "Additi
     }
 }
 
-& (Join-Path $PSScriptRoot "publish-staging.ps1") @publishArgs
-
 $out = [IO.Path]::GetFullPath($OutputDirectory)
 $manifestPath = Join-Path $out "manifest.json"
+$manifestExisted = $false
+$manifestWriteTimeUtc = $null
+if (Test-Path $manifestPath -PathType Leaf) {
+    $manifestExisted = $true
+    $manifestWriteTimeUtc = (Get-Item $manifestPath).LastWriteTimeUtc
+}
+
+& (Join-Path $PSScriptRoot "publish-staging.ps1") @publishArgs
+
 if (-not (Test-Path $manifestPath -PathType Leaf)) {
     throw "Staging generation did not produce $manifestPath"
+}
+if ($manifestExisted) {
+    $newWriteTimeUtc = (Get-Item $manifestPath).LastWriteTimeUtc
+    if ($newWriteTimeUtc -eq $manifestWriteTimeUtc) {
+        Write-Host "Nothing changed — skipping upload."
+        return
+    }
 }
 
 function ConvertTo-EncodedRelativePath([string]$Path) {
