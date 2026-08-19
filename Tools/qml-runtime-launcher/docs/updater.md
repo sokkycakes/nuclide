@@ -19,7 +19,8 @@ NuclideLauncher.exe
 └── Apply mode (--apply flag OR apply.request file present):
       → same binary, different entry point
       → downloads manifest.json from server
-      → Phase 1: downloads each file in manifest to game/<path>.partial
+      → Phase 1: downloads each manifest entry to <dest>.partial
+        (default dest: game/<path>; launcher/... → install root beside exe)
       → SHA256-verifies each
       → Phase 2: atomically renames all .partial → final path
       → writes game/version.txt
@@ -163,8 +164,10 @@ staging-drop/
     └── app/...
 ```
 
-Maps, sounds, models, and the Qt `runtime/` bundle are **not** published.
-Testers keep those from the itch archive or host download on join.
+Maps, models, sound, textures, music, and the Qt `runtime/` bundle are
+**not** published by the updater. Testers keep those from the itch archive;
+join-download still supplies maps, sounds, models, and similar assets from
+the host at connect time.
 
 ### Playtest drop allowlist
 
