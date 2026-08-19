@@ -14,8 +14,14 @@ New-Item -ItemType Directory -Path $drop | Out-Null
 [IO.File]::WriteAllText((Join-Path $repo "base\progs\duel.dat"), "duel-bytes")
 [IO.File]::WriteAllText((Join-Path $repo "base\decls\hero.def"), "def-bytes")
 New-Item -ItemType Directory -Path (Join-Path $repo "base\decls\logs") | Out-Null
+New-Item -ItemType Directory -Path (Join-Path $repo "base\decls\autosave") | Out-Null
+New-Item -ItemType Directory -Path (Join-Path $repo "base\decls\autosaves") | Out-Null
+New-Item -ItemType Directory -Path (Join-Path $repo "base\decls\mapsrc") | Out-Null
 [IO.File]::WriteAllText((Join-Path $repo "base\decls\hero.qc"), "qc-bytes")
 [IO.File]::WriteAllText((Join-Path $repo "base\decls\logs\x.txt"), "log-bytes")
+[IO.File]::WriteAllText((Join-Path $repo "base\decls\autosave\x.txt"), "autosave-bytes")
+[IO.File]::WriteAllText((Join-Path $repo "base\decls\autosaves\x.txt"), "autosaves-bytes")
+[IO.File]::WriteAllText((Join-Path $repo "base\decls\mapsrc\x.txt"), "mapsrc-bytes")
 [IO.File]::WriteAllText((Join-Path $repo "base\data\web\hud\index.html"), "hud")
 [IO.File]::WriteAllText((Join-Path $repo "base\autoexec.cfg"), "ae")
 [IO.File]::WriteAllText((Join-Path $repo "identity.pfx"), "secret")
@@ -45,6 +51,9 @@ if (Test-Path (Join-Path $drop "identity.pfx")) { throw "identity.pfx must not s
 if (Test-Path (Join-Path $drop "base\fte.cfg")) { throw "fte.cfg must not sync" }
 if (Test-Path (Join-Path $drop "base\decls\hero.qc")) { throw "hero.qc must not sync" }
 if (Test-Path (Join-Path $drop "base\decls\logs\x.txt")) { throw "logs/x.txt must not sync" }
+if (Test-Path (Join-Path $drop "base\decls\autosave\x.txt")) { throw "autosave/x.txt must not sync" }
+if (Test-Path (Join-Path $drop "base\decls\autosaves\x.txt")) { throw "autosaves/x.txt must not sync" }
+if (Test-Path (Join-Path $drop "base\decls\mapsrc\x.txt")) { throw "mapsrc/x.txt must not sync" }
 
 $engineHash = (Get-FileHash (Join-Path $drop "fteqw64.exe") -Algorithm SHA256).Hash
 $aliasHash = (Get-FileHash (Join-Path $drop "stiletto.exe") -Algorithm SHA256).Hash
