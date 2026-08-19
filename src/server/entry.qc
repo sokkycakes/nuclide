@@ -81,6 +81,7 @@ ClientConnect(void)
 	pl.gotData = false;
 	pl.team = TEAM_CONNECTING;
 	pl.flags |= FL_CLIENT;
+	pl._isPlayer = true;
 
 	userinfo.SetString(pl, "*team", "0");
 
@@ -99,23 +100,22 @@ ClientConnect(void)
 	}
 }
 
-/** Called when a player leaves the server. At the end of the function the
-client slot referred to by the `self` global will be cleared.
-This means the fields will still be accessible inside of this function.
-*/
-void
-ClientDisconnect(void)
+/* QW player edicts 1..maxclients are not ED_Clear'd on drop. next.Player
+ * walks _isPlayer, so leave that false and wipe the visible name or the
+ * slot stays occupied after timeout/crash. */
+static void
+Client_VacateSlot(void)
 {
+	ncPlayer pl = (ncPlayer)self;
+
 	if (g_grMode) {
-		g_grMode.PlayerDisconnect((ncPlayer)self);
+		g_grMode.PlayerDisconnect(pl);
 	}
 
 	for (ncAddonDelegate addonEnum = __NULL__; (addonEnum = AddonManager_NextAddon(addonEnum));) {
-		addonEnum.PlayerDisconnect((ncPlayer)self);
+		addonEnum.PlayerDisconnect(pl);
 	}
 
-	/* this will hide/remove the player from other clients */
-	ncPlayer pl = (ncPlayer)self;
 	ncStats::Disconnect(pl);
 	pl.SetSolid(SOLID_NOT);
 	pl.SetMovetype(MOVETYPE_NONE);
@@ -129,8 +129,21 @@ ClientDisconnect(void)
 	pl.deaths = 0;
 	pl.frags = 0;
 	pl.score = 0;
+	pl.netname = "";
+	pl._isPlayer = false;
+	userinfo.SetString(pl, "*team", "0");
 
 	ncAuthManager::Disconnect(pl);
+}
+
+/** Called when a player leaves the server. At the end of the function the
+client slot referred to by the `self` global will be cleared.
+This means the fields will still be accessible inside of this function.
+*/
+void
+ClientDisconnect(void)
+{
+	Client_VacateSlot();
 }
 
 /** Called by the `kill` console command.
@@ -178,6 +191,7 @@ Attributes cleared when this function is done executing.
 void
 SpectatorDisconnect(void)
 {
+	Client_VacateSlot();
 }
 
 /** Called when a player enters the game, having fully connected and loaded into

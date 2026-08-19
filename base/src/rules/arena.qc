@@ -1108,6 +1108,8 @@ Arena_OnPlayerDisconnect(entity pl)
 			Arena_AbortMatch();
 		}
 	}
+
+	Arena_BroadcastState();
 }
 
 bool
