@@ -56,6 +56,7 @@ $ErrorActionPreference = "Stop"
 
 $projectRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
 $repoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..\..\..")).Path
+$resolvedRepoRoot = $repoRoot
 
 if ([string]::IsNullOrWhiteSpace($DropRoot)) {
     $resolvedDropRoot = Join-Path (Split-Path $repoRoot -Parent) "stiletto-proto"
@@ -71,6 +72,7 @@ if ([string]::IsNullOrWhiteSpace($LauncherRoot)) {
 
 . (Join-Path $PSScriptRoot "sync-playtest-drop.ps1")
 
+$repoRoot = $resolvedRepoRoot
 $DropRoot = $resolvedDropRoot
 $LauncherRoot = $resolvedLauncherRoot
 
@@ -114,12 +116,22 @@ if ($PreviousManifest -and (Test-Path $PreviousManifest -PathType Leaf)) {
 $candidates = @()
 
 foreach ($name in $script:PlaytestRootFiles) {
+    if ($name -eq "fteqw64.exe") {
+        continue
+    }
     $src = Join-Path $DropRoot $name
     if (Test-Path $src -PathType Leaf) {
         $candidates += [PSCustomObject]@{
             source = $src
             path   = ($name -replace '\\', '/')
         }
+    }
+}
+
+if (Test-Path $EngineExe -PathType Leaf) {
+    $candidates += [PSCustomObject]@{
+        source = $EngineExe
+        path   = "fteqw64.exe"
     }
 }
 
@@ -201,9 +213,30 @@ foreach ($rel in @("app/main.qml", "app/MainForm.ui.qml", "app/config.json")) {
 }
 
 foreach ($f in $AdditionalFiles) {
+    if ([string]::IsNullOrWhiteSpace($f)) {
+        continue
+    }
     $resolved = if ([System.IO.Path]::IsPathRooted($f)) { $f } else { Join-Path $repoRoot $f }
     $resolved = (Resolve-Path $resolved -ErrorAction Stop).Path
+    $leaf = [System.IO.Path]::GetFileName($resolved)
+
+    if (Test-PlaytestExcludedLeaf -LeafName $leaf) {
+        Write-Host "  skipping additional file (excluded): $leaf"
+        continue
+    }
+    if ($leaf.EndsWith('.qc', [StringComparison]::OrdinalIgnoreCase)) {
+        Write-Host "  skipping additional file (.qc): $leaf"
+        continue
+    }
+    if (-not $resolved.StartsWith($repoRoot, [StringComparison]::OrdinalIgnoreCase)) {
+        Write-Host "  skipping additional file (outside repo root): $f"
+        continue
+    }
     $rel = $resolved.Substring($repoRoot.Length).TrimStart("/", "\")
+    if (Test-PlaytestRecursiveSkip -RelativePath $rel -LeafName $leaf) {
+        Write-Host "  skipping additional file (recursive skip): $rel"
+        continue
+    }
     $candidates += [PSCustomObject]@{
         source = $resolved
         path   = ($rel -replace '\\', '/')
