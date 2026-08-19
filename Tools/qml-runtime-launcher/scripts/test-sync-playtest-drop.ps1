@@ -13,6 +13,9 @@ New-Item -ItemType Directory -Path $drop | Out-Null
 [IO.File]::WriteAllText((Join-Path $repo "base\progs.dat"), "progs-bytes")
 [IO.File]::WriteAllText((Join-Path $repo "base\progs\duel.dat"), "duel-bytes")
 [IO.File]::WriteAllText((Join-Path $repo "base\decls\hero.def"), "def-bytes")
+New-Item -ItemType Directory -Path (Join-Path $repo "base\decls\logs") | Out-Null
+[IO.File]::WriteAllText((Join-Path $repo "base\decls\hero.qc"), "qc-bytes")
+[IO.File]::WriteAllText((Join-Path $repo "base\decls\logs\x.txt"), "log-bytes")
 [IO.File]::WriteAllText((Join-Path $repo "base\data\web\hud\index.html"), "hud")
 [IO.File]::WriteAllText((Join-Path $repo "base\autoexec.cfg"), "ae")
 [IO.File]::WriteAllText((Join-Path $repo "identity.pfx"), "secret")
@@ -40,6 +43,8 @@ Assert-File "fteplug_webcore_x64.dll" "plug"
 Assert-File "resources\icudt67l.dat" "icu"
 if (Test-Path (Join-Path $drop "identity.pfx")) { throw "identity.pfx must not sync" }
 if (Test-Path (Join-Path $drop "base\fte.cfg")) { throw "fte.cfg must not sync" }
+if (Test-Path (Join-Path $drop "base\decls\hero.qc")) { throw "hero.qc must not sync" }
+if (Test-Path (Join-Path $drop "base\decls\logs\x.txt")) { throw "logs/x.txt must not sync" }
 
 $engineHash = (Get-FileHash (Join-Path $drop "fteqw64.exe") -Algorithm SHA256).Hash
 $aliasHash = (Get-FileHash (Join-Path $drop "stiletto.exe") -Algorithm SHA256).Hash

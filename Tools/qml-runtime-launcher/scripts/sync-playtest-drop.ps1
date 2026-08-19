@@ -59,6 +59,17 @@ function Test-PlaytestExcludedLeaf {
     return $script:PlaytestExcludeLeafs -contains $LeafName
 }
 
+function Test-PlaytestRecursiveSkip {
+    param(
+        [string]$RelativePath,
+        [string]$LeafName
+    )
+    if ($LeafName.EndsWith('.qc', [StringComparison]::OrdinalIgnoreCase)) {
+        return $true
+    }
+    return $RelativePath -match '(^|[\\/])(logs|autosave|autosaves|mapsrc)([\\/]|$)'
+}
+
 function Copy-PlaytestAllowlistFile {
     param(
         [string]$SourcePath,
@@ -125,11 +136,10 @@ function Copy-PlaytestAllowlist {
             continue
         }
         Get-ChildItem -Path $srcDir -File -Recurse | ForEach-Object {
-            $parent = $_.DirectoryName
-            if ($parent -match '(^|[\\/])autosave([\\/]|$)') {
+            $rel = $_.FullName.Substring($RepoRoot.Length).TrimStart("\", "/")
+            if (Test-PlaytestRecursiveSkip -RelativePath $rel -LeafName $_.Name) {
                 return
             }
-            $rel = $_.FullName.Substring($RepoRoot.Length).TrimStart("\", "/")
             if (Test-PlaytestExcludedLeaf -LeafName $_.Name) {
                 return
             }
