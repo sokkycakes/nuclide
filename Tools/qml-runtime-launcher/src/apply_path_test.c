@@ -58,6 +58,14 @@ int main(void)
     if (updater_validate_file_path(path, sizeof(path)))
         return fail(".. must be rejected");
 
+    strcpy_s(path, sizeof(path), "C:/foo");
+    if (updater_validate_file_path(path, sizeof(path)))
+        return fail("C:/foo must be rejected");
+
+    strcpy_s(path, sizeof(path), "C:foo");
+    if (updater_validate_file_path(path, sizeof(path)))
+        return fail("C:foo must be rejected");
+
     strcpy_s(path, sizeof(path), "launcher/NuclideLauncher.exe");
     if (!updater_validate_file_path(path, sizeof(path)))
         return fail("launcher path should be valid");
@@ -89,6 +97,28 @@ int main(void)
     DeleteFileW(dest_file);
     DeleteFileW(old_file);
     DeleteFileW(partial_file);
+
+    /* Self-rename failure: existing dest.old directory blocks rename. */
+    GetTempPathW(MAX_PATH, tmp);
+    _snwprintf_s(dest_file, MAX_PATH, _TRUNCATE, L"%sapply_dest_blocked.bin", tmp);
+    _snwprintf_s(partial_file, MAX_PATH, _TRUNCATE, L"%sapply_partial_blocked.bin", tmp);
+    _snwprintf_s(old_file, MAX_PATH, _TRUNCATE, L"%s.old", dest_file);
+    DeleteFileW(dest_file);
+    DeleteFileW(partial_file);
+    RemoveDirectoryW(old_file);
+    if (!write_bytes(dest_file, "old-exe") || !write_bytes(partial_file, "new-exe"))
+        return fail("blocked temp write");
+    if (!CreateDirectoryW(old_file, NULL))
+        return fail("create dest.old directory");
+    if (updater_replace_file(partial_file, dest_file, dest_file))
+        return fail("self replace should fail when dest.old is a directory");
+    if (!read_bytes(dest_file, buf, sizeof(buf)) || strcmp(buf, "old-exe") != 0)
+        return fail("dest should be preserved on rename failure");
+    if (!read_bytes(partial_file, buf, sizeof(buf)) || strcmp(buf, "new-exe") != 0)
+        return fail("partial should not be installed on rename failure");
+    DeleteFileW(dest_file);
+    DeleteFileW(partial_file);
+    RemoveDirectoryW(old_file);
 
     printf("apply_path_test ok\n");
     return 0;

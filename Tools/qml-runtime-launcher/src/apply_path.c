@@ -14,6 +14,9 @@ int updater_validate_file_path(char *path, size_t path_cap)
         return 0;
     if (path[0] == '/' || path[0] == '\0')
         return 0;
+    if (((path[0] >= 'A' && path[0] <= 'Z') || (path[0] >= 'a' && path[0] <= 'z'))
+        && path[1] == ':')
+        return 0;
 
     for (i = 0; path[i]; i++) {
         if (path[i] == '/')
@@ -50,7 +53,8 @@ int updater_replace_file(const wchar_t *partial, const wchar_t *dest,
     is_self = (_wcsicmp(dest, self_exe) == 0);
 
     if (is_self) {
-        _snwprintf_s(old_path, MAX_PATH, _TRUNCATE, L"%s.old", dest);
+        if (_snwprintf_s(old_path, MAX_PATH, _TRUNCATE, L"%s.old", dest) < 0)
+            return 0;
         DeleteFileW(old_path);
         if (!MoveFileExW(dest, old_path, MOVEFILE_REPLACE_EXISTING))
             return 0;
