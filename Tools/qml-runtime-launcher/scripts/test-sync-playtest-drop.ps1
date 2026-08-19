@@ -12,6 +12,7 @@ New-Item -ItemType Directory -Path $drop | Out-Null
 [IO.File]::WriteAllText((Join-Path $repo "fteqw64.exe"), "engine-bytes")
 [IO.File]::WriteAllText((Join-Path $repo "base\progs.dat"), "progs-bytes")
 [IO.File]::WriteAllText((Join-Path $repo "base\progs\duel.dat"), "duel-bytes")
+[IO.File]::WriteAllText((Join-Path $repo "base\progs\hero.mdl"), "mdl-bytes")
 [IO.File]::WriteAllText((Join-Path $repo "base\decls\hero.def"), "def-bytes")
 New-Item -ItemType Directory -Path (Join-Path $repo "base\decls\logs") | Out-Null
 New-Item -ItemType Directory -Path (Join-Path $repo "base\decls\autosave") | Out-Null
@@ -42,6 +43,7 @@ Assert-File "fteqw64.exe" "engine-bytes"
 Assert-File "stiletto.exe" "engine-bytes"
 Assert-File "base\progs.dat" "progs-bytes"
 Assert-File "base\progs\duel.dat" "duel-bytes"
+if (Test-Path (Join-Path $drop "base\progs\hero.mdl")) { throw "hero.mdl must not sync" }
 Assert-File "base\decls\hero.def" "def-bytes"
 Assert-File "base\data\web\hud\index.html" "hud"
 Assert-File "base\autoexec.cfg" "ae"

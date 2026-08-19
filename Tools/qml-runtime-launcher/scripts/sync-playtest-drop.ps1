@@ -50,8 +50,7 @@ $script:PlaytestBaseFiles = @(
 
 $script:PlaytestRecursiveDirs = @(
     "base\decls",
-    "base\data\web",
-    "base\progs"
+    "base\data\web"
 )
 
 function Test-PlaytestExcludedLeaf {
@@ -128,6 +127,14 @@ function Copy-PlaytestAllowlist {
     Get-ChildItem -Path $defaultCfgPattern -File -ErrorAction SilentlyContinue | ForEach-Object {
         $rel = "base\" + $_.Name
         Copy-PlaytestAllowlistFile -SourcePath $_.FullName -DestPath (Join-Path $DropRoot $rel)
+    }
+
+    $progsDir = Join-Path $RepoRoot "base\progs"
+    if (Test-Path $progsDir -PathType Container) {
+        Get-ChildItem -Path $progsDir -Filter "*.dat" -File | ForEach-Object {
+            $rel = $_.FullName.Substring($RepoRoot.Length).TrimStart("\", "/")
+            Copy-PlaytestAllowlistFile -SourcePath $_.FullName -DestPath (Join-Path $DropRoot $rel)
+        }
     }
 
     foreach ($relDir in $script:PlaytestRecursiveDirs) {

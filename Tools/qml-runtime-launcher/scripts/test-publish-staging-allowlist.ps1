@@ -209,4 +209,47 @@ if (Test-Path $repoExtra -PathType Leaf) {
     }
 }
 
+# --- SkipSync requires playable drop (missing engine) ---
+$fx = New-PublishFixture
+try {
+    Remove-Item -Force (Join-Path $fx.Drop "fteqw64.exe")
+    $threw = $false
+    try {
+        & (Join-Path $here "publish-staging.ps1") `
+            -DropRoot $fx.Drop `
+            -SkipSync `
+            -LauncherRoot $fx.LauncherFake `
+            -OutputDirectory $fx.Out `
+            -Version "test.nodrop"
+    } catch {
+        if ($_.Exception.Message -notmatch "missing fteqw64.exe") { throw }
+        $threw = $true
+    }
+    if (-not $threw) { throw "expected throw for SkipSync without fteqw64.exe" }
+} finally {
+    Remove-PublishFixture $fx
+}
+
+# --- SkipSync requires playable drop (missing progs.dat) ---
+$fx = New-PublishFixture
+try {
+    Remove-Item -Force (Join-Path $fx.Drop "base\progs.dat")
+    $threw = $false
+    try {
+        & (Join-Path $here "publish-staging.ps1") `
+            -DropRoot $fx.Drop `
+            -SkipSync `
+            -LauncherRoot $fx.LauncherFake `
+            -EngineExe (Join-Path $fx.Drop "fteqw64.exe") `
+            -OutputDirectory $fx.Out `
+            -Version "test.noprogs"
+    } catch {
+        if ($_.Exception.Message -notmatch "missing base/progs.dat") { throw }
+        $threw = $true
+    }
+    if (-not $threw) { throw "expected throw for SkipSync without base/progs.dat" }
+} finally {
+    Remove-PublishFixture $fx
+}
+
 Write-Host "test-publish-staging-allowlist ok"

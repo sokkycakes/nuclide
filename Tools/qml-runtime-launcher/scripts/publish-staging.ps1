@@ -80,6 +80,17 @@ if (-not $SkipSync) {
     & (Join-Path $PSScriptRoot "sync-playtest-drop.ps1") -RepoRoot $repoRoot -DropRoot $DropRoot
 }
 
+if (-not (Test-Path (Join-Path $DropRoot "fteqw64.exe") -PathType Leaf)) {
+    throw "missing fteqw64.exe in playtest drop at $DropRoot"
+}
+if (-not (Test-Path (Join-Path $DropRoot "base\progs.dat") -PathType Leaf)) {
+    throw "missing base/progs.dat in playtest drop at $DropRoot"
+}
+
+function ConvertTo-EncodedRelativePath([string]$Path) {
+    return (($Path -split '[\\/]') | ForEach-Object { [Uri]::EscapeDataString($_) }) -join "/"
+}
+
 if ([string]::IsNullOrWhiteSpace($EngineExe)) {
     $EngineExe = Join-Path $DropRoot "fteqw64.exe"
 } else {
@@ -155,6 +166,17 @@ foreach ($name in $script:PlaytestBaseFiles) {
         $candidates += [PSCustomObject]@{
             source = $src
             path   = "base/$name"
+        }
+    }
+}
+
+$progsDir = Join-Path $DropRoot "base\progs"
+if (Test-Path $progsDir -PathType Container) {
+    Get-ChildItem -Path $progsDir -Filter "*.dat" -File | ForEach-Object {
+        $rel = $_.FullName.Substring($DropRoot.Length).TrimStart("/", "\")
+        $candidates += [PSCustomObject]@{
+            source = $_.FullName
+            path   = ($rel -replace '\\', '/')
         }
     }
 }
@@ -272,7 +294,7 @@ foreach ($c in $candidates) {
         continue
     }
 
-    $url = "$StagingBaseUrl/$($c.path)" -replace '/\./', '/'
+    $url = $StagingBaseUrl.TrimEnd("/") + "/" + (ConvertTo-EncodedRelativePath $c.path)
     $files += [PSCustomObject]@{
         source = $c.source
         path   = $c.path

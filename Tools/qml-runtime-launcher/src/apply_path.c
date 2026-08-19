@@ -58,8 +58,6 @@ int updater_replace_file(const wchar_t *partial, const wchar_t *dest,
         DeleteFileW(old_path);
         if (!MoveFileExW(dest, old_path, MOVEFILE_REPLACE_EXISTING))
             return 0;
-    } else {
-        DeleteFileW(dest);
     }
 
     if (!MoveFileExW(partial, dest, MOVEFILE_REPLACE_EXISTING))

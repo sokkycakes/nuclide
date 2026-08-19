@@ -243,8 +243,8 @@ click **Update** when they want a new build.
 
 ### Upload to copyparty
 
-Edit `scripts/publish-staging-upload.ps1` once and set
-`$CopypartyCredential` near the top of the script.
+Edit `scripts/publish-staging-upload.ps1` and set env `COPYPARTY_PW`
+(user:password) before publishing.
 
 The wrapper generates `staging-drop/`, streams each changed file to
 copyparty using authenticated HTTP PUT, and overwrites matching remote paths.
@@ -253,8 +253,8 @@ so clients never receive a manifest for an incomplete build. The script
 stops on the first failed upload and does not publish the new manifest when
 a payload upload fails.
 
-The credential is stored as a local literal; the upload script must not
-print the credential. Do not commit or share the credential-bearing script.
+The credential is read from `COPYPARTY_PW`; the upload script must not
+print the credential.
 
 ### Manual upload to server
 

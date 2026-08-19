@@ -16,11 +16,11 @@ param(
     [string]$LauncherRoot
 )
 
-$CopypartyCredential = "sokky:L0UVIERE"
+$CopypartyCredential = $env:COPYPARTY_PW
 $ErrorActionPreference = "Stop"
 
 if ([string]::IsNullOrWhiteSpace($CopypartyCredential) -or $CopypartyCredential -eq "REPLACE_ME") {
-    throw "Set `$CopypartyCredential near the top of this script before publishing."
+    throw "Set env COPYPARTY_PW before publishing."
 }
 
 if ([string]::IsNullOrWhiteSpace($OutputDirectory)) {
