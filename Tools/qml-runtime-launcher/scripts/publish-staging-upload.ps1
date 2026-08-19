@@ -50,7 +50,8 @@ if (Test-Path $manifestPath -PathType Leaf) {
 & (Join-Path $PSScriptRoot "publish-staging.ps1") @publishArgs
 
 if (-not (Test-Path $manifestPath -PathType Leaf)) {
-    throw "Staging generation did not produce $manifestPath"
+    Write-Host "Nothing changed — generate returned without writing a drop."
+    return
 }
 if ($manifestExisted) {
     $newWriteTimeUtc = (Get-Item $manifestPath).LastWriteTimeUtc
