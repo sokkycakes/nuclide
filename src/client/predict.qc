@@ -44,10 +44,13 @@ Predict_EntityUpdate(ncPlayer pl, float new)
 			/* this will prevent the client-game from running its own physics between updates */
 			pl.customphysics = Empty;
 		} else {
-			/* other players will act like missiles for interpolation purposes */
+			/* Remote players are network snapshots, not client-side missiles.
+			 * ncPlayer::predraw may perform a bounded visual extrapolation, but
+			 * engine physics must never advance the
+			 * collision entity between snapshots. */
 			pl.solid = SOLID_SLIDEBOX;
 			pl.movetype = MOVETYPE_FLY;
-			pl.customphysics = __NULL__;
+			pl.customphysics = Empty;
 		}
 
 		pl.Physics_SetViewParms();
@@ -55,16 +58,28 @@ Predict_EntityUpdate(ncPlayer pl, float new)
 		return;
 	}
 
-	/* this is us, so we know about this clients' input_ fields */
-	if (pl.entnum == player_localentnum) {
-		/* run the player physics from the last approved servercommandframe to the current one */
-		for (int i = pl.sequence+1; i <= servercommandframe; i++) {
-			/* ...maybe the input state is too old? */
-			if (!getinputstate(i)) {
-				break;
-			}
-			input_sequence = i;
-			pl.Physics_Run();
+	/* Remotes: keep the authoritative clip linked without enabling engine-side
+	 * movement. A blocked server player can retain attempted velocity; allowing
+	 * MOVETYPE_FLY to integrate that velocity makes observers see the player fly
+	 * away until a later origin delta snaps them back. */
+	if (pl.entnum != player_localentnum) {
+		if (pl.solid != SOLID_NOT) {
+			pl.solid = SOLID_SLIDEBOX;
+			pl.movetype = MOVETYPE_FLY;
+			setsize(pl, pl.mins, pl.maxs);
 		}
+		pl.customphysics = Empty;
+		return;
+	}
+
+	/* this is us, so we know about this clients' input_ fields */
+	/* run the player physics from the last approved servercommandframe to the current one */
+	for (int i = pl.sequence+1; i <= servercommandframe; i++) {
+		/* ...maybe the input state is too old? */
+		if (!getinputstate(i)) {
+			break;
+		}
+		input_sequence = i;
+		pl.Physics_Run();
 	}
 }

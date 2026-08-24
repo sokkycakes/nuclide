@@ -58,32 +58,85 @@ ncWeaponBaseMelee::Spawned(void)
 
 	snd = GetDefString("snd_cut");
 	if (snd) { precache.Sound(snd); }
+	snd = GetDefString("snd_backstab");
+	if (snd) { precache.Sound(snd); }
 }
 
 void
 ncWeaponBaseMelee::PrimaryAttack(void)
 {
+	ncPlayer p;
+	string snd;
+	string actName;
+	float seq;
+	float rate;
+	float shotAnim;
+
 	if (CanFire() == false) {
 		Idle();
 		return;
 	}
 
-	/* If this weapon cuts projectiles, check the deflect cooldown */
 	if (m_bCanCut && time < m_flDeflectCooldownEnd) {
 		Idle();
 		return;
 	}
 
-	/* play swing sound on every swing attempt (hit or miss) */
-	ncPlayer p = (ncPlayer)GetOwner();
-	if (p) {
-		string snd = GetDefString("snd_swing");
-		if (snd) {
-			p.StartSoundDef(snd, CHAN_WEAPON, true);
-		}
+	p = (ncPlayer)GetOwner();
+	if (!p) {
+		return;
 	}
 
-	Attack(m_primaryFireInfo);
+	/* Skip full Attack() — it calls Event_FireWeapon() with whatever the
+	 * *active* weapon last set as m_actAttack (Collier sidearm = gun shoot).
+	 * Mirror axe logic: swing trace + owner/weapon melee gesture only. */
+	snd = GetDefString("snd_swing");
+	if (STRING_SET(snd)) {
+		p.StartSoundDef(snd, CHAN_WEAPON, true);
+	}
+
+	FiredWeaponAttack("");
+
+	rate = GetDefFloat("fireRate");
+	if (rate <= 0) {
+		rate = 0.5;
+	}
+	SetAttackNext(rate);
+
+	/* Viewmodel swing when this melee *is* the held weapon (Arch axe). */
+	if (m_viewModel) {
+		shotAnim = GetSubDefActVM(classname, "fire", m_viewModel);
+		if (shotAnim < 0) {
+			shotAnim = 0;
+		}
+		SetWeaponFrame(shotAnim);
+		SetIdleNext(frameduration(m_viewModel, shotAnim));
+	}
+
+	/* Third-person: weapon act_attack (CSO knife) first, else owner
+	 * m_actAttack like Event_FireWeapon / axe animPrefix. */
+	seq = ACTIVITY_NOTFOUND;
+	if (p.IsCrouching()) {
+		actName = GetDefString("act_attack_crouch");
+		if (!STRING_SET(actName)) {
+			actName = "crouch_shoot_knife";
+		}
+	} else {
+		actName = GetDefString("act_attack");
+		if (!STRING_SET(actName)) {
+			actName = "ref_shoot_knife";
+		}
+	}
+	if (STRING_SET(actName) && p.modelindex > 0) {
+		seq = frameforname(p.modelindex, actName);
+	}
+	if (seq < 0) {
+		seq = p.m_actAttack;
+	}
+	if (seq >= 0 && seq != ACTIVITY_NOTFOUND) {
+		p.PlayGesture(seq, -1);
+		p.SendFlags |= PLAYER_TOPFRAME;
+	}
 }
 
 void
@@ -197,18 +250,17 @@ ncWeaponBaseMelee::DoSwingTrace(void)
 
 	vecHitDir = normalize(vecHitPos - vecStart);
 
-	/* Check if we cut a projectile — destroy it and apply cooldown */
-	if (m_bCanCut && eTarget) {
-		ncProjectile projTarget = (ncProjectile)eTarget;
-		if (projTarget) {
-			remove(eTarget);
-			m_flDeflectCooldownEnd = time + m_flDeflectCooldown;
-			string sndCut = GetDefString("snd_cut");
-			if (sndCut && pPlayer) {
-				pPlayer.StartSoundDef(sndCut, CHAN_WEAPON, true);
-			}
-			return;
+	/* Cut projectiles only. FTE class casts are not instanceof — casting a
+	 * player to ncProjectile still yields a non-null pointer, which wrongly
+	 * triggered deflect cooldown + snd_cut instead of damage. */
+	if (m_bCanCut && eTarget && eTarget.spawnclass == "ncProjectile") {
+		remove(eTarget);
+		m_flDeflectCooldownEnd = time + m_flDeflectCooldown;
+		string sndCut = GetDefString("snd_cut");
+		if (sndCut && pPlayer) {
+			pPlayer.StartSoundDef(sndCut, CHAN_WEAPON, true);
 		}
+		return;
 	}
 
 	ncSurfacePropEntity spTarget = (ncSurfacePropEntity)eTarget;

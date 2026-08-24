@@ -427,7 +427,7 @@ HLHUD_DrawAmmo3(vector pos, float ammoValue)
 /* WebCore HTML HUD overlay (second decoder view). Gate: webcore_hud 1
  * Default on — replaces Slint HUD (set slint_hud 0 so CSQC runs). */
 var float autocvar_webcore_hud = 1;
-var string autocvar_webcore_hud_url = "fte://data/web/hud/index.html?v=3";
+var string autocvar_webcore_hud_url = "fte://data/web/hud/index.html?v=9";
 var float g_webcoreHudAlive;
 
 void
@@ -489,7 +489,9 @@ WebCoreHud_Draw(void)
 	timerStr = sprintf("%d:%02d", minutes, secs);
 	cvar_set("webcore_hud_timer", timerStr);
 	cvar_set("webcore_hud_health", ftos(player.GetHealth()));
+	cvar_set("webcore_hud_health_max", ftos(getstatf(STAT_USER + 3)));
 	cvar_set("webcore_hud_ammo", ftos(weapon.GetAmmo1()));
+	cvar_set("webcore_hud_reload", ftos(getstatf(STAT_USER + 1)));
 
 	/* Duel/arena: match points + competitor names from serverinfo.
 	 * Otherwise: top two frag leaders (so placeholders aren't stuck at 2/5). */
@@ -497,7 +499,9 @@ WebCoreHud_Draw(void)
 	score2 = 0;
 	name1 = "";
 	name2 = "";
-	if (STRING_SET(serverinfo.GetString("arena_state"))) {
+	if (serverinfo.GetString("mode") == "duel") {
+		/* Arena_BroadcastState publishes these from g_arenaPoints. Reading them
+		 * directly avoids fragile name matching and delayed player-key frags. */
 		score1 = serverinfo.GetInteger("arena_score1");
 		score2 = serverinfo.GetInteger("arena_score2");
 		name1 = serverinfo.GetString("arena_name1");
@@ -618,13 +622,6 @@ HUD_Draw(void)
 
 	weaponSelectionHUD.Draw();
 
-	if (g_spriteCrosshair != -1i && g_spritesLoaded) {
-		atlasPic.DrawCrosshair(g_spriteCrosshair);
-	} else {
-		vector crosshairPos = hud_mins + (hud_size / 2);
-		drawfont = (float)FONT_20.iID;
-		draw.Text_RGBA(crosshairPos + [0, 0], "+", g_fg_color, g_fg_alphaScale, FONT_20);
-	}
 
 	/* WebCore primary HUD — skip HL sprite chrome (same role as Slint). */
 	if (autocvar_webcore_hud > 0) {

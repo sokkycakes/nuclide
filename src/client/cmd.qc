@@ -441,25 +441,33 @@ Cmd_Parse(string sCMD)
 		pSeat->m_iInputAttack2 = false;
 		break;
 	case "+stiletto_grapple":
-		/* Legacy alias: same held bit as +hero_tool (usercmd button 11). */
+		/* Legacy alias: same held bit + reliable cmd as +hero_tool. */
 		pSeat->m_iInputHeroTool = true;
 		pSeat->m_iInputStilettoGrapple = true;
+		localcmd("cmd nuclide_abi_grapple 1\n");
 		break;
 	case "-stiletto_grapple":
 		pSeat->m_iInputHeroTool = false;
 		pSeat->m_iInputStilettoGrapple = false;
+		localcmd("cmd nuclide_abi_grapple 0\n");
 		break;
 	case "+hero_tool":
 		pSeat->m_iInputHeroTool = true;
+		/* Reliable press: button 11 packing is also live for prediction/hold
+		 * state; cmd keeps server fire working during the migration. */
+		localcmd("cmd nuclide_abi_grapple 1\n");
 		break;
 	case "-hero_tool":
 		pSeat->m_iInputHeroTool = false;
+		localcmd("cmd nuclide_abi_grapple 0\n");
 		break;
 	case "+hero_melee":
 		pSeat->m_iInputHeroMelee = true;
+		localcmd("cmd hero_melee 1\n");
 		break;
 	case "-hero_melee":
 		pSeat->m_iInputHeroMelee = false;
+		localcmd("cmd hero_melee 0\n");
 		break;
 	case "+hero_guard":
 		pSeat->m_iInputHeroGuard = true;
@@ -634,6 +642,7 @@ Cmd_Parse(string sCMD)
 		break;
 	/* client aliases for client commands */
 	case "setpos":
+	case "arena":
 	case "listInventory":
 	case "giveInventoryItem":
 	case "removeInventoryItem":
@@ -641,6 +650,14 @@ Cmd_Parse(string sCMD)
 	case "listAmmo":
 	case "joinTeam":
 		localcmd(sprintf("cmd %s\n", sCMD));
+		break;
+
+	case "stiletto_pred_replay":
+		if (localPlayer && is.Player(localPlayer)) {
+			Stiletto_PredReplayCheck(localPlayer);
+		} else {
+			localcmd("cmd stiletto_pred_replay\n");
+		}
 		break;
 
 	case "listClientEntityDef":
@@ -800,6 +817,8 @@ Cmd_Init(void)
 	registercommand("testPointLight");
 	registercommand("getpos");
 	registercommand("setpos");
+	registercommand("stiletto_pred_replay");
+	registercommand("arena");
 	registercommand("setang");
 	registercommand("dev_sentence");
 	registercommand("titles_test");

@@ -1,0 +1,8 @@
+module QtQuick.Studio.DesignEffects
+designersupported
+DesignEffect 1.0 DesignEffect.qml
+DesignEffect 6.0 DesignEffect.qml
+DesignDropShadow 1.0 DesignDropShadow.qml
+DesignDropShadow 6.0 DesignDropShadow.qml
+DesignInnerShadow 1.0 DesignInnerShadow.qml
+DesignInnerShadow 6.0 DesignInnerShadow.qml

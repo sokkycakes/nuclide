@@ -33,6 +33,11 @@ entityDef weapon_melee_base
 	"fireRate"				"0.5"
 	"failRate"				"0.5"
 
+	/* CSO third-person slash (alice2-family). IQM heroes without these
+	 * sequences simply skip the gesture. */
+	"act_attack"			"ref_shoot_knife"
+	"act_attack_crouch"		"crouch_shoot_knife"
+
 	// ---- HUD ----
 	"crosshair"				"none"
 	"ammoIcon"				"none"

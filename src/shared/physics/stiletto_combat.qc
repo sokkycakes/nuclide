@@ -15,7 +15,7 @@
  * Constants live here (no decl tuning layer), matching stiletto_tuning.qc.
  *
  * State fields are declared in Player.h. The two punish fields
- * (m_stilettoPunishState / m_stilettoPunishEnd) are networked so the shared
+ * (m_stilettoPunishState / m_stilettoPunishTime) are networked so the shared
  * Physics_Run movement lock predicts identically on client and server. The
  * i-frame / regen / arch-buffer fields are server-authoritative (damage is
  * applied server-side).
@@ -47,11 +47,11 @@ Stiletto_Combat_IsFullyStunned(entity e)
 	}
 
 	/* not landed yet -> fully locked */
-	if (pl.m_stilettoPunishEnd <= 0.0f) {
+	if (pl.m_stilettoPunishTime <= 0.0f) {
 		return (true);
 	}
 
-	return (time < pl.m_stilettoPunishEnd - STILETTO_PUNISH_RECOVER);
+	return (pl.m_stilettoPunishTime > STILETTO_PUNISH_RECOVER);
 }
 
 /** Movement-input scale for the current punish phase: 0 while stunned, a
@@ -60,7 +60,6 @@ float
 Stiletto_Combat_MoveScale(entity e)
 {
 	ncPlayer pl = (ncPlayer)e;
-	float stunEnd;
 	float t;
 
 	if (pl.m_stilettoPunishState == STILETTO_PUNISH_NONE) {
@@ -68,21 +67,15 @@ Stiletto_Combat_MoveScale(entity e)
 	}
 
 	/* airborne pending: locked */
-	if (pl.m_stilettoPunishEnd <= 0.0f) {
+	if (pl.m_stilettoPunishTime <= 0.0f) {
 		return (0.0f);
 	}
 
-	stunEnd = pl.m_stilettoPunishEnd - STILETTO_PUNISH_RECOVER;
-
-	if (time < stunEnd) {
+	if (pl.m_stilettoPunishTime > STILETTO_PUNISH_RECOVER) {
 		return (0.0f);
 	}
 
-	if (time >= pl.m_stilettoPunishEnd) {
-		return (1.0f);
-	}
-
-	t = (time - stunEnd) / STILETTO_PUNISH_RECOVER;
+	t = 1.0f - (pl.m_stilettoPunishTime / STILETTO_PUNISH_RECOVER);
 	return (STILETTO_PUNISH_ACCEL_MIN + (1.0f - STILETTO_PUNISH_ACCEL_MIN) * t);
 }
 
@@ -100,7 +93,7 @@ Stiletto_Combat_PreMove(entity e)
 	}
 
 	/* airborne, not yet landed */
-	if (pl.m_stilettoPunishEnd <= 0.0f && !(pl.flags & FL_ONGROUND)) {
+	if (pl.m_stilettoPunishTime <= 0.0f && !(pl.flags & FL_ONGROUND)) {
 		if (pl.m_stilettoPunishState == STILETTO_PUNISH_STANDARD) {
 			pl.velocity[0] = 0.0f;
 			pl.velocity[1] = 0.0f;
@@ -122,14 +115,17 @@ Stiletto_Combat_PostMove(entity e)
 	ncPlayer pl = (ncPlayer)e;
 
 	if (pl.m_stilettoPunishState != STILETTO_PUNISH_NONE) {
-		if (pl.m_stilettoPunishEnd <= 0.0f) {
+		if (pl.m_stilettoPunishTime <= 0.0f) {
 			/* pending -> begin the landing punish once we touch ground */
 			if (pl.flags & FL_ONGROUND) {
-				pl.m_stilettoPunishEnd = time + STILETTO_PUNISH_STUN + STILETTO_PUNISH_RECOVER;
+				pl.m_stilettoPunishTime = STILETTO_PUNISH_STUN + STILETTO_PUNISH_RECOVER;
 			}
-		} else if (time >= pl.m_stilettoPunishEnd) {
-			pl.m_stilettoPunishState = STILETTO_PUNISH_NONE;
-			pl.m_stilettoPunishEnd = 0.0f;
+		} else {
+			pl.m_stilettoPunishTime = max(0.0f, pl.m_stilettoPunishTime - input_timelength);
+			if (pl.m_stilettoPunishTime <= 0.0f) {
+				pl.m_stilettoPunishState = STILETTO_PUNISH_NONE;
+				pl.m_stilettoPunishTime = 0.0f;
+			}
 		}
 	}
 
@@ -199,7 +195,7 @@ Stiletto_Combat_OnDamaged(entity e, float dmg)
 	 * spent this airtime (charges refill on the ground, so a spent charge means
 	 * the hero used the tool during this jump). Kickback joins this list when it
 	 * ships; the exact window is a flagged playtest item. */
-	toolActive = (time < pl.m_stilettoAirStallEnd)
+	toolActive = (pl.m_stilettoAirStallTime > 0.0f)
 	    || (pl.m_stilettoAirDodgeCharges < STILETTO_MAX_AIR_DODGES)
 	    || (pl.m_stilettoAirStallCharges < STILETTO_MAX_AIR_STALLS)
 	    || (pl.m_stilettoLungeFlight != 0);
@@ -223,10 +219,10 @@ Stiletto_Combat_OnDamaged(entity e, float dmg)
 		}
 
 		pl.m_stilettoPunishState = STILETTO_PUNISH_ARCH;
-		pl.m_stilettoPunishEnd = 0.0f;
+		pl.m_stilettoPunishTime = 0.0f;
 	} else {
 		pl.m_stilettoPunishState = STILETTO_PUNISH_STANDARD;
-		pl.m_stilettoPunishEnd = 0.0f;
+		pl.m_stilettoPunishTime = 0.0f;
 	}
 }
 
@@ -241,7 +237,7 @@ Stiletto_Combat_Respawn(entity e)
 	pl.m_stilettoLastDamageTime = 0.0f;
 	pl.m_stilettoArchBuffer = 0.0f;
 	pl.m_stilettoPunishState = STILETTO_PUNISH_NONE;
-	pl.m_stilettoPunishEnd = 0.0f;
+	pl.m_stilettoPunishTime = 0.0f;
 	Stiletto_Lunge_Clear(pl);
 
 	/* Arch flag from the def, with a declclass fallback in case the spawn-key

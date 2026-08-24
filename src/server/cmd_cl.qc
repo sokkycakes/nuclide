@@ -14,6 +14,146 @@
  * OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
+/* Cycle index for `arena` / `arena next` across MGE deathmatch spots. */
+float g_arenaSpot;
+
+static void
+Cmd_ArenaPlace(ncClient sender, entity spot)
+{
+	vector org;
+	int i;
+
+	if (!spot) {
+		return;
+	}
+
+	org = spot.origin;
+	for (i = 0; i < 64; i++) {
+		tracebox(org, sender.mins, sender.maxs, org, MOVE_NORMAL, sender);
+		if (!trace_startsolid) {
+			break;
+		}
+		org[2] += 1.0;
+	}
+
+	sender.origin = org;
+	sender.angles = spot.angles;
+	sender.v_angle = spot.angles;
+	sender.velocity = [0, 0, 0];
+	setorigin(sender, org);
+	sender.SendFlags |= (PLAYER_ORIGIN | PLAYER_ANGLES);
+
+	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
+	WriteByte(MSG_MULTICAST, EV_ANGLE);
+	WriteFloat(MSG_MULTICAST, spot.angles[0]);
+	WriteFloat(MSG_MULTICAST, spot.angles[1]);
+	WriteFloat(MSG_MULTICAST, spot.angles[2]);
+	msg_entity = sender;
+	multicast([0, 0, 0], MULTICAST_ONE_R);
+}
+
+static void
+Cmd_ArenaTeleport(ncClient sender, int commandArguments)
+{
+	entity e;
+	entity pick;
+	string arg;
+	string filter;
+	string lastArena;
+	float count;
+	float want;
+	float step;
+	float listed;
+
+	arg = "";
+	filter = "";
+	step = 1;
+	if (commandArguments >= 2) {
+		arg = argv(1);
+	}
+
+	if (arg == "list") {
+		lastArena = "";
+		listed = 0;
+		for (e = find(world, classname, "info_player_deathmatch"); e;
+			e = find(e, classname, "info_player_deathmatch")) {
+			if (!STRING_SET(e.message)) {
+				continue;
+			}
+			if (e.message == lastArena) {
+				continue;
+			}
+			lastArena = e.message;
+			listed = listed + 1;
+			sprint(sender, PRINT_HIGH, sprintf("%g. %s\n", listed, e.message));
+		}
+		if (listed == 0) {
+			sprint(sender, PRINT_HIGH, "No MGE arena spots on this map.\n");
+		}
+		return;
+	}
+
+	if (arg == "prev") {
+		step = -1;
+	} else if (arg == "next" || arg == "") {
+		step = 1;
+	} else {
+		/* Partial arena name filter, then cycle within matches. */
+		filter = arg;
+		step = 1;
+	}
+
+	count = 0;
+	for (e = find(world, classname, "info_player_deathmatch"); e;
+		e = find(e, classname, "info_player_deathmatch")) {
+		if (!STRING_SET(e.message)) {
+			continue;
+		}
+		if (STRING_SET(filter) && strstrofs(e.message, filter) < 0) {
+			continue;
+		}
+		count = count + 1;
+	}
+
+	if (count < 1) {
+		sprint(sender, PRINT_HIGH, "No matching arena spots.\n");
+		return;
+	}
+
+	g_arenaSpot = g_arenaSpot + step;
+	while (g_arenaSpot < 0) {
+		g_arenaSpot = g_arenaSpot + count;
+	}
+	while (g_arenaSpot >= count) {
+		g_arenaSpot = g_arenaSpot - count;
+	}
+
+	want = 0;
+	pick = world;
+	for (e = find(world, classname, "info_player_deathmatch"); e;
+		e = find(e, classname, "info_player_deathmatch")) {
+		if (!STRING_SET(e.message)) {
+			continue;
+		}
+		if (STRING_SET(filter) && strstrofs(e.message, filter) < 0) {
+			continue;
+		}
+		if (want == g_arenaSpot) {
+			pick = e;
+			break;
+		}
+		want = want + 1;
+	}
+
+	if (!pick) {
+		sprint(sender, PRINT_HIGH, "Arena spot lookup failed.\n");
+		return;
+	}
+
+	Cmd_ArenaPlace(sender, pick);
+	sprint(sender, PRINT_HIGH, sprintf("Arena: %s (%g/%g)\n", pick.message, g_arenaSpot + 1, count));
+}
+
 bool
 Cmd_ParseClientCommand(ncClient sender, string cmd, int commandArguments)
 {
@@ -96,6 +236,10 @@ Cmd_ParseClientCommand(ncClient sender, string cmd, int commandArguments)
 		}
 
 		break;
+	case "arena":
+		/* Cycle/teleport across MGE info_player_deathmatch spots (message=arena name). */
+		Cmd_ArenaTeleport(sender, commandArguments);
+		break;
 	case "timeleft":
 		string timestring;
 		float timeleft;
@@ -126,10 +270,8 @@ Cmd_ParseClientCommand(ncClient sender, string cmd, int commandArguments)
 		if (is.Player(sender)) {
 			ncPlayer pl = (ncPlayer)sender;
 			if (argv(1) == "1") {
-				pl.m_stilettoGrappleActionHeld = 1;
 				HeroActions_HeroToolPress(pl);
 			} else {
-				pl.m_stilettoGrappleActionHeld = 0;
 				HeroActions_HeroToolRelease(pl);
 			}
 		}
@@ -137,6 +279,11 @@ Cmd_ParseClientCommand(ncClient sender, string cmd, int commandArguments)
 	case "hero_guard":
 		if (is.Player(sender)) {
 			HeroActions_SetGuardHeld((ncPlayer)sender, argv(1) == "1");
+		}
+		break;
+	case "hero_melee":
+		if (is.Player(sender) && argv(1) == "1") {
+			HeroActions_MeleePress((ncPlayer)sender);
 		}
 		break;
 	case "hero_action":
@@ -147,6 +294,11 @@ Cmd_ParseClientCommand(ncClient sender, string cmd, int commandArguments)
 	case "weapon_mode":
 		if (is.Player(sender)) {
 			HeroActions_CycleWeaponMode((ncPlayer)sender);
+		}
+		break;
+	case "stiletto_pred_replay":
+		if (is.Player(sender)) {
+			Stiletto_PredReplayCheck(sender);
 		}
 		break;
 	default:

@@ -82,7 +82,7 @@ ncPlayer::Physics_Fall(float flDownforce)
 
 		//Damage_Apply(this, world, fFallDamage, 0, DMG_FALL | DMG_SKIP_ARMOR);
 		StartSoundDef(m_sndFall, CHAN_VOICE, true);
-	} else if (flDownforce >= minLandDistance || (time - m_stilettoAirTime) >= minHardLandAirtime) {
+	} else if (flDownforce >= minLandDistance || m_stilettoAirTime >= minHardLandAirtime) {
 		StartSoundDef(m_sndLandHard, CHAN_VOICE, true);
 	} else {
 		StartSoundDef(m_sndLandSoft, CHAN_VOICE, true);
@@ -721,8 +721,7 @@ ncPlayer::Physics_Run(void)
 	Slide_ApplyGravityProjection(this);
 
 	/* Detect ground→air transition (jump, fall off edge). Runs after the physics step
-	 * so FL_ONGROUND reflects the post-move state. Stamps the current time so that
-	 * Physics_Fall can measure elapsed airborne duration via time - m_stilettoAirTime. */
+	 * so FL_ONGROUND reflects the post-move state. Resets elapsed airborne duration. */
 	if (wasOnGround && !(flags & FL_ONGROUND)) {
 		Stiletto_LeaveGround(this);
 	}

@@ -1,0 +1,4 @@
+C:/Users/sokky/Documents/Godot/bulwark_proto_funny/nuclide/Tools/qml-runtime-launcher/build-test/CMakeFiles/NuclideLauncher.dir
+C:/Users/sokky/Documents/Godot/bulwark_proto_funny/nuclide/Tools/qml-runtime-launcher/build-test/CMakeFiles/apply_path_test.dir
+C:/Users/sokky/Documents/Godot/bulwark_proto_funny/nuclide/Tools/qml-runtime-launcher/build-test/CMakeFiles/edit_cache.dir
+C:/Users/sokky/Documents/Godot/bulwark_proto_funny/nuclide/Tools/qml-runtime-launcher/build-test/CMakeFiles/rebuild_cache.dir

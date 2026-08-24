@@ -1,0 +1,9 @@
+{
+  "context_servers": {
+    "Qt Design Studio": {
+      "command": "C:\\Qt\\Tools\\QtDesignStudio\\bin\\qml_mcp_server\\qml_mcp_server.exe",
+      "args": [],
+      "env": {}
+    }
+  }
+}

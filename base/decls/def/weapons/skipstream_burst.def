@@ -1,4 +1,4 @@
-// Skipstream primary: burst revolver. 9-round clip, 1 damage per pellet.
+// Skipstream primary: burst revolver. 9-round clip, 2 damage per pellet.
 // NOTE: true 3-round burst grouping (0.13s intra-burst, 0.75s between bursts)
 // has no native fire-mode in this weapon system; v1 approximates with a fast
 // semi-auto (0.13s fireRate). Burst-grouping fidelity is a deferred fire-mode
@@ -58,7 +58,7 @@ entityDef fireInfo_skipstreamPrimary
 entityDef projectile_skipstream
 {
 	"inherit"			"projectile_bullet_base"
-	"damage"			"1"
+	"damage"			"2"
 	"hitscans"			"1"
 	"range"				"8192"
 	"spread"			"0.01 0.01"

@@ -44,10 +44,25 @@ ncSpawnPoint::Respawn(void)
 
 	SetSolid(SOLID_BBOX);
 	SetSize(newMins, newMaxs);
-	SetOriginUnstick(GetSpawnVector("origin"));
+
+	/* Raw .map loads can embed "// entity N" comments inside the spawn text,
+	 * which makes tokenize() return nothing from m_rawSpawnData. Fall back to
+	 * the engine-parsed fields (already correct) rather than clobbering them
+	 * with (0,0,0). */
+	vector spawnOrigin = GetSpawnVector("origin");
+	if (spawnOrigin == g_vec_null) {
+		spawnOrigin = origin;
+	}
+	SetOriginUnstick(spawnOrigin);
 
 #ifdef SERVER
-	RestoreAngles();
+	/* RestoreAngles() reads spawn text the same way; keep the engine-parsed
+	 * "angle"/"angles" values when the tokenizer returns nothing. */
+	vector spawnAngles = GetSpawnVector("angles");
+	if (spawnAngles == g_vec_null) {
+		spawnAngles = angles;
+	}
+	SetAngles(spawnAngles);
 #endif
 	
 	SetSolid(SOLID_NOT);

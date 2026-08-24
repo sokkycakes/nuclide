@@ -82,6 +82,7 @@ ncActor::SetAnimationPrefix(string animPrefix)
 	m_actWalkProne = __ActForPrefix("walk_prone", animPrefix, emotionString);
 	m_actRun = __ActForPrefix("run", animPrefix, emotionString);
 	m_actJump = __ActForPrefix("jump", animPrefix, emotionString);
+	m_actDeath = __ActForPrefix("death", animPrefix, emotionString);
 
 	/* top 'gestures' */
 	m_actAim = __ActForPrefix("aim", animPrefix, emotionString);

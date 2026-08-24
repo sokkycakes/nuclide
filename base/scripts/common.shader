@@ -130,6 +130,25 @@ textures/common/climb
 	surfaceParm nolightmap
 	nomipmaps
 }
+textures/measure/ladder
+{
+	qer_editorImage "textures/measure/ladder.tga"
+	surfaceParm alphashadow
+	surfaceParm trans
+	surfaceParm nonsolid
+	{
+		map "textures/measure/ladder.tga"
+		alphaFunc GE128
+		depthWrite
+		rgbGen identity
+	}
+	{
+		map $lightmap
+		rgbGen identity
+		blendFunc filter
+		depthFunc equal
+	}
+}
 textures/common/clip
 {
 	qer_editorImage "textures/common/clip.tga"

@@ -1,6 +1,7 @@
 {
 	surfaceparm alphashadow
 	surfaceparm trans
+	surfaceparm nonsolid
 
 if $programs
 	program defaultwall#MASK=0.5#MASKLT

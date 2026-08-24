@@ -10,7 +10,7 @@
 <!-- Menu backgrounds: no player control / no HUD. Inline sv_background (map_background is MenuQC-only; forceqmenu 1 skips menu.dat). -->
 <var name="fte_background">"[EnginePath]fteqw64.exe" +game [GameName] +set g_gametype singleplayer +set sv_playerslots 2 +set coop 1 +set sv_background 1 +map [MapName]</var>
 <build name="qbsp">
-<command>[q3map2] -meta "[MapFile]"</command>
+<command>[q3map2] -meta -custinfoparms "[MapFile]"</command>
 <command>[installbsp]</command>
 </build>
 <build name="qbsp -onlyents">
@@ -37,24 +37,24 @@
 </build>
 <separator />
 <build name="qbsp, qvis">
-<command>[q3map2] -meta "[MapFile]"</command>
+<command>[q3map2] -meta -custinfoparms "[MapFile]"</command>
 <command>[q3map2] -vis -saveprt "[MapFile]"</command>
 <command>[installbsp]</command>
 </build>
 <build name="qbsp, qvis, qrad">
-<command>[q3map2] -meta "[MapFile]"</command>
+<command>[q3map2] -meta -custinfoparms "[MapFile]"</command>
 <command>[q3map2] -vis -saveprt "[MapFile]"</command>
 <command>[q3map2] -light -fast "[MapFile]"</command>
 <command>[installbsp]</command>
 </build>
 <build name="qbsp, qvis -fast, qrad">
-<command>[q3map2] -meta "[MapFile]"</command>
+<command>[q3map2] -meta -custinfoparms "[MapFile]"</command>
 <command>[q3map2] -vis -fast -saveprt "[MapFile]"</command>
 <command>[q3map2] -light -fast "[MapFile]"</command>
 <command>[installbsp]</command>
 </build>
 <build name="qbsp, qvis, qrad, run">
-<command>[q3map2] -meta "[MapFile]"</command>
+<command>[q3map2] -meta -custinfoparms "[MapFile]"</command>
 <command>[q3map2] -vis -saveprt "[MapFile]"</command>
 <command>[q3map2] -light -fast "[MapFile]"</command>
 <command>[installbsp]</command>

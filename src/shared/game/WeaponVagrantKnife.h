@@ -7,8 +7,8 @@
  *   M2 (nuclide_abi_grapple) — throw warpknife / teleport / hold-to-pickup
  *   R                        — no function (replaced by M2)
  *
- * Backstab: Q-hit from behind (yaw diff > 120°) sets health = 0 instantly,
- * bypassing HP and any future armor/barrier system.
+ * Backstab: hit from behind (yaw diff > 120°) deals lethal damage via
+ * Damage() so Death() still runs (do not pre-zero health).
  *
  * Warpknife: thrown via M2, sticks to surfaces. M2 again teleports to it.
  * Hold M2 within 32u for 1.5s to pick up. Despawns on damage.

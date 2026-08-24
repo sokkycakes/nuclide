@@ -4,7 +4,6 @@
  * when declclass is weapon_archstiletto.
  */
 
-#ifdef SERVER
 void
 Archstiletto_AbilityPress(entity playerEnt)
 {
@@ -26,7 +25,7 @@ Archstiletto_AbilityPress(entity playerEnt)
 		return;
 	}
 
-	if (time < o.m_stilettoLungeCooldownEnd) {
+	if (o.m_stilettoLungeCooldown > 0.0f) {
 		return;
 	}
 
@@ -35,7 +34,7 @@ Archstiletto_AbilityPress(entity playerEnt)
 	}
 
 	o.m_stilettoLungeCharging = 1;
-	o.m_stilettoLungeChargeStart = time;
+	o.m_stilettoLungeCharge = 0.0f;
 }
 
 void
@@ -57,12 +56,12 @@ Archstiletto_AbilityRelease(entity playerEnt)
 
 	/* Walked off a ledge mid-charge — cancel, no launch. */
 	if (!(o.flags & FL_ONGROUND)) {
-		o.m_stilettoLungeChargeStart = 0.0f;
+		o.m_stilettoLungeCharge = 0.0f;
 		return;
 	}
 
-	held = time - o.m_stilettoLungeChargeStart;
-	o.m_stilettoLungeChargeStart = 0.0f;
+	held = o.m_stilettoLungeCharge;
+	o.m_stilettoLungeCharge = 0.0f;
 
 	if (held < 0.0f) {
 		held = 0.0f;
@@ -77,7 +76,6 @@ Archstiletto_AbilityRelease(entity playerEnt)
 	}
 
 	o.m_stilettoLungeSeqStrength = strength;
-	o.m_stilettoLungeCooldownEnd = time + STILETTO_LUNGE_COOLDOWN;
+	o.m_stilettoLungeCooldown = STILETTO_LUNGE_COOLDOWN;
 	Stiletto_Lunge_RequestLaunch(o, strength);
 }
-#endif

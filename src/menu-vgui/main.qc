@@ -12,7 +12,7 @@
  * WHATSOEVER RESULTING FROM LOSS OF MIND, USE, DATA OR PROFITS, WHETHER
  * IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING
  * OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
-*/
+ */
 
 void
 m_init(void)
@@ -22,6 +22,8 @@ m_init(void)
 	UISystem_Init();
 	Desktop_Init();
 
+	precache_pic("gfx/sixstation/final.png");
+	registercommand("menu_sixstation");
 	registercommand("packageList");
 	registercommand("friendsList");
 	registercommand("console");
@@ -34,11 +36,13 @@ void
 Menu_RendererRestarted(string renderer)
 {
 	Platform_RendererRestarted();
+	UI_Sixstation_RendererRestarted();
 }
 
 void
 m_shutdown(void)
 {
+	UI_Sixstation_Shutdown();
 	Platform_Shutdown();
 }
 
@@ -51,13 +55,15 @@ m_draw(vector screensize)
 		Desktop_CanvasChanged();
 	}
 
-
 	frametime = time - lasttime;
 	lasttime = time;
 
 	if (Platform_Draw(screensize) == false) {
 		return;
 	}
+
+	if (UI_Sixstation_Draw())
+		return;
 
 	Background_Draw([0,0], g_vidsize, false);
 	Desktop_Draw();
@@ -126,6 +132,9 @@ Menu_InputEvent (float evtype, float scanx, float chary, float devid)
 
 	g_vecMousePos = getmousepos();
 
+	if (UI_Sixstation_Input(evtype, scanx, chary, devid))
+		return (float)g_active;
+
 	if (Menu_IsEngineToggleConsoleKey(evtype, scanx)) {
 		localcmd("toggleconsole\n");
 		return (float)g_active;
@@ -171,6 +180,7 @@ void
 m_hide(void)
 {
 	UI_Options_ResetKeybindCapture();
+	UI_Sixstation_Shutdown();
 	g_active = FALSE;
 	setkeydest(KEY_GAME);
 	setmousetarget(TARGET_CLIENT);
@@ -197,6 +207,9 @@ m_consolecommand(string cmd)
 	int c = (int)tokenize(cmd);
 
 	switch (argv(0)) {
+	case "menu_sixstation":
+		UI_Sixstation_Open();
+		break;
 	case "console":
 		static VGUIConsole consoleWindow;
 

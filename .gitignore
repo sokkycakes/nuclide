@@ -102,3 +102,8 @@ ts/
 valve/
 wastes/
 zp/
+
+# ChunkHound (contains API keys + local index)
+.chunkhound.json
+.chunkhound/
+

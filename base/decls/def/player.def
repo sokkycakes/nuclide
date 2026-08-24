@@ -66,7 +66,7 @@ entityDef player
 	"act_idle_crouch"		"crouch_idle"
 	"act_walk_crouch"		"crouchrun"
 	"act_pain"				"idle1"
-	"act_death"				"crouch_die"
+	"act_death"				"death1,death2,death3"
 
 	"act_aim"				"ref_aim_onehanded"
 	"act_attack"			"ref_shoot_onehanded"

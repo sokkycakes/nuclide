@@ -1,0 +1,6 @@
+{
+  "manifestURL": "https://example.com/playtest/manifest.json",
+  "gameExe": "fteqw64.exe",
+  "windowTitle": "Nuclide Playtest Updater",
+  "debug": true
+}

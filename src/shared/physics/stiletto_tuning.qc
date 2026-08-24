@@ -85,7 +85,7 @@ Stiletto_ApplyMoveTuning(entity e)
 	float step;
 	vector addDelta;
 
-	if (time < pl.m_stilettoAirStallEnd) {
+	if (pl.m_stilettoAirStallTime > 0.0f) {
 		pl.gravity *= STILETTO_AIR_STALL_GRAV_SCALE;
 		
 		/* Godot-style: completely nullify downward velocity during stall */
@@ -358,21 +358,29 @@ Stiletto_OnPhysicsStart(entity e)
 	ncPlayer pl = (ncPlayer)e;
 
 	if (pl.flags & FL_ONGROUND) {
-		pl.m_stilettoAirDodgeCharges = STILETTO_MAX_AIR_DODGES;
-		pl.m_stilettoAirStallCharges = STILETTO_MAX_AIR_STALLS;
-		pl.m_stilettoAirTime = time;  // Stamp ref time (time - m_stilettoAirTime ≈ 0 while grounded)
-	} else if (pl.m_stilettoAirTime == 0.0f) {
-		pl.m_stilettoAirTime = time;  // Init for fresh spawns already airborne
+		if (pl.GetDefFloat("stiletto_air_dodge")) {
+			pl.m_stilettoAirDodgeCharges = STILETTO_MAX_AIR_DODGES;
+		} else {
+			pl.m_stilettoAirDodgeCharges = 0.0f;
+		}
+		if (pl.GetDefFloat("stiletto_air_stall")) {
+			pl.m_stilettoAirStallCharges = STILETTO_MAX_AIR_STALLS;
+		} else {
+			pl.m_stilettoAirStallCharges = 0.0f;
+		}
+		pl.m_stilettoAirTime = 0.0f;
+	} else {
+		pl.m_stilettoAirTime += input_timelength;
 	}
 }
 
 /* Called after the physics step when the player first leaves the ground (jump / fall).
- * Stamps current time so Physics_Fall can measure airborne duration. */
+ * Resets elapsed airborne duration so later commands accumulate via input_timelength. */
 void
 Stiletto_LeaveGround(entity e)
 {
 	ncPlayer pl = (ncPlayer)e;
-	pl.m_stilettoAirTime = time;
+	pl.m_stilettoAirTime = 0.0f;
 }
 
 void
@@ -380,12 +388,12 @@ Stiletto_ParryWindow(entity e)
 {
 	ncPlayer pl = (ncPlayer)e;
 
-	if (time >= pl.m_stilettoParryEnd) {
+	if (pl.m_stilettoParryTime <= 0.0f) {
 		pl.RemoveVFlags(VFL_STILETTO_PARRY);
 	}
 
 	if ((input_buttons & INPUT_RELOAD) && !(pl.m_stilettoPrevButtons & INPUT_RELOAD)) {
-		pl.m_stilettoParryEnd = time + STILETTO_PARRY_TIME;
+		pl.m_stilettoParryTime = STILETTO_PARRY_TIME;
 		pl.AddVFlags(VFL_STILETTO_PARRY);
 	}
 }
@@ -615,7 +623,7 @@ Stiletto_PmGunjumpAir(entity e, int curButtons, vector moveWish)
 #ifdef SERVER
 			pl.StartSoundDef("Player.AirStall", CHAN_AUTO, true);
 #endif
-			pl.m_stilettoAirStallEnd = time + STILETTO_AIR_STALL_TIME;
+			pl.m_stilettoAirStallTime = STILETTO_AIR_STALL_TIME;
 		}
 	}
 }
@@ -674,6 +682,7 @@ Stiletto_WallJump(entity e, int curButtons)
 	pl.m_stilettoWallJumpCooldown = STILETTO_WALL_JUMP_COOLDOWN;
 	pl.RemoveVFlags(VFL_STILETTO_WALL);
 	pl.m_stilettoWallNorm = g_vec_null;
+	pl.StartSoundDef("Player.WallJump", CHAN_AUTO, true);
 }
 
 void
@@ -726,6 +735,12 @@ Stiletto_EndPhysicsFrame(entity e, int curButtons)
 	ncPlayer pl = (ncPlayer)e;
 
 	pl.m_stilettoWallJumpCooldown = max(0.0f, pl.m_stilettoWallJumpCooldown - input_timelength);
+	pl.m_stilettoParryTime = max(0.0f, pl.m_stilettoParryTime - input_timelength);
+	pl.m_stilettoAirStallTime = max(0.0f, pl.m_stilettoAirStallTime - input_timelength);
+	pl.m_stilettoLungeCooldown = max(0.0f, pl.m_stilettoLungeCooldown - input_timelength);
+	if (pl.m_stilettoLungeCharging) {
+		pl.m_stilettoLungeCharge += input_timelength;
+	}
 
 	pl.m_stilettoPrevButtons = curButtons;
 }
@@ -736,7 +751,7 @@ Stiletto_Lunge_Clear(entity e)
 	ncPlayer pl = (ncPlayer)e;
 
 	pl.m_stilettoLungeCharging = 0;
-	pl.m_stilettoLungeChargeStart = 0.0f;
+	pl.m_stilettoLungeCharge = 0.0f;
 	pl.m_stilettoLungeSeqStrength = 0.0f;
 	pl.m_stilettoLungeFlight = 0;
 	pl.m_stilettoLungeLaunch = 0;
@@ -795,7 +810,7 @@ Stiletto_Lunge_PostMove(entity e)
 	/* Mid-charge left the ground — cancel charge, no launch. */
 	if (pl.m_stilettoLungeCharging && !(pl.flags & FL_ONGROUND)) {
 		pl.m_stilettoLungeCharging = 0;
-		pl.m_stilettoLungeChargeStart = 0.0f;
+		pl.m_stilettoLungeCharge = 0.0f;
 	}
 
 	if (!pl.m_stilettoLungeFlight && pl.m_stilettoLungeSeqStrength <= 0.0f) {

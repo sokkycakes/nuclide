@@ -58,6 +58,18 @@ fteqw/ (sibling directory)
         └── fteplug_cef_x64.dll   (source)
 ```
 
+## WebCore ICU (required for HUD)
+
+`ftewebcore.dll` calls `u_setDataDirectory(<exe>\resources)`. Ship **`resources\icudt67l.dat`** next to the exe (same file as `nuclide\Resources\icudt67l.dat`, or the WebCore CMake copy at `bin\resources\icudt67l.dat`).
+
+Omitting this file AVs in `ftewebcore.dll` a few seconds after map load when the HUD parses `@font-face`. `webcore_hud 0` survives; HUD on does not. Playtest packaging (`Tools/qml-runtime-launcher/scripts/publish-staging.ps1`) **throws** if WebCore is present and this file is missing.
+
+```powershell
+# Playtest / staging layout (nuclide already has Resources\icudt67l.dat; Windows treats that as resources\).
+New-Item -ItemType Directory -Force -Path "$playtest\resources" | Out-Null
+Copy-Item -LiteralPath "Resources\icudt67l.dat" -Destination "$playtest\resources\icudt67l.dat" -Force
+```
+
 ## Notes
 
 - The nuclide root is what the game actually runs; copy here (NOT into `ThirdParty/`).
@@ -65,3 +77,4 @@ fteqw/ (sibling directory)
   binaries must run from the nuclide root for h3-main-menu assets to be found.
 - Always copy after successful builds to keep them in sync.
 - The CEF plugin copy is only needed if `cef.c` (the plugin) changed.
+- WebCore ICU is not produced by the FTE engine build; copy it whenever shipping `fteplug_webcore_x64.dll` / `ftewebcore.dll`.

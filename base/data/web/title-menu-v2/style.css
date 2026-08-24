@@ -64,6 +64,17 @@ html, body {
   user-select: none;
 }
 
+/* Only WebCore chrome fades; the engine viewport beneath remains continuous. */
+.title-chrome {
+  position: absolute;
+  inset: 0;
+  opacity: 1;
+  transition: opacity 180ms ease-out;
+}
+.title-chrome.is-hidden {
+  opacity: 0;
+  pointer-events: none;
+}
 /* ── Backdrop (Figma bg 129:244)
    Placeholder IMAGE fills omitted — game viewport shows through.
    image 5 = red (unmasked hard-light); image 4 = radial mask;
@@ -271,6 +282,12 @@ html, body {
   position: absolute;
   inset: 0;
   z-index: 20;
+  opacity: 1;
+  transition: opacity 180ms ease-out;
+}
+.join-dialog.is-hidden {
+  opacity: 0;
+  pointer-events: none;
 }
 .join-dialog.hidden { display: none; }
 
@@ -382,3 +399,10 @@ html, body {
 .btn-bm:hover:not(:disabled) { border-color: #4a9; }
 .btn-bm:disabled { opacity: 0.4; cursor: not-allowed; }
 .btn-bm--ghost { background: transparent; }
+
+@media (prefers-reduced-motion: reduce) {
+  .title-chrome,
+  .join-dialog {
+    transition-duration: 0.01ms;
+  }
+}

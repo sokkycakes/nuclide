@@ -330,6 +330,7 @@ private:
 	float m_actWalkProne;
 	float m_actRun;
 	float m_actJump;
+	float m_actDeath;
 	float m_actAim;
 	float m_actDraw;
 	float m_actAttack;

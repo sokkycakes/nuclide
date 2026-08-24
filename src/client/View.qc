@@ -49,7 +49,8 @@ void
 ncView::SetupView(void)
 {
 	setproperty(VF_DRAWENGINESBAR, (float)0);
-	setproperty(VF_DRAWCROSSHAIR, (float)0);
+	/* Let FTE render its Quake crosshair, controlled by the `crosshair` cvar. */
+	setproperty(VF_DRAWCROSSHAIR, (float)1);
 
 	if (g_cheats == true) {
 		setproperty(VF_DRAWWORLD, autocvar_r_skipWorld ? false : true);

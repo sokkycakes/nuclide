@@ -895,7 +895,14 @@ ncProjectile::_Explode(entity explodedOn)
 	}
 
 	HasExploded();
-	StartSoundDef(m_sndExplode, CHAN_VOICE, true);
+	/* Physics projectiles: prefer actor hit sound when detonating on a
+	 * damageable target; otherwise use the generic explode/world sound. */
+	if (explodedOn && explodedOn != this && explodedOn != world
+		&& explodedOn.takedamage != DAMAGE_NO && STRING_SET(m_sndHitActor)) {
+		StartSoundDef(m_sndHitActor, CHAN_VOICE, true);
+	} else {
+		StartSoundDef(m_sndExplode, CHAN_VOICE, true);
+	}
 	Destroy();
 }
 

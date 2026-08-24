@@ -91,6 +91,46 @@ weapon_vagrant_knife.throw
 	sample weapons/melee_swing.wav
 }
 
+weapon_vagrant_knife.flyloop
+{
+	alerts
+	looping
+	follow
+	sample weapons/knife-throwloop.ogg
+}
+
+weapon_vagrant_knife.throwhit
+{
+	alerts
+	sample weapons/knife-throwhit.ogg
+}
+
+weapon_vagrant_knife.wallhit
+{
+	alerts
+	sample weapons/knife-wallhit.ogg
+}
+
+weapon_vagrant_knife.impact
+{
+	alerts
+	sample weapons/ax1.wav
+}
+
+weapon_vagrant_melee.hit
+{
+	alerts
+	volume 0.35
+	sample weapons/stinger_slash2.ogg
+}
+
+weapon_vagrant_melee.backstab
+{
+	alerts
+	volume 0.75
+	sample weapons/backstab.ogg
+}
+
 weapon_supernailgun.shoot
 {
 	alerts

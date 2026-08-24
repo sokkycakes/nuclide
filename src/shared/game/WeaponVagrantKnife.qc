@@ -27,6 +27,7 @@ void ncWeaponVagrantKnife::Spawned(void)
 	s = GetDefString("snd_swing"); if (s) precache.Sound(s);
 	s = GetDefString("snd_hit"); if (s) precache.Sound(s);
 	s = GetDefString("snd_failed"); if (s) precache.Sound(s);
+	s = GetDefString("snd_fire"); if (s) precache.Sound(s);
 	m_bWarpQueued = false; m_entWarpKnife = __NULL__;
 	m_flWarpThrowTime = 0; m_flNextWarpTime = 0;
 	m_flReloadEnd = 0; m_flPickupHoldStart = 0; m_bAbilityHeld = false;
@@ -38,7 +39,15 @@ void ncWeaponVagrantKnife::FireWarpKnife(entity ourOwnerEnt)
 	if (m_entWarpKnife || !ourOwner) return;
 	if (time < m_flReloadEnd) return;
 	ncProjectile wp = ncProjectile_SpawnDef("projectile_vagrant_warpknife", ourOwner);
-	if (wp) { m_entWarpKnife = wp; m_flWarpThrowTime = time; PlaySound(GetDefString("snd_fire"), CHAN_WEAPON, false); }
+	if (wp) {
+		string sndFire;
+		m_entWarpKnife = wp;
+		m_flWarpThrowTime = time;
+		sndFire = GetDefString("snd_fire");
+		if (STRING_SET(sndFire)) {
+			ourOwner.StartSoundDef(sndFire, CHAN_WEAPON, true);
+		}
+	}
 	m_flReloadEnd = time + 2.0; m_flNextWarpTime = time + 0.5;
 }
 
@@ -52,7 +61,15 @@ void ncWeaponVagrantKnife::PrimaryAttack(void)
 		else if (!o.UseAmmo(m_fiAmmoType, m_fiAmmoPerShot)) { EmptySound(); return; }
 	}
 	ncProjectile p = ncProjectile_SpawnDef("projectile_vagrant_throwknife", o);
-	if (p) { p.gravity = 1.0; p.movetype = MOVETYPE_TOSS; PlaySound(GetDefString("snd_fire"), CHAN_WEAPON, false); }
+	if (p) {
+		string sndFire;
+		p.gravity = 1.0;
+		p.movetype = MOVETYPE_TOSS;
+		sndFire = GetDefString("snd_fire");
+		if (STRING_SET(sndFire)) {
+			o.StartSoundDef(sndFire, CHAN_WEAPON, true);
+		}
+	}
 	m_flReloadEnd = time + 2.0;
 }
 
@@ -98,7 +115,7 @@ void ncWeaponVagrantKnife::DoWarpTeleport(entity e, float dist)
 	dst += wk.m_lastPlaneNormal * off;
 	setorigin(o, dst); o.SetVelocity([0,0,0]); o.SetAngles(o.v_angle);
 	if (wk.m_lastPlaneNormal_z >= -0.1 && wk.m_lastPlaneNormal_z <= 0.1) {
-		o.m_stilettoAirStallEnd = time + 1.5; o.AddVFlags(VFL_STILETTO_WALL); o.m_stilettoWallNorm = wk.m_lastPlaneNormal;
+		o.m_stilettoAirStallTime = 1.5f; o.AddVFlags(VFL_STILETTO_WALL); o.m_stilettoWallNorm = wk.m_lastPlaneNormal;
 	}
 	remove(m_entWarpKnife); m_entWarpKnife = __NULL__; m_bWarpQueued = false;
 	float cd;
@@ -106,7 +123,7 @@ void ncWeaponVagrantKnife::DoWarpTeleport(entity e, float dist)
 	else {
 		float n = bound(0, (dist - WARP_COOLDOWN_FLAT) / (WARP_COOLDOWN_DIST - WARP_COOLDOWN_FLAT), 1.0);
 		cd = WARP_COOLDOWN_MIN + n * (WARP_COOLDOWN_MAX - WARP_COOLDOWN_MIN);
-		o.m_stilettoAirStallEnd = time + 1.3; o.AddVFlags(VFL_FROZEN);
+		o.m_stilettoAirStallTime = 1.3f; o.AddVFlags(VFL_FROZEN);
 		nextthink = time + 1.3; think = FreezeEndThink;
 	}
 	m_flNextWarpTime = time + cd;
@@ -153,27 +170,80 @@ void ncWeaponVagrantMelee::ncWeaponVagrantMelee(void) {}
 void ncWeaponVagrantMelee::ApplyMeleeDamage(entity t, vector hp, vector dir)
 {
 	ncPlayer p = (ncPlayer)GetOwner();
+	float yd;
+	bool isBackstab;
+	string sndBackstab;
+	float fDamage;
+	float fPush;
+	ncDict damageDecl;
+	ncSurfacePropEntity sp;
+
 	if (!p || !t) {
 		return;
 	}
 
-	ncSurfacePropEntity sp = (ncSurfacePropEntity)t;
+	sp = (ncSurfacePropEntity)t;
 	if (!sp || !sp.IsVulnerable()) {
 		return;
 	}
 
 	/* Backstab: yaw delta > 120° instantly drops health. */
-	float yd = t.angles_y - vectoyaw(p.origin - t.origin);
+	yd = t.angles_y - vectoyaw(p.origin - t.origin);
 	if (yd < 0) {
 		yd = -yd;
 	}
 	if (yd > 180) {
 		yd = 360 - yd;
 	}
-	if (yd > 120) {
-		t.health = 0;
+	isBackstab = (yd > 120);
+
+	if (isBackstab) {
+		/* Lethal via Damage() — do NOT pre-zero health. Player::Damage
+		 * returns early when GetHealth() <= 0, skipping Death(), so the
+		 * client shows dead UI while the server still allows movement. */
+		fDamage = sp.GetHealth();
+		if (fDamage < 1) {
+			fDamage = 1;
+		}
+		fPush = GetMeleePush();
+		damageDecl = spawn(ncDict);
+		damageDecl.AddKey("damage", itos(fDamage));
+		damageDecl.AddKey("weapon", classname);
+		damageDecl.AddKey("location", vtos(hp));
+		if (fPush > 0) {
+			damageDecl.AddKey("push", ftos(fPush));
+			damageDecl.AddKey("knockback", ftos(fPush));
+		}
+		/* Skip super — its snd_hit would replace backstab on CHAN_WEAPON. */
+		sp.Damage(this, p, damageDecl, 1.0, dir, hp);
+		remove(damageDecl);
+
+		sndBackstab = GetDefString("snd_backstab");
+		if (STRING_SET(sndBackstab)) {
+			p.StartSoundDef(sndBackstab, CHAN_WEAPON, true);
+			SoundDef_Play(t, CHAN_BODY, sndBackstab);
+		}
+		return;
 	}
 
-	super::ApplyMeleeDamage(t, hp, dir);
+	/* Vagrant hit-confirm sounded too loud because the base melee path plays
+	 * snd_hit on both attacker and target. Keep the local confirm only. */
+	fDamage = GetMeleeDamage();
+	fPush = GetMeleePush();
+	damageDecl = spawn(ncDict);
+	damageDecl.AddKey("damage", itos(fDamage));
+	damageDecl.AddKey("weapon", classname);
+	damageDecl.AddKey("location", vtos(hp));
+	if (fPush > 0) {
+		damageDecl.AddKey("push", ftos(fPush));
+		damageDecl.AddKey("knockback", ftos(fPush));
+	}
+	sp.Damage(this, p, damageDecl, 1.0, dir, hp);
+	remove(damageDecl);
+
+	string sndHit = GetDefString("snd_hit");
+	if (STRING_SET(sndHit)) {
+		p.StartSoundDef(sndHit, CHAN_WEAPON, true);
+	}
 }
 #endif

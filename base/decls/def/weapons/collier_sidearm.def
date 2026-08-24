@@ -53,8 +53,7 @@ entityDef fireInfo_collierPrimary
 
 entityDef damage_collierDirect
 {
-	// 1 per bullet to match the rest of the roster (R4, 4 HP cast).
-	"damage"	"1"
+	"damage"	"2"
 }
 
 entityDef projectile_collier

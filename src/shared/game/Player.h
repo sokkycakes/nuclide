@@ -316,26 +316,30 @@ private:
 	NETWORKED_FLOAT(m_stilettoWallJumpCooldown)
 	NETWORKED_FLOAT(m_stilettoAirDodgeCharges)
 	NETWORKED_FLOAT(m_stilettoAirStallCharges)
-	NETWORKED_FLOAT(m_stilettoAirStallEnd)
+	NETWORKED_FLOAT(m_stilettoAirStallTime)
 	NETWORKED_VECTOR(m_stilettoDashAddVel)
-	NETWORKED_FLOAT(m_stilettoParryEnd)
-	float m_stilettoAirTime;
+	NETWORKED_FLOAT(m_stilettoParryTime)
+	/* Elapsed airborne time, advanced by input_timelength (not a wall-clock stamp). */
+	NETWORKED_FLOAT(m_stilettoAirTime)
 	bool m_stilettoJumpKicked;
+	/* Goomba stomp (server-only timing; not networked). */
+	float m_goombaFallSpeed;
+	float m_goombaStompSoundTime;
 
 	/* combat-reaction (stiletto_combat.qc): networked so the shared
 	 * Physics_Run punish movement-lock predicts identically client+server. */
 	NETWORKED_INT(m_stilettoPunishState)
-	NETWORKED_FLOAT(m_stilettoPunishEnd)
+	NETWORKED_FLOAT(m_stilettoPunishTime)
 
 	/* Archstiletto lunge (shared so charge-slow + impulse predict). */
 	NETWORKED_INT(m_stilettoLungeCharging)
-	NETWORKED_FLOAT(m_stilettoLungeChargeStart)
+	NETWORKED_FLOAT(m_stilettoLungeCharge)
 	NETWORKED_FLOAT(m_stilettoLungeSeqStrength)
 	NETWORKED_INT(m_stilettoLungeFlight)
-	NETWORKED_FLOAT(m_stilettoLungeCooldownEnd)
+	NETWORKED_FLOAT(m_stilettoLungeCooldown)
 	NETWORKED_INT(m_stilettoLungeLaunch)
 
-	int m_stilettoPrevButtons;
+	NETWORKED_INT(m_stilettoPrevButtons)
 
 	/* Hero actions / Groove (PLAYER_HERO_ACTIONS). */
 	NETWORKED_INT(m_heroGuardState)
@@ -393,6 +397,7 @@ private:
 	bool m_heroGuardHeld;
 	float m_heroGuardExpire;
 	float m_heroActionNextTime;
+	float m_heroMeleeNextTime;
 #endif
 
 	entity m_holdingEntity;

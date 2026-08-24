@@ -49,7 +49,7 @@ HeroActions_WarpknifeClear(entity player)
 	pl.m_heroToolHeld = false;
 	pl.m_heroWarpPickupHoldStart = 0;
 	pl.m_stilettoLungeCharging = 0;
-	pl.m_stilettoLungeChargeStart = 0.0f;
+	pl.m_stilettoLungeCharge = 0.0f;
 }
 
 void
@@ -149,7 +149,7 @@ HeroActions_WarpknifeTeleport(entity player, float dist)
 	o.SetAngles(o.v_angle);
 
 	if (wk.m_lastPlaneNormal_z >= -0.1 && wk.m_lastPlaneNormal_z <= 0.1) {
-		o.m_stilettoAirStallEnd = time + 1.5;
+		o.m_stilettoAirStallTime = 1.5f;
 		o.AddVFlags(VFL_STILETTO_WALL);
 		o.m_stilettoWallNorm = wk.m_lastPlaneNormal;
 	}
@@ -163,7 +163,7 @@ HeroActions_WarpknifeTeleport(entity player, float dist)
 	} else {
 		float n = bound(0, (dist - HERO_WARP_COOLDOWN_FLAT) / (HERO_WARP_COOLDOWN_DIST - HERO_WARP_COOLDOWN_FLAT), 1.0);
 		cd = HERO_WARP_COOLDOWN_MIN + n * (HERO_WARP_COOLDOWN_MAX - HERO_WARP_COOLDOWN_MIN);
-		o.m_stilettoAirStallEnd = time + 1.3;
+		o.m_stilettoAirStallTime = 1.3f;
 		o.AddVFlags(VFL_FROZEN);
 		freezer = spawn();
 		if (freezer) {
@@ -277,12 +277,26 @@ HeroActions_HeroToolPress(entity player)
 			num_for_edict(pl), tool));
 	}
 
+	/* Lunge is movement-affecting — replay on client and server. */
+	if (tool == "lunge") {
 #ifdef SERVER
+		if (pl.m_stilettoGrappleActionHeld) {
+			return;
+		}
+		pl.m_stilettoGrappleActionHeld = 1;
+#endif
+		Archstiletto_AbilityPress(pl);
+		return;
+	}
+
+#ifdef SERVER
+	/* Idempotent: cmd path and button-11 rising edge may both arrive. */
+	if (pl.m_stilettoGrappleActionHeld) {
+		return;
+	}
 	pl.m_stilettoGrappleActionHeld = 1;
 
-	if (tool == "lunge") {
-		Archstiletto_AbilityPress(pl);
-	} else if (tool == "warpknife") {
+	if (tool == "warpknife") {
 		HeroActions_WarpknifePress(pl);
 	} else {
 		Stiletto_FireGrapple(pl);
@@ -311,12 +325,24 @@ HeroActions_HeroToolRelease(entity player)
 			num_for_edict(pl), tool));
 	}
 
+	if (tool == "lunge") {
 #ifdef SERVER
+		if (!pl.m_stilettoGrappleActionHeld) {
+			return;
+		}
+		pl.m_stilettoGrappleActionHeld = 0;
+#endif
+		Archstiletto_AbilityRelease(pl);
+		return;
+	}
+
+#ifdef SERVER
+	if (!pl.m_stilettoGrappleActionHeld) {
+		return;
+	}
 	pl.m_stilettoGrappleActionHeld = 0;
 
-	if (tool == "lunge") {
-		Archstiletto_AbilityRelease(pl);
-	} else if (tool == "warpknife") {
+	if (tool == "warpknife") {
 		HeroActions_WarpknifeRelease(pl);
 	}
 #endif
@@ -403,6 +429,12 @@ HeroActions_MeleePress(entity player)
 	if (!HeroActions_CanAttack(pl)) {
 		return;
 	}
+	/* Idempotent vs cmd + button-10 rising edge in the same beat. */
+	if (time < pl.m_heroMeleeNextTime) {
+		return;
+	}
+	pl.m_heroMeleeNextTime = time + 0.05;
+
 	HeroActions_EnsureMeleeWeapon(pl);
 	melee = pl.m_heroMeleeWeapon;
 	if (!melee || wasfreed(melee)) {
@@ -819,12 +851,27 @@ void
 HeroActions_PublishHud(entity player)
 {
 	ncPlayer pl;
+	int speed;
 
 	if (!player) {
 		return;
 	}
 
 	pl = (ncPlayer)player;
+	/* Publish from the predicted CSQC player; these values change per-frame. */
+	/* Horizontal Quake units/sec (same scale as classic speedometers). */
+	speed = floor(sqrt(pl.velocity[0] * pl.velocity[0] + pl.velocity[1] * pl.velocity[1]));
+	cvar_set("webcore_hud_speed", itos(speed));
+	cvar_set("webcore_hud_charges", itos(pl.m_stilettoGrappleCharges));
+	if (pl.m_activeWeapon && pl.m_activeWeapon._isWeapon) {
+		cvar_set("webcore_hud_clip", itos(pl.m_activeWeapon.GetClip()));
+		cvar_set("webcore_hud_ammo_max", itos(pl.m_activeWeapon.GetClipSize()));
+	} else {
+		cvar_set("webcore_hud_clip", "0");
+		cvar_set("webcore_hud_ammo_max", "0");
+	}
+	cvar_set("webcore_hud_health", itos(floor(pl.health)));
+	cvar_set("webcore_hud_health_max", itos(floor(pl.max_health)));
 	cvar_set("webcore_hud_drive", ftos(pl.m_drive));
 	cvar_set("webcore_hud_drive_max", ftos(pl.m_driveMax));
 	cvar_set("webcore_hud_ex", ftos(pl.m_ex));

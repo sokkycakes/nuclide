@@ -5,10 +5,10 @@
  * Players are SOLID_SLIDEBOX, so they never become groundentity (BSP-only).
  * Detection is impact-shaped: downward contact via touch and a short post-move
  * probe — not a continuous airborne feet hunt.
+ *
+ * Timing fields live on ncPlayer (Player.h) — do NOT use global .float here;
+ * that shifts entity field indices and desyncs csprogs when only progs rebuilds.
  */
-
-/* Fall speed at Physics_Run start — Rebound can zero velocity before DoTouch. */
-.float m_goombaFallSpeed;
 
 static bool
 GoombaStomp_HeroEnabled(ncPlayer pl)
@@ -34,7 +34,7 @@ GoombaStomp_GatesPass(ncPlayer pl, float fallSpeed)
 		return (false);
 	}
 
-	if ((time - pl.m_stilettoAirTime) < minAir) {
+	if (pl.m_stilettoAirTime < minAir) {
 		return (false);
 	}
 
@@ -65,11 +65,8 @@ GoombaStomp_ValidVictim(ncPlayer pl, entity hit)
 		return (false);
 	}
 
-	sp = (ncSurfacePropEntity)hit;
-	if (!sp || !sp.IsVulnerable() || !sp.IsAlive()) {
-		return (false);
-	}
-
+	/* Brush ents (func_wall, etc.) are not SurfacePropEntity — calling
+	 * IsVulnerable/IsAlive on them is a NULL virtual and hard-crashes. */
 	if (is.Player(hit)) {
 		ncPlayer victim = (ncPlayer)hit;
 
@@ -84,10 +81,20 @@ GoombaStomp_ValidVictim(ncPlayer pl, entity hit)
 			}
 		}
 
+		sp = (ncSurfacePropEntity)hit;
+		if (!sp.IsVulnerable() || !sp.IsAlive()) {
+			return (false);
+		}
+
 		return (true);
 	}
 
 	if (hit.flags & FL_MONSTER) {
+		sp = (ncSurfacePropEntity)hit;
+		if (!sp.IsVulnerable() || !sp.IsAlive()) {
+			return (false);
+		}
+
 		return (true);
 	}
 
@@ -119,7 +126,12 @@ GoombaStomp_Apply(ncPlayer pl, entity hit)
 	sp.Damage(pl, pl, damageDecl, 1.0, [0, 0, -1], hit.origin + [0, 0, hit.maxs[2]]);
 	remove(damageDecl);
 
-	pl.StartSoundDef("Player.GoombaStomp", CHAN_BODY, true);
+	/* CHAN_AUTO — CHAN_BODY is footsteps/jump and cuts the stomp off mid-clip.
+	 * Guard against OnTouch + PostMove (or multi-clip touch) restarting the sample. */
+	if (time >= pl.m_goombaStompSoundTime) {
+		pl.m_goombaStompSoundTime = time + 0.25f;
+		pl.StartSoundDef("Player.GoombaStomp", CHAN_AUTO, true);
+	}
 }
 #endif
 

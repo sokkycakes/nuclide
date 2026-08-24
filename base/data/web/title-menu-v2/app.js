@@ -8,7 +8,12 @@
   var SND_OK = "misc/menu2";
   var SND_BACK = "misc/menu3";
 
+  var TRANSITION_MS = 180;
+  var reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var transitionMs = reduceMotion ? 0 : TRANSITION_MS;
+
   var stage = document.getElementById("stage");
+  var titleChrome = document.getElementById("title-chrome");
   var focusBar = document.getElementById("focus-bar");
   var items = Array.prototype.slice.call(document.querySelectorAll(".menu-item"));
   var selected = 0;
@@ -17,6 +22,7 @@
   var joinConnect = document.getElementById("join-connect");
   var selectedAddr = null;
   var joinOpen = false;
+  var transitioning = true;
 
   function q(req) {
     if (typeof window.fte_query !== "function") return null;
@@ -31,6 +37,19 @@
     q("localsound:" + sample);
   }
 
+  function afterTransition(fn) {
+    window.setTimeout(fn, transitionMs);
+  }
+
+  function setTitleHidden(hidden) {
+    titleChrome.classList.toggle("is-hidden", hidden);
+    titleChrome.setAttribute("aria-hidden", hidden ? "true" : "false");
+  }
+
+  function setDialogAvailable(available) {
+    joinDialog.classList.toggle("is-hidden", !available);
+    joinDialog.setAttribute("aria-hidden", available ? "false" : "true");
+  }
   function setFocusY(index) {
     focusBar.style.setProperty("--focus-y", "calc(100% * " + ITEM_Y[index] + " / " + REF_H + ")");
   }
@@ -54,20 +73,46 @@
   }
 
   function openJoin() {
+    if (transitioning || joinOpen) return;
+    transitioning = true;
     joinOpen = true;
-    joinDialog.classList.remove("hidden");
-    joinDialog.setAttribute("aria-hidden", "false");
     selectedAddr = null;
     joinConnect.disabled = true;
     refreshLan();
+    setTitleHidden(true);
+    afterTransition(function () {
+      joinDialog.classList.remove("hidden");
+      joinDialog.offsetWidth;
+      setDialogAvailable(true);
+      afterTransition(function () { transitioning = false; });
+    });
   }
 
   function closeJoin(playBack) {
-    if (!joinOpen) return;
-    joinOpen = false;
-    joinDialog.classList.add("hidden");
-    joinDialog.setAttribute("aria-hidden", "true");
+    if (transitioning || !joinOpen) return;
+    transitioning = true;
     if (playBack !== false) localsound(SND_BACK);
+    setDialogAvailable(false);
+    afterTransition(function () {
+      joinDialog.classList.add("hidden");
+      joinOpen = false;
+      setTitleHidden(false);
+      afterTransition(function () { transitioning = false; });
+    });
+  }
+
+  function leaveTitle(cmd) {
+    if (transitioning || !cmd) return;
+    transitioning = true;
+    localsound(SND_OK);
+    setTitleHidden(true);
+    cbuf(cmd);
+    if (cmd === "menu_options") {
+      afterTransition(function () {
+        setTitleHidden(false);
+        transitioning = false;
+      });
+    }
   }
 
   function escapeHtml(s) {
@@ -106,12 +151,15 @@
   }
 
   function joinAddr(addr) {
-    if (!addr) return;
-    if (q("lobby_join:" + addr) === "ok") {
-      localsound(SND_OK);
-      closeJoin(false);
-      cbuf("menu_webcore_lobby");
+    if (!addr || transitioning || !joinOpen) return;
+    transitioning = true;
+    if (q("lobby_join:" + addr) !== "ok") {
+      transitioning = false;
+      return;
     }
+    localsound(SND_OK);
+    setDialogAvailable(false);
+    cbuf("menu_webcore_lobby");
   }
 
   function joinCode() {
@@ -128,24 +176,26 @@
 
   function activate() {
     var el = items[selected];
-    if (!el) return;
-    localsound(SND_OK);
+    if (!el || transitioning || joinOpen) return;
     if (el.getAttribute("data-action") === "join-lobby") {
+      localsound(SND_OK);
       openJoin();
       return;
     }
-    cbuf(el.getAttribute("data-cmd"));
+    leaveTitle(el.getAttribute("data-cmd"));
   }
 
   items.forEach(function (el, i) {
-    el.addEventListener("mouseenter", function () { if (!joinOpen) select(i); });
+    el.addEventListener("mouseenter", function () { if (!joinOpen && !transitioning) select(i); });
     el.addEventListener("click", function () {
+      if (transitioning || joinOpen) return;
       select(i, false);
       activate();
     });
   });
 
   joinList.addEventListener("click", function (e) {
+    if (transitioning || !joinOpen) return;
     var li = e.target;
     while (li && li !== joinList && li.tagName !== "LI") li = li.parentNode;
     if (!li || !li.getAttribute("data-addr")) return;
@@ -157,7 +207,9 @@
     localsound(SND_NAV);
   });
 
-  document.getElementById("join-refresh").addEventListener("click", refreshLan);
+  document.getElementById("join-refresh").addEventListener("click", function () {
+    if (!transitioning && joinOpen) refreshLan();
+  });
   joinConnect.addEventListener("click", joinSelected);
   document.getElementById("join-addr-go").addEventListener("click", function () {
     var el = document.getElementById("join-addr");
@@ -165,7 +217,10 @@
   });
   document.getElementById("join-code-go").addEventListener("click", joinCode);
   document.getElementById("join-code").addEventListener("keydown", function (e) {
-    if (e.key === "Enter") { joinCode(); e.preventDefault(); }
+    if (e.key === "Enter") {
+      if (!transitioning && joinOpen) joinCode();
+      e.preventDefault();
+    }
   });
   Array.prototype.forEach.call(document.querySelectorAll("[data-join-close]"), function (el) {
     el.addEventListener("click", closeJoin);
@@ -173,6 +228,10 @@
 
   document.addEventListener("keydown", function (e) {
     var key = e.key;
+    if (transitioning) {
+      if (key === "Enter" || key === " " || key === "Escape" || key.indexOf("Arrow") === 0) e.preventDefault();
+      return;
+    }
     if (joinOpen) {
       if (key === "Escape") { closeJoin(); e.preventDefault(); }
       return;
@@ -190,10 +249,14 @@
   });
 
   document.addEventListener("wheel", function (e) {
-    if (joinOpen) return;
+    if (joinOpen || transitioning) return;
     if (e.deltaY > 0) select(selected + 1);
     else if (e.deltaY < 0) select(selected - 1);
   }, { passive: true });
 
   select(0, false);
+  window.setTimeout(function () {
+    setTitleHidden(false);
+    afterTransition(function () { transitioning = false; });
+  }, 0);
 })();

@@ -178,39 +178,82 @@ Spawn_SendAngles(entity targetEnt, entity spawnPoint)
 =================
 Spawn_PlaceAtSpot
 
-Move the player to a spawn entity, nudging upward until the hull is clear.
+Move the player to a spawn entity or a nearby floor slot. Never stack players
+vertically or commit an occupied/startsolid position.
 =================
 */
 static bool
 Spawn_PlaceAtSpot(entity targetEnt, entity spawnPoint)
 {
 	vector testorg;
+	vector offset;
+	float radius;
+	int direction;
 
 	if (!spawnPoint) {
 		return (false);
 	}
 
-	testorg = spawnPoint.origin;
+	/* Slot 0 is the authored origin. If it is occupied, try three horizontal
+	 * rings around the same anchor. The 48-unit spacing exceeds the normal
+	 * 32-unit hull width, so successful slots cannot overlap another player. */
+	for (int i = 0; i < 25; i++) {
+		offset = g_vec_null;
 
-	for (int i = 0; i < 64; i++) {
-		tracebox(testorg, targetEnt.mins, targetEnt.maxs, testorg, MOVE_NORMAL, targetEnt);
+		if (i > 0) {
+			radius = 48.0f * (float)(((i - 1) / 8) + 1);
+			direction = (i - 1) % 8;
 
-		if (!trace_startsolid) {
-			break;
+			switch (direction) {
+			case 0: offset = [ 1.0f,  0.0f, 0.0f] * radius; break;
+			case 1: offset = [-1.0f,  0.0f, 0.0f] * radius; break;
+			case 2: offset = [ 0.0f,  1.0f, 0.0f] * radius; break;
+			case 3: offset = [ 0.0f, -1.0f, 0.0f] * radius; break;
+			case 4: offset = [ 0.7071f,  0.7071f, 0.0f] * radius; break;
+			case 5: offset = [-0.7071f,  0.7071f, 0.0f] * radius; break;
+			case 6: offset = [ 0.7071f, -0.7071f, 0.0f] * radius; break;
+			case 7: offset = [-0.7071f, -0.7071f, 0.0f] * radius; break;
+			}
 		}
 
-		testorg[2] += 1.0;
+		testorg = spawnPoint.origin + offset;
+		tracebox(testorg, targetEnt.mins, targetEnt.maxs, testorg, MOVE_NORMAL, targetEnt);
+
+		/* Occupied by a player, world brush, or any other solid: try another
+		 * horizontal slot. Do not nudge upward onto the blocker. */
+		if (trace_startsolid) {
+			continue;
+		}
+
+		/* An offset slot must have walkable support close below it. This avoids
+		 * moving a spawn sideways through a wall or out over a ledge. The authored
+		 * origin is checked too, which rejects malformed floating spawn points. */
+		tracebox(testorg, targetEnt.mins, targetEnt.maxs,
+			testorg - [0.0f, 0.0f, 64.0f], MOVE_NORMAL, targetEnt);
+
+		if (trace_startsolid || trace_fraction >= 1.0f || trace_plane_normal[2] < 0.7f) {
+			continue;
+		}
+
+		/* A player is not valid floor support; accepting it would recreate the
+		 * same vertical stack at a nearby slot. */
+		if (trace_ent && (trace_ent.flags & FL_CLIENT)) {
+			continue;
+		}
+
+		testorg = trace_endpos;
+		targetEnt.origin = testorg;
+		targetEnt.angles = spawnPoint.angles;
+		setorigin(targetEnt, testorg);
+		/* MakePlayer() often sets SendFlags=UPDATE_ALL before teleport. A full
+		 * CSQC update can leave with origin still at 0/death; after placement, force
+		 * origin+angles so observers are not stuck at world origin until movement. */
+		targetEnt.SendFlags |= (PLAYER_ORIGIN | PLAYER_ANGLES);
+		Spawn_SendAngles(targetEnt, spawnPoint);
+		return (true);
 	}
 
-	targetEnt.origin = testorg;
-	targetEnt.angles = spawnPoint.angles;
-	setorigin(targetEnt, testorg);
-	/* MakePlayer() often sets SendFlags=UPDATE_ALL before teleport. A full
-	 * CSQC update can leave with origin still at 0/death; after placement, force
-	 * origin+angles so observers are not stuck at world origin until movement. */
-	targetEnt.SendFlags |= (PLAYER_ORIGIN | PLAYER_ANGLES);
-	Spawn_SendAngles(targetEnt, spawnPoint);
-	return (true);
+	return (false);
 }
 
 /*
@@ -237,7 +280,25 @@ Spawn_TryClassname(entity targetEnt, string cname)
 		return (false);
 	}
 
-	return Spawn_PlaceAtSpot(targetEnt, spawnPoint);
+	if (spawnPoint && Spawn_PlaceAtSpot(targetEnt, spawnPoint)) {
+		return (true);
+	}
+
+	/* The randomly selected anchor can be boxed in even when another point of
+	 * the same class has a free slot. Try every remaining authored spawn before
+	 * falling back to a different spawn class. */
+	for (entity alternate = world;
+		(alternate = find(alternate, ::classname, cname));) {
+		if (alternate == spawnPoint) {
+			continue;
+		}
+
+		if (Spawn_PlaceAtSpot(targetEnt, alternate)) {
+			return (true);
+		}
+	}
+
+	return (false);
 }
 
 static bool

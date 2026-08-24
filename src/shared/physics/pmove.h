@@ -173,12 +173,13 @@ void Stiletto_Lunge_PreMove(entity pl);
 void Stiletto_Lunge_PostMove(entity pl);
 void Stiletto_Lunge_RequestLaunch(entity pl, float strength);
 void Stiletto_Lunge_Clear(entity pl);
+void Archstiletto_AbilityPress(entity pl);
+void Archstiletto_AbilityRelease(entity pl);
 #ifdef SERVER
 void Stiletto_FireGrapple(entity pl);
 void Stiletto_ReleaseGrapple(entity pl);
-void Archstiletto_AbilityPress(entity pl);
-void Archstiletto_AbilityRelease(entity pl);
 #endif
+void Stiletto_PredReplayCheck(entity pl);
 
 void PMoveCustom_RunPlayerPhysics(entity);
 void PMoveCustom_RunCrouchPhysics(entity);

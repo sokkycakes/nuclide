@@ -2,45 +2,13 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Game HUD</title>
-  <link rel="stylesheet" href="style.css?v=3">
+  <link rel="stylesheet" href="style.css?v=4">
 </head>
 <body>
-  <!-- Port of engine/ui/hud.slint (Figma 1440×1080 / 4:3 letterbox). -->
-  <div class="stage" id="stage">
-    <img class="hudring" src="assets/hudring.png" alt="">
-    <img class="deco-bottom" src="assets/hud_deco_bottom.png" alt="">
-    <img class="ex-gauge" src="assets/ex_gauge.png" alt="">
-    <img class="drive-gauge" src="assets/drive_gauge.png" alt="">
-    <div class="ex-level" id="ex-level">3</div>
-    <div class="ex-max">MAX</div>
-    <img class="ex-indicator" src="assets/ex_indicator.png" alt="">
-
-    <img class="time-indicator" src="assets/time_indicator.png" alt="">
-    <div class="score-left" id="score-left">0</div>
-    <div class="nameplate nameplate--left">
-      <span id="player1-name"></span>
-    </div>
-    <div class="pips pips--left-ability" id="pips-left-ability"></div>
-    <div class="drive-mini drive-mini--left" id="drive-left"></div>
-    <div class="timer" id="timer">00:00</div>
-    <div class="nameplate nameplate--right">
-      <span id="player2-name"></span>
-    </div>
-    <div class="pips pips--right-ability" id="pips-right-ability"></div>
-    <div class="drive-mini drive-mini--right" id="drive-right"></div>
-    <div class="score-right" id="score-right">0</div>
-
-    <img class="quick-info" src="assets/quick_info_deco.png" alt="">
-    <div class="pips pips--ammo" id="pips-ammo"></div>
-    <div class="pips pips--charges" id="pips-charges"></div>
-    <div class="reload" id="reload">0.0</div>
-    <img class="hp hp--full" id="hp-full" src="assets/hp_vector.png" alt="">
-    <img class="hp hp--low is-hidden" id="hp-low" src="assets/hp_low_vector.png" alt="">
-    <img class="hp hp--dead is-hidden" id="hp-dead" src="assets/hp_dead_vector.png" alt="">
-
-    <div class="speedo" id="speedo">000</div>
-  </div>
-  <script src="app.js?v=3"></script>
+  <canvas id="game-hud"></canvas>
+  <script src="assets-data.js?v=3"></script>
+  <script src="app.js?v=11"></script>
 </body>
 </html>

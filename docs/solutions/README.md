@@ -6,4 +6,5 @@ Use descriptive lowercase filenames. Add a category subdirectory when it improve
 
 ## Runtime errors
 
+- [WebCore HUD map-load AV when ICU data is missing](runtime-errors/webcore-hud-icu-data-missing.md) — playtest drops that ship `ftewebcore.dll` without `resources/icudt67l.dat` access-violate a few seconds after any map load when the HUD parses `@font-face`.
 - [FTEQCC virtual `ReceiveEntity` dispatch causes CSQC player underreads](runtime-errors/fteqcc-virtual-receiveentity-csqc-underread.md) — an inherited virtual method collision caused `ENT_PLAYER` payloads to be decoded using the wrong schema after a lobby-to-game transition.

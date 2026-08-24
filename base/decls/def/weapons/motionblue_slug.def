@@ -1,7 +1,9 @@
 // Motionblue primary: explosive slug launcher. 3-round clip, 0.5s fire.
 // Explosive (direct + splash, ~4m radius) with strong self-push for blast
-// jumps. Direct/splash damage kept at 1 to fit the 4 HP roster; radius and
-// push are the playtest-tuning knobs. The mblueGrenade tool is deferred.
+// jumps. Direct hit is 2; splash is 1. Post-hit i-frames keep splash from
+// stacking on the same target. A true inner blast nucleus (2 at center on
+// world hits, not only actor contact) is deferred. The mblueGrenade tool
+// is also deferred.
 entityDef weapon_motionblue_slug
 {
 	"editor_color"		".3 .3 1"
@@ -79,7 +81,7 @@ entityDef projectile_motionblue_slug
 
 entityDef damage_motionblueDirect
 {
-	"damage"		"1"
+	"damage"		"2"
 	"knockback"		"100"
 }
 

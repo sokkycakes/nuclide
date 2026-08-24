@@ -109,6 +109,9 @@ Arena_Configure(int teamShape, int promotionPolicy, int roundLimit)
 	g_arenaAutoJoin = false;
 	g_arenaSpawnClass = "";
 
+	precache_sound("common/countdown.ogg");
+	precache_sound("common/countdown-end.ogg");
+
 	/* reset all runtime state */
 	g_arenaQueueCount = 0;
 	g_arenaRound = 0;
@@ -575,6 +578,7 @@ Arena_BeginRound(void)
 		g_arenaState = ARENA_LIVE;
 		g_arenaStateTime = time;
 		Arena_CenterprintAll("FIGHT!");
+		sound(world, 4, "common/countdown-end.ogg", 0.7f, 0.0f);
 	}
 
 	Arena_BroadcastState();
@@ -796,6 +800,7 @@ Arena_TickCountdown(void)
 	if (remaining != g_arenaCountdownLast && remaining > 0i) {
 		g_arenaCountdownLast = remaining;
 		Arena_CenterprintAll(sprintf("%i", remaining));
+		sound(world, 4, "common/countdown.ogg", 0.7f, 0.0f);
 	}
 
 	if (time >= g_arenaDeadline) {

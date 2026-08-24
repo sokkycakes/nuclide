@@ -1,0 +1,2 @@
+# Keep Quake map sources LF-normalized.
+*.map text eol=lf

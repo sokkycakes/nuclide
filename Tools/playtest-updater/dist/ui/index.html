@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Nuclide Playtest Updater</title>
+  <link rel="stylesheet" href="app.css" />
+</head>
+<body>
+  <main>
+    <header>
+      <h1 id="title">Nuclide Playtest</h1>
+      <p class="sub">Updater</p>
+    </header>
+
+    <section class="card">
+      <div class="row"><span>Local</span><strong id="localVersion">—</strong></div>
+      <div class="row"><span>Remote</span><strong id="remoteVersion">—</strong></div>
+      <div class="row"><span>Game dir</span><code id="gameDir">—</code></div>
+      <p id="notes" class="notes" hidden></p>
+      <p id="status" class="status">Ready.</p>
+    </section>
+
+    <section class="actions">
+      <button id="btnCheck" type="button">Check</button>
+      <button id="btnUpdate" type="button" disabled>Update</button>
+      <button id="btnLaunch" type="button">Launch</button>
+    </section>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>

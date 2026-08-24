@@ -36,6 +36,8 @@ void
 CodeCallback_Precaches(void)
 {
 	Util_SharedPrecaches();
+	precache_sound("common/countdown.ogg");
+	precache_sound("common/countdown-end.ogg");
 }
 
 void

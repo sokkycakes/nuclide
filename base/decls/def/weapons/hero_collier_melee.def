@@ -1,18 +1,30 @@
-// Collier always-available ALT melee (non-selectable auxiliary weapon).
+// Collier always-available ALT melee — axe swing feel (weapon_axe / Arch),
+// with CSO knife third-person gestures from weapon_melee_base act_attack.
 entityDef hero_collier_melee
 {
 	"inherit"				"weapon_melee_base"
 	"spawnclass"			"ncWeaponBaseMelee"
 
 	"inv_name"				"Collier Melee"
+
+	/* Match Arch/axe melee swing (weapon_archstiletto / weapon_axe). */
 	"melee_range"			"64"
 	"melee_damage"			"1"
-	"melee_push"			"80"
+	"melee_push"			"100"
 	"melee_cleave"			"0"
+	"melee_bounds_mins"		"-18 -18 -18"
+	"melee_bounds_maxs"		"18 18 18"
 	"testDistance"			"0"
-	"fireRate"				"0.45"
-	"failRate"				"0.45"
+	"fireRate"				"0.5"
+	"failRate"				"0.5"
+	"silent_fire"			"1"
+	"ammoRequired"			"0"
+
 	"snd_swing"				"Melee_Swing"
 	"snd_hit"				"Weapon_Axe.Melee_Hit"
 	"snd_failed"			"Weapon_Axe.Miss"
+
+	/* CSO torso slash (jennifer2-family). */
+	"act_attack"			"ref_shoot_knife"
+	"act_attack_crouch"		"crouch_shoot_knife"
 }

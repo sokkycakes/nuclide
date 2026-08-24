@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "ChunkHound": {
+      "command": "C:\\Users\\sokky\\.local\\bin\\chunkhound.exe",
+      "args": [
+        "mcp",
+        "C:\\Users\\sokky\\Documents\\Godot\\bulwark_proto_funny\\nuclide"
+      ]
+    }
+  }
+}

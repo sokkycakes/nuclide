@@ -1,0 +1,12 @@
+{
+  "version": "0.0.0-empty",
+  "notes": "Replace this file by running scripts/publish-staging.ps1 and uploading the drop folder to copyparty staging.",
+  "files": [
+    {
+      "path": "fteqw64.exe",
+      "url": "https://yhost.heartheartheart.xyz/copyparty/stilettoplaytestbuilds/staging/fteqw64.exe",
+      "sha256": "",
+      "size": 0
+    }
+  ]
+}

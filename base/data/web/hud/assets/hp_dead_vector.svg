@@ -1,0 +1,10 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="50.8651" height="50.8651" viewBox="0 0 50.8651 50.8651" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="hpDeadVector">
+<mask id="mask0_0_5" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="-6" y="-6" width="63" height="63">
+<rect id="Bounding box" x="-3" y="-3" width="56.8651" height="56.8651" fill="white" stroke="black" stroke-width="6"/>
+</mask>
+<g mask="url(#mask0_0_5)">
+<path id="close_small" d="M19.6128 11.488L25.3862 17.2175L31.2065 11.4802L33.3237 9.39332L35.4302 11.492L39.4185 15.4656L41.5601 17.5994L39.4106 19.7244L33.6421 25.4246L39.4028 31.0808L41.5679 33.2058L39.4185 35.3464L35.4302 39.3201L33.3237 41.4187L31.2065 39.3318L25.3862 33.5935L19.6128 39.324L17.4956 41.4255L15.3823 39.3201L11.394 35.3464L9.24463 33.2058L11.4097 31.0808L17.1694 25.4246L11.4019 19.7244L9.25245 17.5994L11.394 15.4656L15.3823 11.492L17.4956 9.38648L19.6128 11.488Z" fill="white" stroke="black" stroke-width="6"/>
+</g>
+</g>
+</svg>

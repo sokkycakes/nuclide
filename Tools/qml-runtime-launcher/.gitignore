@@ -1,0 +1,8 @@
+build/
+dist/
+.qt-cache/
+staging-drop/
+apply-status.json
+apply.request
+update.download
+*.partial

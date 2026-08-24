@@ -18,6 +18,7 @@ entityDef hero_vagrant_melee
 	"fireRate"				"0.5"
 	"failRate"				"0.5"
 	"snd_swing"				"Melee_Swing"
-	"snd_hit"				"Weapon_Axe.Melee_Hit"
+	"snd_hit"				"weapon_vagrant_melee.hit"
+	"snd_backstab"			"weapon_vagrant_melee.backstab"
 	"snd_failed"			"Weapon_Axe.Miss"
 }

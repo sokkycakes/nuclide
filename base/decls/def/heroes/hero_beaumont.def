@@ -11,4 +11,7 @@ entityDef hero_beaumont
 
 	"weapon"				"weapon_beaumont_revolver"
 	"current_weapon"		"0"
+
+	"stiletto_air_dodge"		"0"
+	"stiletto_air_stall"		"0"
 }

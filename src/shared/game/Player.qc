@@ -90,16 +90,17 @@ ncPlayer::ncPlayer(void)
 	m_stilettoWallJumpCooldown = 0.0f;
 	m_stilettoAirDodgeCharges = 1.0f;
 	m_stilettoAirStallCharges = 1.0f;
-	m_stilettoAirStallEnd = 0.0f;
+	m_stilettoAirStallTime = 0.0f;
 	m_stilettoDashAddVel = g_vec_null;
-	m_stilettoParryEnd = 0.0f;
+	m_stilettoParryTime = 0.0f;
+	m_stilettoAirTime = 0.0f;
 	m_stilettoPunishState = 0i;
-	m_stilettoPunishEnd = 0.0f;
+	m_stilettoPunishTime = 0.0f;
 	m_stilettoLungeCharging = 0i;
-	m_stilettoLungeChargeStart = 0.0f;
+	m_stilettoLungeCharge = 0.0f;
 	m_stilettoLungeSeqStrength = 0.0f;
 	m_stilettoLungeFlight = 0i;
-	m_stilettoLungeCooldownEnd = 0.0f;
+	m_stilettoLungeCooldown = 0.0f;
 	m_stilettoLungeLaunch = 0i;
 	m_stilettoPrevButtons = 0;
 	m_stilettoGrappleHeld = 0;
@@ -120,6 +121,7 @@ ncPlayer::ncPlayer(void)
 	 * but aren't referenced from any entity def snd_* field */
 	precache.Sound("Player.AirDash");
 	precache.Sound("Player.AirStall");
+	precache.Sound("Player.WallJump");
 #endif
 }
 
@@ -456,13 +458,11 @@ ncPlayer::ProcessInput(void)
 		canfire = false;
 
 	/* Hero tools/melee before active-weapon primary/secondary/reload.
-	 * Server-authoritative for Phase 1 (matches old cmd path; avoids CSQC
-	 * prediction double-edges). Client still packs the bits in ClientInputFrame. */
-#ifdef SERVER
+	 * Shared replay so movement-affecting edges (lunge) predict; spawn/damage
+	 * side effects stay behind SERVER inside HeroActions_*. */
 	if (health > 0) {
 		HeroActions_InputFrame(this, input_buttons, m_stilettoPrevButtons);
 	}
-#endif
 
 	if (canfire == false) {
 		if (m_activeWeapon) {
@@ -545,6 +545,11 @@ ncPlayer::UpdatePlayerAnimation_Skeletal(float timelength)
 	frame1time = anim_bottom_time;
 	skel_build(skeletonindex, this, modelindex, 0, 0, 0, 1);
 
+	/* Dead: full-body death pose only — no aim torso overlay. */
+	if (health <= 0) {
+		return;
+	}
+
 	/* Torso overlay needs valid 1-based tag indices (Bip01 HL/CSO). Missing
 	 * tags → gettagindex 0; skel_build(0,0) means all bones and nearly
 	 * replaces the gait with the aim pose. Full-body IQM (Joker) skips this. */
@@ -624,6 +629,45 @@ ncPlayer::UpdatePlayerAnimation(float timelength)
 	float maxBottomTime;
 	float prevBottom = anim_bottom;
 	float oneshot;
+	bool dying;
+
+	dying = (health <= 0);
+
+	/* Dead: play act_death once and hold the last pose. Skip locomotion/aim. */
+	if (dying && m_actDeath != ACTIVITY_NOTFOUND) {
+		oneshot = true;
+		if (anim_bottom != m_actDeath) {
+			anim_bottom = m_actDeath;
+			anim_top = m_actDeath;
+			anim_bottom_time = 0;
+			anim_top_time = 0;
+		}
+		maxBottomTime = frameduration(modelindex, anim_bottom);
+		maxTopTime = maxBottomTime;
+		if (anim_bottom_time > maxBottomTime)
+			anim_bottom_time = maxBottomTime;
+		else if (anim_bottom_time < 0.0f)
+			anim_bottom_time = 0;
+		anim_top_time = anim_bottom_time;
+
+		switch (m_animBackend) {
+		case ANIMATIONMODEL_HLMDL_VALVE:
+			UpdatePlayerAnimation_Valve(timelength);
+			break;
+		case ANIMATIONMODEL_HLMDL_GOOSE:
+			UpdatePlayerAnimation_Goose(timelength);
+			break;
+		case ANIMATIONMODEL_SKELETAL:
+			UpdatePlayerAnimation_Skeletal(timelength);
+			break;
+		}
+
+		anim_bottom_time += timelength;
+		anim_top_time = anim_bottom_time;
+		if (maxBottomTime > 0 && anim_bottom_time > maxBottomTime)
+			anim_bottom_time = anim_top_time = maxBottomTime;
+		return;
+	}
 
 	if (anim_top_delay <= 0.0f) {
 		anim_top = m_actAim;
@@ -831,6 +875,8 @@ float
 ncPlayer::predraw(void)
 {
 	bool localplayer = false;
+	bool remoteVisualExtrapolation = false;
+	vector remoteRenderOrigin = origin;
 
 	ncPlayer cl = (ncPlayer)pSeat->m_ePlayer;
 
@@ -857,20 +903,23 @@ ncPlayer::predraw(void)
 	/* if this player is not the local player, then physics aren't being run on them
       so we need to advance their animation manually */
 	if (entnum != player_localentnum) {
-		if (autocvar(cg_extrapolateClients, 1)) {
-			input_movevalues[0] = dotproduct(velocity, anglesToForward(v_angle));
-			input_movevalues[1] = dotproduct(velocity, anglesToRight(v_angle));
-			input_movevalues[2] = dotproduct(velocity, anglesToUp(v_angle));
-			input_buttons = (flags & FL_JUMPRELEASED) ? 0 : INPUT_JUMP; /* this may not help that much... */
-			input_buttons |= IsCrouching() ? INPUT_CROUCH : 0;
-			input_angles = v_angle;
-			input_impulse = 0;
-			input_timelength = clframetime;
-			Physics_Run();
-		} else {
-			/* advance animation, usually done in physics */
-			UpdatePlayerAnimation(clframetime);
+		/* Never call Physics_Run here. It mutates the network entity's origin and
+		 * lets a blocked server player with attempted velocity fly away on an
+		 * observer until another PLAYER_ORIGIN delta arrives. Extrapolate only the
+		 * rendered copy by one frame, with collision, and leave the linked entity at
+		 * its authoritative snapshot for local prediction. */
+		if (autocvar(cg_extrapolateClients, 1) && velocity != g_vec_null) {
+			vector extrapolateEnd = origin + (velocity * clframetime);
+			tracebox(origin, mins, maxs, extrapolateEnd, MOVE_NORMAL, this);
+
+			if (!trace_startsolid) {
+				remoteRenderOrigin = trace_endpos;
+				remoteVisualExtrapolation = true;
+			}
 		}
+
+		/* advance animation, normally done in player physics */
+		UpdatePlayerAnimation(clframetime);
 	}
 
 	/* looping idle noise */
@@ -956,8 +1005,17 @@ ncPlayer::predraw(void)
 
 	/* this needs to be called absolutely last */
 	/* we're calling this so that the shadow can still be drawn */
-	if (GetRenderMode() != RM_DONTRENDER)
+	if (GetRenderMode() != RM_DONTRENDER) {
+		vector authoritativeOrigin = origin;
+
+		/* addentity copies the render fields immediately. Do not call setorigin for
+		 * this temporary offset: the linked collision hull must stay authoritative. */
+		if (remoteVisualExtrapolation) {
+			origin = remoteRenderOrigin;
+		}
 		addentity(this);
+		origin = authoritativeOrigin;
+	}
 
 	return (PREDRAW_NEXT);
 }
@@ -1284,19 +1342,21 @@ ncPlayer::ReceivePlayerEntity(float isNew, float flChanged)
 	READENTITY_FLOAT(m_stilettoWallJumpCooldown, PLAYER_STILETTO)
 	READENTITY_FLOAT(m_stilettoAirDodgeCharges, PLAYER_STILETTO)
 	READENTITY_FLOAT(m_stilettoAirStallCharges, PLAYER_STILETTO)
-	READENTITY_FLOAT(m_stilettoAirStallEnd, PLAYER_STILETTO)
+	READENTITY_FLOAT(m_stilettoAirStallTime, PLAYER_STILETTO)
 	READENTITY_COORD(m_stilettoDashAddVel[0], PLAYER_STILETTO)
 	READENTITY_COORD(m_stilettoDashAddVel[1], PLAYER_STILETTO)
 	READENTITY_COORD(m_stilettoDashAddVel[2], PLAYER_STILETTO)
-	READENTITY_FLOAT(m_stilettoParryEnd, PLAYER_STILETTO)
+	READENTITY_FLOAT(m_stilettoParryTime, PLAYER_STILETTO)
+	READENTITY_FLOAT(m_stilettoAirTime, PLAYER_STILETTO)
 	READENTITY_INT(m_stilettoPunishState, PLAYER_STILETTO)
-	READENTITY_FLOAT(m_stilettoPunishEnd, PLAYER_STILETTO)
+	READENTITY_FLOAT(m_stilettoPunishTime, PLAYER_STILETTO)
 	READENTITY_INT(m_stilettoLungeCharging, PLAYER_STILETTO)
-	READENTITY_FLOAT(m_stilettoLungeChargeStart, PLAYER_STILETTO)
+	READENTITY_FLOAT(m_stilettoLungeCharge, PLAYER_STILETTO)
 	READENTITY_FLOAT(m_stilettoLungeSeqStrength, PLAYER_STILETTO)
 	READENTITY_INT(m_stilettoLungeFlight, PLAYER_STILETTO)
-	READENTITY_FLOAT(m_stilettoLungeCooldownEnd, PLAYER_STILETTO)
+	READENTITY_FLOAT(m_stilettoLungeCooldown, PLAYER_STILETTO)
 	READENTITY_INT(m_stilettoLungeLaunch, PLAYER_STILETTO)
+	READENTITY_INT(m_stilettoPrevButtons, PLAYER_STILETTO)
 
 	READENTITY_INT(m_heroGuardState, PLAYER_HERO_ACTIONS)
 	READENTITY_INT(m_heroWeaponMode, PLAYER_HERO_ACTIONS)
@@ -1444,17 +1504,19 @@ ncPlayer::PredictPreFrame(void)
 	SAVE_STATE(m_stilettoWallJumpCooldown)
 	SAVE_STATE(m_stilettoAirDodgeCharges)
 	SAVE_STATE(m_stilettoAirStallCharges)
-	SAVE_STATE(m_stilettoAirStallEnd)
+	SAVE_STATE(m_stilettoAirStallTime)
 	SAVE_STATE(m_stilettoDashAddVel)
-	SAVE_STATE(m_stilettoParryEnd)
+	SAVE_STATE(m_stilettoParryTime)
+	SAVE_STATE(m_stilettoAirTime)
 	SAVE_STATE(m_stilettoPunishState)
-	SAVE_STATE(m_stilettoPunishEnd)
+	SAVE_STATE(m_stilettoPunishTime)
 	SAVE_STATE(m_stilettoLungeCharging)
-	SAVE_STATE(m_stilettoLungeChargeStart)
+	SAVE_STATE(m_stilettoLungeCharge)
 	SAVE_STATE(m_stilettoLungeSeqStrength)
 	SAVE_STATE(m_stilettoLungeFlight)
-	SAVE_STATE(m_stilettoLungeCooldownEnd)
+	SAVE_STATE(m_stilettoLungeCooldown)
 	SAVE_STATE(m_stilettoLungeLaunch)
+	SAVE_STATE(m_stilettoPrevButtons)
 
 	for (int i = 0i; i < MAX_AMMO_TYPES; i++) {
 		m_ammoTypes_net[i] = m_ammoTypes[i];
@@ -1519,17 +1581,19 @@ ncPlayer::PredictPostFrame(void)
 	ROLL_BACK(m_stilettoWallJumpCooldown)
 	ROLL_BACK(m_stilettoAirDodgeCharges)
 	ROLL_BACK(m_stilettoAirStallCharges)
-	ROLL_BACK(m_stilettoAirStallEnd)
+	ROLL_BACK(m_stilettoAirStallTime)
 	ROLL_BACK(m_stilettoDashAddVel)
-	ROLL_BACK(m_stilettoParryEnd)
+	ROLL_BACK(m_stilettoParryTime)
+	ROLL_BACK(m_stilettoAirTime)
 	ROLL_BACK(m_stilettoPunishState)
-	ROLL_BACK(m_stilettoPunishEnd)
+	ROLL_BACK(m_stilettoPunishTime)
 	ROLL_BACK(m_stilettoLungeCharging)
-	ROLL_BACK(m_stilettoLungeChargeStart)
+	ROLL_BACK(m_stilettoLungeCharge)
 	ROLL_BACK(m_stilettoLungeSeqStrength)
 	ROLL_BACK(m_stilettoLungeFlight)
-	ROLL_BACK(m_stilettoLungeCooldownEnd)
+	ROLL_BACK(m_stilettoLungeCooldown)
 	ROLL_BACK(m_stilettoLungeLaunch)
+	ROLL_BACK(m_stilettoPrevButtons)
 
 	/* make sure to relink these */
 	ROLL_BACK(vehicle_entnum)
@@ -1632,16 +1696,17 @@ ncPlayer::Save(float handle)
 	SaveFloat(handle, "m_stilettoWallJumpCooldown", m_stilettoWallJumpCooldown);
 	SaveFloat(handle, "m_stilettoAirDodgeCharges", m_stilettoAirDodgeCharges);
 	SaveFloat(handle, "m_stilettoAirStallCharges", m_stilettoAirStallCharges);
-	SaveFloat(handle, "m_stilettoAirStallEnd", m_stilettoAirStallEnd);
+	SaveFloat(handle, "m_stilettoAirStallTime", m_stilettoAirStallTime);
 	SaveVector(handle, "m_stilettoDashAddVel", m_stilettoDashAddVel);
-	SaveFloat(handle, "m_stilettoParryEnd", m_stilettoParryEnd);
+	SaveFloat(handle, "m_stilettoParryTime", m_stilettoParryTime);
+	SaveFloat(handle, "m_stilettoAirTime", m_stilettoAirTime);
 	SaveInt(handle, "m_stilettoPunishState", m_stilettoPunishState);
-	SaveFloat(handle, "m_stilettoPunishEnd", m_stilettoPunishEnd);
+	SaveFloat(handle, "m_stilettoPunishTime", m_stilettoPunishTime);
 	SaveInt(handle, "m_stilettoLungeCharging", m_stilettoLungeCharging);
-	SaveFloat(handle, "m_stilettoLungeChargeStart", m_stilettoLungeChargeStart);
+	SaveFloat(handle, "m_stilettoLungeCharge", m_stilettoLungeCharge);
 	SaveFloat(handle, "m_stilettoLungeSeqStrength", m_stilettoLungeSeqStrength);
 	SaveInt(handle, "m_stilettoLungeFlight", m_stilettoLungeFlight);
-	SaveFloat(handle, "m_stilettoLungeCooldownEnd", m_stilettoLungeCooldownEnd);
+	SaveFloat(handle, "m_stilettoLungeCooldown", m_stilettoLungeCooldown);
 	SaveInt(handle, "m_stilettoLungeLaunch", m_stilettoLungeLaunch);
 	SaveInt(handle, "m_stilettoPrevButtons", m_stilettoPrevButtons);
 }
@@ -1788,26 +1853,29 @@ ncPlayer::Restore(string keyName, string setValue)
 	case "m_stilettoAirStallCharges":
 		m_stilettoAirStallCharges = ReadFloat(setValue);
 		break;
-	case "m_stilettoAirStallEnd":
-		m_stilettoAirStallEnd = ReadFloat(setValue);
+	case "m_stilettoAirStallTime":
+		m_stilettoAirStallTime = ReadFloat(setValue);
 		break;
 	case "m_stilettoDashAddVel":
 		m_stilettoDashAddVel = ReadVector(setValue);
 		break;
-	case "m_stilettoParryEnd":
-		m_stilettoParryEnd = ReadFloat(setValue);
+	case "m_stilettoParryTime":
+		m_stilettoParryTime = ReadFloat(setValue);
+		break;
+	case "m_stilettoAirTime":
+		m_stilettoAirTime = ReadFloat(setValue);
 		break;
 	case "m_stilettoPunishState":
 		m_stilettoPunishState = ReadInt(setValue);
 		break;
-	case "m_stilettoPunishEnd":
-		m_stilettoPunishEnd = ReadFloat(setValue);
+	case "m_stilettoPunishTime":
+		m_stilettoPunishTime = ReadFloat(setValue);
 		break;
 	case "m_stilettoLungeCharging":
 		m_stilettoLungeCharging = ReadInt(setValue);
 		break;
-	case "m_stilettoLungeChargeStart":
-		m_stilettoLungeChargeStart = ReadFloat(setValue);
+	case "m_stilettoLungeCharge":
+		m_stilettoLungeCharge = ReadFloat(setValue);
 		break;
 	case "m_stilettoLungeSeqStrength":
 		m_stilettoLungeSeqStrength = ReadFloat(setValue);
@@ -1815,8 +1883,8 @@ ncPlayer::Restore(string keyName, string setValue)
 	case "m_stilettoLungeFlight":
 		m_stilettoLungeFlight = ReadInt(setValue);
 		break;
-	case "m_stilettoLungeCooldownEnd":
-		m_stilettoLungeCooldownEnd = ReadFloat(setValue);
+	case "m_stilettoLungeCooldown":
+		m_stilettoLungeCooldown = ReadFloat(setValue);
 		break;
 	case "m_stilettoLungeLaunch":
 		m_stilettoLungeLaunch = ReadInt(setValue);
@@ -1924,21 +1992,24 @@ ncPlayer::Pain(entity inflictor, entity attacker, int damagePoints, vector dir, 
 	m_punchVelocity[0] = 20;
 	m_punchVelocity[2] = -3;
 
-	/* flash the model transparent during the invulnerability window so
-	 * other players can see the target is briefly immune.  The render FX
-	 * field is networked and drives an alpha pulse on the client.  Use
-	 * the existing invuln end (stamped by Stiletto_Combat_StampDamage) as
-	 * the clear time, or a safe 1.3 s fallback. */
-	SetRenderFX(RFX_FASTPULSE);
+	/* Keep the model translucent for the entire invulnerability window so
+	 * other players can see the target is briefly immune.  RFX_FASTPULSE
+	 * overwrites alpha from a sine wave every client frame, which made the
+	 * player stay mostly opaque and only visibly pulse near the end. */
+	SetRenderMode(RM_COLOR);
+	SetRenderAmt(128);
+	SetRenderFX(RFX_NORMAL);
 	nextthink = (m_stilettoInvulnEnd > time) ? m_stilettoInvulnEnd : time + STILETTO_IFRAME_TIME;
 	think = ncPlayer::ClearInvulnFlash;
 #endif
 }
 
-/** Restore normal render FX after the invulnerability flash expires. */
+/** Restore normal rendering after the invulnerability window expires. */
 void
 ncPlayer::ClearInvulnFlash(void)
 {
+	SetRenderMode(RM_NORMAL);
+	SetRenderAmt(255);
 	SetRenderFX(RFX_NORMAL);
 	nextthink = 0;
 }
@@ -1946,11 +2017,14 @@ ncPlayer::ClearInvulnFlash(void)
 void
 ncPlayer::Death(entity inflictor, entity attacker, int damagePoints, vector dir, vector absImpactPos, int hitBody)
 {
-	/* either gib, or make a corpse */
+	bool gibbed = false;
+
+	/* either gib, or keep the model for a death animation */
 	if (GetHealth()< -50) {
 		float gibStrength = damagePoints * 2.0f;
 		BreakModel_Entity(this, dir, gibStrength);
 		SetHealth(0);
+		gibbed = true;
 	}
 
 	RemoveAllItems(false);
@@ -1958,8 +2032,24 @@ ncPlayer::Death(entity inflictor, entity attacker, int damagePoints, vector dir,
 	armor = 0;
 	effects = 0;
 	alpha = 1.0f;
+	SetRenderMode(RM_NORMAL);
+	SetRenderAmt(255);
 	SetRenderFX(RFX_NORMAL);
-	SetModelindex(0);
+	if (gibbed) {
+		SetModelindex(0);
+	} else {
+		/* Start death oneshot immediately so remotes see it this frame. */
+		if (m_actDeath == ACTIVITY_NOTFOUND) {
+			RefreshPlayerAnimations();
+		}
+		if (m_actDeath != ACTIVITY_NOTFOUND) {
+			anim_bottom = m_actDeath;
+			anim_top = m_actDeath;
+			anim_bottom_time = 0;
+			anim_top_time = 0;
+			SendFlags |= (PLAYER_BOTTOMFRAME | PLAYER_TOPFRAME | PLAYER_MODELINDEX);
+		}
+	}
 	SetMovetype(MOVETYPE_NONE);
 	SetSolid(SOLID_NOT);
 	MakeInvulnerable();
@@ -1994,6 +2084,8 @@ ncPlayer::MakePlayer(void)
 
 	effects = 0;
 	alpha = 1.0f;
+	SetRenderMode(RM_NORMAL);
+	SetRenderAmt(255);
 	SetRenderFX(RFX_NORMAL);
 	SetSolid(SOLID_SLIDEBOX);
 	SetMovetype(MOVETYPE_WALK);
@@ -2011,6 +2103,13 @@ ncPlayer::MakePlayer(void)
 	if (modelScale <= 0)
 		modelScale = 1.0f;
 	SetScale(modelScale);
+	/* Hull must come from pmove vars — calling GetStanding* with a null
+	 * m_pmoveVars links a zero clip box. Remotes then walk through us while
+	 * we still collide with them (our traces use field mins; theirs hit our
+	 * linked size). */
+	if (!m_pmoveVars) {
+		_UpdatePMoveVars();
+	}
 	Physics_SetViewParms();
 	SetSize(m_pmoveVars.GetStandingMins(), m_pmoveVars.GetStandingMaxs());
 
@@ -2144,19 +2243,21 @@ ncPlayer::EvaluateEntity(void)
 	EVALUATE_FIELD(m_stilettoWallJumpCooldown, PLAYER_STILETTO)
 	EVALUATE_FIELD(m_stilettoAirDodgeCharges, PLAYER_STILETTO)
 	EVALUATE_FIELD(m_stilettoAirStallCharges, PLAYER_STILETTO)
-	EVALUATE_FIELD(m_stilettoAirStallEnd, PLAYER_STILETTO)
+	EVALUATE_FIELD(m_stilettoAirStallTime, PLAYER_STILETTO)
 	EVALUATE_VECTOR(m_stilettoDashAddVel, 0, PLAYER_STILETTO)
 	EVALUATE_VECTOR(m_stilettoDashAddVel, 1, PLAYER_STILETTO)
 	EVALUATE_VECTOR(m_stilettoDashAddVel, 2, PLAYER_STILETTO)
-	EVALUATE_FIELD(m_stilettoParryEnd, PLAYER_STILETTO)
+	EVALUATE_FIELD(m_stilettoParryTime, PLAYER_STILETTO)
+	EVALUATE_FIELD(m_stilettoAirTime, PLAYER_STILETTO)
 	EVALUATE_FIELD(m_stilettoPunishState, PLAYER_STILETTO)
-	EVALUATE_FIELD(m_stilettoPunishEnd, PLAYER_STILETTO)
+	EVALUATE_FIELD(m_stilettoPunishTime, PLAYER_STILETTO)
 	EVALUATE_FIELD(m_stilettoLungeCharging, PLAYER_STILETTO)
-	EVALUATE_FIELD(m_stilettoLungeChargeStart, PLAYER_STILETTO)
+	EVALUATE_FIELD(m_stilettoLungeCharge, PLAYER_STILETTO)
 	EVALUATE_FIELD(m_stilettoLungeSeqStrength, PLAYER_STILETTO)
 	EVALUATE_FIELD(m_stilettoLungeFlight, PLAYER_STILETTO)
-	EVALUATE_FIELD(m_stilettoLungeCooldownEnd, PLAYER_STILETTO)
+	EVALUATE_FIELD(m_stilettoLungeCooldown, PLAYER_STILETTO)
 	EVALUATE_FIELD(m_stilettoLungeLaunch, PLAYER_STILETTO)
+	EVALUATE_FIELD(m_stilettoPrevButtons, PLAYER_STILETTO)
 
 	EVALUATE_FIELD(m_heroGuardState, PLAYER_HERO_ACTIONS)
 	EVALUATE_FIELD(m_heroWeaponMode, PLAYER_HERO_ACTIONS)
@@ -2286,19 +2387,21 @@ ncPlayer::SendEntity(entity ePEnt, float flChanged)
 	SENDENTITY_FLOAT(m_stilettoWallJumpCooldown, PLAYER_STILETTO)
 	SENDENTITY_FLOAT(m_stilettoAirDodgeCharges, PLAYER_STILETTO)
 	SENDENTITY_FLOAT(m_stilettoAirStallCharges, PLAYER_STILETTO)
-	SENDENTITY_FLOAT(m_stilettoAirStallEnd, PLAYER_STILETTO)
+	SENDENTITY_FLOAT(m_stilettoAirStallTime, PLAYER_STILETTO)
 	SENDENTITY_COORD(m_stilettoDashAddVel[0], PLAYER_STILETTO)
 	SENDENTITY_COORD(m_stilettoDashAddVel[1], PLAYER_STILETTO)
 	SENDENTITY_COORD(m_stilettoDashAddVel[2], PLAYER_STILETTO)
-	SENDENTITY_FLOAT(m_stilettoParryEnd, PLAYER_STILETTO)
+	SENDENTITY_FLOAT(m_stilettoParryTime, PLAYER_STILETTO)
+	SENDENTITY_FLOAT(m_stilettoAirTime, PLAYER_STILETTO)
 	SENDENTITY_INT(m_stilettoPunishState, PLAYER_STILETTO)
-	SENDENTITY_FLOAT(m_stilettoPunishEnd, PLAYER_STILETTO)
+	SENDENTITY_FLOAT(m_stilettoPunishTime, PLAYER_STILETTO)
 	SENDENTITY_INT(m_stilettoLungeCharging, PLAYER_STILETTO)
-	SENDENTITY_FLOAT(m_stilettoLungeChargeStart, PLAYER_STILETTO)
+	SENDENTITY_FLOAT(m_stilettoLungeCharge, PLAYER_STILETTO)
 	SENDENTITY_FLOAT(m_stilettoLungeSeqStrength, PLAYER_STILETTO)
 	SENDENTITY_INT(m_stilettoLungeFlight, PLAYER_STILETTO)
-	SENDENTITY_FLOAT(m_stilettoLungeCooldownEnd, PLAYER_STILETTO)
+	SENDENTITY_FLOAT(m_stilettoLungeCooldown, PLAYER_STILETTO)
 	SENDENTITY_INT(m_stilettoLungeLaunch, PLAYER_STILETTO)
+	SENDENTITY_INT(m_stilettoPrevButtons, PLAYER_STILETTO)
 
 	SENDENTITY_INT(m_heroGuardState, PLAYER_HERO_ACTIONS)
 	SENDENTITY_INT(m_heroWeaponMode, PLAYER_HERO_ACTIONS)
@@ -2506,6 +2609,9 @@ ncPlayer::Spawned(void)
 	vehicle_entnum = 0;
 #endif
 
+	/* Before MakePlayer — it SetSizes from standing mins/maxs. */
+	_UpdatePMoveVars();
+
 #ifdef SERVER
 	/* we really need to check if whether we're a real client yet. */
 	if (clienttype(this) == CLIENTTYPE_REAL || clienttype(this) == CLIENTTYPE_BOT) {
@@ -2516,10 +2622,9 @@ ncPlayer::Spawned(void)
 	}
 #endif
 
-	_UpdatePMoveVars();
 	Physics_SetViewParms();
-	mins = m_pmoveVars.GetStandingMins();
-	maxs = m_pmoveVars.GetStandingMaxs();
+	/* Relink clip hull — field assigns alone do not update engine size. */
+	SetSize(m_pmoveVars.GetStandingMins(), m_pmoveVars.GetStandingMaxs());
 
 	m_animBackend = GetSpawnFloat("animBackend");
 

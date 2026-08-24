@@ -54,6 +54,7 @@ entityDef weapon_vagrant_knife
 	"snd_swing"				"Melee_Swing"
 	"snd_hit"				"Weapon_Axe.Melee_Hit"
 	"snd_failed"			"Weapon_Axe.Miss"
+	"snd_fire"				"weapon_vagrant_knife.throw"
 
 	// ---- Weapon specific ----
 	"testDistance"			"-89"
@@ -109,14 +110,17 @@ entityDef projectile_vagrant_throwknife
 	"detonate_on_actor"		"1"
 
 	"def_damage"			"damage_vagrant_throw"
-	"damage"				"1"
+	"damage"				"2"
+	"snd_fly"				"weapon_vagrant_knife.flyloop"
+	"snd_hitActor"			"weapon_vagrant_knife.throwhit"
+	"snd_explode"			"weapon_vagrant_knife.wallhit"
 
 	"modelscale"			"5"
 }
 
 entityDef damage_vagrant_throw
 {
-	"damage"	"1"
+	"damage"	"2"
 }
 
 // Warpknife: variant of the throw knife that sticks to surfaces instead of
