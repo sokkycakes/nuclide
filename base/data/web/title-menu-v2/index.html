@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <title>Title Menu v2</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="stylesheet" href="style.css?v=15" />
+  <link rel="stylesheet" href="style.css?v=16" />
     <style>
     /* logotile = Figma Vector 128:234 (429x71), tiled; not a full-frame bake */
     :root {
@@ -55,6 +55,11 @@
       <div class="join-dialog__panel panel-bm" role="dialog" aria-labelledby="join-title">
         <div class="panel-bm__head" id="join-title">Join Lobby</div>
         <div class="panel-bm__body">
+          <div id="create-options" style="display:none">
+            <p>Choose how friends will join your lobby.</p>
+            <p><button type="button" class="btn-bm" id="create-online">Online — share a room code</button></p>
+            <p><button type="button" class="btn-bm" id="create-lan">LAN — same local network</button></p>
+          </div>
           <div class="join-lan">
             <div class="join-lan__row">
               <span class="join-lan__label">Local LAN</span>
@@ -85,6 +90,6 @@
     </div>
   </div>
 
-  <script src="app.js?v=17"></script>
+  <script src="app.js?v=20260909-input1"></script>
 </body>
 </html>

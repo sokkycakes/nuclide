@@ -23,6 +23,13 @@
     return q("cbuf:" + cmd) === "ok";
   }
 
+  function focusJoinField() {
+    var el = document.getElementById("join-addr");
+    if (!el || el.offsetParent === null || typeof el.focus !== "function") return;
+    el.focus();
+    if (typeof el.select === "function") el.select();
+  }
+
   function setFocusY(index) {
     var y = ITEM_Y[index] - FOCUS_OFFSET;
     focusBar.style.setProperty("--focus-y", "calc(100% * " + y + " / " + REF_H + ")");
@@ -41,13 +48,19 @@
     setFocusY(selected);
   }
 
-  function openJoin() {
+  function openJoin(create) {
+    document.getElementById("join-title").textContent = create ? "Create Lobby" : "Join Lobby";
+    document.getElementById("create-options").style.display = create ? "block" : "none";
+    Array.prototype.forEach.call(joinDialog.querySelectorAll(".join-lan, .join-addr, .join-code"), function (el) {
+      el.style.display = create ? "none" : "";
+    });
     joinOpen = true;
     joinDialog.classList.remove("hidden");
     joinDialog.setAttribute("aria-hidden", "false");
     selectedAddr = null;
     joinConnect.disabled = true;
-    refreshLan();
+    if (!create) refreshLan();
+    if (!create) window.setTimeout(focusJoinField, 0);
   }
 
   function closeJoin() {
@@ -116,6 +129,10 @@
   function activate() {
     var el = items[selected];
     if (!el) return;
+    if (el.getAttribute("data-action") === "create-lobby") {
+      openJoin(true);
+      return;
+    }
     if (el.getAttribute("data-action") === "join-lobby") {
       openJoin();
       return;
@@ -141,6 +158,14 @@
     });
     joinConnect.disabled = false;
   });
+
+  function createLobby(online) {
+    if (cbuf(online ? "lobby_create_online" : "lobby_create_lan")) {
+      cbuf("menu_webcore_lobby");
+    }
+  }
+  document.getElementById("create-online").addEventListener("click", function () { createLobby(true); });
+  document.getElementById("create-lan").addEventListener("click", function () { createLobby(false); });
 
   document.getElementById("join-refresh").addEventListener("click", refreshLan);
   joinConnect.addEventListener("click", joinSelected);

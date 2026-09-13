@@ -1,0 +1,44 @@
+// Juliet -- 4 HP zoner. Smash Dark Samus IQM (own anim set; not alice2-family).
+// Charge gun is QC on ncPlayer. hero_tool none so she does not inherit grapple.
+entityDef hero_juliet
+{
+	"inherit"				"hero_base"
+
+	"model"					"models/player/damus.iqm"
+	/* Visual size is baked into the IQM (export Scale 4.0). Player ents do not
+	 * network .scale, so modelscale here would not change what clients see. */
+
+	/* IQM clip names from a `**` export (all actions except SAP Data).
+	 * Prefer Damus: `.nuanmb.001` when present; walkslow/run/death/charge
+	 * are Damus-native with no .001 duplicate. Crouch still uses Joker squat.
+	 * Names survive adding/removing other clips; indices would shift.
+	 * Do not use empty "" overrides — they break entityDef key pairing and/or
+	 * fall through to activities.decl frameforaction (wrong on IQM). */
+	"act_idle"				"a00wait1.nuanmb.001"
+	"act_walk"				"a01walkslow.nuanmb"
+	"act_run"				"a02run.nuanmb"
+	"act_jump"				"a03jumpf.nuanmb.001"
+	"act_idle_crouch"		"a05squat.nuanmb"
+	"act_walk_crouch"		"a05squat.nuanmb"
+	"act_pain"				"a00wait1.nuanmb.001"
+	"act_death"				"f01deathpose.nuanmb"
+	"act_charge"			"d00specialnstart.nuanmb"
+	"act_charge_air"		"d00specialairnstart.nuanmb"
+	"act_charge_dodge"		"b02escapeair.nuanmb.001"
+
+	"health"				"4"
+	"max_health"			"4"
+
+	"weapon"				"weapon_juliet_charge"
+	"current_weapon"		"0"
+
+	"stiletto_air_dodge"		"0"
+	"stiletto_air_stall"		"0"
+	"stiletto_double_jump"		"1"
+	/* Upward velocity on 2nd jump; default pm_jumpheight is ~265. */
+	"stiletto_double_jump_height"	"300"
+
+	"hero_tool"				"none"
+
+	"pm_gravity"			"560"
+}

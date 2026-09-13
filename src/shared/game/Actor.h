@@ -331,6 +331,9 @@ private:
 	float m_actRun;
 	float m_actJump;
 	float m_actDeath;
+	float m_actCharge;
+	float m_actChargeAir;
+	float m_actChargeDodge;
 	float m_actAim;
 	float m_actDraw;
 	float m_actAttack;

@@ -28,7 +28,7 @@ Use FTE’s `iqm_export` addon (or an equivalent IQM exporter).
 | `*` / `*.nuanmb` (local patch) | Expands all Smash `.nuanmb` actions; skips SAP Data. |
 | `IQM_LOOP` | Set on locomotion (idle / walk / run). Leave **clear** on jump, crouch-enter, land, attacks. |
 | **Scale** | Bake into the IQM. Player entities do **not** network `.scale`; hero `modelscale` will not change what clients see. |
-| **Root Z** | Place feet at Quake hull bottom after scale (≈ **−36** for `VEC_HULL` ±36). |
+| **Selected objects** | File > Export runs in the file browser, which often drops mesh selection (anim-only IQM). Patched `iqm_export` snapshots selection on invoke and falls back to the armature’s mesh children. Reload the addon after updating the script. |
 
 Verify after export: `num_anims` > 0, clip names match what you will put
 in the hero def, and loop flags match intent (`modelviewer`).

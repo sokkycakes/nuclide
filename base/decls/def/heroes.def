@@ -5,7 +5,7 @@
 // and weapons.def). Add a #include line here for each new hero def.
 #include "heroes/hero_base.def"
 
-// --- Stiletto roster (seven heroes) ---
+// --- Stiletto roster (eight heroes) ---
 #include "heroes/hero_collier.def"
 #include "heroes/hero_beaumont.def"
 #include "heroes/hero_vagrant.def"
@@ -13,3 +13,4 @@
 #include "heroes/hero_angel.def"
 #include "heroes/hero_motionblue.def"
 #include "heroes/hero_archstiletto.def"
+#include "heroes/hero_juliet.def"

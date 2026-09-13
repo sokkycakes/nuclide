@@ -20,6 +20,43 @@ void Commandmenu_Open(void);
 void Commandmenu_Close(void);
 
 static void
+CMD_listheroes(void)
+{
+	int teamNum = 1;
+	int total;
+	int i;
+
+	if (pSeat && pSeat->m_ePlayer) {
+		int wishTeam = userinfo.GetInteger(pSeat->m_ePlayer, "*team");
+
+		if (wishTeam > 0i && teams.TotalClasses(wishTeam) > 0i) {
+			teamNum = wishTeam;
+		}
+	}
+
+	total = teams.TotalClasses(teamNum);
+	print("Available heroes:\n");
+	for (i = 0; i < total; i++) {
+		print(sprintf("  %s\n", teams.ClassForIndex(teamNum, i)));
+	}
+	print("Usage: changehero <name>   e.g. changehero juliet\n");
+}
+
+static void
+CMD_selecthero(void)
+{
+	string heroArg = argv(1);
+
+	if (!STRING_SET(heroArg)) {
+		print("Usage: changehero <hero>   e.g. changehero juliet\n");
+		print("       listheroes\n");
+		return;
+	}
+
+	localcmd(sprintf("cmd %s %s\n", argv(0), heroArg));
+}
+
+static void
 CMD_testLight(void)
 {
 	float p;
@@ -95,6 +132,35 @@ CMD_dev_modeltest(void)
 		setorigin(mt, g_view.GetCameraOrigin());
 		mt.angles = g_view.GetCameraAngle();
 		mt.angles[0] = mt.angles[2] = 0;
+	}
+}
+
+static void
+CMD_Reverb(void)
+{
+	string presetName = argv(1);
+
+	if (!STRING_SET(presetName) || presetName == "help") {
+		print("usage: reverb <preset|off|list>\n");
+		print("Temporarily overrides map reverb. Requires OpenAL and s_al_use_reverb 1.\n");
+		return;
+	}
+
+	if (presetName == "list") {
+		print("EFX presets: abandoned alley arena auditorium bathroom carpetedhallway cave chapel city citystreets concerthall default dizzy drugged dustyroom forest hallway hangar library livingroom mountains museum paddedcell parkinglot plain psychotic quarry room sewerpipe smallwaterroom stonecorridor stoneroom subway underpass underwater\n");
+		return;
+	}
+
+	if (presetName == "off" || presetName == "map") {
+		EFX_ClearConsolePreset();
+		print("Reverb override disabled; map soundscape restored.\n");
+		return;
+	}
+
+	if (EFX_SetConsolePreset(presetName)) {
+		printf("Reverb override: %S\n", presetName);
+	} else {
+		printf("Unknown reverb preset: %S (try 'reverb list')\n", presetName);
 	}
 }
 
@@ -398,6 +464,9 @@ Cmd_Parse(string sCMD)
 	case "dev_modeltest":
 		CMD_dev_modeltest();
 		break;
+	case "reverb":
+		CMD_Reverb();
+		break;
 	case "thirdperson":
 		CMD_thirdperson();
 		break;
@@ -471,7 +540,11 @@ Cmd_Parse(string sCMD)
 		break;
 	case "+hero_guard":
 		pSeat->m_iInputHeroGuard = true;
-		localcmd("cmd hero_guard 1\n");
+		if (pSeat->m_ePlayer
+		    && ((ncPlayer)pSeat->m_ePlayer).m_julietDashRecovery <= 0.0f) {
+			Juliet_ChargeStore(pSeat->m_ePlayer);
+			localcmd("cmd hero_guard 1\n");
+		}
 		break;
 	case "-hero_guard":
 		pSeat->m_iInputHeroGuard = false;
@@ -683,6 +756,14 @@ Cmd_Parse(string sCMD)
 		ncRagdoll_Create(argv(1));
 		break;
 
+	case "listheroes":
+		CMD_listheroes();
+		break;
+	case "selecthero":
+	case "changehero":
+		CMD_selecthero();
+		break;
+
 	/* can be overriden as well */
 	case "showClassSelectionMenu":
 	case "showHeroSelectionMenu": {
@@ -753,6 +834,9 @@ void
 Cmd_Init(void)
 {
 	InitStart();
+	registercommand("listheroes");
+	registercommand("selecthero");
+	registercommand("changehero");
 	registercommand("showClassSelectionMenu");
 	registercommand("showHeroSelectionMenu");
 	registercommand("showTeamSelectionMenu");
@@ -830,6 +914,7 @@ Cmd_Init(void)
 	registercommand("way_menu");
 	registercommand("dev_explode");
 	registercommand("dev_modeltest");
+	registercommand("reverb");
 	registercommand("thirdperson");
 	registercommand("firstperson");
 

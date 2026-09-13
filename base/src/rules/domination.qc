@@ -194,6 +194,9 @@ CodeCallback_ClientCommand(entity playerEntity, string command)
 
 	switch (argv(0)) {
 	default:
+		if (Hero_HandleClientCommand(playerEntity, command)) {
+			return (true);
+		}
 		return (false);
 	}
 

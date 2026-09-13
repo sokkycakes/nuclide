@@ -222,4 +222,8 @@ Reverb effects only work with the OpenAL sound backend.
 
 #ifdef CLIENT
 void EFX_UpdateSoundScape(ncSoundScape);
+/** Activates a locally auditioned EFX preset until EFX_ClearConsolePreset() is called. */
+bool EFX_SetConsolePreset(string);
+/** Returns reverb control to the active map soundscape. */
+void EFX_ClearConsolePreset(void);
 #endif

@@ -52,6 +52,7 @@ private:
 };
 
 void Grapple_Clear(entity pl);
+void Grapple_BreakFromHit(entity pl);
 
 #ifdef SERVER
 ncAttack ncAttack_SpawnDef(string entityDef, ncActor theOwner);

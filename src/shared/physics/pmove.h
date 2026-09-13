@@ -166,6 +166,10 @@ void Stiletto_ParryWindow(entity pl);
 void Stiletto_UpdateWallState(entity pl, vector moveWish);
 void Stiletto_OnPhysicsStart(entity pl);
 void Stiletto_PmGunjumpAir(entity pl, int curButtons, vector moveWish);
+bool Juliet_ChargePress(entity player);
+void Juliet_ChargePMove(entity player);
+void Juliet_ChargeReset(entity player);
+void Juliet_ChargeStore(entity player);
 void Stiletto_WallJump(entity pl, int curButtons);
 void Stiletto_WallSlidePostMove(entity pl);
 void Stiletto_EndPhysicsFrame(entity pl, int curButtons);
@@ -173,6 +177,7 @@ void Stiletto_Lunge_PreMove(entity pl);
 void Stiletto_Lunge_PostMove(entity pl);
 void Stiletto_Lunge_RequestLaunch(entity pl, float strength);
 void Stiletto_Lunge_Clear(entity pl);
+void Stiletto_Combat_MarkTool(entity pl);
 void Archstiletto_AbilityPress(entity pl);
 void Archstiletto_AbilityRelease(entity pl);
 #ifdef SERVER

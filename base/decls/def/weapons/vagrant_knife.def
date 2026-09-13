@@ -110,7 +110,7 @@ entityDef projectile_vagrant_throwknife
 	"detonate_on_actor"		"1"
 
 	"def_damage"			"damage_vagrant_throw"
-	"damage"				"2"
+	"damage"				"3"
 	"snd_fly"				"weapon_vagrant_knife.flyloop"
 	"snd_hitActor"			"weapon_vagrant_knife.throwhit"
 	"snd_explode"			"weapon_vagrant_knife.wallhit"
@@ -120,7 +120,7 @@ entityDef projectile_vagrant_throwknife
 
 entityDef damage_vagrant_throw
 {
-	"damage"	"2"
+	"damage"	"3"
 }
 
 // Warpknife: variant of the throw knife that sticks to surfaces instead of

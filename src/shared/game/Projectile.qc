@@ -565,6 +565,11 @@ ncProjectile::Spawned(void)
 void
 ncProjectile::Touch(entity eToucher)
 {
+	/* MOVE_MISSILE traces skip owner; LinkEdict overlap still Touch()es. */
+	if (eToucher == owner) {
+		return;
+	}
+
 	if (m_timeUntilNextDamage > time) {
 		return;
 	}

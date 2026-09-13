@@ -29,6 +29,7 @@ HeroActions_Reset(entity player)
 	HeroActions_ClearMeleeWeapon(player);
 	HeroActions_WarpknifeClear(player);
 	HeroActions_InitResources(player);
+	Juliet_ChargeReset(player);
 }
 
 #ifdef SERVER
@@ -267,9 +268,26 @@ HeroActions_HeroToolPress(entity player)
 	}
 
 	pl = (ncPlayer)player;
+	if (pl.m_stilettoPunishState) {
+		return;
+	}
+	if (!HeroActions_CanAttack(pl)) {
+		return;
+	}
+
+	/* Force-break zeros ActionHeld while RMB is still down. A repeated
+	 * +hero_tool cmd must not spawn a new hook until they release. */
+	if ((input_buttons & INPUT_HERO_TOOL) && !pl.m_stilettoGrappleActionHeld
+	    && (pl.m_stilettoPrevButtons & INPUT_HERO_TOOL)) {
+		return;
+	}
+
 	tool = pl.GetDefString("hero_tool");
 	if (!STRING_SET(tool)) {
 		tool = "grapple";
+	}
+	if (tool == "none") {
+		return;
 	}
 
 	if (autocvar_hero_actions_debug) {
@@ -318,6 +336,9 @@ HeroActions_HeroToolRelease(entity player)
 	tool = pl.GetDefString("hero_tool");
 	if (!STRING_SET(tool)) {
 		tool = "grapple";
+	}
+	if (tool == "none") {
+		return;
 	}
 
 	if (autocvar_hero_actions_debug) {
@@ -414,6 +435,8 @@ HeroActions_MeleePress(entity player)
 {
 	ncPlayer pl;
 	ncWeapon melee;
+	string meleeDef;
+	float rate;
 
 	if (!player) {
 		return;
@@ -425,10 +448,11 @@ HeroActions_MeleePress(entity player)
 		print(sprintf("[hero_actions] melee press player=%d\n", num_for_edict(pl)));
 	}
 
-#ifdef SERVER
 	if (!HeroActions_CanAttack(pl)) {
 		return;
 	}
+
+#ifdef SERVER
 	/* Idempotent vs cmd + button-10 rising edge in the same beat. */
 	if (time < pl.m_heroMeleeNextTime) {
 		return;
@@ -442,6 +466,26 @@ HeroActions_MeleePress(entity player)
 	}
 
 	melee._PrimaryAttack();
+#else
+	/* Predict fire lock + gun holster; swing/damage stay server-only. */
+	if (pl.m_timeUntilNextAttack > 0.0f) {
+		return;
+	}
+
+	meleeDef = pl.GetDefString("hero_melee_weapon");
+	if (!STRING_SET(meleeDef)) {
+		return;
+	}
+
+	rate = stof(EntityDef_GetKeyValue(meleeDef, "fireRate"));
+	if (rate <= 0.0f) {
+		rate = 0.5f;
+	}
+
+	pl.m_timeUntilNextAttack = rate;
+	if (!STRING_SET(EntityDef_GetKeyValue(meleeDef, "model_view"))) {
+		pl.m_heroMeleeHolster = rate;
+	}
 #endif
 }
 
@@ -498,10 +542,21 @@ HeroActions_SetGuardHeld(entity player, bool held)
 	pl = (ncPlayer)player;
 
 #ifdef SERVER
+	/* Dash recovery: no guard start until the cancel burst finishes. */
+	if (held && pl.m_julietDashRecovery > 0.0f) {
+		return;
+	}
+
 	if (held && !pl.m_heroGuardHeld) {
 		if (pl.m_activeWeapon) {
 			pl.m_activeWeapon.Release();
 		}
+		pl.m_heroGuardHP = pl.m_heroGuardHPMax;
+		/* CSQC store is cmd.qc +hero_guard; putting Juliet_ChargeStore here AVs fteqcc git-6739. */
+		pl.m_julietCharging = 0;
+		pl.m_julietMoveLatch = 0;
+		pl.StopSound(CHAN_WEAPON, true);
+		pl.SendFlags |= PLAYER_STILETTO;
 	}
 
 	pl.m_heroGuardHeld = held;
@@ -532,6 +587,9 @@ HeroActions_CanAttack(entity player)
 	if (pl.m_heroGuardState) {
 		return (false);
 	}
+	if (pl.m_julietDashRecovery > 0.0f) {
+		return (false);
+	}
 	return (true);
 }
 
@@ -542,6 +600,8 @@ HeroActions_ApplyGuardDamageRules(entity victim, entity attacker, float damage)
 	vector toAtk;
 	vector fwd;
 	float facing;
+	int absorb;
+	int resourcePips;
 
 	if (damage <= 0) {
 		return damage;
@@ -567,12 +627,28 @@ HeroActions_ApplyGuardDamageRules(entity victim, entity attacker, float damage)
 	}
 
 #ifdef SERVER
-	/* 50% reduction; award Drive on a successful block. */
-	damage = rint(damage * 0.5);
-	if (damage < 1 && damage > 0) {
-		damage = 1;
+	/* Guard is a per-raise armor pool. Drive Groove additionally pays 1 pip/HP. */
+	absorb = min((int)floor(damage), pl.m_heroGuardHP);
+	if (pl.m_heroGrooveType == HERO_GROOVE_DRIVE) {
+		resourcePips = (int)floor(pl.m_drive / HERO_DRIVE_PIP_COST);
+		absorb = min(absorb, resourcePips);
+		if (absorb > 0) {
+			HeroActions_SpendDrive(pl, absorb * HERO_DRIVE_PIP_COST);
+		}
 	}
-	HeroActions_AddDrive(pl, 50);
+
+	if (absorb > 0) {
+		pl.m_heroGuardHP -= absorb;
+		damage -= absorb;
+		if (damage < 0) {
+			damage = 0;
+		}
+
+		if (autocvar_hero_actions_debug) {
+			print(sprintf("[hero_actions] guard absorbed=%i remaining=%i damage=%g\n",
+				absorb, pl.m_heroGuardHP, damage));
+		}
+	}
 #endif
 	return damage;
 }
@@ -583,6 +659,8 @@ HeroActions_InitResources(entity player)
 	ncPlayer pl;
 	int dmax;
 	int emax;
+	int guardMax;
+	string grooveType;
 
 	if (!player) {
 		return;
@@ -591,18 +669,31 @@ HeroActions_InitResources(entity player)
 	pl = (ncPlayer)player;
 	dmax = pl.GetDefInt("groove_drive_max");
 	emax = pl.GetDefInt("groove_ex_max");
+	guardMax = pl.GetDefInt("hero_guard_hp");
+	grooveType = pl.GetDefString("groove_type");
 	if (dmax <= 0) {
 		dmax = 1000;
 	}
 	if (emax <= 0) {
 		emax = 3;
 	}
+	if (guardMax <= 0) {
+		guardMax = 2;
+	}
 
 	pl.m_driveMax = dmax;
 	pl.m_exMax = emax;
+	pl.m_heroGuardHPMax = guardMax;
+	pl.m_heroGuardHP = guardMax;
+	if (grooveType == "ex") {
+		pl.m_heroGrooveType = HERO_GROOVE_EX;
+	} else {
+		pl.m_heroGrooveType = HERO_GROOVE_DRIVE;
+	}
 	pl.m_drive = 0;
 	pl.m_ex = 0;
 	pl.m_heroWeaponMode = 0;
+	pl.m_heroMeleeHolster = 0.0f;
 	HeroActions_SetGuardHeld(pl, false);
 }
 
@@ -647,7 +738,7 @@ HeroActions_CycleWeaponMode(entity player)
 	}
 
 	if (autocvar_hero_actions_debug) {
-		print(sprintf("[hero_actions] weapon_mode=%d / %d\n",
+		print(sprintf("[hero_actions] weapon_mode=%i / %i\n",
 			pl.m_heroWeaponMode, modes));
 	}
 #endif
@@ -668,7 +759,7 @@ HeroActions_AddDrive(entity player, int amount)
 #ifdef SERVER
 	pl.m_drive = bound(0, pl.m_drive + amount, pl.m_driveMax);
 	if (autocvar_hero_actions_debug) {
-		print(sprintf("[hero_actions] drive=%d/%d\n", pl.m_drive, pl.m_driveMax));
+		print(sprintf("[hero_actions] drive=%i/%i\n", pl.m_drive, pl.m_driveMax));
 	}
 #endif
 }
@@ -707,7 +798,7 @@ HeroActions_AddEX(entity player, int amount)
 #ifdef SERVER
 	pl.m_ex = bound(0, pl.m_ex + amount, pl.m_exMax);
 	if (autocvar_hero_actions_debug) {
-		print(sprintf("[hero_actions] ex=%d/%d\n", pl.m_ex, pl.m_exMax));
+		print(sprintf("[hero_actions] ex=%i/%i\n", pl.m_ex, pl.m_exMax));
 	}
 #endif
 }
@@ -877,6 +968,9 @@ HeroActions_PublishHud(entity player)
 	cvar_set("webcore_hud_ex", ftos(pl.m_ex));
 	cvar_set("webcore_hud_ex_max", ftos(pl.m_exMax));
 	cvar_set("webcore_hud_guard", ftos(pl.m_heroGuardState));
+	cvar_set("webcore_hud_guard_hp", ftos(pl.m_heroGuardHP));
+	cvar_set("webcore_hud_guard_hp_max", ftos(pl.m_heroGuardHPMax));
+	cvar_set("webcore_hud_groove", ftos(pl.m_heroGrooveType));
 	cvar_set("webcore_hud_mode", ftos(pl.m_heroWeaponMode));
 }
 #endif

@@ -1780,6 +1780,20 @@ ncWeapon::PrimaryAttack(void)
 {
 	ncPlayer ourOwner = (ncPlayer)GetOwner();
 
+	if (declclass == "weapon_juliet_charge") {
+		if (CanFire() == false) {
+			if (!(ourOwner.gflags & GF_SEMI_TOGGLED)) {
+				Idle();
+			}
+			return;
+		}
+		if (Juliet_ChargePress(ourOwner) == false) {
+			return;
+		}
+		ourOwner.gflags |= GF_SEMI_TOGGLED;
+		return;
+	}
+
 	if (CanFire() == false) {
 		if (!(ourOwner.gflags & GF_SEMI_TOGGLED)) {
 			Idle();

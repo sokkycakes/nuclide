@@ -1,0 +1,10 @@
+{
+  "name": "nuclide-lobby-ui",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "esbuild src/main.jsx --bundle --format=iife --target=es2017 --jsx-factory=h --jsx-fragment=Fragment --loader:.png=dataurl --loader:.svg=dataurl --minify --outfile=app.js --legal-comments=eof"
+  },
+  "dependencies": { "preact": "10.27.2" },
+  "devDependencies": { "esbuild": "0.28.1" }
+}

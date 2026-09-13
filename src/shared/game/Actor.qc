@@ -83,6 +83,9 @@ ncActor::SetAnimationPrefix(string animPrefix)
 	m_actRun = __ActForPrefix("run", animPrefix, emotionString);
 	m_actJump = __ActForPrefix("jump", animPrefix, emotionString);
 	m_actDeath = __ActForPrefix("death", animPrefix, emotionString);
+	m_actCharge = __ActForPrefix("charge", animPrefix, emotionString);
+	m_actChargeAir = __ActForPrefix("charge_air", animPrefix, emotionString);
+	m_actChargeDodge = __ActForPrefix("charge_dodge", animPrefix, emotionString);
 
 	/* top 'gestures' */
 	m_actAim = __ActForPrefix("aim", animPrefix, emotionString);
@@ -99,6 +102,8 @@ ncActor::SetAnimationPrefix(string animPrefix)
 	if (autocvar(anim_debug, 0)) {
 		dprint(sprintf("SetAnimationPrefix decl=%s idle=%g walk=%g run=%g jump=%g aim=%g\n",
 			declclass, m_actIdle, m_actWalk, m_actRun, m_actJump, m_actAim));
+		dprint(sprintf("  charge=%g charge_air=%g dodge=%g death=%g\n",
+			m_actCharge, m_actChargeAir, m_actChargeDodge, m_actDeath));
 	}
 
 #if 0

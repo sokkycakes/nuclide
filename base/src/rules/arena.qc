@@ -19,40 +19,45 @@
 /* =========================================================================
  * Arena match director implementation.
  * See arena.h for the public contract and hook documentation.
+ *
+ * g_arenaState / g_arenaStateTime change only inside Arena_Transition.
+ * Participation changes go through Arena_ChangeParticipation.
  * ========================================================================= */
 
-/* --- director state (mutable globals, mirroring shared.qc policy globals) --- */
-var int g_arenaState;			/* current ARENA_* state */
-var int g_arenaShape;			/* configured ARENASHAPE_* */
-var int g_arenaPromo;			/* configured ARENAPROMO_* */
-var int g_arenaRoundLimit;		/* best-of-N */
-var int g_arenaSlotCount;		/* competitors per match (from shape) */
-var int g_arenaMinReady;		/* ready players required to start (== slot count) */
-var int g_arenaRound;			/* current round index (1-based) */
-var float g_arenaStateTime;		/* timestamp the current state was entered */
-var float g_arenaDeadline;		/* generic per-state deadline (countdown/pause) */
-var float g_arenaRoundDeadline;	/* LIVE round timer -> sudden death */
-var float g_arenaLiveSince;		/* when the current round went LIVE */
-var float g_arenaNextBroadcast;	/* throttle for serverinfo publish */
-var int g_arenaCountdownLast;	/* last whole-second printed during COUNTDOWN */
-var bool g_arenaSuddenNoTimer;	/* tiebreaker: suppress the round timer (U6) */
-var bool g_arenaTiebreaker;		/* current round is a tiebreaker (U6) */
-var bool g_arenaMatchNoWinner;	/* current MATCH_END voided (disconnect abort) */
-var int g_arenaWinnerSlot;		/* resolved winner slot (1-based), 0 = none/draw */
-var bool g_arenaAutoJoin;		/* Q3-style auto-ready on spawn (see arena.h) */
-var string g_arenaSpawnClass;	/* fixed competitor class, "" = use hero roster */
+/* --- director state --- */
+var int g_arenaState;
+var int g_arenaShape;
+var int g_arenaPromo;
+var int g_arenaRoundLimit;
+var int g_arenaSlotCount;
+var int g_arenaMinReady;
+var int g_arenaRound;
+var float g_arenaStateTime;
+var float g_arenaDeadline;
+var float g_arenaRoundDeadline;
+var float g_arenaLiveSince;
+var float g_arenaNextBroadcast;
+var int g_arenaCountdownLast;
+var float g_arenaRoundCountdownTime;	/* 0 = same duration as match-start */
+var float g_arenaRoundCountdownStep;	/* 1s ticks unless a mode sets otherwise */
+var bool g_arenaSuddenNoTimer;
+var bool g_arenaTiebreaker;
+var bool g_arenaMatchHasGoneLive;
+var bool g_arenaAutoJoin;
+var string g_arenaSpawnClass;
+var int g_arenaResult;
+var int g_arenaWinnerSlot;
+var int g_arenaRoundResult;
+var int g_arenaRoundWinnerSlot;
+var int g_arenaLastReason;
+var int g_arenaTransitionFrom;
 
-/* competitor slots + per-slot bookkeeping */
 entity g_arenaCompetitor[ARENA_MAXSLOTS];
 var int g_arenaPoints[ARENA_MAXSLOTS];
-var float g_arenaReaperSince[ARENA_MAXSLOTS];	/* reaper below-threshold timestamp (U6) */
-var int g_arenaSuddenHit[ARENA_MAXSLOTS];		/* took damage this sudden-death (U6) */
 
-/* FIFO ready queue */
 entity g_arenaQueue[ARENA_MAXQUEUE];
 var int g_arenaQueueCount;
 
-/* per-player queue state lives in userinfo only (see arena.h) */
 static int
 Arena_PlayerState(entity pl)
 {
@@ -65,22 +70,23 @@ Arena_SetPlayerState(entity pl, int state)
 	userinfo.SetFloat(pl, "*arena_state", state);
 }
 
-/* --- forward declarations for internal helpers --- */
-void Arena_EnterWarmup(void);
-void Arena_BeginMatch(void);
-void Arena_EnterCountdown(void);
-void Arena_BeginRound(void);
-void Arena_ResolveRound(int result);
-void Arena_EndMatch(int winnerSlot, bool noWinner);
-void Arena_Promote(void);
 void Arena_SpawnCompetitor(entity pl, int slot);
 void Arena_SpawnFreeplay(entity pl);
 void Arena_EnsureFreeplay(entity pl);
 void Arena_DemoteToFakeSpec(entity pl);
-void Arena_EnterSuddenDeath(void);
+void Arena_SpawnWaitingView(entity pl);
+static void Arena_MakePureSpectator(entity pl);
+static void Arena_Transition(int newState, int reason);
+static void Arena_ValidateInvariants(void);
+static void Arena_CancelPendingMatchup(int reason);
+static void Arena_VoidMatch(int reason);
+static void Arena_SetupRound(void);
+static void Arena_AssignSlot(entity pl, int slot);
+static void Arena_ReleaseSlot(entity pl);
+static void Arena_ClearMatchBookkeeping(void);
 
 /* =========================================================================
- * Configuration (called by the mode from CodeCallback_StartGameType)
+ * Configuration
  * ========================================================================= */
 void
 Arena_Configure(int teamShape, int promotionPolicy, int roundLimit)
@@ -94,7 +100,6 @@ Arena_Configure(int teamShape, int promotionPolicy, int roundLimit)
 		g_arenaSlotCount = 4;
 		break;
 	case ARENASHAPE_BOSS:
-		/* asymmetric 1-vs-many: designed-for, not exercised in v1. */
 		g_arenaSlotCount = 2;
 		break;
 	case ARENASHAPE_1V1:
@@ -104,40 +109,45 @@ Arena_Configure(int teamShape, int promotionPolicy, int roundLimit)
 	}
 
 	g_arenaMinReady = g_arenaSlotCount;
-
-	/* mode-setup extras default off; the mode opts in after Arena_Configure */
 	g_arenaAutoJoin = false;
 	g_arenaSpawnClass = "";
+	g_arenaRoundCountdownTime = 0.0f;
+	g_arenaRoundCountdownStep = 1.0f;
 
 	precache_sound("common/countdown.ogg");
 	precache_sound("common/countdown-end.ogg");
+	precache_sound("common/countdown-mini.ogg");
+	precache_sound("common/countdown-end-mini.ogg");
 
-	/* reset all runtime state */
 	g_arenaQueueCount = 0;
 	g_arenaRound = 0;
 	g_arenaSuddenNoTimer = false;
 	g_arenaTiebreaker = false;
-	g_arenaMatchNoWinner = false;
+	g_arenaMatchHasGoneLive = false;
+	g_arenaResult = ARENARESULT_NONE;
 	g_arenaWinnerSlot = 0;
+	g_arenaRoundResult = ARENARESULT_NONE;
+	g_arenaRoundWinnerSlot = 0;
+	g_arenaLastReason = ARENAREASON_NORMAL;
 
 	for (int i = 0i; i < ARENA_MAXSLOTS; i++) {
 		g_arenaCompetitor[i] = __NULL__;
 		g_arenaPoints[i] = 0i;
-		g_arenaReaperSince[i] = 0.0f;
-		g_arenaSuddenHit[i] = 0i;
 	}
 
-	Arena_EnterWarmup();
+	Arena_Transition(ARENA_WARMUP, ARENAREASON_NORMAL);
 }
 
 void
-Arena_SetHooks(void() roundStart, void(entity, entity) playerDeath, int() roundWinTest, void() roundEnd, void() suddenDeath)
+Arena_SetHooks(void() roundStart, void(entity, entity) playerDeath, int() roundWinTest, void() roundEnd, void() suddenDeath, void() suddenDeathTick, void(entity) playerPain)
 {
 	g_arenaHook_RoundStart = roundStart;
 	g_arenaHook_PlayerDeath = playerDeath;
 	g_arenaHook_RoundWinTest = roundWinTest;
 	g_arenaHook_RoundEnd = roundEnd;
 	g_arenaHook_SuddenDeath = suddenDeath;
+	g_arenaHook_SuddenDeathTick = suddenDeathTick;
+	g_arenaHook_PlayerPain = playerPain;
 }
 
 void
@@ -147,13 +157,27 @@ Arena_SetAutoJoin(bool enabled)
 }
 
 void
+Arena_SetRoundCountdown(float count, float step)
+{
+	if (step <= 0.0f) {
+		step = 1.0f;
+	}
+	g_arenaRoundCountdownStep = step;
+	if (count > 0.0f) {
+		g_arenaRoundCountdownTime = count * step;
+	} else {
+		g_arenaRoundCountdownTime = 0.0f;
+	}
+}
+
+void
 Arena_SetSpawnClass(string className)
 {
 	g_arenaSpawnClass = className;
 }
 
 /* =========================================================================
- * FIFO ready-queue primitives
+ * FIFO ready-queue primitives (single insert/remove path)
  * ========================================================================= */
 static bool
 Arena_InQueue(entity pl)
@@ -182,7 +206,7 @@ Arena_QueueRemove(entity pl)
 static void
 Arena_QueueAppend(entity pl)
 {
-	if (Arena_InQueue(pl)) {
+	if (!pl || Arena_InQueue(pl)) {
 		return;
 	}
 	if (g_arenaQueueCount >= ARENA_MAXQUEUE) {
@@ -195,7 +219,7 @@ Arena_QueueAppend(entity pl)
 static void
 Arena_QueuePushFront(entity pl)
 {
-	if (Arena_InQueue(pl)) {
+	if (!pl || Arena_InQueue(pl)) {
 		return;
 	}
 	if (g_arenaQueueCount >= ARENA_MAXQUEUE) {
@@ -223,9 +247,75 @@ Arena_QueuePopFront(void)
 	return (result);
 }
 
+static void
+Arena_AssignSlot(entity pl, int slot)
+{
+	Arena_QueueRemove(pl);
+	g_arenaCompetitor[slot] = pl;
+	Arena_SetPlayerState(pl, ARENASTATE_COMPETITOR);
+}
+
+static void
+Arena_ReleaseSlot(entity pl)
+{
+	int slot = Arena_SlotForPlayer(pl);
+	if (slot >= 0i) {
+		g_arenaCompetitor[slot] = __NULL__;
+	}
+}
+
+static void
+Arena_ClearMatchBookkeeping(void)
+{
+	g_arenaRound = 0;
+	g_arenaTiebreaker = false;
+	g_arenaSuddenNoTimer = false;
+	g_arenaMatchHasGoneLive = false;
+	g_arenaResult = ARENARESULT_NONE;
+	g_arenaWinnerSlot = 0;
+	g_arenaRoundResult = ARENARESULT_NONE;
+	g_arenaRoundWinnerSlot = 0;
+	for (int i = 0i; i < ARENA_MAXSLOTS; i++) {
+		g_arenaPoints[i] = 0i;
+	}
+}
+
 /* =========================================================================
  * Queries
  * ========================================================================= */
+int
+Arena_GetState(void)
+{
+	return (g_arenaState);
+}
+
+int
+Arena_GetPlayerState(entity pl)
+{
+	return (Arena_PlayerState(pl));
+}
+
+int
+Arena_GetResult(void)
+{
+	return (g_arenaResult);
+}
+
+int
+Arena_GetWinnerSlot(void)
+{
+	return (g_arenaWinnerSlot);
+}
+
+entity
+Arena_CompetitorAt(int slot)
+{
+	if (slot < 0i || slot >= ARENA_MAXSLOTS) {
+		return (__NULL__);
+	}
+	return (g_arenaCompetitor[slot]);
+}
+
 int
 Arena_ReadyCount(void)
 {
@@ -263,9 +353,10 @@ Arena_IsCompetitor(entity pl)
 
 /* =========================================================================
  * Player-state transitions (spawning / spectating)
+ * Nuclide owns the player shell. Waiting/queued players never ChangeToClass
+ * spectator — that give/destroy cycle leaves CSQC with half-built weapons.
  * ========================================================================= */
 
-/** Free-play body used in WARMUP. */
 void
 Arena_SpawnFreeplay(entity pl)
 {
@@ -285,8 +376,6 @@ Arena_SpawnFreeplay(entity pl)
 	game.TeleportToSpawnClass(pl, "info_player_deathmatch");
 }
 
-/** Spawn a warmup freeplay body once — skip if already alive as the resolved hero.
- * Used after the arena menu closes / READY UP so hero pick does not double-spawn. */
 void
 Arena_EnsureFreeplay(entity pl)
 {
@@ -310,7 +399,6 @@ Arena_EnsureFreeplay(entity pl)
 	Arena_SpawnFreeplay(pl);
 }
 
-/** Spawn a competitor for a live round on its assigned team. */
 void
 Arena_SpawnCompetitor(entity pl, int slot)
 {
@@ -324,7 +412,6 @@ Arena_SpawnCompetitor(entity pl, int slot)
 
 	ents.Input(pl, "SetTeam", itos(teamNum), pl);
 
-	/* a fixed loadout (Q3-faithful) overrides the hero roster when set */
 	if (STRING_SET(g_arenaSpawnClass)) {
 		ents.ChangeToClass(pl, g_arenaSpawnClass);
 	} else {
@@ -334,7 +421,6 @@ Arena_SpawnCompetitor(entity pl, int slot)
 	game.TeleportToSpawn(pl);
 }
 
-/** Pre-match waiting camera (mirrors teamdm/domination initial spawn). */
 void
 Arena_SpawnWaitingView(entity pl)
 {
@@ -361,14 +447,12 @@ Arena_SpawnWaitingView(entity pl)
 	game.TeleportToSpawnClass(pl, "info_intermission");
 }
 
-/** Fake-spectator (chase-cam) - eliminated / between-round / non-competitor. */
 void
 Arena_DemoteToFakeSpec(entity pl)
 {
 	ents.Input(pl, "Spectate", "", world);
 }
 
-/** Pure spectator (real spec, opted out of the queue). */
 static void
 Arena_MakePureSpectator(entity pl)
 {
@@ -377,7 +461,7 @@ Arena_MakePureSpectator(entity pl)
 }
 
 /* =========================================================================
- * State broadcast (U4): persistent serverinfo strings + transient centerprint
+ * Broadcast — after completed semantic mutations, plus throttled refresh
  * ========================================================================= */
 static void
 Arena_CenterprintAll(string msg)
@@ -408,6 +492,20 @@ Arena_StateName(void)
 }
 
 static string
+Arena_ResultName(int result)
+{
+	switch (result) {
+	case ARENARESULT_WIN:
+		return ("WIN");
+	case ARENARESULT_DRAW:
+		return ("DRAW");
+	case ARENARESULT_VOID:
+		return ("VOID");
+	}
+	return ("NONE");
+}
+
+static string
 Arena_HeroIDs(void)
 {
 	string result = "";
@@ -429,13 +527,12 @@ Arena_BroadcastState(void)
 	serverinfo.SetString("arena_state", Arena_StateName());
 	serverinfo.SetString("arena_round", sprintf("Round %i / %i", g_arenaRound, g_arenaRoundLimit));
 	serverinfo.SetInteger("arena_ready", g_arenaQueueCount);
-	/* The arena director owns the permitted hero capability list. */
 	serverinfo.SetString("arena_heroes", Arena_HeroIDs());
-	/* Dedicated score/name keys for the WebCore HUD (arena_p* keeps "name (score)" for menus). */
 	serverinfo.SetInteger("arena_score1", g_arenaPoints[0]);
 	serverinfo.SetInteger("arena_score2", g_arenaPoints[1]);
+	serverinfo.SetString("arena_result", Arena_ResultName(g_arenaResult));
+	serverinfo.SetInteger("arena_winner", g_arenaWinnerSlot);
 
-	/* publish competitor netnames + round points for the first two slots */
 	for (int i = 0i; i < 2i; i++) {
 		entity c = g_arenaCompetitor[i];
 		string slotKey = sprintf("arena_p%i", i + 1i);
@@ -444,8 +541,6 @@ Arena_BroadcastState(void)
 		if (c) {
 			serverinfo.SetString(slotKey, sprintf("%s (%i)", c.netname, g_arenaPoints[i]));
 			serverinfo.SetString(nameKey, c.netname);
-			/* Tab/+showscores reads engine playerkey "frags". Duel awards live in
-			 * g_arenaPoints only — keep the classic scoreboard in sync. */
 			c.frags = (float)g_arenaPoints[i];
 		} else {
 			serverinfo.SetString(slotKey, "");
@@ -465,83 +560,150 @@ Arena_BroadcastThrottled(void)
 }
 
 /* =========================================================================
- * State transitions
+ * Invariants
  * ========================================================================= */
-void
-Arena_EnterWarmup(void)
+static void
+Arena_InvariantFail(string msg)
 {
-	g_arenaState = ARENA_WARMUP;
-	g_arenaStateTime = time;
-	g_arenaRound = 0;
-	g_arenaTiebreaker = false;
-	g_arenaSuddenNoTimer = false;
+	print(sprintf("Arena invariant: %s\n", msg));
+}
 
-	/* return everyone who is not a pure spectator to warmup bodies */
-	for (entity p = world; (p = next.Player(p));) {
-		if (Arena_PlayerState(p) == ARENASTATE_SPECTATOR) {
+static void
+Arena_ValidateInvariants(void)
+{
+	int i;
+	int j;
+	int occupied;
+	int slotsForPlayer;
+	entity pl;
+	int st;
+	bool inQ;
+	bool needsRoster;
+
+	if (autocvar_arena_invariants == 0) {
+		return;
+	}
+
+	for (i = 0i; i < g_arenaQueueCount; i++) {
+		if (!g_arenaQueue[i]) {
+			Arena_InvariantFail("null queue entry");
 			continue;
 		}
-		if (p.team == TEAM_SPECTATOR) {
-			continue;
+		for (j = i + 1i; j < g_arenaQueueCount; j++) {
+			if (g_arenaQueue[i] == g_arenaQueue[j]) {
+				Arena_InvariantFail("duplicate queue entry");
+			}
 		}
-		if (Arena_PlayerState(p) == ARENASTATE_READY) {
-			Arena_SpawnFreeplay(p);
+		if (Arena_SlotForPlayer(g_arenaQueue[i]) >= 0i) {
+			Arena_InvariantFail("queued player is also competing");
+		}
+		if (Arena_PlayerState(g_arenaQueue[i]) != ARENASTATE_READY) {
+			Arena_InvariantFail("queue/player-state disagreement");
+		}
+	}
+
+	for (pl = world; (pl = next.Player(pl));) {
+		st = Arena_PlayerState(pl);
+		inQ = Arena_InQueue(pl);
+		slotsForPlayer = 0i;
+		for (i = 0i; i < ARENA_MAXSLOTS; i++) {
+			if (g_arenaCompetitor[i] == pl) {
+				slotsForPlayer++;
+			}
+		}
+
+		if (st == ARENASTATE_READY) {
+			if (inQ == false) {
+				Arena_InvariantFail("READY player not in queue");
+			}
+			if (slotsForPlayer != 0i) {
+				Arena_InvariantFail("READY player occupies a competitor slot");
+			}
+		} else if (st == ARENASTATE_COMPETITOR) {
+			if (inQ) {
+				Arena_InvariantFail("COMPETITOR is also queued");
+			}
+			if (slotsForPlayer != 1i) {
+				Arena_InvariantFail("COMPETITOR without exactly one slot");
+			}
 		} else {
-			Arena_SpawnWaitingView(p);
+			if (inQ) {
+				Arena_InvariantFail("non-READY player is queued");
+			}
+			if (slotsForPlayer != 0i) {
+				Arena_InvariantFail("non-competitor occupying a slot");
+			}
 		}
 	}
 
-	Arena_BroadcastState();
-}
-
-void
-Arena_BeginMatch(void)
-{
-	/* clear slots + points, pull fresh competitors from the queue front */
-	for (int i = 0i; i < ARENA_MAXSLOTS; i++) {
-		g_arenaCompetitor[i] = __NULL__;
-		g_arenaPoints[i] = 0i;
+	occupied = 0i;
+	for (i = 0i; i < ARENA_MAXSLOTS; i++) {
+		if (!g_arenaCompetitor[i]) {
+			continue;
+		}
+		occupied++;
+		if (Arena_PlayerState(g_arenaCompetitor[i]) != ARENASTATE_COMPETITOR) {
+			Arena_InvariantFail("non-competitor occupying a slot");
+		}
 	}
 
-	for (int slot = 0i; slot < g_arenaSlotCount; slot++) {
-		entity pl = Arena_QueuePopFront();
-
-		/* skip stale / spectator entries defensively */
-		while (pl && (pl.team == TEAM_SPECTATOR || Arena_PlayerState(pl) == ARENASTATE_SPECTATOR)) {
-			pl = Arena_QueuePopFront();
+	needsRoster = (g_arenaState == ARENA_COUNTDOWN || g_arenaState == ARENA_LIVE
+		|| g_arenaState == ARENA_SUDDEN_DEATH || g_arenaState == ARENA_ROUND_END);
+	if (needsRoster) {
+		if (occupied != g_arenaSlotCount) {
+			Arena_InvariantFail("invalid competitor roster during active match");
 		}
-
-		if (!pl) {
-			/* not enough valid players - bail back to warmup */
-			Arena_EnterWarmup();
-			return;
+		for (i = 0i; i < g_arenaSlotCount; i++) {
+			if (!g_arenaCompetitor[i]) {
+				Arena_InvariantFail("null competitor in required roster");
+			}
 		}
+	}
+}
 
-		g_arenaCompetitor[slot] = pl;
-		Arena_SetPlayerState(pl, ARENASTATE_COMPETITOR);
+/* =========================================================================
+ * State machine — Arena_Transition is the only writer of g_arenaState /
+ * g_arenaStateTime.
+ * ========================================================================= */
+static bool
+Arena_TransitionAllowed(int from, int to)
+{
+	if (from == to && to == ARENA_WARMUP) {
+		return (true);
 	}
 
-	g_arenaRound = 1;
-	g_arenaMatchNoWinner = false;
-	g_arenaWinnerSlot = 0;
-	g_arenaTiebreaker = false;
-	Arena_EnterCountdown();
+	switch (from) {
+	case ARENA_WARMUP:
+		return (to == ARENA_COUNTDOWN);
+	case ARENA_COUNTDOWN:
+		return (to == ARENA_LIVE || to == ARENA_SUDDEN_DEATH
+			|| to == ARENA_WARMUP || to == ARENA_MATCH_END);
+	case ARENA_LIVE:
+		return (to == ARENA_ROUND_END || to == ARENA_SUDDEN_DEATH
+			|| to == ARENA_MATCH_END);
+	case ARENA_SUDDEN_DEATH:
+		return (to == ARENA_ROUND_END || to == ARENA_MATCH_END);
+	case ARENA_ROUND_END:
+		return (to == ARENA_COUNTDOWN || to == ARENA_MATCH_END);
+	case ARENA_MATCH_END:
+		return (to == ARENA_COUNTDOWN || to == ARENA_WARMUP);
+	}
+	return (false);
 }
 
-void
-Arena_EnterCountdown(void)
+static void
+Arena_ExitState(int oldState)
 {
-	g_arenaState = ARENA_COUNTDOWN;
-	g_arenaStateTime = time;
-	g_arenaDeadline = time + autocvar_arena_countdownTime;
-	g_arenaCountdownLast = -1i;
-	Arena_BroadcastState();
+	switch (oldState) {
+	case ARENA_COUNTDOWN:
+		g_arenaCountdownLast = -1i;
+		break;
+	}
 }
 
-void
-Arena_BeginRound(void)
+static void
+Arena_SetupRound(void)
 {
-	/* demote every non-competitor to a fake-spec watcher (R6) */
 	for (entity p = world; (p = next.Player(p));) {
 		if (Arena_IsCompetitor(p)) {
 			continue;
@@ -552,11 +714,7 @@ Arena_BeginRound(void)
 		Arena_DemoteToFakeSpec(p);
 	}
 
-	/* (re)spawn competitors + clear per-round bookkeeping */
 	for (int i = 0i; i < ARENA_MAXSLOTS; i++) {
-		g_arenaReaperSince[i] = 0.0f;
-		g_arenaSuddenHit[i] = 0i;
-
 		if (g_arenaCompetitor[i]) {
 			Arena_SpawnCompetitor(g_arenaCompetitor[i], i);
 		}
@@ -565,45 +723,250 @@ Arena_BeginRound(void)
 	g_arenaSuddenNoTimer = false;
 	g_arenaLiveSince = time;
 	g_arenaRoundDeadline = time + autocvar_arena_roundTime;
+}
 
-	if (g_arenaHook_RoundStart) {
-		g_arenaHook_RoundStart();
+static float
+Arena_CountdownDuration(void)
+{
+	if (g_arenaMatchHasGoneLive && g_arenaRoundCountdownTime > 0.0f) {
+		return (g_arenaRoundCountdownTime);
 	}
+	return (autocvar_arena_countdownTime);
+}
 
-	/* a tiebreaker round starts directly in sudden death with no timer (U6) */
-	if (g_arenaTiebreaker) {
-		Arena_EnterSuddenDeath();
-		g_arenaSuddenNoTimer = true;
-	} else {
-		g_arenaState = ARENA_LIVE;
-		g_arenaStateTime = time;
+static float
+Arena_CountdownStep(void)
+{
+	if (g_arenaMatchHasGoneLive && g_arenaRoundCountdownStep > 0.0f) {
+		return (g_arenaRoundCountdownStep);
+	}
+	return (1.0f);
+}
+
+static void
+Arena_EnterState(int newState, int oldState)
+{
+	bool wasLive;
+
+	switch (newState) {
+	case ARENA_WARMUP:
+		Arena_ClearMatchBookkeeping();
+		for (entity p = world; (p = next.Player(p));) {
+			if (Arena_PlayerState(p) == ARENASTATE_SPECTATOR) {
+				continue;
+			}
+			if (p.team == TEAM_SPECTATOR) {
+				continue;
+			}
+			if (Arena_PlayerState(p) == ARENASTATE_READY) {
+				Arena_SpawnFreeplay(p);
+			} else {
+				Arena_SpawnWaitingView(p);
+			}
+		}
+		break;
+
+	case ARENA_COUNTDOWN:
+		g_arenaDeadline = time + Arena_CountdownDuration();
+		g_arenaCountdownLast = -1i;
+		break;
+
+	case ARENA_LIVE:
+		wasLive = g_arenaMatchHasGoneLive;
+		g_arenaMatchHasGoneLive = true;
+		Arena_SetupRound();
+		if (g_arenaHook_RoundStart) {
+			g_arenaHook_RoundStart();
+		}
 		Arena_CenterprintAll("FIGHT!");
-		sound(world, 4, "common/countdown-end.ogg", 0.7f, 0.0f);
+		if (wasLive) {
+			sound(world, 4, "common/countdown-end-mini.ogg", 0.7f, 0.0f);
+		} else {
+			sound(world, 4, "common/countdown-end.ogg", 0.7f, 0.0f);
+		}
+		break;
+
+	case ARENA_SUDDEN_DEATH:
+		if (oldState == ARENA_COUNTDOWN) {
+			g_arenaMatchHasGoneLive = true;
+			Arena_SetupRound();
+			g_arenaSuddenNoTimer = true;
+			if (g_arenaHook_RoundStart) {
+				g_arenaHook_RoundStart();
+			}
+		}
+		if (g_arenaHook_SuddenDeath) {
+			g_arenaHook_SuddenDeath();
+		}
+		Arena_CenterprintAll("SUDDEN DEATH");
+		break;
+
+	case ARENA_ROUND_END:
+		g_arenaDeadline = time + autocvar_arena_roundEndTime;
+		break;
+
+	case ARENA_MATCH_END:
+		g_arenaDeadline = time + autocvar_arena_matchEndTime;
+		if (g_arenaResult == ARENARESULT_VOID) {
+			Arena_CenterprintAll("MATCH ENDED - NO RESULT");
+		} else if (g_arenaResult == ARENARESULT_DRAW) {
+			Arena_CenterprintAll("MATCH DRAW");
+		} else if (g_arenaWinnerSlot > 0i && g_arenaCompetitor[g_arenaWinnerSlot - 1i]) {
+			Arena_CenterprintAll(sprintf("%s ^7WINS THE MATCH",
+				g_arenaCompetitor[g_arenaWinnerSlot - 1i].netname));
+		}
+		break;
+	}
+}
+
+static void
+Arena_Transition(int newState, int reason)
+{
+	int oldState = g_arenaState;
+
+	if (Arena_TransitionAllowed(oldState, newState) == false) {
+		print(sprintf("Arena: illegal transition %i -> %i (reason %i)\n",
+			oldState, newState, reason));
+		return;
 	}
 
+	Arena_ExitState(oldState);
+
+	g_arenaTransitionFrom = oldState;
+	g_arenaState = newState;
+	g_arenaStateTime = time;
+	g_arenaLastReason = reason;
+
+	Arena_EnterState(newState, oldState);
+	Arena_ValidateInvariants();
 	Arena_BroadcastState();
+}
+
+static void
+Arena_CancelPendingMatchup(int reason)
+{
+	int i;
+	entity c;
+
+	for (i = g_arenaSlotCount - 1i; i >= 0i; i--) {
+		c = g_arenaCompetitor[i];
+		g_arenaCompetitor[i] = __NULL__;
+		if (c) {
+			Arena_SetPlayerState(c, ARENASTATE_READY);
+			Arena_QueuePushFront(c);
+		}
+	}
+
+	Arena_ClearMatchBookkeeping();
+	Arena_Transition(ARENA_WARMUP, reason);
+}
+
+static void
+Arena_VoidMatch(int reason)
+{
+	g_arenaResult = ARENARESULT_VOID;
+	g_arenaWinnerSlot = 0;
+	Arena_Transition(ARENA_MATCH_END, reason);
+}
+
+static void
+Arena_HandleCompetitorDeparture(int reason)
+{
+	switch (g_arenaState) {
+	case ARENA_WARMUP:
+		break;
+	case ARENA_COUNTDOWN:
+		if (g_arenaMatchHasGoneLive == false) {
+			Arena_CancelPendingMatchup(reason);
+		} else {
+			Arena_VoidMatch(reason);
+		}
+		break;
+	case ARENA_LIVE:
+	case ARENA_SUDDEN_DEATH:
+	case ARENA_ROUND_END:
+		Arena_VoidMatch(reason);
+		break;
+	case ARENA_MATCH_END:
+		break;
+	}
+}
+
+static void
+Arena_ApplyParticipationShell(entity pl, int oldState, int newState)
+{
+	if (newState == ARENASTATE_READY) {
+		if (pl.team == TEAM_SPECTATOR || oldState == ARENASTATE_SPECTATOR) {
+			if (g_arenaState == ARENA_WARMUP) {
+				Arena_SpawnFreeplay(pl);
+			} else {
+				Arena_DemoteToFakeSpec(pl);
+			}
+		} else {
+			Arena_EnsureFreeplay(pl);
+		}
+	} else if (newState == ARENASTATE_SPECTATOR) {
+		Arena_MakePureSpectator(pl);
+	}
 }
 
 void
-Arena_EnterSuddenDeath(void)
+Arena_ChangeParticipation(entity pl, int newState, int reason)
 {
-	g_arenaState = ARENA_SUDDEN_DEATH;
-	g_arenaStateTime = time;
+	int oldState;
+	int savedLife;
+	bool wasCompetitor;
+	bool skipShell;
+	bool transitioned;
 
-	for (int i = 0i; i < ARENA_MAXSLOTS; i++) {
-		g_arenaReaperSince[i] = 0.0f;
-		g_arenaSuddenHit[i] = 0i;
+	if (!pl) {
+		return;
 	}
 
-	if (g_arenaHook_SuddenDeath) {
-		g_arenaHook_SuddenDeath();
+	oldState = Arena_PlayerState(pl);
+	wasCompetitor = (oldState == ARENASTATE_COMPETITOR) || Arena_IsCompetitor(pl);
+	skipShell = (reason == ARENAREASON_DISCONNECT);
+
+	/* competitors keep their slot until a real departure, not a ready-up */
+	if (wasCompetitor && newState == ARENASTATE_READY) {
+		return;
 	}
 
-	Arena_CenterprintAll("SUDDEN DEATH");
+	Arena_QueueRemove(pl);
+	if (wasCompetitor && newState != ARENASTATE_COMPETITOR) {
+		Arena_ReleaseSlot(pl);
+	}
+
+	Arena_SetPlayerState(pl, newState);
+
+	if (newState == ARENASTATE_READY) {
+		Arena_QueueAppend(pl);
+	}
+
+	/* Spectate must own the pure-spec shell before a cancel transition:
+	 * WARMUP entry skips SPECTATOR players and would otherwise leave them
+	 * on a competitor/freeplay body. */
+	if (skipShell == false && newState == ARENASTATE_SPECTATOR) {
+		Arena_MakePureSpectator(pl);
+	}
+
+	savedLife = g_arenaState;
+	if (wasCompetitor && newState != ARENASTATE_COMPETITOR) {
+		Arena_HandleCompetitorDeparture(reason);
+	}
+	transitioned = (g_arenaState != savedLife);
+
+	if (skipShell == false && transitioned == false && newState != ARENASTATE_SPECTATOR) {
+		Arena_ApplyParticipationShell(pl, oldState, newState);
+	}
+
+	Arena_ValidateInvariants();
 	Arena_BroadcastState();
 }
 
-/** Default round-win test (1v1 elimination): 0 ongoing, -1 draw, else winner slot. */
+/* =========================================================================
+ * Semantic match operations
+ * ========================================================================= */
 static int
 Arena_DefaultRoundTest(void)
 {
@@ -627,13 +990,13 @@ Arena_DefaultRoundTest(void)
 		return (0i);
 	}
 	if (aliveCount == occupied) {
-		return (0i);	/* everyone still alive */
+		return (0i);
 	}
 	if (aliveCount == 1i) {
-		return (aliveSlot);	/* one survivor */
+		return (aliveSlot);
 	}
 	if (aliveCount == 0i) {
-		return (-1i);	/* mutual kill -> draw */
+		return (-1i);
 	}
 	return (0i);
 }
@@ -647,38 +1010,37 @@ Arena_EvaluateRound(void)
 	return (Arena_DefaultRoundTest());
 }
 
-void
-Arena_ResolveRound(int result)
+static void
+Arena_ResolveRound(int winTest)
 {
-	g_arenaWinnerSlot = result;
-
-	if (result == -1i) {
-		/* drawn round: award every occupied competitor a point (R29) */
+	if (winTest == -1i) {
+		g_arenaRoundResult = ARENARESULT_DRAW;
+		g_arenaRoundWinnerSlot = 0;
 		for (int i = 0i; i < ARENA_MAXSLOTS; i++) {
 			if (g_arenaCompetitor[i]) {
 				g_arenaPoints[i]++;
 			}
 		}
 		Arena_CenterprintAll("DRAW");
-	} else if (result > 0i) {
-		g_arenaPoints[result - 1i]++;
-		entity winner = g_arenaCompetitor[result - 1i];
+	} else if (winTest > 0i) {
+		g_arenaRoundResult = ARENARESULT_WIN;
+		g_arenaRoundWinnerSlot = winTest;
+		g_arenaPoints[winTest - 1i]++;
+		entity winner = g_arenaCompetitor[winTest - 1i];
 		if (winner) {
 			Arena_CenterprintAll(sprintf("%s ^7wins the round", winner.netname));
 		}
+	} else {
+		return;
 	}
 
 	if (g_arenaHook_RoundEnd) {
 		g_arenaHook_RoundEnd();
 	}
 
-	g_arenaState = ARENA_ROUND_END;
-	g_arenaStateTime = time;
-	g_arenaDeadline = time + autocvar_arena_roundEndTime;
-	Arena_BroadcastState();
+	Arena_Transition(ARENA_ROUND_END, ARENAREASON_ROUND_RESOLVED);
 }
 
-/** Returns winning slot (1-based) on points, or 0 if tied. */
 static int
 Arena_LeaderSlot(void)
 {
@@ -702,74 +1064,125 @@ Arena_LeaderSlot(void)
 	return (tie ? 0i : bestSlot);
 }
 
-void
-Arena_EndMatch(int winnerSlot, bool noWinner)
+static void
+Arena_ResolveMatch(int resultType, int winnerSlot, int reason)
 {
-	g_arenaState = ARENA_MATCH_END;
-	g_arenaStateTime = time;
-	g_arenaDeadline = time + autocvar_arena_matchEndTime;
-	g_arenaMatchNoWinner = noWinner;
-	g_arenaWinnerSlot = noWinner ? 0i : winnerSlot;
-
-	if (noWinner) {
-		Arena_CenterprintAll("MATCH ENDED - NO RESULT");
-	} else if (winnerSlot > 0i && g_arenaCompetitor[winnerSlot - 1i]) {
-		Arena_CenterprintAll(sprintf("%s ^7WINS THE MATCH", g_arenaCompetitor[winnerSlot - 1i].netname));
-	}
-
-	Arena_BroadcastState();
+	g_arenaResult = resultType;
+	g_arenaWinnerSlot = winnerSlot;
+	Arena_Transition(ARENA_MATCH_END, reason);
 }
 
-/* Rotation: winner stays (front), losers to the back; abort re-queues all
-   survivors at the front with no winner credited. Then refill from the queue. */
-void
+static void
+Arena_BeginMatch(void)
+{
+	int slot;
+	int assigned;
+	entity pl;
+
+	for (slot = 0i; slot < ARENA_MAXSLOTS; slot++) {
+		g_arenaCompetitor[slot] = __NULL__;
+		g_arenaPoints[slot] = 0i;
+	}
+
+	assigned = 0i;
+	for (slot = 0i; slot < g_arenaSlotCount; slot++) {
+		pl = Arena_QueuePopFront();
+		while (pl && (pl.team == TEAM_SPECTATOR || Arena_PlayerState(pl) == ARENASTATE_SPECTATOR)) {
+			pl = Arena_QueuePopFront();
+		}
+		if (!pl) {
+			break;
+		}
+		Arena_AssignSlot(pl, slot);
+		assigned++;
+	}
+
+	if (assigned < g_arenaSlotCount) {
+		for (slot = assigned - 1i; slot >= 0i; slot--) {
+			pl = g_arenaCompetitor[slot];
+			g_arenaCompetitor[slot] = __NULL__;
+			if (pl) {
+				Arena_SetPlayerState(pl, ARENASTATE_READY);
+				Arena_QueuePushFront(pl);
+			}
+		}
+		if (g_arenaState != ARENA_WARMUP) {
+			Arena_Transition(ARENA_WARMUP, ARENAREASON_INVALID_ROSTER);
+		}
+		return;
+	}
+
+	g_arenaRound = 1;
+	g_arenaMatchHasGoneLive = false;
+	g_arenaResult = ARENARESULT_NONE;
+	g_arenaWinnerSlot = 0;
+	g_arenaRoundResult = ARENARESULT_NONE;
+	g_arenaRoundWinnerSlot = 0;
+	g_arenaTiebreaker = false;
+	g_arenaSuddenNoTimer = false;
+	Arena_Transition(ARENA_COUNTDOWN, ARENAREASON_NORMAL);
+}
+
+static void
 Arena_Promote(void)
 {
 	int winnerSlot = g_arenaWinnerSlot;
+	int result = g_arenaResult;
+	entity winner;
+	entity c;
+	int i;
 
-	for (int i = 0i; i < ARENA_MAXSLOTS; i++) {
-		entity c = g_arenaCompetitor[i];
-		g_arenaCompetitor[i] = __NULL__;
-		g_arenaPoints[i] = 0i;
-
-		if (!c) {
-			continue;
+	if (result == ARENARESULT_VOID || result == ARENARESULT_NONE) {
+		for (i = g_arenaSlotCount - 1i; i >= 0i; i--) {
+			c = g_arenaCompetitor[i];
+			g_arenaCompetitor[i] = __NULL__;
+			g_arenaPoints[i] = 0i;
+			if (!c) {
+				continue;
+			}
+			Arena_SetPlayerState(c, ARENASTATE_READY);
+			Arena_QueuePushFront(c);
 		}
-
-		/* a disconnected competitor was already cleared from the slot */
-		Arena_SetPlayerState(c, ARENASTATE_READY);
-
-		if (g_arenaMatchNoWinner) {
-			/* voided match: survivors keep their place at the front, no win */
-			Arena_QueuePushFront(c);
-		} else if ((i + 1i) == winnerSlot) {
-			/* winner stays - front of the queue so they are re-picked first */
-			Arena_QueuePushFront(c);
-		} else {
-			/* loser rotates to the back */
-			Arena_QueueAppend(c);
+		for (i = g_arenaSlotCount; i < ARENA_MAXSLOTS; i++) {
+			g_arenaCompetitor[i] = __NULL__;
+			g_arenaPoints[i] = 0i;
+		}
+	} else {
+		winner = __NULL__;
+		if (result == ARENARESULT_WIN && winnerSlot > 0i) {
+			winner = g_arenaCompetitor[winnerSlot - 1i];
+		}
+		for (i = 0i; i < ARENA_MAXSLOTS; i++) {
+			c = g_arenaCompetitor[i];
+			g_arenaCompetitor[i] = __NULL__;
+			g_arenaPoints[i] = 0i;
+			if (!c) {
+				continue;
+			}
+			Arena_SetPlayerState(c, ARENASTATE_READY);
+			if (c == winner) {
+				Arena_QueuePushFront(c);
+			} else {
+				Arena_QueueAppend(c);
+			}
 		}
 	}
 
-	g_arenaMatchNoWinner = false;
+	g_arenaResult = ARENARESULT_NONE;
 	g_arenaWinnerSlot = 0;
+	g_arenaMatchHasGoneLive = false;
+	g_arenaRound = 0;
+	g_arenaTiebreaker = false;
 
 	if (Arena_ReadyCount() >= g_arenaMinReady) {
 		Arena_BeginMatch();
 	} else {
-		Arena_EnterWarmup();
+		Arena_Transition(ARENA_WARMUP, ARENAREASON_MATCH_COMPLETE);
 	}
 }
 
-/** Aborts an in-progress match with no winner (mid-match disconnect, R28). */
-static void
-Arena_AbortMatch(void)
-{
-	Arena_EndMatch(0i, true);
-}
-
 /* =========================================================================
- * Per-state ticks
+ * Per-state ticks — only decide when to leave
  * ========================================================================= */
 static void
 Arena_TickWarmup(void)
@@ -782,95 +1195,76 @@ Arena_TickWarmup(void)
 static void
 Arena_TickCountdown(void)
 {
-	/* a competitor dropped out (notready/disconnect) -> abort to warmup */
+	float step;
+	int ticksLeft;
+
 	if (Arena_CompetitorCount() < g_arenaSlotCount) {
-		for (int i = 0i; i < ARENA_MAXSLOTS; i++) {
-			entity c = g_arenaCompetitor[i];
-			g_arenaCompetitor[i] = __NULL__;
-			if (c && Arena_PlayerState(c) == ARENASTATE_COMPETITOR) {
-				Arena_SetPlayerState(c, ARENASTATE_READY);
-				Arena_QueuePushFront(c);
-			}
+		if (g_arenaMatchHasGoneLive == false) {
+			Arena_CancelPendingMatchup(ARENAREASON_INVALID_ROSTER);
+		} else {
+			Arena_VoidMatch(ARENAREASON_INVALID_ROSTER);
 		}
-		Arena_EnterWarmup();
 		return;
 	}
 
-	int remaining = (int)ceil(g_arenaDeadline - time);
-	if (remaining != g_arenaCountdownLast && remaining > 0i) {
-		g_arenaCountdownLast = remaining;
-		Arena_CenterprintAll(sprintf("%i", remaining));
-		sound(world, 4, "common/countdown.ogg", 0.7f, 0.0f);
+	step = Arena_CountdownStep();
+	if (step < 0.05f) {
+		step = 0.05f;
+	}
+	ticksLeft = (int)ceil((g_arenaDeadline - time) / step);
+	if (ticksLeft != g_arenaCountdownLast && ticksLeft > 0i) {
+		g_arenaCountdownLast = ticksLeft;
+		Arena_CenterprintAll(sprintf("%i", ticksLeft));
+		if (g_arenaMatchHasGoneLive) {
+			sound(world, 4, "common/countdown-mini.ogg", 0.7f, 0.0f);
+		} else {
+			sound(world, 4, "common/countdown.ogg", 0.7f, 0.0f);
+		}
 	}
 
 	if (time >= g_arenaDeadline) {
-		Arena_BeginRound();
+		if (g_arenaTiebreaker) {
+			Arena_Transition(ARENA_SUDDEN_DEATH, ARENAREASON_NORMAL);
+		} else {
+			Arena_Transition(ARENA_LIVE, ARENAREASON_NORMAL);
+		}
 	}
 }
 
 static void
 Arena_TickLive(void)
 {
-	/* brief grace so freshly-spawned competitors are not seen as dead */
+	int result;
+
 	if (time < g_arenaLiveSince + 0.25f) {
 		return;
 	}
 
-	int result = Arena_EvaluateRound();
+	result = Arena_EvaluateRound();
 	if (result != 0i) {
 		Arena_ResolveRound(result);
 		return;
 	}
 
-	if (!g_arenaSuddenNoTimer && time >= g_arenaRoundDeadline) {
-		Arena_EnterSuddenDeath();
+	if (g_arenaSuddenNoTimer == false && time >= g_arenaRoundDeadline) {
+		Arena_Transition(ARENA_SUDDEN_DEATH, ARENAREASON_TIME_EXPIRED);
 	}
 }
 
-/* SUDDEN_DEATH per-frame logic (one-hit kills + reaper) is completed in U6;
-   for now it resolves a round once a competitor is eliminated. */
 static void
 Arena_TickSuddenDeath(void)
 {
+	int result;
+
 	if (time < g_arenaStateTime + 0.1f) {
 		return;
 	}
 
-	/* one-hit kills (R18): a competitor flagged by the pain path this round
-	   dies on the next safe tick - avoids re-entrancy inside the damage call */
-	for (int i = 0i; i < ARENA_MAXSLOTS; i++) {
-		entity c = g_arenaCompetitor[i];
-		if (!c || !is.Alive(c)) {
-			continue;
-		}
-		if (g_arenaSuddenHit[i]) {
-			ents.Input(c, "Damage", "1000", world);
-		}
+	if (g_arenaHook_SuddenDeathTick) {
+		g_arenaHook_SuddenDeathTick();
 	}
 
-	/* reaper (R19): force-kill a competitor whose speed stays below the
-	   threshold for reaperTime; the timer resets the moment they move */
-	for (int i = 0i; i < ARENA_MAXSLOTS; i++) {
-		entity c = g_arenaCompetitor[i];
-		if (!c || !is.Alive(c)) {
-			g_arenaReaperSince[i] = 0.0f;
-			continue;
-		}
-
-		if (vlen(c.velocity) < autocvar_duel_reaperSpeed) {
-			if (g_arenaReaperSince[i] == 0.0f) {
-				g_arenaReaperSince[i] = time;
-			} else if ((time - g_arenaReaperSince[i]) >= autocvar_duel_reaperTime) {
-				centerprint(c, "REAPED");
-				ents.Input(c, "Damage", "1000", world);
-				g_arenaReaperSince[i] = 0.0f;
-			}
-		} else {
-			g_arenaReaperSince[i] = 0.0f;
-		}
-	}
-
-	int result = Arena_EvaluateRound();
+	result = Arena_EvaluateRound();
 	if (result != 0i) {
 		Arena_ResolveRound(result);
 	}
@@ -879,30 +1273,27 @@ Arena_TickSuddenDeath(void)
 static void
 Arena_TickRoundEnd(void)
 {
+	int leader;
+
 	if (time < g_arenaDeadline) {
 		return;
 	}
 
-	/* play all configured rounds, then resolve on points (+ tiebreaker) */
 	if (g_arenaRound >= g_arenaRoundLimit) {
-		int leader = Arena_LeaderSlot();
-
+		leader = Arena_LeaderSlot();
 		if (leader > 0i) {
-			Arena_EndMatch(leader, false);
+			Arena_ResolveMatch(ARENARESULT_WIN, leader, ARENAREASON_MATCH_COMPLETE);
 			return;
 		}
-
-		/* tie on points -> play a tiebreaker round (R30) */
 		g_arenaRound++;
 		g_arenaTiebreaker = true;
-		Arena_EnterCountdown();
+		Arena_Transition(ARENA_COUNTDOWN, ARENAREASON_NORMAL);
 		return;
 	}
 
-	/* next round of the same match - no queue rotation (R8) */
 	g_arenaRound++;
 	g_arenaTiebreaker = false;
-	Arena_EnterCountdown();
+	Arena_Transition(ARENA_COUNTDOWN, ARENAREASON_NORMAL);
 }
 
 static void
@@ -914,9 +1305,6 @@ Arena_TickMatchEnd(void)
 	Arena_Promote();
 }
 
-/* =========================================================================
- * Director tick - the single per-frame dispatcher
- * ========================================================================= */
 void
 Arena_FrameStart(void)
 {
@@ -945,65 +1333,30 @@ Arena_FrameStart(void)
 }
 
 /* =========================================================================
- * Queue UX (U4)
+ * Queue UX wrappers
  * ========================================================================= */
 void
 Arena_SetReady(entity pl)
 {
-	if (Arena_IsCompetitor(pl)) {
-		return;
+	Arena_ChangeParticipation(pl, ARENASTATE_READY, ARENAREASON_NORMAL);
+	if (Arena_PlayerState(pl) == ARENASTATE_READY) {
+		centerprint(pl, "You are READY");
 	}
-
-	/* coming back from pure spectator - rejoin as a live free-play body */
-	if (pl.team == TEAM_SPECTATOR || Arena_PlayerState(pl) == ARENASTATE_SPECTATOR) {
-		if (g_arenaState == ARENA_WARMUP) {
-			Arena_SpawnFreeplay(pl);
-		} else {
-			Arena_DemoteToFakeSpec(pl);
-		}
-	} else {
-		/* Waiting-cam joiners stay on intermission until hero pick; enter the
-		 * world on READY UP (same as closing the menu after a pick). */
-		Arena_EnsureFreeplay(pl);
-	}
-
-	Arena_SetPlayerState(pl, ARENASTATE_READY);
-	Arena_QueueAppend(pl);
-	centerprint(pl, "You are READY");
 }
 
 void
 Arena_SetNotReady(entity pl)
 {
-	if (Arena_IsCompetitor(pl)) {
-		/* dropping out during COUNTDOWN is allowed; live matches ignore it */
-		if (g_arenaState != ARENA_COUNTDOWN) {
-			return;
-		}
-		int slot = Arena_SlotForPlayer(pl);
-		if (slot != -1i) {
-			g_arenaCompetitor[slot] = __NULL__;
-		}
+	Arena_ChangeParticipation(pl, ARENASTATE_NOTREADY, ARENAREASON_NOT_READY);
+	if (Arena_PlayerState(pl) == ARENASTATE_NOTREADY) {
+		centerprint(pl, "You are NOT READY");
 	}
-
-	Arena_QueueRemove(pl);
-	Arena_SetPlayerState(pl, ARENASTATE_NOTREADY);
-	centerprint(pl, "You are NOT READY");
 }
 
 void
 Arena_SetSpectator(entity pl)
 {
-	if (Arena_IsCompetitor(pl)) {
-		int slot = Arena_SlotForPlayer(pl);
-		if (slot != -1i) {
-			g_arenaCompetitor[slot] = __NULL__;
-		}
-	}
-
-	Arena_QueueRemove(pl);
-	Arena_SetPlayerState(pl, ARENASTATE_SPECTATOR);
-	Arena_MakePureSpectator(pl);
+	Arena_ChangeParticipation(pl, ARENASTATE_SPECTATOR, ARENAREASON_SPECTATE);
 }
 
 /* =========================================================================
@@ -1031,8 +1384,6 @@ Arena_OnPlayerSpawn(entity pl)
 				Arena_SpawnWaitingView(pl);
 			}
 		} else if (g_arenaAutoJoin && Arena_PlayerState(pl) == ARENASTATE_NOTREADY) {
-			/* Q3-style: auto-ready into the queue; only spawn if
-			   a hero is already picked, else wait on camera */
 			Arena_SetReady(pl);
 			if (STRING_SET(userinfo.GetString(pl, "*hero"))) {
 				Arena_SpawnFreeplay(pl);
@@ -1043,7 +1394,6 @@ Arena_OnPlayerSpawn(entity pl)
 			Arena_SpawnWaitingView(pl);
 		}
 	} else {
-		/* joined mid-match -> watch as a fake-spectator until the next match */
 		Arena_DemoteToFakeSpec(pl);
 	}
 }
@@ -1051,7 +1401,6 @@ Arena_OnPlayerSpawn(entity pl)
 bool
 Arena_OnPlayerRequestRespawn(entity pl)
 {
-	/* free respawns only during warmup; the director owns match spawns */
 	if (g_arenaState == ARENA_WARMUP && Arena_PlayerState(pl) != ARENASTATE_SPECTATOR) {
 		Arena_SpawnFreeplay(pl);
 		return (true);
@@ -1066,8 +1415,6 @@ Arena_OnPlayerKilled(entity victim, entity attacker)
 		g_arenaHook_PlayerDeath(victim, attacker);
 	}
 
-	/* an eliminated competitor becomes a fake-spec so they chase-cam the round;
-	   the round result itself resolves in the tick, not here (handles draws) */
 	if (Arena_IsCompetitor(victim)) {
 		if (g_arenaState == ARENA_LIVE || g_arenaState == ARENA_SUDDEN_DEATH) {
 			Arena_DemoteToFakeSpec(victim);
@@ -1078,43 +1425,15 @@ Arena_OnPlayerKilled(entity victim, entity attacker)
 void
 Arena_OnPlayerPain(entity victim)
 {
-	/* during sudden death, any non-lethal hit on a competitor is flagged so the
-	   tick force-kills them (R18). Lethal hits resolve via PlayerKilled already. */
-	if (g_arenaState != ARENA_SUDDEN_DEATH) {
-		return;
-	}
-	if (!Arena_IsCompetitor(victim) || !is.Alive(victim)) {
-		return;
-	}
-
-	int slot = Arena_SlotForPlayer(victim);
-	if (slot != -1i) {
-		g_arenaSuddenHit[slot] = 1i;
+	if (g_arenaHook_PlayerPain) {
+		g_arenaHook_PlayerPain(victim);
 	}
 }
 
 void
 Arena_OnPlayerDisconnect(entity pl)
 {
-	bool wasCompetitor = Arena_IsCompetitor(pl);
-
-	/* always scrub them from the populations */
-	Arena_QueueRemove(pl);
-
-	int slot = Arena_SlotForPlayer(pl);
-	if (slot != -1i) {
-		g_arenaCompetitor[slot] = __NULL__;
-	}
-
-	/* a competitor leaving mid-match voids the match with no winner (R28) */
-	if (wasCompetitor) {
-		if (g_arenaState == ARENA_COUNTDOWN || g_arenaState == ARENA_LIVE
-			|| g_arenaState == ARENA_SUDDEN_DEATH || g_arenaState == ARENA_ROUND_END) {
-			Arena_AbortMatch();
-		}
-	}
-
-	Arena_BroadcastState();
+	Arena_ChangeParticipation(pl, ARENASTATE_NOTREADY, ARENAREASON_DISCONNECT);
 }
 
 bool

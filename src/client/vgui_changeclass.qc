@@ -59,6 +59,8 @@ Hero_DisplayName(string heroID)
 		return ("Motionblue");
 	} else if (heroID == "hero_archstiletto") {
 		return ("Archstiletto");
+	} else if (heroID == "hero_juliet") {
+		return ("Juliet");
 	}
 
 	return (Titles_GetTextBody(heroID));

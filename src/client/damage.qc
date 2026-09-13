@@ -43,5 +43,10 @@ CSQC_Parse_Damage_New(vector abs_pos, int take, int flags)
 
 	HUD_DamageReceived(abs_pos, take, flags);
 
+	/* Cut the predicted rope this packet; server Grapple_Clear follows. */
+	if (take > 0 && pSeat->m_ePlayer) {
+		Grapple_BreakFromHit(pSeat->m_ePlayer);
+	}
+
 	return (1);
 }

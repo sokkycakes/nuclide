@@ -58,6 +58,9 @@ entityDef player
 	"snd_jump"				"Player.Jump"
 	"snd_landSoft"			"Player.LandSoft"
 	"snd_landHard"			"Player.LandHard"
+	"snd_pain"				"Player.Pain"
+	"snd_hitArmor"			"Player.FleshImpact"
+	"snd_hitFlesh"			"Player.FleshImpact"
 
 	"act_idle"				"idle1"
 	"act_jump"				"jump"

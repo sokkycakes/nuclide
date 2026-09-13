@@ -173,6 +173,7 @@
     { id: "hero_angel", name: "hero_angel" },
     { id: "hero_motionblue", name: "hero_motionblue" },
     { id: "hero_archstiletto", name: "hero_archstiletto" },
+    { id: "hero_juliet", name: "Juliet" },
   ];
 
   /** Browser-only stand-in for webcore_arena_snapshot / getarena. */

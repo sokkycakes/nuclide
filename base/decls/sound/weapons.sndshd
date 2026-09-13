@@ -45,9 +45,10 @@ weapon_supershotgun.shoot
 sfx_impact.flesh
 {
 	alerts
-	sample weapons/ric1.wav
-	sample weapons/ric2.wav
-	sample weapons/ric3.wav
+	pitch_min 0.92
+	pitch_max 1.08
+	volume 0.8
+	sample weapons/knife-throwhit.ogg
 }
 
 sfx_impact.default
@@ -177,4 +178,30 @@ weapon_lightning.loop
 {
 	alerts
 	sample weapons/lhit.wav
+}
+
+weapon_juliet.charge
+{
+	alerts
+	looping
+	follow
+	sample weapons/julietcharge.wav
+}
+
+weapon_juliet.shot
+{
+	alerts
+	sample weapons/julietshot.ogg
+}
+
+weapon_juliet.charge_fire
+{
+	alerts
+	sample weapons/julietcharge_fire.ogg
+}
+
+weapon_juliet.ready
+{
+	alerts
+	sample weapons/julietready.ogg
 }

@@ -133,11 +133,14 @@ CodeCallback_ClientCommand(entity playerEntity, string command)
 	switch (argv(0)) {
 	case "selecthero": {
 		/* capture the id before any helper re-tokenizes (shared.qc) */
-		string heroID = argv(1);
+		string heroID = Hero_NormalizeID(argv(1));
 		Hero_TrySelect(playerEntity, heroID);
 		return (true);
 	}
 	default:
+		if (Hero_HandleClientCommand(playerEntity, command)) {
+			return (true);
+		}
 		return (false);
 	}
 

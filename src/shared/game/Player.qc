@@ -69,6 +69,7 @@ ncPlayer::ncPlayer(void)
 	m_timeUntilNextAttack = 0.0f;
 	m_timeUntilNextIdle = 0.0f;
 	m_timeUntilReloaded = 0.0f;
+	m_heroMeleeHolster = 0.0f;
 	m_timeSinceJump = 0.0f;
 	m_timeSinceTeleport = 0.0f;
 	m_punchAngle = g_vec_null;
@@ -90,6 +91,11 @@ ncPlayer::ncPlayer(void)
 	m_stilettoWallJumpCooldown = 0.0f;
 	m_stilettoAirDodgeCharges = 1.0f;
 	m_stilettoAirStallCharges = 1.0f;
+	m_stilettoDoubleJumpCharges = 0.0f;
+	m_julietChargeLevel = 0.0f;
+	m_julietCharging = 0;
+	m_julietDashRecovery = 0.0f;
+	m_julietMoveLatch = 0;
 	m_stilettoAirStallTime = 0.0f;
 	m_stilettoDashAddVel = g_vec_null;
 	m_stilettoParryTime = 0.0f;
@@ -102,6 +108,7 @@ ncPlayer::ncPlayer(void)
 	m_stilettoLungeFlight = 0i;
 	m_stilettoLungeCooldown = 0.0f;
 	m_stilettoLungeLaunch = 0i;
+	m_stilettoToolPunishUntil = 0.0f;
 	m_stilettoPrevButtons = 0;
 	m_stilettoGrappleHeld = 0;
 	m_stilettoGrappleActionHeld = 0;
@@ -117,11 +124,16 @@ ncPlayer::ncPlayer(void)
 #endif
 
 #ifdef SERVER
-	/* precache sounds that are called by string name in stiletto_tuning.qc
-	 * but aren't referenced from any entity def snd_* field */
+	/* EntityDef_Precaches only runs while g_ents_initialized is false
+	 * (worldspawn). Player spawn / ChangeToClass happens after that, so
+	 * snd_* keys on player.def never enter the sound table unless we
+	 * precache them here — same as AirDash, which has no def key at all. */
 	precache.Sound("Player.AirDash");
 	precache.Sound("Player.AirStall");
 	precache.Sound("Player.WallJump");
+	precache.Sound("Player.Pain");
+	precache.Sound("Player.FleshImpact");
+	precache.Sound("Player.BlockImpact");
 #endif
 }
 
@@ -505,6 +517,13 @@ ncPlayer::ProcessInput(void)
 		return;
 	}
 
+	/* Hero ALT melee (no viewmodel) holsters the gun for fireRate. */
+	if (m_heroMeleeHolster > 0.0f) {
+		m_activeWeapon._WeaponStoppedFiring();
+		m_activeWeapon.Release();
+		return;
+	}
+
 	/* weapon system */
 	if (input_buttons & INPUT_SECONDARY) {
 		m_activeWeapon._SecondaryAttack();
@@ -711,6 +730,26 @@ ncPlayer::UpdatePlayerAnimation(float timelength)
 		}
 	}
 
+	/* Juliet charge is QC, not Event_FireWeapon — full-body IQM has no torso
+	 * gesture path, so override gait while charging. Air clip in air; ground
+	 * clip on ground. Landing snaps to the ground clip's last frame. */
+	if (m_julietCharging) {
+		float chargeAct;
+
+		if (flags & FL_ONGROUND) {
+			chargeAct = m_actCharge;
+		} else {
+			chargeAct = m_actChargeAir;
+		}
+		if (chargeAct != ACTIVITY_NOTFOUND) {
+			anim_bottom = chargeAct;
+		}
+	} else if (m_julietDashRecovery > 0.0f
+	    && m_actChargeDodge != ACTIVITY_NOTFOUND) {
+		/* Dodge-cancel recovery: Smash air-escape, not walk/run/jump. */
+		anim_bottom = m_actChargeDodge;
+	}
+
 	if (anim_top == ACTIVITY_NOTFOUND) {
 		if (m_actAim == ACTIVITY_NOTFOUND) {
 			anim_top = anim_bottom;
@@ -747,9 +786,20 @@ ncPlayer::UpdatePlayerAnimation(float timelength)
 	 * had IQM_LOOP cleared. */
 	oneshot = (anim_bottom == m_actJump
 		|| anim_bottom == m_actIdleCrouch
-		|| anim_bottom == m_actWalkCrouch);
-	if (oneshot && anim_bottom != prevBottom)
-		anim_bottom_time = 0;
+		|| anim_bottom == m_actWalkCrouch
+		|| anim_bottom == m_actCharge
+		|| anim_bottom == m_actChargeAir
+		|| anim_bottom == m_actChargeDodge);
+	if (oneshot && anim_bottom != prevBottom) {
+		/* Landing mid-charge: keep the held pose, don't replay ground wind-up. */
+		if (m_julietCharging
+		    && anim_bottom == m_actCharge
+		    && prevBottom == m_actChargeAir) {
+			anim_bottom_time = frameduration(modelindex, anim_bottom);
+		} else {
+			anim_bottom_time = 0;
+		}
+	}
 
 	maxTopTime = frameduration(modelindex, anim_top);
 	maxBottomTime = frameduration(modelindex, anim_bottom);
@@ -791,8 +841,9 @@ ncPlayer::UpdatePlayerAnimation(float timelength)
 	anim_top_time += timelength;
 	anim_top_delay -= timelength;
 
-	/* we may be walking backwards, thus decrement bottom */
-	if (dotproduct(velocity, anglesToForward([0, v_angle[1], 0])) < 0) {
+	/* we may be walking backwards, thus decrement bottom.
+	 * One-shots always run forward — reverse gait would pin charge/jump at 0. */
+	if (!oneshot && dotproduct(velocity, anglesToForward([0, v_angle[1], 0])) < 0) {
 		anim_bottom_time -= timelength;
 	} else {
 		anim_bottom_time += timelength;
@@ -1324,6 +1375,7 @@ ncPlayer::ReceivePlayerEntity(float isNew, float flChanged)
 	READENTITY_FLOAT(m_timeUntilNextAttack, PLAYER_TIMINGS)
 	READENTITY_FLOAT(m_timeUntilNextIdle, PLAYER_TIMINGS)
 	READENTITY_FLOAT(m_timeUntilReloaded, PLAYER_TIMINGS)
+	READENTITY_FLOAT(m_heroMeleeHolster, PLAYER_TIMINGS)
 	READENTITY_ENTNUM(vehicle_entnum, PLAYER_VEHICLE)
 	READENTITY_BYTE(m_spectatingEntity, PLAYER_SPECTATE)
 	READENTITY_BYTE(m_spectatingMode, PLAYER_SPECTATE)
@@ -1357,9 +1409,17 @@ ncPlayer::ReceivePlayerEntity(float isNew, float flChanged)
 	READENTITY_FLOAT(m_stilettoLungeCooldown, PLAYER_STILETTO)
 	READENTITY_INT(m_stilettoLungeLaunch, PLAYER_STILETTO)
 	READENTITY_INT(m_stilettoPrevButtons, PLAYER_STILETTO)
+	READENTITY_FLOAT(m_stilettoDoubleJumpCharges, PLAYER_STILETTO)
+	READENTITY_FLOAT(m_julietChargeLevel, PLAYER_STILETTO)
+	READENTITY_INT(m_julietCharging, PLAYER_STILETTO)
+	READENTITY_FLOAT(m_julietDashRecovery, PLAYER_STILETTO)
+	READENTITY_INT(m_julietMoveLatch, PLAYER_STILETTO)
 
 	READENTITY_INT(m_heroGuardState, PLAYER_HERO_ACTIONS)
 	READENTITY_INT(m_heroWeaponMode, PLAYER_HERO_ACTIONS)
+	READENTITY_INT(m_heroGrooveType, PLAYER_HERO_ACTIONS)
+	READENTITY_INT(m_heroGuardHP, PLAYER_HERO_ACTIONS)
+	READENTITY_INT(m_heroGuardHPMax, PLAYER_HERO_ACTIONS)
 	READENTITY_INT(m_drive, PLAYER_HERO_ACTIONS)
 	READENTITY_INT(m_driveMax, PLAYER_HERO_ACTIONS)
 	READENTITY_INT(m_ex, PLAYER_HERO_ACTIONS)
@@ -1372,6 +1432,13 @@ ncPlayer::ReceivePlayerEntity(float isNew, float flChanged)
 		string fromNet = EntityDef_NameFromNetID(entityDefID);
 		if (STRING_SET(fromNet))
 			declclass = fromNet;
+	}
+	if (STRING_SET(declclass)) {
+		float modelScale = GetDefFloat("modelscale");
+		if (modelScale <= 0.0f) {
+			modelScale = 1.0f;
+		}
+		SetScale(modelScale);
 	}
 	if (flChanged & PLAYER_MODELINDEX) {
 		if (skeletonindex) {
@@ -1483,6 +1550,7 @@ ncPlayer::PredictPreFrame(void)
 	SAVE_STATE(m_timeUntilNextAttack)
 	SAVE_STATE(m_timeUntilNextIdle)
 	SAVE_STATE(m_timeUntilReloaded)
+	SAVE_STATE(m_heroMeleeHolster)
 	SAVE_STATE(vehicle_entnum)
 	SAVE_STATE(m_spectatingEntity)
 	SAVE_STATE(m_spectatingMode)
@@ -1517,6 +1585,11 @@ ncPlayer::PredictPreFrame(void)
 	SAVE_STATE(m_stilettoLungeCooldown)
 	SAVE_STATE(m_stilettoLungeLaunch)
 	SAVE_STATE(m_stilettoPrevButtons)
+	SAVE_STATE(m_stilettoDoubleJumpCharges)
+	SAVE_STATE(m_julietChargeLevel)
+	SAVE_STATE(m_julietCharging)
+	SAVE_STATE(m_julietDashRecovery)
+	SAVE_STATE(m_julietMoveLatch)
 
 	for (int i = 0i; i < MAX_AMMO_TYPES; i++) {
 		m_ammoTypes_net[i] = m_ammoTypes[i];
@@ -1562,6 +1635,7 @@ ncPlayer::PredictPostFrame(void)
 	ROLL_BACK(m_timeUntilNextAttack)
 	ROLL_BACK(m_timeUntilNextIdle)
 	ROLL_BACK(m_timeUntilReloaded)
+	ROLL_BACK(m_heroMeleeHolster)
 	ROLL_BACK(m_spectatingEntity)
 	ROLL_BACK(m_spectatingMode)
 	ROLL_BACK(m_spectatingFlags)
@@ -1594,6 +1668,11 @@ ncPlayer::PredictPostFrame(void)
 	ROLL_BACK(m_stilettoLungeCooldown)
 	ROLL_BACK(m_stilettoLungeLaunch)
 	ROLL_BACK(m_stilettoPrevButtons)
+	ROLL_BACK(m_stilettoDoubleJumpCharges)
+	ROLL_BACK(m_julietChargeLevel)
+	ROLL_BACK(m_julietCharging)
+	ROLL_BACK(m_julietDashRecovery)
+	ROLL_BACK(m_julietMoveLatch)
 
 	/* make sure to relink these */
 	ROLL_BACK(vehicle_entnum)
@@ -1674,6 +1753,7 @@ ncPlayer::Save(float handle)
 	SaveFloat(handle, "m_timeUntilNextAttack", m_timeUntilNextAttack);
 	SaveFloat(handle, "m_timeUntilNextIdle", m_timeUntilNextIdle);
 	SaveFloat(handle, "m_timeUntilReloaded", m_timeUntilReloaded);
+	SaveFloat(handle, "m_heroMeleeHolster", m_heroMeleeHolster);
 	SaveFloat(handle, "m_weaponAnimTime", m_weaponAnimTime);
 	SaveInt(handle, "m_friendlyFireDamageDealt", m_friendlyFireDamageDealt);
 	SaveInt(handle, "m_underwaterDamageDealt", m_underwaterDamageDealt);
@@ -1709,6 +1789,11 @@ ncPlayer::Save(float handle)
 	SaveFloat(handle, "m_stilettoLungeCooldown", m_stilettoLungeCooldown);
 	SaveInt(handle, "m_stilettoLungeLaunch", m_stilettoLungeLaunch);
 	SaveInt(handle, "m_stilettoPrevButtons", m_stilettoPrevButtons);
+	SaveFloat(handle, "m_stilettoDoubleJumpCharges", m_stilettoDoubleJumpCharges);
+	SaveFloat(handle, "m_julietChargeLevel", m_julietChargeLevel);
+	SaveInt(handle, "m_julietCharging", m_julietCharging);
+	SaveFloat(handle, "m_julietDashRecovery", m_julietDashRecovery);
+	SaveInt(handle, "m_julietMoveLatch", m_julietMoveLatch);
 }
 
 void
@@ -1786,6 +1871,9 @@ ncPlayer::Restore(string keyName, string setValue)
 		break;
 	case "m_timeUntilReloaded":
 		m_timeUntilReloaded = ReadFloat(setValue);
+		break;
+	case "m_heroMeleeHolster":
+		m_heroMeleeHolster = ReadFloat(setValue);
 		break;
 	case "m_weaponAnimTime":
 		m_weaponAnimTime = ReadFloat(setValue);
@@ -1892,6 +1980,21 @@ ncPlayer::Restore(string keyName, string setValue)
 	case "m_stilettoPrevButtons":
 		m_stilettoPrevButtons = ReadInt(setValue);
 		break;
+	case "m_stilettoDoubleJumpCharges":
+		m_stilettoDoubleJumpCharges = ReadFloat(setValue);
+		break;
+	case "m_julietChargeLevel":
+		m_julietChargeLevel = ReadFloat(setValue);
+		break;
+	case "m_julietCharging":
+		m_julietCharging = ReadInt(setValue);
+		break;
+	case "m_julietDashRecovery":
+		m_julietDashRecovery = ReadFloat(setValue);
+		break;
+	case "m_julietMoveLatch":
+		m_julietMoveLatch = ReadInt(setValue);
+		break;
 	default:
 		super::Restore(keyName, setValue);
 	}
@@ -1984,6 +2087,16 @@ void
 ncPlayer::Pain(entity inflictor, entity attacker, int damagePoints, vector dir, vector absImpactPos, int hitBody)
 {
 #ifdef SERVER
+	/* TF2 DamageEffect + PainSound: flesh impact then grunt.
+	 * Play by literal name — Actor snd_* fields stay empty when
+	 * ReloadCachedAttributes ran before the hero def was live. */
+	if (m_heroGuardState) {
+		StartSoundDef("Player.BlockImpact", CHAN_AUTO, true);
+	} else {
+		StartSoundDef("Player.FleshImpact", CHAN_AUTO, true);
+		StartSoundDef("Player.Pain", CHAN_VOICE, true);
+	}
+
 	/* fixed intense view punch for melee-weight hits — snaps the head
 	 * back then springs to neutral via the pmove spring system. */
 	m_punchAngle[0] = -7;
@@ -2017,6 +2130,10 @@ ncPlayer::ClearInvulnFlash(void)
 void
 ncPlayer::Death(entity inflictor, entity attacker, int damagePoints, vector dir, vector absImpactPos, int hitBody)
 {
+#ifdef SERVER
+	/* Lethal hits skip Pain(), so play the flesh impact here too. */
+	StartSoundDef("Player.FleshImpact", CHAN_AUTO, true);
+#endif
 	bool gibbed = false;
 
 	/* either gib, or keep the model for a death animation */
@@ -2066,6 +2183,7 @@ ncPlayer::Death(entity inflictor, entity attacker, int damagePoints, vector dir,
 	userinfo.SetBool(this, "*spectator", false);
 	userinfo.SetBool(this, "*dead", false);
 	m_timeOfDeath = time;
+	Juliet_ChargeReset(this);
 }
 
 void
@@ -2127,6 +2245,7 @@ ncPlayer::MakePlayer(void)
 	Stiletto_Combat_Respawn(this);
 	HeroActions_InitResources(this);
 	HeroActions_EnsureMeleeWeapon(this);
+	Juliet_ChargeReset(this);
 #endif
 }
 
@@ -2225,6 +2344,7 @@ ncPlayer::EvaluateEntity(void)
 	EVALUATE_FIELD(m_timeUntilNextAttack, PLAYER_TIMINGS)
 	EVALUATE_FIELD(m_timeUntilNextIdle, PLAYER_TIMINGS)
 	EVALUATE_FIELD(m_timeUntilReloaded, PLAYER_TIMINGS)
+	EVALUATE_FIELD(m_heroMeleeHolster, PLAYER_TIMINGS)
 	EVALUATE_FIELD(vehicle, PLAYER_VEHICLE)
 	EVALUATE_FIELD(m_spectatingEntity, PLAYER_SPECTATE)
 	EVALUATE_FIELD(m_spectatingMode, PLAYER_SPECTATE)
@@ -2258,9 +2378,17 @@ ncPlayer::EvaluateEntity(void)
 	EVALUATE_FIELD(m_stilettoLungeCooldown, PLAYER_STILETTO)
 	EVALUATE_FIELD(m_stilettoLungeLaunch, PLAYER_STILETTO)
 	EVALUATE_FIELD(m_stilettoPrevButtons, PLAYER_STILETTO)
+	EVALUATE_FIELD(m_stilettoDoubleJumpCharges, PLAYER_STILETTO)
+	EVALUATE_FIELD(m_julietChargeLevel, PLAYER_STILETTO)
+	EVALUATE_FIELD(m_julietCharging, PLAYER_STILETTO)
+	EVALUATE_FIELD(m_julietDashRecovery, PLAYER_STILETTO)
+	EVALUATE_FIELD(m_julietMoveLatch, PLAYER_STILETTO)
 
 	EVALUATE_FIELD(m_heroGuardState, PLAYER_HERO_ACTIONS)
 	EVALUATE_FIELD(m_heroWeaponMode, PLAYER_HERO_ACTIONS)
+	EVALUATE_FIELD(m_heroGrooveType, PLAYER_HERO_ACTIONS)
+	EVALUATE_FIELD(m_heroGuardHP, PLAYER_HERO_ACTIONS)
+	EVALUATE_FIELD(m_heroGuardHPMax, PLAYER_HERO_ACTIONS)
 	EVALUATE_FIELD(m_drive, PLAYER_HERO_ACTIONS)
 	EVALUATE_FIELD(m_driveMax, PLAYER_HERO_ACTIONS)
 	EVALUATE_FIELD(m_ex, PLAYER_HERO_ACTIONS)
@@ -2368,6 +2496,7 @@ ncPlayer::SendEntity(entity ePEnt, float flChanged)
 	SENDENTITY_FLOAT(m_timeUntilNextAttack, PLAYER_TIMINGS)
 	SENDENTITY_FLOAT(m_timeUntilNextIdle, PLAYER_TIMINGS)
 	SENDENTITY_FLOAT(m_timeUntilReloaded, PLAYER_TIMINGS)
+	SENDENTITY_FLOAT(m_heroMeleeHolster, PLAYER_TIMINGS)
 	SENDENTITY_ENTITY(vehicle, PLAYER_VEHICLE)
 	SENDENTITY_BYTE(m_spectatingEntity, PLAYER_SPECTATE)
 	SENDENTITY_BYTE(m_spectatingMode, PLAYER_SPECTATE)
@@ -2402,9 +2531,17 @@ ncPlayer::SendEntity(entity ePEnt, float flChanged)
 	SENDENTITY_FLOAT(m_stilettoLungeCooldown, PLAYER_STILETTO)
 	SENDENTITY_INT(m_stilettoLungeLaunch, PLAYER_STILETTO)
 	SENDENTITY_INT(m_stilettoPrevButtons, PLAYER_STILETTO)
+	SENDENTITY_FLOAT(m_stilettoDoubleJumpCharges, PLAYER_STILETTO)
+	SENDENTITY_FLOAT(m_julietChargeLevel, PLAYER_STILETTO)
+	SENDENTITY_INT(m_julietCharging, PLAYER_STILETTO)
+	SENDENTITY_FLOAT(m_julietDashRecovery, PLAYER_STILETTO)
+	SENDENTITY_INT(m_julietMoveLatch, PLAYER_STILETTO)
 
 	SENDENTITY_INT(m_heroGuardState, PLAYER_HERO_ACTIONS)
 	SENDENTITY_INT(m_heroWeaponMode, PLAYER_HERO_ACTIONS)
+	SENDENTITY_INT(m_heroGrooveType, PLAYER_HERO_ACTIONS)
+	SENDENTITY_INT(m_heroGuardHP, PLAYER_HERO_ACTIONS)
+	SENDENTITY_INT(m_heroGuardHPMax, PLAYER_HERO_ACTIONS)
 	SENDENTITY_INT(m_drive, PLAYER_HERO_ACTIONS)
 	SENDENTITY_INT(m_driveMax, PLAYER_HERO_ACTIONS)
 	SENDENTITY_INT(m_ex, PLAYER_HERO_ACTIONS)
@@ -2829,11 +2966,22 @@ ncPlayer::Damage(entity inflictor, entity attacker, ncDict damageDecl, float dam
 	damagePoints = rint(damagePoints);
 	SetHealth(GetHealth() - damagePoints);
 
-	/* health pacing + tool punish: stamp the i-frame window and evaluate a
-	 * mid-air tool punish on any registered HP hit (heroes only). */
+	/* health pacing + tool punish: evaluate punish while the hook/tool is
+	 * still set, then stamp i-frames and always cut the rope. Breaking first
+	 * made OnDamaged miss the tool; breaking only inside OnDamaged skipped
+	 * the rope when punish early-outed. */
 	if (damagePoints > 0) {
-		Stiletto_Combat_StampDamage(this);
 		Stiletto_Combat_OnDamaged(this, damagePoints);
+		if (damageDecl.GetBool("noIFrameStamp") == false) {
+			Stiletto_Combat_StampDamage(this);
+		}
+		if (m_julietCharging) {
+			m_julietCharging = 0;
+			m_julietChargeLevel = 0.0f;
+			m_julietMoveLatch = 0;
+			StopSound(CHAN_WEAPON, true);
+			SendFlags |= PLAYER_STILETTO;
+		}
 	}
 
 	igniteTime = ReadFloat(damageDecl.GetString("ignite"));
@@ -2898,6 +3046,12 @@ ncPlayer::Damage(entity inflictor, entity attacker, ncDict damageDecl, float dam
 	float knockBack = damageDecl.GetFloat("knockback");
 	if (knockBack >= 0) {
 		AddVelocity(dmgDir * knockBack);
+	}
+
+	/* Knockback runs after OnDamaged; a STANDARD punish must stay a full stop. */
+	if (m_stilettoPunishState == STILETTO_PUNISH_STANDARD
+	    && m_stilettoPunishTime <= 0.0f) {
+		velocity = g_vec_null;
 	}
 
 	/* they died */

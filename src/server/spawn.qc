@@ -125,7 +125,11 @@ entity Spawn_SelectRandom(string cname)
 		return __NULL__;
 	}
 
-	for (int i = random(1, max); i > 0; i--) {
+	/* random(1, max) converted to int overwhelmingly selected 1 on a two-point
+	 * map, so the first authored point (duel_alley's red side) won nearly every
+	 * time. Pick a zero-based integer explicitly, then walk to that entity. */
+	int selected = (int)floor(random(0.0f, max));
+	for (int i = 0; i <= selected; i++) {
 		spot = find(spot, ::classname, cname);
 	}
 
@@ -155,6 +159,35 @@ entity Spawn_SelectRandom(string cname)
 	/* everyone is clustered; use the last random pick anyway */
 	lastspot = spot;
 	return spot;
+}
+
+/* When teams 1 and 2 intentionally share one two-point spawn classname (the
+ * duel setup), bind team 1 to the first authored point and team 2 to the
+ * second. This keeps opposite duel slots on opposite map sides without making
+ * explicit classname teleports/freeplay deterministic. */
+static entity
+Spawn_SelectTeamPair(entity targetEnt, string cname)
+{
+	int teamNum = (int)targetEnt.team;
+	entity spot = world;
+
+	if (teamNum < 1i || teamNum > 2i) {
+		return (__NULL__);
+	}
+
+	if (Spawn_CountClass(cname) != 2.0f) {
+		return (__NULL__);
+	}
+
+	if (teams.SpawnPoint(1i) != cname || teams.SpawnPoint(2i) != cname) {
+		return (__NULL__);
+	}
+
+	for (int i = 0i; i < teamNum; i++) {
+		spot = find(spot, ::classname, cname);
+	}
+
+	return (spot);
 }
 
 /*
@@ -262,9 +295,9 @@ Spawn_TryClassname
 =================
 */
 static bool
-Spawn_TryClassname(entity targetEnt, string cname)
+Spawn_TryClassname(entity targetEnt, string cname, bool preferTeamPair)
 {
-	entity spawnPoint;
+	entity spawnPoint = __NULL__;
 
 	if (!STRING_SET(cname)) {
 		return (false);
@@ -274,7 +307,13 @@ Spawn_TryClassname(entity targetEnt, string cname)
 		return (false);
 	}
 
-	spawnPoint = Spawn_SelectRandom(cname);
+	if (preferTeamPair) {
+		spawnPoint = Spawn_SelectTeamPair(targetEnt, cname);
+	}
+
+	if (!spawnPoint) {
+		spawnPoint = Spawn_SelectRandom(cname);
+	}
 
 	if (!spawnPoint) {
 		return (false);
@@ -305,19 +344,19 @@ static bool
 Spawn_TryFallbackChain(entity targetEnt)
 {
 	/* intermission / observer fallbacks before generic player starts */
-	if (Spawn_TryClassname(targetEnt, "info_intermission")) {
+	if (Spawn_TryClassname(targetEnt, "info_intermission", false)) {
 		return (true);
 	}
 
-	if (Spawn_TryClassname(targetEnt, "info_player_deathmatch")) {
+	if (Spawn_TryClassname(targetEnt, "info_player_deathmatch", false)) {
 		return (true);
 	}
 
-	if (Spawn_TryClassname(targetEnt, "info_player_coop")) {
+	if (Spawn_TryClassname(targetEnt, "info_player_coop", false)) {
 		return (true);
 	}
 
-	if (Spawn_TryClassname(targetEnt, "info_player_start")) {
+	if (Spawn_TryClassname(targetEnt, "info_player_start", false)) {
 		return (true);
 	}
 
@@ -343,7 +382,7 @@ Spawn_TeleportToSpawn(entity targetEnt)
 		return;
 	}
 
-	if (Spawn_TryClassname(targetEnt, desiredSpawn)) {
+	if (Spawn_TryClassname(targetEnt, desiredSpawn, true)) {
 		return;
 	}
 
@@ -358,7 +397,7 @@ Spawn_TeleportToSpawn(entity targetEnt)
 bool
 Spawn_TeleportToClassname(entity targetEnt, string cname)
 {
-	if (Spawn_TryClassname(targetEnt, cname)) {
+	if (Spawn_TryClassname(targetEnt, cname, false)) {
 		return (true);
 	}
 

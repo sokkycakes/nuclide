@@ -121,7 +121,8 @@ Stiletto_ApplyMoveTuning(entity e)
 
 		/* reduced gravity that decays back to normal alongside the dash bleed.
 		 * remaining frac drives a lerp from 0.3→1.0 over the dash window. */
-		pl.gravity *= 0.3f + (0.7f * (1.0f - addMag / STILETTO_AIR_DASH_SPEED));
+		pl.gravity *= 0.3f + (0.7f * bound(0.0f,
+		    1.0f - addMag / STILETTO_AIR_DASH_SPEED, 1.0f));
 
 		step = (STILETTO_AIR_DASH_SPEED / STILETTO_AIR_DASH_ADD_TIME) * input_timelength;
 
@@ -275,8 +276,9 @@ Stiletto_Server_GrappleRecharge(entity e)
 	isGrounded = (pl.flags & FL_ONGROUND) ? true : false;
 	isOnWall = (pl.m_nuclideFlags & VFL_STILETTO_WALL) ? true : false;
 
-	/* Wall recharge: only recharge up to 1 charge, takes 1.75 seconds */
-	if (isOnWall) {
+	/* Wall recharge: only recharge up to 1 charge, takes 1.75 seconds.
+	 * Grounded + wall-touch is still grounded — don't apply the wall penalty. */
+	if (isOnWall && !isGrounded) {
 		/* Reset midair flag when touching wall */
 		pl.m_stilettoGrappleUsedInMidair = false;
 
@@ -367,6 +369,11 @@ Stiletto_OnPhysicsStart(entity e)
 			pl.m_stilettoAirStallCharges = STILETTO_MAX_AIR_STALLS;
 		} else {
 			pl.m_stilettoAirStallCharges = 0.0f;
+		}
+		if (pl.GetDefFloat("stiletto_double_jump")) {
+			pl.m_stilettoDoubleJumpCharges = 1.0f;
+		} else {
+			pl.m_stilettoDoubleJumpCharges = 0.0f;
 		}
 		pl.m_stilettoAirTime = 0.0f;
 	} else {
@@ -555,11 +562,8 @@ Stiletto_PmGunjumpAir(entity e, int curButtons, vector moveWish)
 
 	horiz = sqrt(moveWish[0] * moveWish[0] + moveWish[1] * moveWish[1]);
 
-	if (horiz > STILETTO_AIR_MOVE_INPUT_THRESH) {
-		if (pl.m_stilettoAirDodgeCharges < 1.0f) {
-			return;
-		}
-
+	if (horiz > STILETTO_AIR_MOVE_INPUT_THRESH
+	    && pl.m_stilettoAirDodgeCharges >= 1.0f) {
 		makevectors(input_angles);
 		fwd = v_forward;
 		right = v_right;
@@ -581,38 +585,30 @@ Stiletto_PmGunjumpAir(entity e, int curButtons, vector moveWish)
 		dodgeDir = (fwd * moveWish[0]) + (right * moveWish[1]);
 		dodgeDir[2] = 0.0f;
 
-		if (vlen(dodgeDir) < 0.125f) {
-			return;
-		}
-
-		/* validate direction before spending the charge */
-		pl.m_stilettoAirDodgeCharges -= 1.0f;
+		if (vlen(dodgeDir) >= 0.125f) {
+			pl.m_stilettoAirDodgeCharges -= 1.0f;
 
 #ifdef SERVER
-		pl.StartSoundDef("Player.AirDash", CHAN_AUTO, true);
+			pl.StartSoundDef("Player.AirDash", CHAN_AUTO, true);
 #endif
 
-		dodgeDir = normalize(dodgeDir);
+			dodgeDir = normalize(dodgeDir);
+			pl.m_stilettoDashAddVel = dodgeDir * STILETTO_AIR_DASH_SPEED;
+			pl.m_stilettoDashAddVel[2] = 0.0f;
+			pl.velocity += pl.m_stilettoDashAddVel;
+			Stiletto_Combat_MarkTool(pl);
 
-		/* purely additive horizontal impulse; remember the contribution so it
-		 * can be bled back out over a very short window (see ApplyMoveTuning) */
-		pl.m_stilettoDashAddVel = dodgeDir * STILETTO_AIR_DASH_SPEED;
-		pl.m_stilettoDashAddVel[2] = 0.0f;
-		pl.velocity += pl.m_stilettoDashAddVel;
-
-		/* acro: dive the dash diagonally downward at a consistent angle */
-		if (acro) {
-			pl.velocity[2] = -STILETTO_AIR_DASH_DOWN_SPEED;
-		}
-	} else {
-		if (pl.m_stilettoAirStallCharges < 1.0f) {
+			if (acro) {
+				pl.velocity[2] = -STILETTO_AIR_DASH_DOWN_SPEED;
+			}
 			return;
 		}
-
+	} else if (horiz <= STILETTO_AIR_MOVE_INPUT_THRESH
+	    && pl.m_stilettoAirStallCharges >= 1.0f) {
 		pl.m_stilettoAirStallCharges -= 1.0f;
+		Stiletto_Combat_MarkTool(pl);
 
 		if (acro) {
-			/* drop dash: cancel horizontal momentum and slam straight down */
 #ifdef SERVER
 			pl.StartSoundDef("Player.AirDash", CHAN_AUTO, true);
 #endif
@@ -625,6 +621,28 @@ Stiletto_PmGunjumpAir(entity e, int curButtons, vector moveWish)
 #endif
 			pl.m_stilettoAirStallTime = STILETTO_AIR_STALL_TIME;
 		}
+		return;
+	}
+
+	if (pl.GetDefFloat("stiletto_double_jump")
+	    && pl.m_stilettoDoubleJumpCharges >= 1.0f) {
+		float jumpH = 270.0f;
+		float defJumpH;
+
+		pl.m_stilettoDoubleJumpCharges -= 1.0f;
+		if (pl.m_pmoveVars && pl.m_pmoveVars.pm_jumpheight > 0.0f) {
+			jumpH = pl.m_pmoveVars.pm_jumpheight;
+		}
+		defJumpH = pl.GetDefFloat("stiletto_double_jump_height");
+		if (defJumpH > 0.0f) {
+			jumpH = defJumpH;
+		}
+		if (pl.velocity[2] < jumpH) {
+			pl.velocity[2] = jumpH;
+		}
+#ifdef SERVER
+		pl.StartSoundDef("Player.Jump", CHAN_BODY, true);
+#endif
 	}
 }
 
@@ -800,6 +818,7 @@ Stiletto_Lunge_PreMove(entity e)
 	pl.velocity = dir * speed;
 	pl.m_stilettoLungeFlight = 1;
 	pl.RemoveFlags(FL_ONGROUND);
+	Stiletto_Combat_MarkTool(pl);
 }
 
 void
@@ -838,6 +857,7 @@ Stiletto_FireGrapple(entity e)
 	}
 
 	ncAttack_SpawnDef("attack_stiletto_grapple_hook", (ncActor)pl);
+	Stiletto_Combat_MarkTool(pl);
 }
 
 void

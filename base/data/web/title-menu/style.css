@@ -260,6 +260,9 @@ html, body {
   background: #1a1a1acc;
   color: #eee;
   font: inherit;
+  user-select: text;
+  -webkit-user-select: text;
+  pointer-events: auto;
 }
 
 .join-lan__row {

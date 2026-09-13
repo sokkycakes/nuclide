@@ -152,3 +152,36 @@ Player.Gib
 {
 	sample player/udeath.wav
 }
+
+Player.Pain
+{
+	follow
+	attenuation static
+	pitch_min 0.95
+	pitch_max 1.05
+	volume 0.9
+	sample player/playerpain00.ogg
+	sample player/playerpain01.ogg
+	sample player/playerpain02.ogg
+	sample player/playerpain03.ogg
+}
+
+Player.FleshImpact
+{
+	follow
+	attenuation static
+	pitch_min 0.92
+	pitch_max 1.08
+	volume 0.8
+	sample player/bullet_impact.ogg
+}
+
+Player.BlockImpact
+{
+	follow
+	attenuation static
+	pitch_min 0.92
+	pitch_max 1.08
+	volume 0.8
+	sample player/block_impact.ogg
+}

@@ -17,6 +17,7 @@ entityDef weapon_archstiletto
 	"melee_damage"		"1"
 	"melee_range"		"128"
 	"melee_cleave"		"1"
+	"melee_hit_delay"	"0.16"
 	"melee_bounds_mins"	"-18 -18 -18"
 	"melee_bounds_maxs"	"18 18 18"
 	"testDistance"		"0"

@@ -9,6 +9,7 @@ entityDef hero_archstiletto_melee
 	"melee_damage"			"1"
 	"melee_push"			"100"
 	"melee_cleave"			"1"
+	"melee_hit_delay"		"0.16"
 	"testDistance"			"0"
 	"fireRate"				"0.5"
 	"failRate"				"0.5"

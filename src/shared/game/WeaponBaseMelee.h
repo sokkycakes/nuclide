@@ -16,6 +16,9 @@ public:
 	/* Swing trace. Line-first, then hull; optional cleave. */
 	virtual void DoSwingTrace(void);
 
+	/** Deferred hit after melee_hit_delay (think callback). */
+	nonvirtual void _MeleeHitThink(void);
+
 	/* Apply damage + push to a single entity. */
 	virtual void ApplyMeleeDamage(entity, vector, vector);
 

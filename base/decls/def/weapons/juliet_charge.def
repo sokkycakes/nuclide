@@ -1,0 +1,127 @@
+// Juliet charge gun. Control is predicted QC (WeaponJuliet), not chargeTime.
+entityDef weapon_juliet_charge
+{
+	"editor_color"		".3 .3 1"
+	"editor_mins"		"-16 -16 0"
+	"editor_maxs"		"16 16 32"
+	"editor_usage"		"Juliet charge ball"
+	"editor_rotatable"	"1"
+
+	"spawnclass"		"ncWeapon"
+	"model"				"progs/g_nail.mdl"
+	"model_view"		"models/v_kingcobra.mdl"
+	"snd_acquire"		"weapon.pickup"
+	"snd_respawn"		"item.respawn"
+	"spin"			"1"
+	"pickupFlash"		"1"
+
+	"def_fireInfo"		"fireInfo_julietCharge"
+	"inv_name"			"Juliet"
+	"ammoType"			"ammo_nails"
+	"infiniteReserve"	"1"
+	"ammoRequired"		"0"
+	"ammoPerShot"		"0"
+	"clipSize"			"0"
+
+	"act_fire"			"0"
+	"act_idle"			"0"
+	"act_draw"			"0"
+
+	"snd_fire"			"weapon_juliet.shot"
+	"snd_charge"			"weapon_juliet.charge"
+	"snd_charge_fire"		"weapon_juliet.charge_fire"
+	"snd_ready"			"weapon_juliet.ready"
+	"snd_empty"			"weapon.empty"
+
+	"hudSlot"			"1"
+	"hudSlotPos"		"0"
+	"weight"			"10"
+	"crosshair"			"none"
+}
+
+entityDef fireInfo_julietCharge
+{
+	"fireRate"			"1.7"
+	"semiAuto"			"1"
+	"snd_fire"			"weapon_juliet.shot"
+}
+
+entityDef damage_julietMin
+{
+	"damage"	"1"
+}
+
+entityDef damage_julietMid
+{
+	"damage"	"2"
+}
+
+entityDef damage_julietNear
+{
+	"damage"	"3"
+}
+
+entityDef damage_julietFull
+{
+	"damage"	"4"
+}
+
+entityDef projectile_juliet_min
+{
+	"inherit"		"projectile_nail"
+	"def_damage"	"damage_julietMin"
+	"offset"		"20 0 -7"
+	"velocity"		"1380"
+	"modelscale"	"3"
+	"mins"			"0 -1.143 -1.143"
+	"maxs"			"10.356 1.143 1.143"
+	"fuse"			"0.8"
+	"detonate_on_fuse"	"0"
+	"detonate_on_actor"	"1"
+	"detonate_on_world"	"1"
+}
+
+/* Charged balls. modelscale also scales the bbox — keep it near 1. */
+entityDef projectile_juliet_orb
+{
+	"spawnclass"			"ncProjectile"
+	"model"				"sprites/glow01.spr"
+	"rendermode"			"5"
+	"renderamt"			"255"
+	"offset"			"48 0 0"
+	"mins"				"-11 -11 -11"
+	"maxs"				"11 11 11"
+	"modelscale"			"1"
+	"health"			"0"
+	"detonate_on_fuse"		"0"
+	"detonate_on_death"		"0"
+	"detonate_on_world"		"1"
+	"detonate_on_actor"		"1"
+	"impact_damage_effect"		"1"
+}
+
+entityDef projectile_juliet_mid
+{
+	"inherit"		"projectile_juliet_orb"
+	"def_damage"		"damage_julietMid"
+	"velocity"		"700"
+	"fuse"			"1.2"
+}
+
+entityDef projectile_juliet_near
+{
+	"inherit"		"projectile_juliet_orb"
+	"def_damage"		"damage_julietNear"
+	"velocity"		"400"
+	"modelscale"		"1.75"
+	"fuse"			"1.6"
+}
+
+entityDef projectile_juliet_full
+{
+	"inherit"		"projectile_juliet_orb"
+	"def_damage"		"damage_julietFull"
+	"velocity"		"180"
+	"modelscale"		"2"
+	"fuse"			"2.0"
+}

@@ -49,6 +49,9 @@ ssqccore.txt
 *_x86*
 *_x64*
 *.dll
+!vorbisfile.dll
+!libvorbis-0.dll
+!libogg-0.dll
 
 # Known Games and Mods
 #

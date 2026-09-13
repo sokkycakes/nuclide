@@ -39,6 +39,7 @@ Util_SharedPrecaches(void)
 	precache.Entity("hero_angel");
 	precache.Entity("hero_motionblue");
 	precache.Entity("hero_archstiletto");
+	precache.Entity("hero_juliet");
 }
 
 /* =========================================================================
@@ -84,6 +85,7 @@ Hero_RegisterRoster(int teamNum)
 	teams.AddClass(teamNum, "hero_angel");
 	teams.AddClass(teamNum, "hero_motionblue");
 	teams.AddClass(teamNum, "hero_archstiletto");
+	teams.AddClass(teamNum, "hero_juliet");
 }
 
 /** Returns true if heroID is part of the given team's registered roster. */
@@ -243,4 +245,40 @@ bool
 Hero_TrySelect(entity pl, string heroID)
 {
 	return (Hero_TrySelectEx(pl, heroID, true));
+}
+
+/** Accepts hero_juliet or juliet. */
+string
+Hero_NormalizeID(string heroID)
+{
+	if (!STRING_SET(heroID)) {
+		return ("");
+	}
+
+	if (substring(heroID, 0, 5) == "hero_") {
+		return (heroID);
+	}
+
+	return (strcat("hero_", heroID));
+}
+
+/** Dev/console hero swap: always applies immediately (ignores duel menu deferral). */
+bool
+Hero_HandleClientCommand(entity pl, string command)
+{
+	tokenize(command);
+
+	switch (argv(0)) {
+	case "changehero": {
+		string heroID = Hero_NormalizeID(argv(1));
+
+		if (teams.Valid((int)pl.team) == false) {
+			ents.Input(pl, "SetTeam", "1", pl);
+		}
+
+		return (Hero_TrySelectEx(pl, heroID, true));
+	}
+	default:
+		return (false);
+	}
 }

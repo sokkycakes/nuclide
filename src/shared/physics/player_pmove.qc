@@ -581,6 +581,7 @@ ncPlayer::Physics_InputPostMove(void)
 	m_timeUntilNextAttack = max(0, m_timeUntilNextAttack - input_timelength);
 	m_timeUntilReloaded = max(0, m_timeUntilReloaded - input_timelength);
 	m_timeUntilNextIdle = max(0, m_timeUntilNextIdle - input_timelength);
+	m_heroMeleeHolster = max(0, m_heroMeleeHolster - input_timelength);
 	m_weaponAnimTime += input_timelength;
 
 	Physics_InputSprint();
@@ -637,11 +638,19 @@ ncPlayer::Physics_Run(void)
 	saved_input_buttons = input_buttons;
 
 	Stiletto_OnPhysicsStart(this);
+	Juliet_ChargePMove(this);
 
 	Stiletto_Grapple_CheckFlyingMiss(this);
 
+	/* Hit / punish must drop the rope even while RMB is still held. Shared so
+	 * CSQC prediction stops pulling instead of waiting on a snapshot. */
+	if (m_stilettoPunishState != STILETTO_PUNISH_NONE) {
+		Grapple_BreakFromHit(this);
+	}
+
 #ifdef SERVER
-	if (!(input_buttons & INPUT_PRIMARY) && !m_stilettoGrappleActionHeld) {
+	if (m_stilettoPunishState == STILETTO_PUNISH_NONE
+	    && !(input_buttons & INPUT_PRIMARY) && !m_stilettoGrappleActionHeld) {
 		if (m_pmoveHookVelocity != g_vec_null) {
 			Stiletto_GrappleHop(this);
 			Grapple_Clear(this);
@@ -709,12 +718,18 @@ ncPlayer::Physics_Run(void)
 	 * step uses near-zero friction while sliding. */
 	Slide_OnPhysicsStart(this);
 
-	if (autocvar(pm_enginepmove, 0) > 0) {
-		/* fast engine-side player physics */
-		runstandardplayerphysics(this);
-	} else {
-		/* QuakeC powered physics (slow, but more customizable) */
-		PMoveCustom_RunPlayerPhysics(this);
+	{
+		float savedWorldGrav = g_pmoveVars.g_gravity;
+
+		if (m_pmoveVars && m_pmoveVars.pm_gravity > 0.0f) {
+			g_pmoveVars.g_gravity = m_pmoveVars.pm_gravity;
+		}
+		if (autocvar(pm_enginepmove, 0) > 0) {
+			runstandardplayerphysics(this);
+		} else {
+			PMoveCustom_RunPlayerPhysics(this);
+		}
+		g_pmoveVars.g_gravity = savedWorldGrav;
 	}
 
 	/* Slide post-physics: apply slope projection or flat-ground drag. */
@@ -729,8 +744,9 @@ ncPlayer::Physics_Run(void)
 	Stiletto_UpdateWallState(this, saved_input_movevalues);
 	Stiletto_WallSlidePostMove(this);
 
-	/* Pull only after Grapple_Touch latches (m_pmoveHookVelocity); flying m_hook must not yank the player. */
-	if (m_pmoveHookVelocity != g_vec_null) {
+	/* Pull only after Grapple_Touch latches (m_pmoveHookVelocity); flying m_hook must not yank the player.
+	 * Tool punish drops the hook; skip pull if a stale latch snapshot is still here. */
+	if (m_pmoveHookVelocity != g_vec_null && m_stilettoPunishState == STILETTO_PUNISH_NONE) {
 		vector pull = m_pmoveHookVelocity - origin;
 		float dist = vlen(pull);
 		float pullSpeed = Stiletto_GrapplePullSpeed();

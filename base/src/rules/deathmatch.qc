@@ -122,7 +122,7 @@ CodeCallback_ClientCommand(entity playerEntity, string command)
 	switch (argv(0)) {
 	case "selecthero": {
 		/* capture the id before any helper re-tokenizes (shared.qc) */
-		string heroID = argv(1);
+		string heroID = Hero_NormalizeID(argv(1));
 
 		/* anchor roster lookups on team 1 if not assigned yet */
 		if (teams.Valid((int)playerEntity.team) == false) {
@@ -133,6 +133,9 @@ CodeCallback_ClientCommand(entity playerEntity, string command)
 		return (true);
 	}
 	default:
+		if (Hero_HandleClientCommand(playerEntity, command)) {
+			return (true);
+		}
 		return (false);
 	}
 

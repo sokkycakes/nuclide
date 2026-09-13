@@ -1,5 +1,5 @@
 // Angel primary: sniper. Prototype cadence (1.5s fire, 2.75s reload).
-// 2 damage hitscan. Flechette/triangle-detonation secondary and the Drive
+// 3 damage hitscan. Flechette/triangle-detonation secondary and the Drive
 // gauge are deferred (prototype scene partially disabled them anyway).
 entityDef weapon_angel_sniper
 {
@@ -56,7 +56,7 @@ entityDef fireInfo_angelPrimary
 entityDef projectile_angel
 {
 	"inherit"			"projectile_bullet_base"
-	"damage"			"2"
+	"damage"			"3"
 	"hitscans"			"1"
 	"range"				"16384"
 	"spread"			"0 0"

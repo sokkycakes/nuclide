@@ -1,0 +1,10 @@
+[
+  {
+    "path": "plugins/webcore/webcore.c",
+    "sha256": "6e465cb5c309234325b866bcfea145a1e00aa0627ff5bce3c6ecdc3f4a10d280"
+  },
+  {
+    "path": "engine/common/lobby_transport.c",
+    "sha256": "3eefd574a67118c93017e1f49b1d06108c0c76691b7cc3d56090baa414a6c9c1"
+  }
+]

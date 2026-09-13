@@ -37,6 +37,7 @@ game/Client.qc
 game/Spectator.qc
 physics/pmove_custom.qc
 physics/stiletto_tuning.qc
+game/WeaponJuliet.qc
 physics/stiletto_combat.qc
 physics/goomba_stomp.qc
 physics/stiletto_pred_replay.qc

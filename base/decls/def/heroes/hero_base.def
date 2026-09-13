@@ -42,7 +42,9 @@ entityDef hero_base
 	"hero_tool"				"grapple"
 
 	"hero_guard_action"		"shield"
+	"hero_guard_hp"			"2"
 	"hero_weapon_modes"		"1"
+	"groove_type"			"ex"
 	"groove_drive_max"		"1000"
 	"groove_ex_max"			"3"
 	"groove_normal_action_z"	"drive_pulse"

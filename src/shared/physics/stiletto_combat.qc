@@ -6,8 +6,10 @@
  *   - Health pacing (player_health.gd): a hit grants a short invulnerability
  *     window, and going long enough without taking damage heals to full.
  *   - Tool punish (punish_state_machine.gd): getting hit while airborne and
- *     mid air-dodge / air-stall / recent-kickback kills horizontal control for
- *     the rest of the fall, then lands the hero in a stun + sluggish recovery.
+ *     mid air-dodge / air-stall / RMB movement tool (grapple, lunge, warpknife)
+ *     kills horizontal control for the rest of the fall, then lands the hero
+ *     in a stun + sluggish recovery. Grapple is dropped so the rope cannot
+ *     yank out of the landing stun.
  *   - Archstiletto: a super-armor buffer absorbs the first chunk of damage
  *     before any punish applies; once spent, the punish PRESERVES trajectory
  *     (no velocity-zero / straight-down) but still locks control until landing.
@@ -27,7 +29,7 @@
 #define STILETTO_PUNISH_STUN		1.0f	/* full movement lock on landing */
 #define STILETTO_PUNISH_RECOVER		1.0f	/* accel ramp after the stun */
 #define STILETTO_PUNISH_ACCEL_MIN	0.30f	/* control at the start of recovery */
-#define STILETTO_TOOL_WINDOW		0.35f	/* "tool active" grace after an air-dodge */
+#define STILETTO_TOOL_WINDOW		1.5f	/* grace after dodge/stall/grapple/lunge; stall itself is only 0.2s */
 
 #define STILETTO_ARCH_SUPERARMOR	2.0f	/* HP absorbed before Arch is punishable */
 
@@ -77,6 +79,20 @@ Stiletto_Combat_MoveScale(entity e)
 
 	t = 1.0f - (pl.m_stilettoPunishTime / STILETTO_PUNISH_RECOVER);
 	return (STILETTO_PUNISH_ACCEL_MIN + (1.0f - STILETTO_PUNISH_ACCEL_MIN) * t);
+}
+
+/** Stamp the post-tool punish window. Air stall lasts 0.2s; a hit after it
+ * still counts as mid-tool until this expires. */
+void
+Stiletto_Combat_MarkTool(entity e)
+{
+	ncPlayer pl = (ncPlayer)e;
+
+	if (!is.Player(pl)) {
+		return;
+	}
+
+	pl.m_stilettoToolPunishUntil = time + STILETTO_TOOL_WINDOW;
 }
 
 /** Per-frame, BEFORE physics integration. Kills horizontal velocity while a
@@ -173,35 +189,52 @@ Stiletto_Combat_StampDamage(entity e)
 
 	pl.m_stilettoLastDamageTime = time;
 	pl.m_stilettoInvulnEnd = time + STILETTO_IFRAME_TIME;
+	/* Any HP hit drops the rope, even if punish did not start (grounded,
+	 * early-out, Arch buffer). Holding RMB must not keep the latch. */
+	Grapple_BreakFromHit(pl);
 }
 
-/** Decide whether a hit triggers a tool punish. Only fires when the hero is
- * airborne AND mid air-dodge / air-stall / recent-kickback. Archstiletto first
- * burns a super-armor buffer, then takes a trajectory-preserving punish. */
+/** Decide whether a hit triggers a tool punish. Fires when the hero is
+ * airborne mid air-dodge / air-stall, or using the RMB movement tool
+ * (grapple / lunge / warpknife). Hooked heroes count even if they brush
+ * the floor. Archstiletto first burns a super-armor buffer, then takes a
+ * trajectory-preserving punish. */
 void
 Stiletto_Combat_OnDamaged(entity e, float dmg)
 {
 	ncPlayer pl = (ncPlayer)e;
+	ncActor act;
 	bool airborne;
+	bool hooked;
 	bool toolActive;
 
 	if (!is.Player(pl)) {
 		return;
 	}
 
-	airborne = !(pl.flags & FL_ONGROUND);
+	act = (ncActor)pl;
+	airborne = !(pl.flags & FL_ONGROUND)
+	    || (pl.m_stilettoAirTime > 0.0f)
+	    || (pl.velocity[2] < -40.0f);
+	hooked = (pl.m_pmoveHookVelocity != g_vec_null)
+	    || (act.m_hook != __NULL__);
 
-	/* "tool active" = mid air-stall, or an air-dodge/air-stall charge already
-	 * spent this airtime (charges refill on the ground, so a spent charge means
-	 * the hero used the tool during this jump). Kickback joins this list when it
-	 * ships; the exact window is a flagged playtest item. */
+	/* Live tool, or the post-tool grace (stall itself is only 0.2s). Spent
+	 * dodge/stall charges still count for the rest of the jump. */
 	toolActive = (pl.m_stilettoAirStallTime > 0.0f)
+	    || (time < pl.m_stilettoToolPunishUntil)
 	    || (pl.m_stilettoAirDodgeCharges < STILETTO_MAX_AIR_DODGES)
 	    || (pl.m_stilettoAirStallCharges < STILETTO_MAX_AIR_STALLS)
-	    || (pl.m_stilettoLungeFlight != 0);
+	    || (pl.m_stilettoLungeFlight != 0)
+	    || (pl.m_stilettoGrappleActionHeld != 0)
+	    || (input_buttons & INPUT_HERO_TOOL)
+	    || hooked
+	    || pl.m_heroToolHeld;
 
-	/* only being hit mid-air-tool is punishable */
-	if (!airborne || !toolActive) {
+	if (!toolActive) {
+		return;
+	}
+	if (!airborne && !hooked) {
 		return;
 	}
 
@@ -223,7 +256,13 @@ Stiletto_Combat_OnDamaged(entity e, float dmg)
 	} else {
 		pl.m_stilettoPunishState = STILETTO_PUNISH_STANDARD;
 		pl.m_stilettoPunishTime = 0.0f;
+		/* Full stop, then gravity. Keeping leftover Z looked like a
+		 * downward shove and skipped the "redirect then fall" feel. */
+		pl.velocity = g_vec_null;
+		pl.RemoveFlags(FL_ONGROUND);
 	}
+
+	pl.SendFlags |= (PLAYER_VELOCITY | PLAYER_STILETTO | PLAYER_FLAGS);
 }
 
 /** Reset all combat-reaction state on (re)spawn and read the Arch flag from the
@@ -238,6 +277,7 @@ Stiletto_Combat_Respawn(entity e)
 	pl.m_stilettoArchBuffer = 0.0f;
 	pl.m_stilettoPunishState = STILETTO_PUNISH_NONE;
 	pl.m_stilettoPunishTime = 0.0f;
+	pl.m_stilettoToolPunishUntil = 0.0f;
 	Stiletto_Lunge_Clear(pl);
 
 	/* Arch flag from the def, with a declclass fallback in case the spawn-key

@@ -69,6 +69,9 @@ of type ncPlayer.
 - "act_walk_prone" : Animation to play when moving while prone.
 - "act_run" : Animation to play when running.
 - "act_jump" : Animation to play when jumping in the air.
+- "act_charge" : Full-body pose while holding a stored charge on the ground.
+- "act_charge_air" : Same pose while airborne; landing switches to act_charge.
+- "act_charge_dodge" : Full-body pose while dodge-cancelling a stored charge.
 - "act_swim" : Animation to play when swimming underwater.
 - "act_treadwater" : Animation to play when treading through water.
 - "act_aim" : Torso animation to play when standing still, aiming your gun.
@@ -287,6 +290,8 @@ private:
 	NETWORKED_FLOAT(m_timeUntilNextAttack)
 	NETWORKED_FLOAT(m_timeUntilNextIdle)
 	NETWORKED_FLOAT(m_timeUntilReloaded)
+	/* Countdown: hide active-weapon viewmodel + block gun while > 0 (hero ALT melee). */
+	NETWORKED_FLOAT(m_heroMeleeHolster)
 	NETWORKED_FLOAT(m_timeSinceJump)
 	NETWORKED_FLOAT(m_timeSinceTeleport)
 	NETWORKED_VECTOR(m_punchAngle)
@@ -316,6 +321,12 @@ private:
 	NETWORKED_FLOAT(m_stilettoWallJumpCooldown)
 	NETWORKED_FLOAT(m_stilettoAirDodgeCharges)
 	NETWORKED_FLOAT(m_stilettoAirStallCharges)
+	NETWORKED_FLOAT(m_stilettoDoubleJumpCharges)
+	NETWORKED_FLOAT(m_julietChargeLevel)
+	NETWORKED_INT(m_julietCharging)
+	NETWORKED_FLOAT(m_julietDashRecovery)
+	/* 1 = ignore held move until stick returns to neutral (dodge needs re-press). */
+	NETWORKED_INT(m_julietMoveLatch)
 	NETWORKED_FLOAT(m_stilettoAirStallTime)
 	NETWORKED_VECTOR(m_stilettoDashAddVel)
 	NETWORKED_FLOAT(m_stilettoParryTime)
@@ -325,6 +336,8 @@ private:
 	/* Goomba stomp (server-only timing; not networked). */
 	float m_goombaFallSpeed;
 	float m_goombaStompSoundTime;
+	/* Wall-clock stamp: hit before this still counts as mid-tool. */
+	float m_stilettoToolPunishUntil;
 
 	/* combat-reaction (stiletto_combat.qc): networked so the shared
 	 * Physics_Run punish movement-lock predicts identically client+server. */
@@ -344,6 +357,9 @@ private:
 	/* Hero actions / Groove (PLAYER_HERO_ACTIONS). */
 	NETWORKED_INT(m_heroGuardState)
 	NETWORKED_INT(m_heroWeaponMode)
+	NETWORKED_INT(m_heroGrooveType)
+	NETWORKED_INT(m_heroGuardHP)
+	NETWORKED_INT(m_heroGuardHPMax)
 	NETWORKED_INT(m_drive)
 	NETWORKED_INT(m_driveMax)
 	NETWORKED_INT(m_ex)

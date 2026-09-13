@@ -1,5 +1,5 @@
 // Beaumont primary: fast revolver. Prototype cadence (0.07s fire, 10-round
-// clip). 2 damage per bullet (the prototype scene's 25 is intentionally
+// clip). 3 damage per bullet (the prototype scene's 25 is intentionally
 // overridden -- 4 HP roster).
 entityDef weapon_beaumont_revolver
 {
@@ -56,7 +56,7 @@ entityDef fireInfo_beaumontPrimary
 entityDef projectile_beaumont
 {
 	"inherit"			"projectile_bullet_base"
-	"damage"			"2"
+	"damage"			"3"
 	"hitscans"			"1"
 	"range"				"8192"
 	"spread"			"0.005 0.005"

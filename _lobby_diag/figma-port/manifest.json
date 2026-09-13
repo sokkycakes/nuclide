@@ -1,0 +1,18 @@
+[
+  {
+    "path": "engine/common/lobby_session.c",
+    "sha256": "81fff63d44898f4c10ce4c5fab500d453c47b88b16c3f7f1e7e4b1d60c013fa1"
+  },
+  {
+    "path": "engine/common/lobby_transport.c",
+    "sha256": "305ca4de9db474bcb2d4b9957a1fb0066db77e4bcef2e20976fb02c7b9b5e7af"
+  },
+  {
+    "path": "plugins/webcore/webcore.c",
+    "sha256": "9274d057a352c6f31717331e9d58b2f78bd9fbe0e6836e3450b1d4de4cca1a4f"
+  },
+  {
+    "path": "plugins/webcore/tests/webcore_plugin_test.c",
+    "sha256": "cc62cacb38b370f196aed180b17b1acb23cbba4cd46654595fb5f20e4dd5c577"
+  }
+]

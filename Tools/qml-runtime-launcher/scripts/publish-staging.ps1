@@ -86,6 +86,14 @@ if (-not (Test-Path (Join-Path $DropRoot "fteqw64.exe") -PathType Leaf)) {
 if (-not (Test-Path (Join-Path $DropRoot "base\progs.dat") -PathType Leaf)) {
     throw "missing base/progs.dat in playtest drop at $DropRoot"
 }
+if ((Test-Path (Join-Path $DropRoot "vorbisfile.dll") -PathType Leaf) -or
+    (Test-Path (Join-Path $DropRoot "base\music\menu_boot.ogg") -PathType Leaf)) {
+    foreach ($dependency in @("vorbisfile.dll", "libogg-0.dll", "libvorbis-0.dll")) {
+        if (-not (Test-Path (Join-Path $DropRoot $dependency) -PathType Leaf)) {
+            throw "Ogg audio requires $dependency in the playtest drop at $DropRoot"
+        }
+    }
+}
 
 function ConvertTo-EncodedRelativePath([string]$Path) {
     return (($Path -split '[\\/]') | ForEach-Object { [Uri]::EscapeDataString($_) }) -join "/"

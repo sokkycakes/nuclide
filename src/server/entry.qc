@@ -570,7 +570,11 @@ initents(void)
 
 	BodyQue_Init();
 
+	/* EntityDef_Precaches no-ops while this flag is true. Drop it so
+	 * player.def snd_* / model keys actually land in the precache tables. */
+	g_ents_initialized = false;
 	precache.Entity("player");
+	g_ents_initialized = true;
 
 	RuleC_Init();
 	currentRule.LinkProgs();

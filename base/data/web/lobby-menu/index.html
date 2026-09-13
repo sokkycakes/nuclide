@@ -4,100 +4,10 @@
   <meta charset="utf-8">
   <title>Game Lobby</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="style.css?v=8">
+  <link rel="stylesheet" href="style.css?v=18">
 </head>
 <body>
-  <!--
-    Reduced basemod GameLobby (WT_GAMELOBBY / GameLobby.res).
-    click-shield lives INSIDE the panel stacking context so .hybrid-btn
-    (z-index 2) can receive clicks above it. ftewebcore crashes on
-    mouse-press text selection; only <button> hit targets are safe.
-  -->
-  <div id="app">
-    <footer id="footer-panel" class="footer-panel" aria-label="Footer hints">
-      <span data-btn="A" id="footer-a">Select</span>
-      <span data-btn="B" id="footer-b">Leave</span>
-      <span data-btn="X" id="footer-x" class="hidden">Host</span>
-    </footer>
-
-    <section id="view-gamelobby" class="panel view" data-wt="WT_GAMELOBBY" data-res="GameLobby.res">
-      <button type="button" class="click-shield" id="ClickShield" tabindex="-1" aria-hidden="true"></button>
-
-      <header class="garnish-top">
-        <span class="garnish-label">Game Lobby</span>
-        <span class="garnish-minor" id="LblLeaderLine">Waiting…</span>
-      </header>
-
-      <div class="panel-body lobby-layout">
-        <div class="lobby-left">
-          <div class="poster" id="ImgLevelImage">Map</div>
-          <div class="summary-lines">
-            <div id="LblSummaryLine0" class="summary-line">—</div>
-            <div id="LblSummaryLine1" class="summary-line">—</div>
-            <div id="LblSummaryLine2" class="summary-line">—</div>
-          </div>
-          <div class="dropdown-row" id="DrpGameAccess">
-            <span class="dropdown-row__label">Access</span>
-            <span id="LblGameAccess" class="label-block">LAN / Online</span>
-          </div>
-          <button type="button" class="hybrid-btn hidden" id="BtnChangeMap">Change Game Settings</button>
-          <div id="CountdownLine" class="summary-line countdown-line hidden" aria-live="off"></div>
-          <div id="StatusLine" class="status-line" aria-live="off"></div>
-        </div>
-
-        <div class="lobby-right">
-          <div class="block-title">PlayersList</div>
-          <div class="player-list" id="PlayersList" aria-label="Players"></div>
-          <div class="spinner hidden" id="WorkingAnim">Working…</div>
-        </div>
-      </div>
-
-      <div class="action-row">
-        <button type="button" class="hybrid-btn primary" id="BtnStartGame">Start Game</button>
-        <button type="button" class="hybrid-btn" id="BtnReady">Ready</button>
-        <button type="button" class="hybrid-btn hidden" id="BtnCancel">Cancel</button>
-        <button type="button" class="hybrid-btn" id="BtnLeaveLobby" data-cmd="LeaveLobby">Leave Lobby</button>
-      </div>
-      <footer class="garnish-bottom"></footer>
-    </section>
-
-    <section id="view-settings" class="panel view settings-view hidden" data-wt="WT_GAMESETTINGS" aria-hidden="true">
-      <button type="button" class="click-shield" tabindex="-1" aria-hidden="true"></button>
-      <header class="garnish-top">
-        <span class="garnish-label">Game Settings</span>
-        <span class="garnish-minor">Lobby configuration</span>
-      </header>
-      <div class="panel-body settings-layout">
-        <div class="settings-copy">
-          <div class="block-title">Map</div>
-          <div class="settings-help">Choose the map for this lobby. The session remains authoritative and updates the lobby after selection.</div>
-        </div>
-        <div class="settings-list" id="MapChoices" role="listbox" aria-label="Available maps">
-          <button type="button" class="hybrid-btn map-choice" data-map="envtest" role="option">Env Test</button>
-          <button type="button" class="hybrid-btn map-choice" data-map="lean" role="option">Lean Test</button>
-          <button type="button" class="hybrid-btn map-choice" data-map="arch_testbed" role="option">Arch Testbed</button>
-          <button type="button" class="hybrid-btn map-choice" data-map="arch_crux_test" role="option">Arch Crux Test</button>
-        </div>
-      </div>
-      <div class="action-row">
-        <button type="button" class="hybrid-btn" id="BtnSettingsBack">Back</button>
-      </div>
-      <footer class="garnish-bottom"></footer>
-    </section>
-
-    <section id="LeaveConfirm" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="LeaveConfirmTitle" aria-hidden="true">
-      <button type="button" class="modal-backdrop" id="LeaveConfirmBackdrop" tabindex="-1" aria-label="Cancel leave"></button>
-      <div class="modal-panel">
-        <div class="panel-bm__head" id="LeaveConfirmTitle">Leave Lobby?</div>
-        <div class="modal-body">Your current lobby session will be closed locally.</div>
-        <div class="action-row modal-actions">
-          <button type="button" class="hybrid-btn primary" id="BtnConfirmLeave">Leave Lobby</button>
-          <button type="button" class="hybrid-btn" id="BtnCancelLeave">Stay</button>
-        </div>
-      </div>
-    </section>
-  </div>
-  <script src="interaction.js?v=1"></script>
-  <script src="app.js?v=8"></script>
+  <div id="app"></div>
+  <script src="app.js?v=15"></script>
 </body>
 </html>

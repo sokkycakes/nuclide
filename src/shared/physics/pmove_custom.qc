@@ -34,15 +34,17 @@ PMoveCustom_Contents(vector org)
 	return trace_endcontentsi;
 }
 
-/* used for trigger_gravity type entities */
+/* Live accel is per-player pm_gravity (copied onto g_pmoveVars.g_gravity
+ * for this physics step). entity.gravity stays the stall/dash/cling scale. */
 float
 PMoveCustom_Gravity(entity ent)
 {
+	float accel = g_pmoveVars.g_gravity;
+
 	if (ent.gravity) {
-		return g_pmoveVars.g_gravity * ent.gravity;
-	} else {
-		return g_pmoveVars.g_gravity;
+		return accel * ent.gravity;
 	}
+	return accel;
 }
 
 /* figure out where we are in the geometry. void, solid, liquid, etc. */

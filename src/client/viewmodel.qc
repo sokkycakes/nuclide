@@ -241,6 +241,11 @@ View_DrawViewModel(void)
 	if (!pl)
 		return;
 
+	/* Hero ALT melee holsters the held gun viewmodel for fireRate. */
+	if (pl.m_heroMeleeHolster > 0.0f) {
+		return;
+	}
+
 	/* The player reference may precede the active weapon's CSQC spawnfunc.
 	 * Bail before any weapon field or entityDef lookup is dereferenced. */
 	if (!pl.m_activeWeapon || wasfreed(pl.m_activeWeapon)

@@ -833,6 +833,38 @@ ncSoundScape::DebugDraw(void)
 }
 
 var bool autocvar_s_al_use_reverb = true;
+ncSoundScape g_efxConsolePreset;
+ncSoundScape g_efxLastScape;
+bool g_efxConsolePresetActive;
+
+bool
+EFX_SetConsolePreset(string presetName)
+{
+	reverbinfo_t reverbInfo;
+
+	if (!g_efxConsolePreset) {
+		g_efxConsolePreset = spawn(ncSoundScape);
+		/* This is an audition-only object, never a map soundscape candidate. */
+		g_efxConsolePreset.classname = "__console_reverb";
+	}
+
+	if (!g_efxConsolePreset.LoadFromEFX(presetName)) {
+		return (false);
+	}
+
+	g_efxConsolePresetActive = true;
+	g_efxConsolePreset.SetupEFXReverb(&reverbInfo);
+	setup_reverb(12, &reverbInfo, sizeof(reverbinfo_t));
+	return (true);
+}
+
+void
+EFX_ClearConsolePreset(void)
+{
+	g_efxConsolePresetActive = false;
+	/* Make the next listener update select and apply the map's effect anew. */
+	g_efxLastScape = __NULL__;
+}
 
 void
 EFX_UpdateSoundScape(ncSoundScape scape)
@@ -852,23 +884,21 @@ EFX_UpdateSoundScape(ncSoundScape scape)
 void
 EFX_UpdateListener(ncView playerView)
 {
-	static ncSoundScape lastScape;
 	vector camPos = playerView.GetCameraOrigin();
 	vector camAngle = playerView.GetCameraAngle();
 	ncSoundScape bestScape = __NULL__;
 	float bestDistance = 999999.0f;
 
-	if (lastScape) {
-	//	printf("%s: %v: %v; %v\n", lastScape.classname, lastScape.origin, camPos, camAngle);
-		makevectors(camAngle);
+	makevectors(camAngle);
+
+	/* `reverb <preset>` intentionally takes priority over map-authored zones. */
+	if (g_efxConsolePresetActive) {
 		SetListener(camPos, v_forward, v_right, v_up, 12);
-	} else {
-		//printf("%v; %v\n", camPos, camAngle);
-		makevectors(camAngle);
-		SetListener(camPos, v_forward, v_right, v_up, 0);
+		return;
 	}
 
 	if (autocvar_s_al_use_reverb == false) {
+		SetListener(camPos, v_forward, v_right, v_up, 0);
 		return;
 	}
 
@@ -898,17 +928,19 @@ EFX_UpdateListener(ncView playerView)
 
 	/* no valid scape found. */
 	if (bestScape == __NULL__) {
+		g_efxLastScape = __NULL__;
+		SetListener(camPos, v_forward, v_right, v_up, 0);
 		return;
 	}
 
 	/* same as last time. */
-	if (lastScape == bestScape) {
-		return;
+	if (g_efxLastScape != bestScape) {
+		//ncError("Soundscape changed to %v", bestScape.GetOrigin());
+		playerView.SetSoundScape(bestScape);
+		EFX_UpdateSoundScape(bestScape);
+		g_efxLastScape = bestScape;
 	}
 
-	//ncError("Soundscape changed to %v", bestScape.GetOrigin());
-	playerView.SetSoundScape(bestScape);
-	EFX_UpdateSoundScape(bestScape);
-	lastScape = bestScape;
+	SetListener(camPos, v_forward, v_right, v_up, 12);
 }
 #endif

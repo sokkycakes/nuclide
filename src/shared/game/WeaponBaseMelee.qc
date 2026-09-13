@@ -19,6 +19,7 @@
  *   "melee_cleave"         enable multi-target (default 0)
  *   "melee_damage"         damage per hit (may use skill: prefix)
  *   "melee_push"           push / knockback force
+ *   "melee_hit_delay"      seconds before DoSwingTrace (default 0)
  *
  * Parent keys that still apply:
  *   "testDistance"   must be 0 for TF2-style swings (see above)
@@ -95,13 +96,24 @@ ncWeaponBaseMelee::PrimaryAttack(void)
 		p.StartSoundDef(snd, CHAN_WEAPON, true);
 	}
 
-	FiredWeaponAttack("");
+	/* Animation/sound start now; optional windup before the hit trace. */
+	float hitDelay = GetDefFloat("melee_hit_delay");
+	if (hitDelay > 0.0f) {
+		ncTimer::TemporaryTimer(this, _MeleeHitThink, hitDelay, false);
+	} else {
+		FiredWeaponAttack("");
+	}
 
 	rate = GetDefFloat("fireRate");
 	if (rate <= 0) {
 		rate = 0.5;
 	}
 	SetAttackNext(rate);
+
+	/* ALT melee has no viewmodel — hide the held gun for the swing duration. */
+	if (!m_viewModel) {
+		p.m_heroMeleeHolster = rate;
+	}
 
 	/* Viewmodel swing when this melee *is* the held weapon (Arch axe). */
 	if (m_viewModel) {
@@ -157,6 +169,12 @@ ncWeaponBaseMelee::FiredWeaponAttack(string fireInfo)
 
 	/* do the melee swing — replaces the projectile spawn */
 	DoSwingTrace();
+}
+
+void
+ncWeaponBaseMelee::_MeleeHitThink(void)
+{
+	FiredWeaponAttack("");
 }
 
 float

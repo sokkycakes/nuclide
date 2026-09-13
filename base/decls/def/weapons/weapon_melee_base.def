@@ -16,6 +16,8 @@ entityDef weapon_melee_base
 	"melee_cleave"			"0"
 	"melee_damage"			"20"
 	"melee_push"			"100"
+	/* Seconds after swing start before DoSwingTrace runs (0 = immediate). */
+	"melee_hit_delay"		"0"
 
 	// ---- Deflect / cut (opt-in) ----
 	"can_cut"				"0"

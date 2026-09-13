@@ -89,7 +89,12 @@ Stiletto_PredReplayCheck(entity e)
 	float snapWallCd;
 	float snapDodge;
 	float snapStallCh;
+	float snapDouble;
 	float snapSeq;
+	float snapJulietLevel;
+	int snapJulietCharging;
+	float snapJulietDash;
+	int snapJulietLatch;
 	vector aOrigin;
 	vector aVel;
 	int aFlags;
@@ -150,7 +155,12 @@ Stiletto_PredReplayCheck(entity e)
 	snapWallCd = pl.m_stilettoWallJumpCooldown;
 	snapDodge = pl.m_stilettoAirDodgeCharges;
 	snapStallCh = pl.m_stilettoAirStallCharges;
+	snapDouble = pl.m_stilettoDoubleJumpCharges;
 	snapSeq = pl.m_stilettoLungeSeqStrength;
+	snapJulietLevel = pl.m_julietChargeLevel;
+	snapJulietCharging = pl.m_julietCharging;
+	snapJulietDash = pl.m_julietDashRecovery;
+	snapJulietLatch = pl.m_julietMoveLatch;
 
 	toolBtn = 0;
 	tool = pl.GetDefString("hero_tool");
@@ -200,7 +210,12 @@ Stiletto_PredReplayCheck(entity e)
 		pl.m_stilettoWallJumpCooldown = snapWallCd;
 		pl.m_stilettoAirDodgeCharges = snapDodge;
 		pl.m_stilettoAirStallCharges = snapStallCh;
+		pl.m_stilettoDoubleJumpCharges = snapDouble;
 		pl.m_stilettoLungeSeqStrength = snapSeq;
+		pl.m_julietChargeLevel = snapJulietLevel;
+		pl.m_julietCharging = snapJulietCharging;
+		pl.m_julietDashRecovery = snapJulietDash;
+		pl.m_julietMoveLatch = snapJulietLatch;
 
 		Stiletto_PredReplay_RunQueued(pl, snapAng, toolBtn);
 	}
@@ -278,7 +293,12 @@ Stiletto_PredReplayCheck(entity e)
 	pl.m_stilettoWallJumpCooldown = snapWallCd;
 	pl.m_stilettoAirDodgeCharges = snapDodge;
 	pl.m_stilettoAirStallCharges = snapStallCh;
+	pl.m_stilettoDoubleJumpCharges = snapDouble;
 	pl.m_stilettoLungeSeqStrength = snapSeq;
+	pl.m_julietChargeLevel = snapJulietLevel;
+	pl.m_julietCharging = snapJulietCharging;
+	pl.m_julietDashRecovery = snapJulietDash;
+	pl.m_julietMoveLatch = snapJulietLatch;
 
 	input_movevalues = oldMove;
 	input_buttons = oldButtons;

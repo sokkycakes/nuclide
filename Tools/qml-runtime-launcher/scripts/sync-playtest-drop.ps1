@@ -28,7 +28,9 @@ $script:PlaytestRootFiles = @(
     "fontconfig-1.dll",
     "freetype.dll",
     "libexpat.dll",
+    "libogg-0.dll",
     "libpng16.dll",
+    "libvorbis-0.dll",
     "pixman-1-0.dll",
     "vk_swiftshader.dll",
     "vorbisfile.dll",
@@ -102,6 +104,14 @@ function Copy-PlaytestAllowlist {
     }
     if (-not (Test-Path (Join-Path $RepoRoot "base\progs.dat"))) {
         throw "missing base/progs.dat"
+    }
+    if ((Test-Path (Join-Path $RepoRoot "vorbisfile.dll") -PathType Leaf) -or
+        (Test-Path (Join-Path $RepoRoot "base\music\menu_boot.ogg") -PathType Leaf)) {
+        foreach ($dependency in @("vorbisfile.dll", "libogg-0.dll", "libvorbis-0.dll")) {
+            if (-not (Test-Path (Join-Path $RepoRoot $dependency) -PathType Leaf)) {
+                throw "Ogg audio requires $dependency beside the game executable"
+            }
+        }
     }
 
     if (-not (Test-Path $DropRoot)) {

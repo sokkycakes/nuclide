@@ -20,7 +20,10 @@ sfx_impact.tile
 
 sfx_impact.flesh
 {
-	sample weapons/lock4.wav
+	pitch_min 0.92
+	pitch_max 1.08
+	volume 0.8
+	sample weapons/knife-throwhit.ogg
 }
 
 sfx_impact.concrete

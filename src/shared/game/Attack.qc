@@ -42,6 +42,21 @@ Grapple_Clear(entity ent)
 #endif
 	pl.m_pmoveHookVelocity = g_vec_null;
 	pl.m_stilettoGrappleHeld = 0;
+#ifdef SERVER
+	/* Packed on PLAYER_PUNCHANGLE; without this the client keeps pulling
+	 * from the last latched snapshot. */
+	pl.SendFlags |= PLAYER_PUNCHANGLE;
+#endif
+}
+
+void
+Grapple_BreakFromHit(entity ent)
+{
+	ncPlayer pl = (ncPlayer)ent;
+
+	Grapple_Clear(ent);
+	/* Holding RMB must not keep the latch or re-fire until a fresh press. */
+	pl.m_stilettoGrappleActionHeld = 0;
 }
 
 void
@@ -90,7 +105,7 @@ Grapple_Touch(void)
 			return;
 		}
 		ncDict dmg = spawn(ncDict);
-		dmg.AddKey("damage", "18");
+		dmg.AddKey("damage", "1");
 		vict.Damage(pl, pl, dmg, 1.0f, normalize(hit.origin - pl.origin), trace_endpos);
 		remove(dmg);
 		Grapple_Clear(pl);

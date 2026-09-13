@@ -50,6 +50,13 @@
     joinDialog.classList.toggle("is-hidden", !available);
     joinDialog.setAttribute("aria-hidden", available ? "false" : "true");
   }
+
+  function focusJoinField() {
+    var el = document.getElementById("join-addr");
+    if (!el || el.offsetParent === null || typeof el.focus !== "function") return;
+    el.focus();
+    if (typeof el.select === "function") el.select();
+  }
   function setFocusY(index) {
     focusBar.style.setProperty("--focus-y", "calc(100% * " + ITEM_Y[index] + " / " + REF_H + ")");
   }
@@ -72,18 +79,24 @@
     if (playNav !== false) localsound(SND_NAV);
   }
 
-  function openJoin() {
+  function openJoin(create) {
+    document.getElementById("join-title").textContent = create ? "Create Lobby" : "Join Lobby";
+    document.getElementById("create-options").style.display = create ? "block" : "none";
+    Array.prototype.forEach.call(joinDialog.querySelectorAll(".join-lan, .join-addr, .join-code"), function (el) {
+      el.style.display = create ? "none" : "";
+    });
     if (transitioning || joinOpen) return;
     transitioning = true;
     joinOpen = true;
     selectedAddr = null;
     joinConnect.disabled = true;
-    refreshLan();
+    if (!create) refreshLan();
     setTitleHidden(true);
     afterTransition(function () {
       joinDialog.classList.remove("hidden");
       joinDialog.offsetWidth;
       setDialogAvailable(true);
+      if (!create) window.setTimeout(focusJoinField, 0);
       afterTransition(function () { transitioning = false; });
     });
   }
@@ -177,6 +190,10 @@
   function activate() {
     var el = items[selected];
     if (!el || transitioning || joinOpen) return;
+    if (el.getAttribute("data-action") === "create-lobby") {
+      openJoin(true);
+      return;
+    }
     if (el.getAttribute("data-action") === "join-lobby") {
       localsound(SND_OK);
       openJoin();
@@ -206,6 +223,14 @@
     joinConnect.disabled = false;
     localsound(SND_NAV);
   });
+
+  function createLobby(online) {
+    if (cbuf(online ? "lobby_create_online" : "lobby_create_lan")) {
+      cbuf("menu_webcore_lobby");
+    }
+  }
+  document.getElementById("create-online").addEventListener("click", function () { createLobby(true); });
+  document.getElementById("create-lan").addEventListener("click", function () { createLobby(false); });
 
   document.getElementById("join-refresh").addEventListener("click", function () {
     if (!transitioning && joinOpen) refreshLan();

@@ -4,6 +4,10 @@
 
 var bool autocvar_hero_actions_debug = false;
 
+#define HERO_GROOVE_DRIVE 0
+#define HERO_GROOVE_EX    1
+#define HERO_DRIVE_PIP_COST 200
+
 void HeroActions_Reset(entity player);
 void HeroActions_InputFrame(entity player, int currentButtons, int previousButtons);
 void HeroActions_HeroToolPress(entity player);

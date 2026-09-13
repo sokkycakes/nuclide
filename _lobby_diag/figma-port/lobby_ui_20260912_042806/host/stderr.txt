@@ -1,0 +1,152 @@
+[DEBUG-fontload] pump enter sources=1 status=0
+[DEBUG-fontload] pump enter sources=1 status=0
+[DEBUG-fontload] source.load begin
+[DEBUG-fontload] CSSFontFaceSource::load enter request=0000024DE7A511D0
+[DEBUG-fontload] source status loading
+[DEBUG-fontload] beginLoadingFontSoon context=0000024DE7994860
+[DEBUG-fontload] DocumentFontLoader::begin enter stopped=0
+[DEBUG-fontload] font appended
+[DEBUG-fontload] request count incremented
+[DEBUG-fontload] timer scheduled
+[DEBUG-fontload] beginLoadingFontSoon returned
+[DEBUG-fontload] source.load end
+[DEBUG-fontload] pump enter sources=1 status=1
+[DEBUG-fontload] pump enter sources=1 status=1
+[DEBUG-fontload] pump enter sources=1 status=0
+[DEBUG-fontload] pump enter sources=1 status=0
+[DEBUG-fontload] source.load begin
+[DEBUG-fontload] CSSFontFaceSource::load enter request=0000024DE7A52340
+[DEBUG-fontload] source status loading
+[DEBUG-fontload] beginLoadingFontSoon context=0000024DE7994860
+[DEBUG-fontload] DocumentFontLoader::begin enter stopped=0
+[DEBUG-fontload] font appended
+[DEBUG-fontload] request count incremented
+[DEBUG-fontload] timer scheduled
+[DEBUG-fontload] beginLoadingFontSoon returned
+[DEBUG-fontload] source.load end
+[DEBUG-fontload] pump enter sources=1 status=1
+[DEBUG-fontload] pump enter sources=1 status=1
+[DEBUG-fontload] pump enter sources=1 status=1
+[DEBUG-fontload] pump enter sources=1 status=1
+[DEBUG-fontload] pump enter sources=1 status=1
+[DEBUG-fontload] pump enter sources=1 status=1
+[DEBUG-fontload] pump enter sources=1 status=1
+[DEBUG-fontload] pump enter sources=1 status=1
+[DEBUG-fontload] pump enter sources=1 status=1
+[DEBUG-fontload] pump enter sources=1 status=1
+[DEBUG-fontload] pump enter sources=1 status=1
+[DEBUG-fontload] pump enter sources=1 status=1
+[DEBUG-fontload] pump enter sources=1 status=1
+[DEBUG-fontload] pump enter sources=1 status=1
+[DEBUG-fontload] pump enter sources=1 status=1
+[DEBUG-fontload] pump enter sources=1 status=1
+[DEBUG-fontload] pump enter sources=1 status=1
+[DEBUG-fontload] pump enter sources=1 status=1
+[DEBUG-fontload] pump enter sources=1 status=1
+[DEBUG-fontload] pump enter sources=1 status=1
+[DEBUG-fontload] pump enter sources=1 status=1
+[DEBUG-fontload] pump enter sources=1 status=1
+[DEBUG-fontload] pump enter sources=1 status=1
+[DEBUG-fontload] pump enter sources=1 status=1
+[DEBUG-fontload] pump enter sources=1 status=1
+[DEBUG-fontload] pump enter sources=1 status=1
+[DEBUG-fontload] pump enter sources=1 status=1
+[DEBUG-fontload] pump enter sources=1 status=1
+[DEBUG-fontload] pump enter sources=1 status=1
+[DEBUG-fontload] pump enter sources=1 status=1
+[DEBUG-fontload] pump enter sources=1 status=1
+[DEBUG-fontload] pump enter sources=1 status=1
+[DEBUG-fontload] pump enter sources=1 status=1
+[DEBUG-fontload] pump enter sources=1 status=1
+[DEBUG-fontload] pump enter sources=1 status=1
+[DEBUG-fontload] pump enter sources=1 status=1
+[DEBUG-fontload] pump enter sources=1 status=1
+[DEBUG-fontload] pump enter sources=1 status=1
+[DEBUG-fontload] pump enter sources=1 status=1
+[DEBUG-fontload] pump enter sources=1 status=1
+[DEBUG-fontload] pump enter sources=1 status=1
+[DEBUG-fontload] pump enter sources=1 status=1
+[DEBUG-fontload] pump enter sources=1 status=1
+[DEBUG-fontload] pump enter sources=1 status=1
+[DEBUG-fontload] font timer fired
+[DEBUG-fontface] CSSFontFaceSource::fontLoaded m_status=1 error=0
+[DEBUG-fontface] create custom data bytes=46796
+[DEBUG-fontface] renameAndActivateFont resource=0000024DE7864030 nameLength=24
+[DEBUG-fontface] CSSFontFaceSource::fontLoaded new status=2
+[DEBUG-fontload] pump enter sources=1 status=1
+[DEBUG-fontface] CSSFontFaceSource::fontLoaded m_status=1 error=0
+[DEBUG-fontface] create custom data bytes=24540
+[DEBUG-fontface] renameAndActivateFont resource=0000024DE7865D90 nameLength=24
+[DEBUG-fontface] CSSFontFaceSource::fontLoaded new status=2
+[DEBUG-fontload] pump enter sources=1 status=1
+[DEBUG-fontload] pump enter sources=1 status=3
+[DEBUG-fontface] fontPlatformData enter nameLength=24
+[DEBUG-fontface] CreateFontIndirect hfont=FFFFFFFF940A422C error=0
+[DEBUG-fontface] cairo face=000002A61BEB8020 status=0
+[DEBUG-fontface] FontPlatformData ctor enter hfont=FFFFFFFF940A422C face=000002A61BEB8020
+[DEBUG-fontface] cairo_scaled_font_create scaled=000002A61B7F1200 status=0
+[DEBUG-fontface] FontPlatformData constructed scaled=000002A61B7F1200 status=0
+[DEBUG-fontload] pump enter sources=1 status=3
+[DEBUG-fontface] fontPlatformData enter nameLength=24
+[DEBUG-fontface] CreateFontIndirect hfont=00000000340A3560 error=0
+[DEBUG-fontface] cairo face=000002A61BEB7800 status=0
+[DEBUG-fontface] FontPlatformData ctor enter hfont=00000000340A3560 face=000002A61BEB7800
+[DEBUG-fontface] cairo_scaled_font_create scaled=000002A614BDC390 status=0
+[DEBUG-fontface] FontPlatformData constructed scaled=000002A614BDC390 status=0
+[DEBUG-fontload] pump enter sources=1 status=3
+[DEBUG-fontface] fontPlatformData enter nameLength=24
+[DEBUG-fontface] CreateFontIndirect hfont=FFFFFFFFC70A3E3B error=0
+[DEBUG-fontface] cairo face=000002A61BEB7800 status=0
+[DEBUG-fontface] FontPlatformData ctor enter hfont=FFFFFFFFC70A3E3B face=000002A61BEB7800
+[DEBUG-fontface] cairo_scaled_font_create scaled=000002A614BDC390 status=0
+[DEBUG-fontface] FontPlatformData constructed scaled=000002A614BDC390 status=0
+[DEBUG-fontface] CSSFontFaceSource::fontLoaded m_status=0 error=0
+[DEBUG-fontface] CSSFontFaceSource::fontLoaded new status=2
+[DEBUG-fontface] CSSFontFaceSource::fontLoaded m_status=0 error=0
+[DEBUG-fontface] CSSFontFaceSource::fontLoaded new status=2
+[DEBUG-fontload] pump enter sources=1 status=0
+[DEBUG-fontface] fontPlatformData enter nameLength=24
+[DEBUG-fontface] CreateFontIndirect hfont=FFFFFFFFB20A33A3 error=0
+[DEBUG-fontface] cairo face=000002A61BEB8020 status=0
+[DEBUG-fontface] FontPlatformData ctor enter hfont=FFFFFFFFB20A33A3 face=000002A61BEB8020
+[DEBUG-fontface] cairo_scaled_font_create scaled=000002A61B7F1200 status=0
+[DEBUG-fontface] FontPlatformData constructed scaled=000002A61B7F1200 status=0
+[DEBUG-fontload] pump enter sources=1 status=0
+[DEBUG-fontface] fontPlatformData enter nameLength=24
+[DEBUG-fontface] CreateFontIndirect hfont=FFFFFFFFB40A464D error=0
+[DEBUG-fontface] cairo face=000002A61BEB7800 status=0
+[DEBUG-fontface] FontPlatformData ctor enter hfont=FFFFFFFFB40A464D face=000002A61BEB7800
+[DEBUG-fontface] cairo_scaled_font_create scaled=000002A614BDC390 status=0
+[DEBUG-fontface] FontPlatformData constructed scaled=000002A614BDC390 status=0
+[DEBUG-fontload] pump enter sources=1 status=3
+[DEBUG-fontface] fontPlatformData enter nameLength=24
+[DEBUG-fontface] CreateFontIndirect hfont=00000000010A3C4F error=0
+[DEBUG-fontface] cairo face=000002A61BEB7800 status=0
+[DEBUG-fontface] FontPlatformData ctor enter hfont=00000000010A3C4F face=000002A61BEB7800
+[DEBUG-fontface] cairo_scaled_font_create scaled=000002A614BDC390 status=0
+[DEBUG-fontface] FontPlatformData constructed scaled=000002A614BDC390 status=0
+[DEBUG-fontface] CSSFontFaceSource::fontLoaded m_status=0 error=0
+[DEBUG-fontface] CSSFontFaceSource::fontLoaded new status=2
+[DEBUG-fontface] CSSFontFaceSource::fontLoaded m_status=0 error=0
+[DEBUG-fontface] CSSFontFaceSource::fontLoaded new status=2
+[DEBUG-fontload] pump enter sources=1 status=0
+[DEBUG-fontface] fontPlatformData enter nameLength=24
+[DEBUG-fontface] CreateFontIndirect hfont=FFFFFFFF970A422C error=0
+[DEBUG-fontface] cairo face=000002A61BEB8020 status=0
+[DEBUG-fontface] FontPlatformData ctor enter hfont=FFFFFFFF970A422C face=000002A61BEB8020
+[DEBUG-fontface] cairo_scaled_font_create scaled=000002A61B7F1200 status=0
+[DEBUG-fontface] FontPlatformData constructed scaled=000002A61B7F1200 status=0
+[DEBUG-fontload] pump enter sources=1 status=0
+[DEBUG-fontface] fontPlatformData enter nameLength=24
+[DEBUG-fontface] CreateFontIndirect hfont=FFFFFFFFCF0A3E3B error=0
+[DEBUG-fontface] cairo face=000002A61BEB7800 status=0
+[DEBUG-fontface] FontPlatformData ctor enter hfont=FFFFFFFFCF0A3E3B face=000002A61BEB7800
+[DEBUG-fontface] cairo_scaled_font_create scaled=000002A614BDC390 status=0
+[DEBUG-fontface] FontPlatformData constructed scaled=000002A614BDC390 status=0
+[DEBUG-fontload] pump enter sources=1 status=3
+[DEBUG-fontface] fontPlatformData enter nameLength=24
+[DEBUG-fontface] CreateFontIndirect hfont=000000003A0A3560 error=0
+[DEBUG-fontface] cairo face=000002A61BEB7800 status=0
+[DEBUG-fontface] FontPlatformData ctor enter hfont=000000003A0A3560 face=000002A61BEB7800
+[DEBUG-fontface] cairo_scaled_font_create scaled=000002A614BDC390 status=0
+[DEBUG-fontface] FontPlatformData constructed scaled=000002A614BDC390 status=0
