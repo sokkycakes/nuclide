@@ -41,6 +41,8 @@ StartFrame(void)
 	if (g_grMode)
 		if (g_grMode.FrameStart && time > 1)
 			g_grMode.FrameStart();
+	if (g_mapCProgs && g_grMap && time > 1)
+		g_grMap.FrameStart();
 
 	Vote_Frame();
 }
@@ -88,6 +90,8 @@ ClientConnect(void)
 	ncStats::Connect(pl);
 
 	g_grMode.PlayerConnect((ncPlayer)self);
+	if (g_mapCProgs && g_grMap)
+		g_grMap.PlayerConnect((ncPlayer)self);
 
 	for (ncAddonDelegate addonEnum = __NULL__; (addonEnum = AddonManager_NextAddon(addonEnum));) {
 		addonEnum.PlayerConnect((ncPlayer)self);
@@ -111,6 +115,8 @@ Client_VacateSlot(void)
 	if (g_grMode) {
 		g_grMode.PlayerDisconnect(pl);
 	}
+	if (g_mapCProgs && g_grMap)
+		g_grMap.PlayerDisconnect(pl);
 
 	for (ncAddonDelegate addonEnum = __NULL__; (addonEnum = AddonManager_NextAddon(addonEnum));) {
 		addonEnum.PlayerDisconnect(pl);
@@ -228,6 +234,8 @@ PutClientInServer(void)
 
 	/* handle transitions */
 	ncSessionManager::HandleLevelTransition();
+	if (g_mapCProgs && g_grMap)
+		g_grMap.PlayerSpawn(ourPlayer);
 
 	/* handle plugins */
 	for (ncAddonDelegate addonEnum = __NULL__; (addonEnum = AddonManager_NextAddon(addonEnum));) {

@@ -1,0 +1,9 @@
+{
+ program defaultwall#VERTEXLIT
+ diffusemap textures/fteworld/827b9cdd1f7c814d_vl.png
+ {
+  map $diffuse
+  rgbgen vertex
+  alphagen vertex
+ }
+}

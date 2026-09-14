@@ -32,7 +32,9 @@ enumflags
 	AMBIENT_PITCH,
 	AMBIENT_ORIGIN,
 	AMBIENT_ENABLED,
-	AMBIENT_MODERN
+	AMBIENT_MODERN,
+	AMBIENT_PLAYBACK,
+	AMBIENT_GLOBAL
 };
 
 /*! \brief Shared-Entity: Sound/Sentence Emitter */
@@ -100,6 +102,14 @@ private:
 	PREDICTED_FLOAT(m_flRadius)
 	PREDICTED_FLOAT(m_flPitch)
 	PREDICTED_BOOL(m_bLoops)
+	PREDICTED_BOOL(m_bGlobalPlaying)
+	PREDICTED_FLOAT(m_flPlaySerial)
+	bool m_bGlobal;
+	bool m_bAutoplay;
+	bool m_bGlobalLoop;
+#ifdef CLIENT
+	float m_flNextGlobalDebug;
+#endif
 	bool m_bToggle;
 	bool m_bIsModern;
 
@@ -143,12 +153,22 @@ ambient_generic::Save(float handle)
 	SaveInt(handle, "m_bToggle", m_bToggle);
 	SaveInt(handle, "m_bLoops", m_bLoops);
 	SaveBool(handle, "m_bIsModern", m_bIsModern);
+	SaveBool(handle, "m_bGlobal", m_bGlobal);
+	SaveBool(handle, "m_bAutoplay", m_bAutoplay);
+	SaveBool(handle, "m_bGlobalLoop", m_bGlobalLoop);
+	SaveBool(handle, "m_bGlobalPlaying", m_bGlobalPlaying);
+	SaveFloat(handle, "m_flPlaySerial", m_flPlaySerial);
 }
 
 void
 ambient_generic::Restore(string strKey, string setValue)
 {
 	switch (strKey) {
+	case "m_bGlobal": m_bGlobal = ReadBool(setValue); break;
+	case "m_bAutoplay": m_bAutoplay = ReadBool(setValue); break;
+	case "m_bGlobalLoop": m_bGlobalLoop = ReadBool(setValue); break;
+	case "m_bGlobalPlaying": m_bGlobalPlaying = ReadBool(setValue); break;
+	case "m_flPlaySerial": m_flPlaySerial = ReadFloat(setValue); break;
 	case "m_bLoops":
 		m_bLoops = ReadInt(setValue);
 		break;
@@ -182,6 +202,9 @@ void
 ambient_generic::SpawnKey(string strKey, string setValue)
 {
 	switch (strKey) {
+	case "_nonpositional": m_bGlobal = stoi(setValue) != 0; break;
+	case "_autoplay": m_bAutoplay = stoi(setValue) != 0; break;
+	case "_loop": m_bGlobalLoop = stoi(setValue) != 0; break;
 	case "message":
 		m_strSpawnPath = setValue;
 		message = __NULL__;
@@ -246,6 +269,20 @@ ambient_generic::Respawn(void)
 	m_strActivePath = m_strSpawnPath;
 	m_flPitch = m_flSpawnPitch;
 	m_flVolume = m_flSpawnVolume;
+	if (m_bGlobal) {
+		/* TalkMonster initialization sets this flag; map audio is not an NPC.
+		 * Multiplayer rules remove NPCs during InitPostEnts. */
+		RemoveFlags(FL_MONSTER);
+		takedamage = DAMAGE_NO;
+		m_flRadius = ATTN_NONE;
+		m_bLoops = m_bGlobalLoop;
+		m_bGlobalPlaying = m_bAutoplay;
+		m_flPlaySerial++;
+		pvsflags = PVSF_IGNOREPVS;
+		Trigger = UseLoop;
+		customphysics = __NULL__;
+		return;
+	}
 
 	/* handle volume */
 	if (!m_flSpawnVolume) {
@@ -330,6 +367,11 @@ ambient_generic::UseNormal(entity act, triggermode_t state)
 void
 ambient_generic::UseLoop(entity act, triggermode_t state)
 {
+	if (m_bGlobal) {
+		m_bGlobalPlaying = !m_bGlobalPlaying;
+		m_flPlaySerial++;
+		return;
+	}
 	if (m_bToggle == true) {
 		SndEntLog( "%s stops %S", target, m_strActivePath);
 		m_strActivePath = "common/null.wav";
@@ -344,6 +386,18 @@ ambient_generic::UseLoop(entity act, triggermode_t state)
 void
 ambient_generic::Input(entity eAct, string strKey, string setValue)
 {
+	if (m_bGlobal) {
+		switch (strKey) {
+		case "Play":
+		case "PlaySound": m_bGlobalPlaying = true; m_flPlaySerial++; return;
+		case "Stop":
+		case "StopSound": m_bGlobalPlaying = false; m_flPlaySerial++; return;
+		case "Toggle":
+		case "ToggleSound": m_bGlobalPlaying = !m_bGlobalPlaying; m_flPlaySerial++; return;
+		case "Volume": m_flVolume = max(0,stof(setValue)); return;
+		case "Pitch": m_flPitch = max(1,stof(setValue)); return;
+		}
+	}
 	switch (strKey) {
 	case "Pitch":
 		m_flPitch = stof(setValue);
@@ -379,15 +433,19 @@ ambient_generic::EvaluateEntity(void)
 	EVALUATE_FIELD(m_flRadius, AMBIENT_RADIUS)
 	EVALUATE_FIELD(m_flPitch, AMBIENT_PITCH)
 	EVALUATE_FIELD(m_bLoops, AMBIENT_ENABLED)
+	EVALUATE_FIELD(m_bGlobalPlaying, AMBIENT_PLAYBACK)
+	EVALUATE_FIELD(m_flPlaySerial, AMBIENT_PLAYBACK)
 }
 
 float
 ambient_generic::SendEntity(entity ePEnt, float flChanged)
 {
-	if (m_bLoops == true && m_bToggle == false)
+	if (!m_bGlobal && m_bLoops == true && m_bToggle == false)
 		return (0);
 
 	WriteByte(MSG_ENTITY, ENT_AMBIENTSOUND);
+	if (m_bGlobal) flChanged |= AMBIENT_GLOBAL;
+	else flChanged &= ~AMBIENT_GLOBAL;
 
 	if (m_bIsModern) {
 		flChanged |= AMBIENT_MODERN;
@@ -414,6 +472,10 @@ ambient_generic::SendEntity(entity ePEnt, float flChanged)
 	SENDENTITY_BYTE(m_flRadius, AMBIENT_RADIUS)
 	SENDENTITY_FLOAT(m_flPitch, AMBIENT_PITCH)
 	SENDENTITY_BYTE(m_bLoops, AMBIENT_ENABLED)
+	if (m_bGlobal && (flChanged & AMBIENT_PLAYBACK)) {
+		WriteByte(MSG_ENTITY, m_bGlobalPlaying);
+		WriteFloat(MSG_ENTITY, m_flPlaySerial);
+	}
 
 	return (1);
 }
@@ -423,6 +485,8 @@ ambient_generic::SendEntity(entity ePEnt, float flChanged)
 void
 ambient_generic::ReceiveEntity(float isnew, float flChanged)
 {
+	m_bGlobal = (flChanged & AMBIENT_GLOBAL) != 0;
+	float oldSerial = m_flPlaySerial;
 	if (flChanged & AMBIENT_ORIGIN) {
 		vector oldOrg = origin;
 		origin[0] = readcoord();
@@ -450,6 +514,23 @@ ambient_generic::ReceiveEntity(float isnew, float flChanged)
 		m_flPitch = readfloat();
 	if (flChanged & AMBIENT_ENABLED)
 		m_bLoops = readbyte();
+	if (m_bGlobal && (flChanged & AMBIENT_PLAYBACK)) {
+		m_bGlobalPlaying = readbyte() != 0;
+		m_flPlaySerial = readfloat();
+	}
+	if (m_bGlobal) {
+		float flags = SOUNDFLAG_NOSPACIALISE | SOUNDFLAG_NOREVERB;
+		if (m_bLoops) flags |= SOUNDFLAG_FORCELOOP;
+		if (!m_bGlobalPlaying) {
+			StopSound(CHAN_BODY, true);
+		} else if (isnew || oldSerial != m_flPlaySerial) {
+			sound(this, CHAN_BODY, m_strActivePath, m_flVolume, ATTN_NONE, m_flPitch, flags);
+		} else if (getsoundtime(this, CHAN_BODY) >= 0) {
+			soundupdate(this, CHAN_BODY, m_strActivePath, m_flVolume, ATTN_NONE, m_flPitch, flags, 0);
+		}
+		SndEntLog("Global audio: %S playing=%d loop=%d volume=%g pitch=%g serial=%g", m_strActivePath, m_bGlobalPlaying, m_bLoops, m_flVolume, m_flPitch, m_flPlaySerial);
+		return;
+	}
 
 	SndEntLog("Received: %S Volume: %d%%; Radius: %d units; Pitch: %d, Org: %v", m_strActivePath, m_flVolume * 100, cvar("s_nominaldistance") / m_flRadius, m_flPitch, origin);
 
@@ -474,6 +555,13 @@ ambient_generic::SentenceSample(string sample)
 float
 ambient_generic::predraw(void)
 {
+	if (m_bGlobal) {
+		if (autocvar_s_logLevel >= LOGLEVEL_DEBUG && time >= m_flNextGlobalDebug) {
+			m_flNextGlobalDebug = time + 1;
+			SndEntLog("Global channel: %S serial=%g time=%g level=%g", m_strActivePath, m_flPlaySerial, getsoundtime(this, CHAN_BODY), getchannellevel(this, CHAN_BODY));
+		}
+		return (PREDRAW_NEXT);
+	}
 	ProcessWordQue();
 
 	/* pause/unpause CHAN_VOICE, because yes these ents are used for SPEECH */

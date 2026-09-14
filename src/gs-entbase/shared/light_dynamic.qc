@@ -28,7 +28,8 @@ enumflags
 	DLIGHTFL_CHANGED_RADIUS,
 	DLIGHTFL_CHANGED_STYLE,
 	DLIGHTFL_CHANGED_STATE,
-	DLIGHTFL_CHANGED_PATTERN
+	DLIGHTFL_CHANGED_PATTERN,
+	DLIGHTFL_CHANGED_LIGHTTYPE
 };
 
 /*! \brief Shared-Entity: Dynamic Light */
@@ -41,7 +42,7 @@ may be interesting.
 - "targetname" : Name
 - "target" : Name of an entity in the map that light will point at.
 - "_light" : Color of the spotlight in RGB255 format.
-- "brightness" : Intensity of the spotlight.
+- "brightness" : Linear intensity multiplier. Default 1; 0 emits no light.
 - "_inner_cone" : Angles of the inner spotlight beam. 0 = omnidirectional.
 - "_cone" : Angles of the outer spotlight beam. 0 = omnidirectional.
 - "distance" : Distance that light is allowed to cast, in inches.
@@ -49,6 +50,8 @@ may be interesting.
 - "style" : Select one of the hard-coded lightstyles.
 - "start_active" : Override for if the entity should start on or off.
 - "pattern" : Override the lightstyle pattern with a string.
+- "_directional" : Native parallel-ray sunlight when 1. Angles specify ray direction.
+- "_shadows" : Enable shadows (default 1). Directional distance bounds its shadow coverage.
 
 # INPUTS
 - "TurnOn" : Turns the light on.
@@ -106,6 +109,8 @@ private:
 	string m_strPattern;
 	int m_iState;
 	int m_iStartActive;
+	int m_iDirectional;
+	int m_iShadows;
 	float m_light; /* our light handle */
 };
 
@@ -122,7 +127,7 @@ float
 light_dynamic::predraw(void)
 {
 	/* debug drawing */
-	if (autocvar_r_showDlights) {
+	if (autocvar_r_showDlights && !m_iDirectional) {
 		float a = (m_iState) ? 1.0 : 0.25f;
 		makevectors(view_angles);
 		R_BeginPolygon("textures/dev/light_dynamic", 0, 0);
@@ -139,6 +144,17 @@ light_dynamic::predraw(void)
 void
 light_dynamic::LightChanged(float flFlags)
 {
+	if (flFlags & DLIGHTFL_CHANGED_LIGHTTYPE) {
+		float flags = LFLAG_NORMALMODE | LFLAG_REALTIMEMODE;
+		if (m_iDirectional) {
+			flags |= LFLAG_ORTHOSUN | LFLAG_SHADOWMAP;
+			dynamiclight_set(m_light, LFIELD_CORONA, 0);
+			dynamiclight_set(m_light, LFIELD_AMBIENTSCALE, 0);
+			dynamiclight_set(m_light, LFIELD_DIFFUSESCALE, 1);
+		}
+		if (!m_iShadows) flags |= LFLAG_NOSHADOWS;
+		dynamiclight_set(m_light, LFIELD_FLAGS, flags);
+	}
 	/* apply our changes to the static light */
 	if (flFlags & DLIGHTFL_CHANGED_ORIGIN) {
 		dynamiclight_set(m_light, LFIELD_ORIGIN, origin);
@@ -146,7 +162,7 @@ light_dynamic::LightChanged(float flFlags)
 	if (flFlags & DLIGHTFL_CHANGED_ANGLES) {
 		dynamiclight_set(m_light, LFIELD_ANGLES, angles);
 	}
-	if (flFlags & DLIGHTFL_CHANGED_RADIUS) {
+	if (flFlags & DLIGHTFL_CHANGED_DISTANCE) {
 		dynamiclight_set(m_light, LFIELD_RADIUS, m_flDistance);
 	}
 
@@ -156,8 +172,9 @@ light_dynamic::LightChanged(float flFlags)
 		dynamiclight_set(m_light, LFIELD_STYLE, m_flStyle);
 	}
 
-	if (flFlags & DLIGHTFL_CHANGED_LIGHT) {
-		dynamiclight_set(m_light, LFIELD_COLOUR, m_vecLight);
+	if (flFlags & (DLIGHTFL_CHANGED_LIGHT | DLIGHTFL_CHANGED_INTENSITY)) {
+		/* Keep the network color normalized; intensity is an independent multiplier. */
+		dynamiclight_set(m_light, LFIELD_COLOUR, m_vecLight * max(0, m_flIntensity));
 	}
 
 	/* we always want to refresh the state */
@@ -215,6 +232,10 @@ light_dynamic::ReceiveEntity(float flNew, float flFlags)
 		m_iState = readbyte();
 	if (flFlags & DLIGHTFL_CHANGED_PATTERN)
 		m_strPattern = readstring();
+	if (flFlags & DLIGHTFL_CHANGED_LIGHTTYPE) {
+		m_iDirectional = readbyte();
+		m_iShadows = readbyte();
+	}
 
 	if (flNew) {
 		ReloadVideoResources();
@@ -309,6 +330,10 @@ light_dynamic::SendEntity(entity ePEnt, float flFlags)
 		WriteByte(MSG_ENTITY, m_iState);
 	if (flFlags & DLIGHTFL_CHANGED_PATTERN)
 		WriteString(MSG_ENTITY, m_strPattern);
+	if (flFlags & DLIGHTFL_CHANGED_LIGHTTYPE) {
+		WriteByte(MSG_ENTITY, m_iDirectional);
+		WriteByte(MSG_ENTITY, m_iShadows);
+	}
 
 	return (1);
 }
@@ -317,6 +342,14 @@ void
 light_dynamic::Input(entity eAct, string strInput, string strData)
 {
 	switch (strInput) {
+	case "_shadows":
+		m_iShadows = stoi(strData);
+		SendFlags |= DLIGHTFL_CHANGED_LIGHTTYPE;
+		break;
+	case "angles":
+		angles = stov(strData);
+		SendFlags |= DLIGHTFL_CHANGED_ANGLES;
+		break;
 	case "Color":
 		m_vecLight = stov(strData);
 		SendFlags |= DLIGHTFL_CHANGED_LIGHT;
@@ -370,6 +403,7 @@ light_dynamic::Respawn(void)
 	SetSolid(SOLID_NOT);
 	SetSize([-0,-0,-0], [0,0,0]);
 	m_iState = (m_iStartActive == 1) ? 1 : 0;
+	if (m_iDirectional) pvsflags = PVSF_IGNOREPVS;
 }
 #endif
 
@@ -377,6 +411,12 @@ void
 light_dynamic::SpawnKey(string strKey, string setValue)
 {
 	switch (strKey) {
+	case "_directional":
+		m_iDirectional = stoi(setValue);
+		break;
+	case "_shadows":
+		m_iShadows = stoi(setValue);
+		break;
 	case "_light":
 		m_vecLight = stov(setValue);
 		break;
@@ -415,8 +455,10 @@ void
 light_dynamic::light_dynamic(void)
 {
 	m_vecLight = [255,255,255];
+	m_flIntensity = 1;
 	m_flDistance = 256;
 	m_iStartActive = 1;
+	m_iShadows = 1;
 
 #ifdef CLIENT
 	lightstyle(254, "=0");

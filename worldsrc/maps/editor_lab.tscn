@@ -1,0 +1,137 @@
+[gd_scene format=3 uid="uid://cagiwtijx2lrb"]
+
+[ext_resource type="Script" uid="uid://xgir76dhy2gs" path="res://addons/stiletto_tools/nodes/world.gd" id="1_world"]
+[ext_resource type="Script" uid="uid://div0otwql1b1v" path="res://addons/stiletto_tools/nodes/mesh.gd" id="2_mesh"]
+[ext_resource type="Script" uid="uid://bg7kj4bi00gxd" path="res://addons/stiletto_tools/nodes/entity.gd" id="3_entity"]
+[ext_resource type="Script" uid="uid://dice2e5o1dlad" path="res://addons/stiletto_tools/nodes/connection.gd" id="4_connection"]
+[ext_resource type="Environment" uid="uid://kk7jti2poq5n" path="res://environments/day.tres" id="5_rpx8j"]
+
+[sub_resource type="StandardMaterial3D" id="FloorMaterial"]
+albedo_color = Color(0.3, 0.37, 0.46, 1)
+
+[sub_resource type="BoxMesh" id="FloorMesh"]
+material = SubResource("FloorMaterial")
+size = Vector3(24, 0.5, 20)
+
+[sub_resource type="StandardMaterial3D" id="AccentMaterial"]
+albedo_color = Color(0.9, 0.48, 0.18, 1)
+
+[sub_resource type="BoxMesh" id="CrateMesh"]
+material = SubResource("AccentMaterial")
+size = Vector3(2, 2, 2)
+
+[sub_resource type="CylinderMesh" id="ColumnMesh"]
+material = SubResource("AccentMaterial")
+bottom_radius = 0.8
+height = 3.0
+radial_segments = 12
+
+[sub_resource type="BoxMesh" id="RampMesh"]
+material = SubResource("FloorMaterial")
+size = Vector3(4, 0.4, 6)
+
+[sub_resource type="Resource" id="ToggleLight"]
+script = ExtResource("4_connection")
+target = NodePath("../TestLight")
+
+[sub_resource type="BoxShape3D" id="TriggerBox"]
+size = Vector3(3, 3, 3)
+
+[sub_resource type="StandardMaterial3D" id="TriggerMaterial"]
+shading_mode = 0
+albedo_color = Color(0.25, 0.85, 0.55, 1)
+
+[sub_resource type="BoxMesh" id="PlateMesh"]
+material = SubResource("TriggerMaterial")
+size = Vector3(3, 0.06, 3)
+
+[node name="EditorLab" type="Node3D" unique_id=287287853]
+script = ExtResource("1_world")
+title = "Stiletto native world lab"
+map_script = "res://maps/editor_lab.qc"
+
+[node name="Floor" type="MeshInstance3D" parent="." unique_id=112186898]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.25, 0)
+mesh = SubResource("FloorMesh")
+script = ExtResource("2_mesh")
+
+[node name="CrateA" type="MeshInstance3D" parent="." unique_id=1613671849]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4, 1, 0)
+mesh = SubResource("CrateMesh")
+script = ExtResource("2_mesh")
+
+[node name="CrateB" type="MeshInstance3D" parent="." unique_id=579089673]
+transform = Transform3D(0.90044713, 0, 0.43496552, 0, 1, 0, -0.43496552, 0, 0.90044713, -4, 1, -4)
+mesh = SubResource("CrateMesh")
+script = ExtResource("2_mesh")
+
+[node name="MirroredCrate" type="MeshInstance3D" parent="." unique_id=1348056718]
+transform = Transform3D(-1, 0, 0, 0, 0.6, 0, 0, 0, 1.4, -7, 0.6, -4)
+mesh = SubResource("CrateMesh")
+script = ExtResource("2_mesh")
+
+[node name="Column" type="MeshInstance3D" parent="." unique_id=1816701399]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 1.5, -5)
+mesh = SubResource("ColumnMesh")
+script = ExtResource("2_mesh")
+
+[node name="Ramp" type="MeshInstance3D" parent="." unique_id=977235254]
+transform = Transform3D(1, 0, 0, 0, 0.9553365, 0.29552022, 0, -0.29552022, 0.9553365, 5, 1.15, 3)
+mesh = SubResource("RampMesh")
+script = ExtResource("2_mesh")
+
+[node name="CSGBlock" type="CSGBox3D" parent="." unique_id=1112076891]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.75, -6)
+use_collision = true
+size = Vector3(3, 1.5, 2)
+material = SubResource("AccentMaterial")
+
+[node name="SpawnA" type="Node3D" parent="." unique_id=1009192182]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.1660786, 1.5, 6)
+script = ExtResource("3_entity")
+entity_id = "spawn_a"
+
+[node name="SpawnB" type="Node3D" parent="." unique_id=832495593]
+transform = Transform3D(0.9800666, 0, 0.19866933, 0, 1, 0, -0.19866933, 0, 0.9800666, -2.4993238, 1.5, 6)
+script = ExtResource("3_entity")
+entity_id = "spawn_b"
+
+[node name="SinglePlayerSpawn" type="Node3D" parent="." unique_id=1328967377]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 6)
+script = ExtResource("3_entity")
+classname = "info_player_start"
+entity_id = "spawn_single"
+
+[node name="LightTrigger" type="Node3D" parent="." unique_id=1515293754]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 0)
+script = ExtResource("3_entity")
+classname = "trigger_multiple"
+entity_id = "light_trigger"
+properties = Dictionary[String, String]({
+"StartDisabled": "0",
+"spawnflags": "1",
+"wait": "1"
+})
+outputs = Array[Resource]([SubResource("ToggleLight")])
+
+[node name="Volume" type="CollisionShape3D" parent="LightTrigger" unique_id=729131375]
+shape = SubResource("TriggerBox")
+
+[node name="TriggerPlate" type="MeshInstance3D" parent="." unique_id=358007817]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.04, 0)
+mesh = SubResource("PlateMesh")
+script = ExtResource("2_mesh")
+export_mode = 1
+
+[node name="TestLight" type="OmniLight3D" parent="." unique_id=2068297024]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4, 0)
+light_color = Color(0.5, 0.8, 1, 1)
+light_energy = 7.162
+shadow_enabled = true
+omni_range = 16.0
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=1830355571]
+environment = ExtResource("5_rpx8j")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=300530189]
+transform = Transform3D(1, 0, 0, 0, 0.25881907, 0.9659258, 0, -0.9659258, 0.25881907, 0, 3.7962544, 0)

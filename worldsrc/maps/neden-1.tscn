@@ -1,0 +1,57 @@
+[gd_scene format=3 uid="uid://bn0dq8gmnbgbb"]
+
+[ext_resource type="Script" uid="uid://xgir76dhy2gs" path="res://addons/stiletto_tools/nodes/world.gd" id="1_4ot12"]
+[ext_resource type="PackedScene" uid="uid://dgx6wirav2fom" path="res://maps/neden-1.blend" id="2_5idud"]
+[ext_resource type="AudioStream" uid="uid://u5twiag1ohiq" path="res://assets/sound/music/BGM_00000005.mp3" id="2_ik3iy"]
+[ext_resource type="Script" uid="uid://bg7kj4bi00gxd" path="res://addons/stiletto_tools/nodes/entity.gd" id="3_ik3iy"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_4ot12"]
+size = Vector3(720, 128, 840)
+
+[node name="Node3D" type="Node3D" unique_id=2054088975]
+script = ExtResource("1_4ot12")
+map_name = "neden_1"
+metadata/_custom_type_script = "uid://xgir76dhy2gs"
+
+[node name="AudioStreamPlayer3D" type="AudioStreamPlayer" parent="." unique_id=520412077]
+stream = ExtResource("2_ik3iy")
+autoplay = true
+
+[node name="neden-1" parent="." unique_id=336123263 instance=ExtResource("2_5idud")]
+transform = Transform3D(5, 0, 0, 0, 5, 0, 0, 0, 5, 0, 0, 0)
+
+[node name="Light" parent="neden-1" index="0" unique_id=472097921]
+light_energy = 1.948
+
+[node name="SpawnA" type="Node3D" parent="." unique_id=1378815790]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -11.103031, -17.11766, -7.7012496)
+script = ExtResource("3_ik3iy")
+entity_id = "spawn_a"
+
+[node name="SpawnB" type="Node3D" parent="." unique_id=883318599]
+transform = Transform3D(0.9800666, 0, 0.19866933, 0, 1, 0, -0.19866933, 0, 0.9800666, -8.436277, -17.11766, -7.7012496)
+script = ExtResource("3_ik3iy")
+entity_id = "spawn_b"
+
+[node name="SinglePlayerSpawn" type="Node3D" parent="." unique_id=734546790]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.936953, -17.11766, -7.7012496)
+script = ExtResource("3_ik3iy")
+classname = "info_player_start"
+entity_id = "spawn_single"
+
+[node name="FallKillZone" type="Node3D" parent="." unique_id=1436343226]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -13, -264, -29)
+script = ExtResource("3_ik3iy")
+classname = "trigger_hurt"
+entity_id = "fall_kill_zone"
+properties = Dictionary[String, String]({
+"OnHurtPlayer": "!activator,Kill,,0,-1",
+"dmg": "1000000",
+"spawnflags": "32",
+"wait": "0.1"
+})
+
+[node name="Bounds" type="CollisionShape3D" parent="FallKillZone" unique_id=763390368]
+shape = SubResource("BoxShape3D_4ot12")
+
+[editable path="neden-1"]

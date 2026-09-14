@@ -110,3 +110,17 @@ zp/
 .chunkhound.json
 .chunkhound/
 
+# Isolated Stiletto editor runtimes and integration-test captures/configs.
+/fteqw-world.exe
+/fteqw-world-server.exe
+/base/ftew_*.cfg
+/base/ftew_*.tga
+/base/ftew_*.png
+/base/maps/ftew_light_probe.ftew
+/base/maps/ftew_sun_probe.ftew
+/base/maps/ftew_import_probe.ftew
+/base/maps/ftew_audio_probe.ftew
+/fteqw-world-next.exe
+/fteqw-world-menu-test.exe
+/fteqw-world-before-menu-fix-*.exe
+

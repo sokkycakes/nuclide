@@ -39,7 +39,7 @@ varying mat3 invsurface;
 #define PBR
 #endif
 
-#if defined(PCF) || defined(CUBE) || defined(SPOT)
+#if defined(PCF) || defined(CUBE) || defined(SPOT) || defined(ORTHO)
 varying vec4 vtexprojcoord;
 #endif
 
@@ -50,7 +50,11 @@ varying vec4 vtexprojcoord;
 		vec3 n, s, t, w;
 		gl_Position = skeletaltransform_wnst(w,n,s,t);
 		tcbase = v_texcoord;	//pass the texture coords straight through
+	#ifdef ORTHO
+		vec3 lightminusvertex = -l_lightdirection;
+	#else
 		vec3 lightminusvertex = l_lightposition - w.xyz;
+	#endif
 
 	#ifdef NOBUMP
 		//the only important thing is distance
@@ -76,7 +80,7 @@ varying vec4 vtexprojcoord;
 		invsurface[2] = v_normal;
 	#endif
 
-	#if defined(PCF) || defined(SPOT) || defined(CUBE)
+	#if defined(PCF) || defined(SPOT) || defined(CUBE) || defined(ORTHO)
 		//for texture projections/shadowmapping on dlights
 		vtexprojcoord = (l_cubematrix*vec4(w.xyz, 1.0));
 	#endif

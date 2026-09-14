@@ -1,7 +1,7 @@
 ---
 title: "Godot as Stiletto's FTE authoring workspace"
 date: 2026-09-13
-status: proposed
+status: first-slice-implemented
 type: architecture-proposal
 ---
 
@@ -11,7 +11,7 @@ type: architecture-proposal
 
 Use Godot Editor as the central workspace for scene construction, map logic, particle effects, model setup, materials, and native FTE script editing. FTE remains the game runtime. The user explicitly confirmed that GDScript gameplay is not required: the desired arrangement resembles Battlefield Portal, using Godot as the frontend while retaining natively supported scripting languages.
 
-This expands the earlier [additive-world handoff](../godot-fte-additive-world-handoff.md) into an editor product. It is a feasibility assessment and proposed delivery sequence, not an implemented addon or a verified runtime pipeline.
+This expands the earlier [additive-world handoff](../godot-fte-additive-world-handoff.md) into an editor product. The first native-world slice is now implemented and has passed a two-client playtest, including native trigger-to-light I/O. See [the working editor and its limits](../../worldsrc/README.md). The broader feature set and delivery sequence below remain a proposal.
 
 ## Recommended structure
 
@@ -93,6 +93,34 @@ Relevant primary references:
 - [s&box HammerMesh](https://sbox.game/dev/doc/scene/components/reference/hammer-mesh) separately documents a compiled-geometry workflow that generates a runtime model and can provide rendering and collision components. This is evidence for that workflow, not a specification of every scene-map binary format.
 - [s&box map loading](https://sbox.game/dev/doc/scene/maps/loading-maps) describes map resources instantiated into scenes, including multiple map instances.
 - [s&box map networking](https://sbox.game/dev/doc/scene/maps/networking) distinguishes locally loaded static map content from replicated dynamic objects. Apply that separation using Nuclide's networking rules rather than copying s&box ownership behavior.
+
+## Baseline and compatibility policy
+
+The user prefers simplicity and flexibility over strict historical engine profiles. Use one project default: **FTE-native with the existing Nuclide game layer**. This is a proposed project preset, not an existing named FTE compatibility mode. Keep import formats, material syntax, render backend, and gameplay runtime as separate choices.
+
+| Layer | Default | Flexibility |
+|---|---|---|
+| Game/runtime | Existing `base` Nuclide progs and native QC/MapC; preserve the manifest's `GAME quake` baseline. | Imported maps do not automatically gain their original game's entities, physics, or game code. Add explicit mappings where useful. |
+| New worlds | The dedicated native world resource described above. | Retain existing FTE map loaders for legacy levels and tests; do not bind the new format to a BSP family. |
+| Generated materials | One `.mat` resource per material, following Nuclide's documented convention and FTE's extended Q3-style syntax. | Reference existing `.mat`, `.shader`, or other working native materials directly; retain advanced source editing. |
+| GPU shaders | Existing built-in programs where appropriate; OpenGL/GLSL as the initial verified target. | Additional renderer backends are supported according to their actual program/capability coverage, not inferred from material syntax alone. |
+| Images | PNG/TGA as convenient defaults for newly generated images. | Preserve existing usable formats, including DDS/KTX when supported; compression/mip generation is optional build processing, not mandatory authoring friction. |
+| Shading | A simple lit or unlit default with optional normal/emission/alpha controls. | Allow richer native materials and explicitly supported PBR variants without requiring PBR for every surface. |
+
+Local evidence: `base.fmf` selects `GAME quake` and `GAMEDIR base`; saved `base/config.cfg` and `base/fte.cfg` select `vid_renderer gl`. These are configuration observations, not a live runtime capability probe. `Documentation/Materials.md` recommends individual `.mat` files and explicitly describes using modern materials with older BSPs. `Documentation/Shaders.md` documents the material `program` command. The engine parser scans both Q3-style shader files and Doom 3 `.mtr` files, while Source VMT/VTF loader code lives in `plugins/hl2/`. Presence in source does not prove a plugin is distributed or loaded.
+
+The editor should normally ask for a texture or material, not an engine compatibility profile. Generate a default material for a plain image, preserve a supplied native material, and expose advanced properties on demand. Native passthrough does not require a complete Godot preview or round-trip parser: mark approximate previews and use FTE to inspect the true result. Track required loaders/dependencies during export.
+
+Keep these semantics explicit:
+
+- Material appearance and world collision/contents are separate runtime concerns. Extract supported imported surface semantics into world build data; do not assume passing through a shader creates water volumes, player clips, or sky collision behavior.
+- `q3map_*`, `qer_*`, and `vmap_*` directives include toolchain instructions. FTE's runtime parser can ignore these; the new compiler must implement the subset it promises or report a meaningful omission. Nuclide's `vmap_*` prefix is not evidence of Source 2 VMAP compatibility.
+- Different material dialects can interpret similar fields differently. Do not mechanically rename Doom 3/Source material fields into native FTE fields and assume equivalent shading.
+- Color textures and numerical data textures need correct color-space handling. Normal orientation, alpha behavior, sampler settings, and packed roughness/specular channels need defined mappings only when relevant to an imported resource.
+- Map format support is not game compatibility: foreign classnames and logic still need Nuclide equivalents. Keep format selection from changing gameplay mode or enabling broad compatibility heuristics.
+- Match the shipped client/server build and renderer capabilities. Servers need world collision, entities, and scripts without requiring rendering assets to initialize a GPU. Optional client plugins should be recorded and shipped when used.
+
+Validation should prevent broken exports without policing harmless choices. Use sensible defaults and visible fallbacks for optional appearance differences; fail for missing required resources, broken references, or unsupported gameplay/collision semantics. Do not impose one historical format on every asset, or a conversion step when FTE already handles it correctly.
 
 ## Native map logic with modern editor controls
 
