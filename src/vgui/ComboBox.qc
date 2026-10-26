@@ -15,6 +15,8 @@
 */
 
 #define COMBOBOX_ROW 20
+/* rows shown at once; longer lists scroll with the mouse wheel */
+#define COMBOBOX_VISIBLE 12i
 
 .void(entity) tmpvguiComboChange;
 
@@ -47,6 +49,10 @@ public:
 	virtual bool Input(float, float, float, float);
 
 private:
+	nonvirtual int _Visible(void);
+	nonvirtual vector _ListPos(void);
+
+	int m_first;
 	hashtable m_items;
 	int m_count;
 	int m_selected;
@@ -60,6 +66,26 @@ vguiComboBox::vguiComboBox(void)
 	m_count = 0i;
 	m_selected = -1i;
 	m_open = false;
+	m_first = 0i;
+}
+
+int
+vguiComboBox::_Visible(void)
+{
+	return (m_count < COMBOBOX_VISIBLE) ? m_count : COMBOBOX_VISIBLE;
+}
+
+/* under the box, or above it when there is no room below */
+vector
+vguiComboBox::_ListPos(void)
+{
+	vector pos = m_parent.m_vecOrigin + m_vecOrigin;
+	float h = _Visible() * COMBOBOX_ROW;
+
+	if (pos[1] + m_vecSize[1] + h > g_vidsize[1] && pos[1] - h >= 0)
+		return pos - [0, h];
+
+	return pos + [0, m_vecSize[1]];
 }
 
 void
@@ -82,6 +108,7 @@ vguiComboBox::Clear(void)
 	m_count = 0i;
 	m_selected = -1i;
 	m_open = false;
+	m_first = 0i;
 }
 
 int
@@ -155,16 +182,23 @@ vguiComboBox::Draw(void)
 	if (!m_open)
 		return;
 
-	/* the list, under the box */
-	vector listPos = pos + [0, m_vecSize[1]];
-	theme.DrawMenuBackground(listPos, [m_vecSize[0], m_count * COMBOBOX_ROW]);
+	vector listPos = _ListPos();
+	int vis = _Visible();
+	theme.DrawMenuBackground(listPos, [m_vecSize[0], vis * COMBOBOX_ROW]);
 
-	for (int i = 0i; i < m_count; i++) {
-		vector rowPos = listPos + [0, i * COMBOBOX_ROW];
+	for (int r = 0i; r < vis; r++) {
+		int i = m_first + r;
+		vector rowPos = listPos + [0, r * COMBOBOX_ROW];
 		vector rowSize = [m_vecSize[0], COMBOBOX_ROW];
 		bool armed = Util_MouseAbove(g_vecMousePos, rowPos, rowSize);
 
 		theme.DrawMenuItem(rowPos, rowSize, hash_get(m_items, strcat("t", sprintf("%i", i)), "", EV_STRING), g_fntDefault, armed, i == m_selected);
+	}
+
+	/* where the shown rows are in the whole list */
+	if (vis < m_count) {
+		float h = vis * COMBOBOX_ROW;
+		drawfill(listPos + [m_vecSize[0] - 4, h * m_first / m_count], [3, h * vis / m_count], [0.6, 0.6, 0.6], 0.8f);
 	}
 }
 
@@ -176,17 +210,25 @@ vguiComboBox::Input(float flEVType, float flKey, float flChar, float flDevID)
 	if (IsEnabled() == false)
 		return (false);
 
+	if (m_open && flEVType == IE_KEYDOWN && (flKey == K_MWHEELUP || flKey == K_MWHEELDOWN)) {
+		int last = m_count - _Visible();
+		m_first += (flKey == K_MWHEELUP) ? -1i : 1i;
+		m_first = (m_first < 0i) ? 0i : ((m_first > last) ? last : m_first);
+		return (true);
+	}
+
 	if (flEVType != IE_KEYDOWN || flKey != K_MOUSE1)
 		return (m_open && flEVType == IE_KEYUP && flKey == K_MOUSE1);
 
 	if (m_open) {
-		vector listPos = pos + [0, m_vecSize[1]];
+		vector listPos = _ListPos();
+		int vis = _Visible();
 
 		m_open = false;
 
-		for (int i = 0i; i < m_count; i++) {
-			if (Util_MouseAbove(g_vecMousePos, listPos + [0, i * COMBOBOX_ROW], [m_vecSize[0], COMBOBOX_ROW])) {
-				m_selected = i;
+		for (int r = 0i; r < vis; r++) {
+			if (Util_MouseAbove(g_vecMousePos, listPos + [0, r * COMBOBOX_ROW], [m_vecSize[0], COMBOBOX_ROW])) {
+				m_selected = m_first + r;
 
 				if (tmpvguiComboChange)
 					tmpvguiComboChange(this);
@@ -200,6 +242,10 @@ vguiComboBox::Input(float flEVType, float flKey, float flChar, float flDevID)
 
 	if (Util_MouseAbove(g_vecMousePos, pos, m_vecSize)) {
 		m_open = true;
+		/* the selected item in view */
+		int lastFirst = m_count - _Visible();
+		m_first = m_selected - _Visible() / 2i;
+		m_first = (m_first < 0i) ? 0i : ((m_first > lastFirst) ? lastFirst : m_first);
 		return (true);
 	}
 
