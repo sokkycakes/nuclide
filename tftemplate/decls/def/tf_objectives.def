@@ -1,0 +1,77 @@
+// Team Fortress template: objective and map entities.
+//
+// These map Team Fortress 2's entity classnames onto the template's classes,
+// so maps (or maps/<map>.add overlays) can use TF2's keys and outputs. A def
+// here overrides Nuclide's built-in class of the same name.
+//
+// Team keys use TF2 numbers: "TeamNum" 2 = RED, 3 = BLU, 0 = any.
+
+entityDef item_teamflag
+{
+	"editor_usage"	"Flag (intelligence). TeamNum: owner. Enemies carry it to their func_capturezone."
+	"editor_mins"	"-16 -16 0"
+	"editor_maxs"	"16 16 48"
+	"spawnclass"	"tfFlag"
+}
+
+entityDef func_capturezone
+{
+	"editor_usage"	"Volume where the TeamNum team scores carried flags."
+	"spawnclass"	"tfCaptureZone"
+}
+
+entityDef team_control_point
+{
+	"editor_usage"	"Control point. Captured through a trigger_capture_area that names it."
+	"editor_mins"	"-16 -16 0"
+	"editor_maxs"	"16 16 32"
+	"spawnclass"	"tfControlPoint"
+}
+
+entityDef trigger_capture_area
+{
+	"editor_usage"	"Volume in which players capture the point named by area_cap_point."
+	"spawnclass"	"tfCaptureArea"
+}
+
+entityDef info_player_teamspawn
+{
+	"editor_usage"	"Spawn point for the TeamNum team."
+	"editor_mins"	"-16 -16 -36"
+	"editor_maxs"	"16 16 36"
+	"spawnclass"	"tfTeamSpawn"
+}
+
+entityDef func_respawnroom
+{
+	"editor_usage"	"Players of TeamNum can change class instantly in here."
+	"spawnclass"	"tfRespawnRoom"
+}
+
+entityDef func_regenerate
+{
+	"editor_usage"	"Resupply: refills health, armour and ammo of TeamNum players."
+	"spawnclass"	"tfRegenerate"
+}
+
+// TF2 maps carry these; the template's rules do their jobs, so they are
+// accepted and ignored instead of being reported as unknown.
+entityDef team_control_point_master
+{
+	"spawnclass"	"info_null"
+}
+
+entityDef team_round_timer
+{
+	"spawnclass"	"info_null"
+}
+
+entityDef tf_gamerules
+{
+	"spawnclass"	"info_null"
+}
+
+entityDef tf_logic_koth
+{
+	"spawnclass"	"info_null"
+}
