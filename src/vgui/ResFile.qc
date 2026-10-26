@@ -20,6 +20,8 @@ localization files.
 The rules follow Bulwark's docs/spec/vgui-res.md:
 
 - `//` starts a comment, also right after a value.
+- Whitespace is space, tab, CR, VT, FF and the no-break space (UTF-8
+  C2 A0), which converted localization files have between tokens.
 - Backslashes are ordinary characters; there are no escapes.
 - A quote left open at the end of a line ends there, unless SetSpanLines()
   is on (localization files have strings that run over several lines).
@@ -223,6 +225,13 @@ vguiKeyValues::LoadFile(string fileName)
 				continue;
 			}
 
+			/* a no-break space (UTF-8 C2 A0) between tokens is whitespace
+			   too: converted UTF-16 localization files have stray ones */
+			if (c == 194 && str2chr(line, i + 1i) == 160) {
+				i += 2i;
+				continue;
+			}
+
 			/* comment to the end of the line */
 			if (c == 47 && str2chr(line, i + 1i) == 47)
 				break;
@@ -288,6 +297,8 @@ vguiKeyValues::LoadFile(string fileName)
 				c = str2chr(line, i);
 
 				if (vguiKeyValues_IsSpace(c) || c == 123 || c == 125 || c == 34)
+					break;
+				if (c == 194 && str2chr(line, i + 1i) == 160)
 					break;
 				if (c == 47 && str2chr(line, i + 1i) == 47)
 					break;
