@@ -1,0 +1,73 @@
+<!--
+	Title menu, Panorama port of data/web/title-menu (WebCore).
+	Figma 16:9 reference 1365 x 768 (node 46:2). Positions are percentages of
+	that frame so the layout stretches the same way the web version does;
+	font sizes are scaled to Bulwark's 1080-line design height.
+-->
+<root>
+	<styles>
+		<include src="file://{resources}/styles/titlemenu.css" />
+	</styles>
+	<scripts>
+		<include src="file://{resources}/scripts/titlemenu.js" />
+	</scripts>
+
+	<Panel id="TitleMenu" class="stage">
+		<Panel class="band">
+			<Panel class="band-red" />
+			<Panel class="band-edge band-edge-top" />
+			<Panel class="band-edge band-edge-bottom" />
+		</Panel>
+
+		<Panel id="FocusBar" class="focus-bar">
+			<Panel class="focus-edge focus-edge-top" />
+			<Panel class="focus-edge focus-edge-bottom" />
+		</Panel>
+
+		<Button id="Item0" class="menu-item item-0" onactivate="TitleMenu.Activate(0)" onmouseover="TitleMenu.Select(0)">
+			<Label text="Create Lobby" />
+		</Button>
+		<Button id="Item1" class="menu-item item-1" onactivate="TitleMenu.Activate(1)" onmouseover="TitleMenu.Select(1)">
+			<Label text="Join Lobby" />
+		</Button>
+		<Button id="Item2" class="menu-item item-2" onactivate="TitleMenu.Activate(2)" onmouseover="TitleMenu.Select(2)">
+			<Label text="Settings" />
+		</Button>
+		<Button id="Item3" class="menu-item item-3" onactivate="TitleMenu.Activate(3)" onmouseover="TitleMenu.Select(3)">
+			<Label text="Quit" />
+		</Button>
+
+		<Image class="logo" src="file://{images}/titlemenu/logo.png" scaling="stretch-to-fit-preserve-aspect" />
+		<Image class="hint-glyph" src="file://{images}/titlemenu/360_y.png" scaling="stretch-to-fit-preserve-aspect" />
+		<Label class="hint-label" text="Settings" />
+		<Image class="tp-logo" src="file://{images}/titlemenu/tplogo.png" scaling="stretch-to-fit-preserve-aspect" />
+
+		<Panel id="JoinDialog" class="join-dialog">
+			<Panel class="join-backdrop" onactivate="TitleMenu.CloseJoin()" />
+			<Panel class="join-panel">
+				<Label id="JoinTitle" class="join-head" text="Join Lobby" />
+				<Panel id="CreateOptions" class="join-body">
+					<Label class="join-text" text="Choose how friends will join your lobby." />
+					<Button class="btn" onactivate="TitleMenu.CreateLobby(true)">
+						<Label text="Online - share a room code" />
+					</Button>
+					<Button class="btn" onactivate="TitleMenu.CreateLobby(false)">
+						<Label text="LAN - same local network" />
+					</Button>
+				</Panel>
+				<Panel id="JoinOptions" class="join-body">
+					<Label class="join-label" text="Address / IP" />
+					<Panel class="join-row">
+						<TextEntry id="JoinAddr" class="join-input" text="127.0.0.1:27501" />
+						<Button class="btn" onactivate="TitleMenu.JoinAddress()">
+							<Label text="Join" />
+						</Button>
+					</Panel>
+				</Panel>
+				<Button class="btn btn-ghost" onactivate="TitleMenu.CloseJoin()">
+					<Label text="Back" />
+				</Button>
+			</Panel>
+		</Panel>
+	</Panel>
+</root>

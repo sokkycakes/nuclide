@@ -1,0 +1,221 @@
+/* Title menu. Percentages are of the 1365 x 768 Figma frame; pixel sizes are
+   at Bulwark's 1080-line design height (1080 / 768 = 1.40625). */
+
+.stage
+{
+	width: 100%;
+	height: 100%;
+	font-family: "Conduit ITC";
+	color: #ffffff;
+}
+
+/* bottom band: grey gradient with a red wash and pink edges */
+.band
+{
+	y: 54.43%;
+	width: 100%;
+	height: 24.61%;
+	background-color: gradient( linear, 0% 0%, 0% 100%, from( #6d6d6dcc ), color-stop( 0.09, #424242cc ), color-stop( 0.42, #282828cc ), color-stop( 0.66, #2a2a2acc ), color-stop( 0.87, #323232cc ), to( #6d6d6dcc ) );
+}
+
+.band-red
+{
+	width: 100%;
+	height: 100%;
+	background-color: gradient( linear, 0% 0%, 0% 100%, from( #ff000047 ), color-stop( 0.24, #f6000009 ), color-stop( 0.51, #f5000000 ), color-stop( 0.88, #e500000b ), to( #ff000047 ) );
+}
+
+.band-edge
+{
+	width: 100%;
+	height: 3px;
+	background-color: #ffb1b1;
+}
+.band-edge-bottom { vertical-align: bottom; }
+
+/* focus bar slides to the selected item */
+.focus-bar
+{
+	width: 33.11%;
+	height: 4.95%;
+	y: 57.29%;
+	background-color: gradient( linear, 0% 0%, 100% 0%, from( #b70043 ), color-stop( 0.32, #b70043 ), to( #34343400 ) );
+	transition-property: position;
+	transition-duration: 0.12s;
+	transition-timing-function: cubic-bezier( 0.2, 0.8, 0.2, 1 );
+}
+.focus-edge
+{
+	width: 100%;
+	height: 3px;
+	background-color: gradient( linear, 0% 0%, 100% 0%, from( #ff8c8c ), color-stop( 0.32, #ff8c8c ), to( #ff8c8c00 ) );
+}
+.focus-edge-bottom { vertical-align: bottom; }
+
+.TitleMenu-sel-1 .focus-bar { y: 62.5%; }
+.TitleMenu-sel-2 .focus-bar { y: 66.54%; }
+.TitleMenu-sel-3 .focus-bar { y: 70.57%; }
+
+.menu-item
+{
+	width: 33.11%;
+	height: 5.21%;
+	padding-left: 143px;
+	padding-top: 7px;
+}
+.menu-item Label
+{
+	font-size: 34px;
+	font-weight: 700;
+	letter-spacing: -1.7px;
+	color: #ffffff;
+}
+.item-0 { y: 57.68%; }
+.item-1 { y: 62.89%; }
+.item-2 { y: 66.93%; }
+.item-3 { y: 70.96%; }
+
+.logo
+{
+	x: 62.34%;
+	y: 57.68%;
+	width: 33.70%;
+	height: 26.56%;
+}
+
+.hint-glyph
+{
+	x: 6.89%;
+	y: 86.07%;
+	width: 2.34%;
+	height: 4.17%;
+}
+
+.hint-label
+{
+	x: 9.52%;
+	y: 85.94%;
+	font-size: 34px;
+	font-weight: 700;
+	letter-spacing: -1.7px;
+	color: #6d6d6d;
+}
+
+.tp-logo
+{
+	x: 87.91%;
+	y: 81.25%;
+	width: 5.93%;
+	height: 14.19%;
+	opacity: 0.51;
+}
+
+/* join / create lobby dialog */
+.join-dialog
+{
+	width: 100%;
+	height: 100%;
+	visibility: collapse;
+}
+.join-open .join-dialog { visibility: visible; }
+
+.join-backdrop
+{
+	width: 100%;
+	height: 100%;
+	background-color: #0000008c;
+}
+
+.join-panel
+{
+	horizontal-align: center;
+	vertical-align: center;
+	width: 590px;
+	height: fit-children;
+	flow-children: down;
+	background-color: #2a2a2aeb;
+	border: 3px solid #666666;
+	font-family: "Conduit ITC";
+}
+
+.join-head
+{
+	width: 100%;
+	padding: 14px 20px;
+	border-bottom: 1px solid #666666;
+	font-size: 20px;
+	font-weight: 700;
+	letter-spacing: 1px;
+	text-transform: uppercase;
+	color: #cccccc;
+}
+
+.join-body
+{
+	width: 100%;
+	height: fit-children;
+	flow-children: down;
+	padding: 20px 20px 0px 20px;
+}
+.join-create #JoinOptions { visibility: collapse; }
+.join-join #CreateOptions { visibility: collapse; }
+
+.join-text
+{
+	font-size: 20px;
+	color: #e0e0e0;
+	margin-bottom: 12px;
+}
+
+.join-label
+{
+	font-size: 18px;
+	font-weight: 700;
+	letter-spacing: 1px;
+	text-transform: uppercase;
+	color: #e0e0e0;
+	margin-bottom: 8px;
+}
+
+.join-row
+{
+	width: 100%;
+	height: fit-children;
+	flow-children: right;
+}
+
+.join-input
+{
+	width: fill-parent-flow( 1.0 );
+	height: 44px;
+	padding: 8px 10px;
+	margin-right: 10px;
+	border: 1px solid #555555;
+	background-color: #1a1a1acc;
+	color: #eeeeee;
+	font-size: 20px;
+}
+
+.btn
+{
+	height: fit-children;
+	width: fit-children;
+	padding: 10px 16px;
+	margin-bottom: 12px;
+	border: 1px solid #666666;
+	background-color: #3c3c3cf2;
+}
+.btn:hover { border: 1px solid #44aa99; }
+.btn Label
+{
+	font-size: 18px;
+	font-weight: 700;
+	letter-spacing: 1px;
+	text-transform: uppercase;
+	color: #e0e0e0;
+}
+.btn-ghost
+{
+	background-color: #00000000;
+	margin: 0px 20px 20px 20px;
+}
