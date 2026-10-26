@@ -243,7 +243,7 @@ CSQC_Update2D(float w, float h, bool focus)
 	if (Util_GetMaxPlayers() > 1 && !VGUI_Active() && (Client_InIntermission() || (!cl.IsFakeSpectator() && cl.IsDead()))) {
 		HUD_DrawIntermission();
 		Textmenu_Draw();
-		Scores_Draw();
+		HUDProgs_DrawScores();
 		Chat_Draw();
 		Print_Draw();
 	} else if (Util_IsFocused() == true) {
@@ -271,7 +271,7 @@ CSQC_Update2D(float w, float h, bool focus)
 
 		/* no prints overlapping scoreboards */
 		if (Client_InIntermission() || pSeat->m_iScoresVisible == TRUE) {
-			Scores_Draw();
+			HUDProgs_DrawScores();
 		} else {
 			VGUI_Draw();
 			Print_DrawCenterprint();

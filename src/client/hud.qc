@@ -6,6 +6,7 @@ var void(void) g_hudInit;
 var void(void) g_hudDraw;
 var void(void) g_hudDrawSpectator;
 var void(void) g_hudDrawIntermission;
+var void(void) g_hudDrawScores;
 var void(string, string) g_hudSendStat;
 var void(string) g_hudSwitchedWeapon;
 var void(string) g_hudPickedUpItem;
@@ -32,6 +33,7 @@ HUDProgs_Init(void)
 		g_hudDraw = externvalue(g_flHUDProgs, "HUD_Draw");
 		g_hudDrawSpectator = externvalue(g_flHUDProgs, "HUD_DrawSpectator");
 		g_hudDrawIntermission = externvalue(g_flHUDProgs, "HUD_DrawIntermission");
+		g_hudDrawScores = externvalue(g_flHUDProgs, "HUD_DrawScores");
 		g_hudSendStat = externvalue(g_flHUDProgs, "HUD_SendStat");
 		g_hudSwitchedWeapon = externvalue(g_flHUDProgs, "HUD_WeaponSwitched");
 		g_hudInputFrame = externvalue(g_flHUDProgs, "HUD_InputFrame");
@@ -78,13 +80,20 @@ HUDProgs_Draw(void)
 
 	if (g_flHUDProgs > 0) {
 		if (g_hudDraw) {
-			externset(g_flHUDProgs, clframetime, "clframetime");
-			externset(g_flHUDProgs, frametime, "frametime");
-			externset(g_flHUDProgs, time, "time");
-			externset(g_flHUDProgs, cltime, "cltime");
+			HUDProgs_SetTime();
 			g_hudDraw();
 		}
 	}
+}
+
+/* the HUD progs has its own copies of the time globals */
+void
+HUDProgs_SetTime(void)
+{
+	externset(g_flHUDProgs, clframetime, "clframetime");
+	externset(g_flHUDProgs, frametime, "frametime");
+	externset(g_flHUDProgs, time, "time");
+	externset(g_flHUDProgs, cltime, "cltime");
 }
 
 void
@@ -96,6 +105,7 @@ HUDProgs_DrawSpectator(void)
 
 	if (g_flHUDProgs > 0) {
 		if (g_hudDrawSpectator) {
+			HUDProgs_SetTime();
 			g_hudDrawSpectator();
 		}
 	}
@@ -110,9 +120,24 @@ HUDProgs_DrawIntermission(void)
 
 	if (g_flHUDProgs > 0) {
 		if (g_hudDrawIntermission) {
+			HUDProgs_SetTime();
 			g_hudDrawIntermission();
 		}
 	}
+}
+
+/* the score board: the HUD progs' HUD_DrawScores when it has one, else the
+   game's Scores_Draw */
+void
+HUDProgs_DrawScores(void)
+{
+	if (g_flHUDProgs > 0 && g_hudDrawScores) {
+		HUDProgs_SetTime();
+		g_hudDrawScores();
+		return;
+	}
+
+	Scores_Draw();
 }
 
 void
