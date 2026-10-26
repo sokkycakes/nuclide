@@ -79,6 +79,7 @@ var entity(entity) TFServer_NextObjective;
 var void(entity, entity, entity, float) BWHook_NotifyInjured;
 var void(entity, entity, entity, float) BWHook_NotifyKilled;
 var void(entity) BWHook_BotRespawned;
+var float(string) BWHook_ConsoleCommand;
 
 float g_tfRoundState;
 float g_tfStateStart;
@@ -104,6 +105,7 @@ TFRules_Link(void)
 	BWHook_NotifyInjured = externvalue(0, "bw_notify_injured");
 	BWHook_NotifyKilled = externvalue(0, "bw_notify_killed");
 	BWHook_BotRespawned = externvalue(0, "bw_bot_respawned");
+	BWHook_ConsoleCommand = externvalue(0, "bw_console_command");
 
 	if (!TFServer_ResetObjectives) {
 		error("The TF template rules need the template server progs (tftemplate/progs.dat).\n");
@@ -706,6 +708,11 @@ CodeCallback_ConsoleCommand(entity playerEntity, string command)
 		}
 		break;
 	default:
+		/* the bot framework's commands (bot_status, bot_debug ...) */
+		if (BWHook_ConsoleCommand) {
+			return BWHook_ConsoleCommand(command) ? (true) : (false);
+		}
+
 		return (false);
 	}
 

@@ -17,10 +17,16 @@
 /* include the botlib if desired (optional) */
 ../../../src/botlib/include.src
 
-/* template entities and helpers */
+/* template entities and helpers; bots/tf_bots_pre.h turns the bots on */
+bots/tf_bots_pre.h
 tf_server.h
 tf_volume.qc
 tf_player.qc
+
+/* the Bulwark bot framework and the template's bots */
+bwbots/bots.qc
+bots/tf_bots.qc
+
 tf_flag.qc
 tf_controlpoint.qc
 tf_spawns.qc
