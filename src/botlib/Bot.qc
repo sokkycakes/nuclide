@@ -410,10 +410,19 @@ ncBot::RunAI(void)
 			if (m_pathfindingCurrentNode == BOTROUTE_DESTINATION)
 				aimPos = PathDestination();
 			else {
-				if (m_pathfindingCurrentNode > 0 && !(Route_GetNodeFlags(&m_pathfindingGraph[m_pathfindingCurrentNode]) & LF_AIM))
+				/* QC's && evaluates both sides, so test the index before
+				   reading the node: a negative one points before the list */
+				bool aimAhead = false;
+
+				if (m_pathfindingCurrentNode > 0)
+					aimAhead = (Route_GetNodeFlags(&m_pathfindingGraph[m_pathfindingCurrentNode]) & LF_AIM) ? false : true;
+
+				if (aimAhead)
 					aimPos = m_pathfindingGraph[m_pathfindingCurrentNode - 1].dest;
-				else
+				else if (m_pathfindingCurrentNode >= 0)
 					aimPos = m_pathfindingGraph[m_pathfindingCurrentNode].dest;
+				else
+					aimPos = PathDestination();
 			}
 		} else {
 			/* aim towards the enemy */
@@ -506,7 +515,11 @@ ncBot::RunAI(void)
 		}
 
 		/* make them walk when they need to. */
-		if ((m_pathfindingCurrentNode >= 0 && Route_GetNodeFlags(&m_pathfindingGraph[m_pathfindingCurrentNode]) & LF_WALK) || shouldWalk)
+		if (m_pathfindingCurrentNode >= 0)
+			if (Route_GetNodeFlags(&m_pathfindingGraph[m_pathfindingCurrentNode]) & LF_WALK)
+				shouldWalk = true;
+
+		if (shouldWalk)
 			SetMoveSpeedScale(0.5f);
 		else
 			SetMoveSpeedScale(1.0f);
@@ -526,6 +539,18 @@ ncBot::RunAI(void)
 			}
 		}
 #endif
+	} else if (m_eTarget && enemyVisible) {
+		/* no route (it ends when we reach the enemy), but we can see them:
+		   face them, and keep closing in with a melee weapon. Without this
+		   the bot froze in place facing wherever it last looked, and melee
+		   swings went into the air. */
+		input_angles = angles = v_angle = vectorToAngles(m_eTarget.origin - GetEyePos());
+
+		if (m_wtWeaponType == WPNTYPE_CLOSE) {
+			vector chaseDir = vectorNormalize(m_eTarget.origin - origin) * g_pmoveVars.pm_walkspeed;
+			makevectors(input_angles);
+			input_movevalues = [v_forward * chaseDir, v_right * chaseDir, 0];
+		}
 	}
 
 	/* press any buttons needed */
