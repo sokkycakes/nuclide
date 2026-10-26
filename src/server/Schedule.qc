@@ -26,6 +26,23 @@ ncSchedule::ncSchedule(void)
 	m_controllingActor = __NULL__;
 	m_scheduleDecl = __NULL__;
 	m_failSchedule = __NULL__;
+	m_advanceTimer = __NULL__;
+	m_advanceTimerSpawn = 0.0f;
+}
+
+/* A pending advance must not outlive the schedule: once the schedule is
+   gone its slot gets reused, and the timer would run Advance (and from it
+   Cancel, which destroys "this") on whatever entity took the slot. */
+void
+ncSchedule::StopAdvanceTimer(void)
+{
+	if (m_advanceTimer && !wasfreed(m_advanceTimer) && m_advanceTimer.classname == "ncTimer") {
+		if (m_advanceTimer.GetSpawnTime() == m_advanceTimerSpawn) {
+			m_advanceTimer.Destroy();
+		}
+	}
+
+	m_advanceTimer = __NULL__;
 }
 
 void
@@ -33,7 +50,9 @@ ncSchedule::AdvanceLater(float timeDelta)
 {
 	m_inProgress = true;
 	EntLog("Advancing %S in %f seconds.", m_name, timeDelta);
-	ncTimer::TemporaryTimer(this, Advance, timeDelta, false);
+	StopAdvanceTimer();
+	m_advanceTimer = ncTimer::TemporaryTimer(this, Advance, timeDelta, false);
+	m_advanceTimerSpawn = m_advanceTimer.GetSpawnTime();
 }
 
 bool
@@ -52,6 +71,9 @@ ncSchedule::Advance(void)
 	if (wasfreed(this)) {
 		return;
 	}
+
+	/* the timer that called us is done */
+	m_advanceTimer = __NULL__;
 
 	/* Our actor is dead. Invalidate right away. */
 	if (!m_controllingActor) {
@@ -114,6 +136,7 @@ ncSchedule::Cancel(void)
 	}
 
 	EntLog("Schedule for %S (%d) terminated.", m_controllingActor.classname, num_for_edict(m_controllingActor));
+	StopAdvanceTimer();
 
 	/* TODO: Let NPC know that it's done? */
 	if (m_controllingActor) {

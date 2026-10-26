@@ -66,6 +66,7 @@ var float autocvar_coop_statusInterval = 0;	/* print coop_status every N seconds
 float g_coopDownTime[COOP_MAXPLAYERS];
 vector g_coopDownOrigin[COOP_MAXPLAYERS];
 bool g_coopDown[COOP_MAXPLAYERS];
+bool g_coopAnyDown;	/* refreshed each frame: revive checks skip work when false */
 entity g_coopReviveTarget[COOP_MAXPLAYERS];
 float g_coopReviveStart[COOP_MAXPLAYERS];
 float g_coopReviveSeen[COOP_MAXPLAYERS];
@@ -403,7 +404,7 @@ Coop_ReviveInput(entity pl)
 	bool holding;
 	entity target;
 
-	if (slot < 0i || !is.Alive(pl)) {
+	if (!g_coopAnyDown || slot < 0i || !is.Alive(pl)) {
 		return;
 	}
 
@@ -733,6 +734,15 @@ CodeCallback_NPCKilled(entity npcEntity, entity inflictor, entity attacker, stri
 void
 CodeCallback_FrameStart(void)
 {
+	g_coopAnyDown = false;
+
+	for (int i = 0i; i < COOP_MAXPLAYERS; i++) {
+		if (g_coopDown[i]) {
+			g_coopAnyDown = true;
+			break;
+		}
+	}
+
 	Coop_WaveThink();
 	Coop_BotThink();
 
