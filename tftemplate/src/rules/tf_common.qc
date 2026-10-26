@@ -598,8 +598,16 @@ void
 TF_ChooseClass(entity playerEntity, string className)
 {
 	if (TF_IsClass(className) == false) {
-		sprint(playerEntity, PRINT_HIGH, sprintf("Unknown class %S.\n", className));
-		return;
+		/* the class list in serverinfo can be cut off at the engine's info
+		   length limit, so a bot may ask for a partial name: give it any
+		   valid class instead */
+		if (is.Bot(playerEntity) == false) {
+			sprint(playerEntity, PRINT_HIGH, sprintf("Unknown class %S.\n", className));
+			return;
+		}
+
+		float classCount = tokenize_console(autocvar_tf_classes);
+		className = argv(floor(random(0, classCount)));
 	}
 
 	if (TF_HasTeam(playerEntity) == false) {

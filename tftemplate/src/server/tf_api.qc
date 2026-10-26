@@ -237,7 +237,8 @@ TF_ClassDefFor(entity targetEnt, string classDef)
 {
 	string botDef = strcat(classDef, "_bot");
 
-	if (is.Bot(targetEnt) && STRING_SET(entityDef.GetString(botDef, "spawnclass"))) {
+	/* "spawnclass" is reserved and not readable through entityDef.GetString */
+	if (is.Bot(targetEnt) && EntityDef_HasSpawnClass(botDef)) {
 		return (botDef);
 	}
 
