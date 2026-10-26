@@ -1,0 +1,16 @@
+// Team Fortress template, mounted on top of Nuclide's base game
+game "Team Fortress Template"
+gamedir "tftemplate"
+fallback_dir "base"
+url_info "www.vera-visions.com"
+version "0.1"
+svonly 0
+cldll 1
+type "Multiplayer"
+nomodels 1
+nohimodels 1
+nosprays 0
+mpentity "info_player_teamspawn"
+gamedll "progs.dat"
+startmap "lqdm1"
+title "Team Fortress Template"

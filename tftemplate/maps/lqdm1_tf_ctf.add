@@ -1,0 +1,29 @@
+// Capture the Flag on lqdm1: each flag sits in its team's capture zone.
+{
+"classname" "item_teamflag"
+"targetname" "flag_red"
+"origin" "176 -752 0"
+"TeamNum" "2"
+}
+{
+"classname" "func_capturezone"
+"targetname" "zone_red"
+"origin" "176 -752 24"
+"mins" "-64 -64 -32"
+"maxs" "64 64 96"
+"TeamNum" "2"
+}
+{
+"classname" "item_teamflag"
+"targetname" "flag_blu"
+"origin" "928 -896 0"
+"TeamNum" "3"
+}
+{
+"classname" "func_capturezone"
+"targetname" "zone_blu"
+"origin" "928 -896 24"
+"mins" "-64 -64 -32"
+"maxs" "64 64 96"
+"TeamNum" "3"
+}

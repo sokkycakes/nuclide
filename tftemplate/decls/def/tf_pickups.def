@@ -1,0 +1,76 @@
+// Team Fortress template: Team Fortress 2 style health kits and ammo packs.
+//
+// "tf_ammoFraction" is the share of each ammo type's maximum the pack
+// refills; bots read it through TF_PickupAmount(). Health kits use
+// Nuclide's "inv_health".
+
+entityDef tf_pickup_base
+{
+	"spawnclass"	"ncItem"
+	"mins"			"-16 -16 0"
+	"maxs"			"16 16 16"
+	"snd_respawn"	"item.respawn"
+	"respawn"		"10"
+	"droptofloor"	"1"
+	"pickupFlash"	"1"
+}
+
+entityDef item_healthkit_small
+{
+	"inherit"		"tf_pickup_base"
+	"model"			"maps/b_bh10.bsp"
+	"snd_acquire"	"health.pickup"
+	"inv_health"	"25"
+}
+
+entityDef item_healthkit_medium
+{
+	"inherit"		"tf_pickup_base"
+	"model"			"maps/b_bh25.bsp"
+	"snd_acquire"	"health.pickup"
+	"inv_health"	"60"
+}
+
+entityDef item_healthkit_full
+{
+	"inherit"		"tf_pickup_base"
+	"model"			"maps/b_bh100.bsp"
+	"snd_acquire"	"health.pickup"
+	"inv_health"	"150"
+}
+
+entityDef item_ammopack_small
+{
+	"inherit"			"tf_pickup_base"
+	"model"				"maps/b_shell0.bsp"
+	"snd_acquire"		"ammo.pickup"
+	"tf_ammoFraction"	"0.2"
+	"inv_ammo_shells"	"20"
+	"inv_ammo_nails"	"40"
+	"inv_ammo_rockets"	"20"
+	"inv_ammo_cells"	"20"
+}
+
+entityDef item_ammopack_medium
+{
+	"inherit"			"tf_pickup_base"
+	"model"				"maps/b_shell1.bsp"
+	"snd_acquire"		"ammo.pickup"
+	"tf_ammoFraction"	"0.5"
+	"inv_ammo_shells"	"50"
+	"inv_ammo_nails"	"100"
+	"inv_ammo_rockets"	"50"
+	"inv_ammo_cells"	"50"
+}
+
+entityDef item_ammopack_full
+{
+	"inherit"			"tf_pickup_base"
+	"model"				"maps/b_shell1.bsp"
+	"snd_acquire"		"ammo.pickup"
+	"tf_ammoFraction"	"1"
+	"inv_ammo_shells"	"100"
+	"inv_ammo_nails"	"200"
+	"inv_ammo_rockets"	"100"
+	"inv_ammo_cells"	"100"
+}

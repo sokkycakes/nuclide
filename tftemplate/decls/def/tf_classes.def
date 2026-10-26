@@ -1,0 +1,213 @@
+// Team Fortress template: player classes.
+//
+// Every class is an entityDef named tfclass_<name> that inherits the base
+// game's "player" def (model, animations) and spawns as tfPlayer. The rules
+// register the classes listed in the tf_classes cvar for both teams, in that
+// order, which also fills Nuclide's class menu.
+//
+// Stats are Team Fortress 2's health and speeds. Weapons are placeholders
+// from the base game (Quake's arsenal) until the mod has its own; swap the
+// "weapon" list for your own weapon defs.
+//
+// Template keys, read by tfPlayer and by bots:
+//   tf_classIndex  1-9, class menu slot
+//   tf_role        offense, defense, support or sniper (a hint for bots)
+//   tf_capRate     how many players this class counts as on a point
+//   tf_regen       health per second regenerated
+//   tf_weaponRanges  "<weapon def> <min> <max> ..." effective ranges, best first
+//
+// Each class also has a tfclass_<name>_bot def that spawns as tfBotPawn, so a
+// bot framework can give bots their own class without losing the stats.
+
+entityDef tf_player_base
+{
+	"inherit"			"player"
+	"spawnclass"		"tfPlayer"
+	"armorProtection"	"0"
+	"maxarmor"			"0"
+	"pm_runfiring"		"1"
+	"tf_capRate"		"1"
+	"tf_regen"			"0"
+}
+
+entityDef tfclass_scout
+{
+	"inherit"			"tf_player_base"
+	"tf_classIndex"		"1"
+	"tf_role"			"offense"
+	"health"			"125"
+	"max_health"		"125"
+	"pm_walkspeed"		"400"
+	"pm_runspeed"		"400"
+	"weapon"			"weapon_axe,weapon_nailgun,weapon_supershotgun"
+	"current_weapon"	"2"
+	"tf_weaponRanges"	"weapon_supershotgun 0 500 weapon_nailgun 0 1000 weapon_axe 0 64"
+	"tf_capRate"			"2"
+}
+
+entityDef tfclass_scout_bot
+{
+	"inherit"		"tfclass_scout"
+	"spawnclass"	"tfBotPawn"
+}
+
+entityDef tfclass_soldier
+{
+	"inherit"			"tf_player_base"
+	"tf_classIndex"		"2"
+	"tf_role"			"offense"
+	"health"			"200"
+	"max_health"		"200"
+	"pm_walkspeed"		"240"
+	"pm_runspeed"		"240"
+	"weapon"			"weapon_axe,weapon_shotgun,weapon_rocketlauncher"
+	"current_weapon"	"2"
+	"tf_weaponRanges"	"weapon_rocketlauncher 150 1500 weapon_shotgun 0 600 weapon_axe 0 64"
+}
+
+entityDef tfclass_soldier_bot
+{
+	"inherit"		"tfclass_soldier"
+	"spawnclass"	"tfBotPawn"
+}
+
+entityDef tfclass_pyro
+{
+	"inherit"			"tf_player_base"
+	"tf_classIndex"		"3"
+	"tf_role"			"offense"
+	"health"			"175"
+	"max_health"		"175"
+	"pm_walkspeed"		"300"
+	"pm_runspeed"		"300"
+	"weapon"			"weapon_axe,weapon_shotgun,weapon_lightning"
+	"current_weapon"	"2"
+	"tf_weaponRanges"	"weapon_lightning 0 350 weapon_shotgun 0 600 weapon_axe 0 64"
+}
+
+entityDef tfclass_pyro_bot
+{
+	"inherit"		"tfclass_pyro"
+	"spawnclass"	"tfBotPawn"
+}
+
+entityDef tfclass_demoman
+{
+	"inherit"			"tf_player_base"
+	"tf_classIndex"		"4"
+	"tf_role"			"defense"
+	"health"			"175"
+	"max_health"		"175"
+	"pm_walkspeed"		"280"
+	"pm_runspeed"		"280"
+	"weapon"			"weapon_axe,weapon_grenadelauncher"
+	"current_weapon"	"1"
+	"tf_weaponRanges"	"weapon_grenadelauncher 200 1200 weapon_axe 0 64"
+}
+
+entityDef tfclass_demoman_bot
+{
+	"inherit"		"tfclass_demoman"
+	"spawnclass"	"tfBotPawn"
+}
+
+entityDef tfclass_heavy
+{
+	"inherit"			"tf_player_base"
+	"tf_classIndex"		"5"
+	"tf_role"			"defense"
+	"health"			"300"
+	"max_health"		"300"
+	"pm_walkspeed"		"230"
+	"pm_runspeed"		"230"
+	"weapon"			"weapon_axe,weapon_shotgun,weapon_supernailgun"
+	"current_weapon"	"2"
+	"tf_weaponRanges"	"weapon_supernailgun 0 900 weapon_shotgun 0 600 weapon_axe 0 64"
+}
+
+entityDef tfclass_heavy_bot
+{
+	"inherit"		"tfclass_heavy"
+	"spawnclass"	"tfBotPawn"
+}
+
+entityDef tfclass_engineer
+{
+	"inherit"			"tf_player_base"
+	"tf_classIndex"		"6"
+	"tf_role"			"defense"
+	"health"			"125"
+	"max_health"		"125"
+	"pm_walkspeed"		"300"
+	"pm_runspeed"		"300"
+	"weapon"			"weapon_axe,weapon_nailgun,weapon_shotgun"
+	"current_weapon"	"2"
+	"tf_weaponRanges"	"weapon_shotgun 0 600 weapon_nailgun 0 1000 weapon_axe 0 64"
+}
+
+entityDef tfclass_engineer_bot
+{
+	"inherit"		"tfclass_engineer"
+	"spawnclass"	"tfBotPawn"
+}
+
+entityDef tfclass_medic
+{
+	"inherit"			"tf_player_base"
+	"tf_classIndex"		"7"
+	"tf_role"			"support"
+	"health"			"150"
+	"max_health"		"150"
+	"pm_walkspeed"		"320"
+	"pm_runspeed"		"320"
+	"weapon"			"weapon_axe,weapon_nailgun"
+	"current_weapon"	"1"
+	"tf_weaponRanges"	"weapon_nailgun 0 1000 weapon_axe 0 64"
+	"tf_regen"			"3"
+}
+
+entityDef tfclass_medic_bot
+{
+	"inherit"		"tfclass_medic"
+	"spawnclass"	"tfBotPawn"
+}
+
+entityDef tfclass_sniper
+{
+	"inherit"			"tf_player_base"
+	"tf_classIndex"		"8"
+	"tf_role"			"sniper"
+	"health"			"125"
+	"max_health"		"125"
+	"pm_walkspeed"		"300"
+	"pm_runspeed"		"300"
+	"weapon"			"weapon_axe,weapon_nailgun,weapon_shotgun"
+	"current_weapon"	"2"
+	"tf_weaponRanges"	"weapon_shotgun 500 4000 weapon_nailgun 0 800 weapon_axe 0 64"
+}
+
+entityDef tfclass_sniper_bot
+{
+	"inherit"		"tfclass_sniper"
+	"spawnclass"	"tfBotPawn"
+}
+
+entityDef tfclass_spy
+{
+	"inherit"			"tf_player_base"
+	"tf_classIndex"		"9"
+	"tf_role"			"support"
+	"health"			"125"
+	"max_health"		"125"
+	"pm_walkspeed"		"320"
+	"pm_runspeed"		"320"
+	"weapon"			"weapon_axe,weapon_nailgun"
+	"current_weapon"	"1"
+	"tf_weaponRanges"	"weapon_nailgun 0 1000 weapon_axe 0 64"
+}
+
+entityDef tfclass_spy_bot
+{
+	"inherit"		"tfclass_spy"
+	"spawnclass"	"tfBotPawn"
+}
