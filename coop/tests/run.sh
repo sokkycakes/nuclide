@@ -12,21 +12,17 @@ BULWARK=${1:?usage: run.sh path/to/bulwark-ded [bots] [seconds]}
 BOTS=${2:-4}
 SECS=${3:-60}
 shift 3 2>/dev/null || shift $#
-NAMES="Barney Gina Gordon Helmet Robo Scientist Zombie Recon Shephard Gman"
+NAMES="Barney Gina Gordon Helmet Robot Scientist Zombie Recon HGrunt GMan"
 i=0
 while [ $i -lt "$BOTS" ]; do
 	set -- "$@" +sv addBot $(echo $NAMES | cut -d' ' -f$((i % 10 + 1)))
 	i=$((i + 1))
 done
-# the server runs at 72 frames a second; a status line every 10 seconds
+# the server runs at 72 frames a second; the rules print a status line
+# every 10 seconds (queued "wait"s would hold up the map's own commands,
+# such as the survival restart)
 FRAMES=$((SECS * 72))
-STATUS=""
-t=10
-while [ $t -le "$SECS" ]; do
-	STATUS="$STATUS +wait 720 +sv coop_status"
-	t=$((t + 10))
-done
 HLDATA=""
 [ -n "$COOP_HLDATA" ] && HLDATA="-game $COOP_HLDATA"
 exec "$BULWARK" -basedir "${COOP_BASEDIR:-.}" $HLDATA -game valve -game coop -frames "$FRAMES" \
-	+exec default_coop.cfg +set coop_waveDelay 3 $COOP_ARGS +map coop_arena +wait 60 "$@" $STATUS
+	+exec default_coop.cfg +set coop_waveDelay 3 +set coop_statusInterval 10 $COOP_ARGS +map coop_arena +wait 60 "$@"

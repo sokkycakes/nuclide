@@ -1370,6 +1370,7 @@ ncRenderableEntity::Input(entity eAct, string strInput, string strData)
 		SetRenderAmt(stof(strData));
 		break;
 	case "Skin":
+	case "SetSkin":
 		SetSkin(stof(strData));
 		break;
 	case "DisableShadow":

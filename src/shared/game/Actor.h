@@ -84,6 +84,7 @@ types of pathfinding in the future.
 - "GoToSpotInRadius" : Plot a route to an empty spot within a certain radius of the current position.
 - "AvoidSpotInRadius" : Plot a route to a spot outside of a specified radius from the current position.
 - "TurnToRandomYaw" : Turns the actor to a random direction.
+- "GoToPosition" : Route to the position given as "x y z".
 - "GoForward" : Instruct to keep going forward.
 
 @ingroup baseclass

@@ -37,6 +37,7 @@
 #endif
 
 void CodeCallback_PlayerSpawn(entity playerEntity);
+void Coop_PrintStatus(void);
 
 var float autocvar_coop_respawnDelay = 5;
 var bool autocvar_coop_survival = false;
@@ -45,6 +46,7 @@ var float autocvar_coop_reviveRange = 72;
 var float autocvar_coop_reviveHealth = 50;
 var int autocvar_coop_revivePoints = 5;
 var bool autocvar_coop_botsRevive = true;
+var float autocvar_coop_botReviveRange = 1536;
 
 var bool autocvar_coop_waves = true;
 var string autocvar_coop_waveMonsters = "monster_headcrab monster_zombie;monster_houndeye monster_bullchicken;monster_alien_slave monster_human_grunt;monster_alien_grunt";
@@ -58,6 +60,7 @@ var float autocvar_coop_healthPerPlayer = 0.15;
 var float autocvar_coop_healthScaleMax = 4;
 var float autocvar_coop_allyKillPenalty = 10;
 var int autocvar_coop_debug = 0;
+var float autocvar_coop_statusInterval = 0;	/* print coop_status every N seconds (tests) */
 
 /* per player slot, indexed by entity number - 1 */
 float g_coopDownTime[COOP_MAXPLAYERS];
@@ -66,6 +69,9 @@ bool g_coopDown[COOP_MAXPLAYERS];
 entity g_coopReviveTarget[COOP_MAXPLAYERS];
 float g_coopReviveStart[COOP_MAXPLAYERS];
 float g_coopReviveSeen[COOP_MAXPLAYERS];
+float g_coopBotOrder[COOP_MAXPLAYERS];
+float g_coopBotNext;
+float g_coopStatusNext;
 
 /* wave director */
 enum
@@ -82,6 +88,7 @@ int g_coopWaveLeft;		/* still to spawn this wave */
 entity g_coopMonsters[COOP_MAXMONSTERS];
 int g_coopMonsterCount;
 bool g_coopRestarting;
+bool g_coopStarted;	/* StartGameType ran: frames can come before it */
 
 int
 Coop_Slot(entity pl)
@@ -292,7 +299,7 @@ Coop_StartWave(void)
 void
 Coop_WaveThink(void)
 {
-	if (!autocvar_coop_waves || g_coopRestarting) {
+	if (!autocvar_coop_waves || g_coopRestarting || !g_coopStarted) {
 		return;
 	}
 
@@ -441,6 +448,60 @@ Coop_ReviveInput(entity pl)
 	}
 }
 
+/* bots: respawn on their own once allowed, and go to downed teammates */
+void
+Coop_BotThink(void)
+{
+	if (time < g_coopBotNext || !g_coopStarted) {
+		return;
+	}
+
+	g_coopBotNext = time + 0.5f;
+
+	for (entity pl = world; (pl = next.Player(pl));) {
+		int slot = Coop_Slot(pl);
+
+		if (slot < 0i || !is.Bot(pl)) {
+			continue;
+		}
+
+		if (!is.Alive(pl)) {
+			if (!autocvar_coop_survival && g_coopDown[slot] && time - g_coopDownTime[slot] >= autocvar_coop_respawnDelay) {
+				CodeCallback_PlayerSpawn(pl);
+			}
+			continue;
+		}
+
+		if (!autocvar_coop_botsRevive || time < g_coopBotOrder[slot]) {
+			continue;
+		}
+
+		/* nearest downed teammate in range */
+		entity best = world;
+		float bestDist = autocvar_coop_botReviveRange;
+
+		for (entity p = world; (p = next.Player(p));) {
+			int pslot = Coop_Slot(p);
+
+			if (pslot < 0i || !g_coopDown[pslot] || is.Alive(p)) {
+				continue;
+			}
+
+			float d = vlen(g_coopDownOrigin[pslot] - pl.origin);
+
+			if (d < bestDist) {
+				bestDist = d;
+				best = p;
+			}
+		}
+
+		if (best && bestDist > autocvar_coop_reviveRange * 0.5f) {
+			ents.Input(pl, "GoToPosition", vtos(g_coopDownOrigin[Coop_Slot(best)]), pl);
+			g_coopBotOrder[slot] = time + 2.0f;
+		}
+	}
+}
+
 void
 Coop_CheckWipe(void)
 {
@@ -468,11 +529,12 @@ CodeCallback_Precache(void)
 {
 	/* every monster a wave can pick */
 	string monsterList = strreplace(";", " ", autocvar_coop_waveMonsters);
-	int monsterCount = (int)tokenize(monsterList);
+	int monsterCount;
 	string monsterClasses[64];
 
 	motd.LoadDefault();
 	precache.Entity("player_mp");
+	monsterCount = (int)tokenize(monsterList);
 
 	/* the precaches tokenize too, so copy the names out first */
 	monsterCount = min(monsterCount, 64i);
@@ -514,7 +576,9 @@ CodeCallback_StartGameType(void)
 	}
 
 	g_coopWave = 0i;
+	g_coopWaveLeft = 0i;
 	g_coopWaveState = WAVE_WAITING;
+	g_coopStarted = true;
 	g_coopWaveNext = time + autocvar_coop_waveDelay;
 	g_coopMonsterCount = 0i;
 	g_coopRestarting = false;
@@ -670,6 +734,13 @@ void
 CodeCallback_FrameStart(void)
 {
 	Coop_WaveThink();
+	Coop_BotThink();
+
+	if (autocvar_coop_statusInterval > 0 && time >= g_coopStatusNext) {
+		if (g_coopStatusNext > 0)
+			Coop_PrintStatus();
+		g_coopStatusNext = time + autocvar_coop_statusInterval;
+	}
 }
 
 bool
@@ -680,6 +751,33 @@ CodeCallback_ImpulseCommand(entity playerEntity, float impulseNum)
 	return (false);
 }
 
+void
+Coop_PrintStatus(void)
+{
+	/* at most 8 arguments: Bulwark can't find the globals that carry a 9th yet */
+	print(sprintf("coop: wave %i state %i left %i alive %i players %i/%i",
+		g_coopWave, g_coopWaveState, g_coopWaveLeft, Coop_MonstersAlive(),
+		Coop_AlivePlayerCount(), Coop_PlayerCount()));
+	print(sprintf(" scale %f skill %d\n", Coop_HealthScale(), cvar("skill")));
+
+	for (entity p = world; (p = next.Player(p));) {
+		int slot = Coop_Slot(p);
+		print(sprintf("  %s: score %d deaths %d health %d %s\n", p.netname, p.frags, p.deaths,
+			p.health, (slot >= 0i && g_coopDown[slot] && !is.Alive(p)) ? "DOWN" : ""));
+
+		if (autocvar_coop_debug) {
+			print(sprintf("    at %v inventory %s\n", p.origin, actor.GetInventory(p)));
+		}
+	}
+
+	if (autocvar_coop_debug) {
+		for (int i = 0i; i < g_coopMonsterCount; i++) {
+			entity m = g_coopMonsters[i];
+			print(sprintf("  %s at %v health %d enemy %s\n", m.classname, m.origin, m.health, m.enemy.netname));
+		}
+	}
+}
+
 bool
 CodeCallback_ConsoleCommand(entity playerEntity, string command)
 {
@@ -687,26 +785,36 @@ CodeCallback_ConsoleCommand(entity playerEntity, string command)
 
 	switch (argv(0)) {
 	case "coop_status":
-		print(sprintf("coop: wave %i state %i left %i alive %i players %i/%i scale %f\n",
-			g_coopWave, g_coopWaveState, g_coopWaveLeft, Coop_MonstersAlive(),
-			Coop_AlivePlayerCount(), Coop_PlayerCount(), Coop_HealthScale()));
+		Coop_PrintStatus();
+		break;
+	/* test hooks: bots can't type, so call or answer a vote for them */
+	case "coop_botvote":
+	case "coop_botvoteyes":
+		entity oldSelf = self;
+		void(string) callVote = externvalue(0, "CSEv_CallVote_s");
+		void(void) voteYes = externvalue(0, "CSEv_VoteY");
+		string voteText = sprintf("%s %s", argv(1), argv(2));
+		bool firstBot = true;
 
-		for (entity p = world; (p = next.Player(p));) {
-			int slot = Coop_Slot(p);
-			print(sprintf("  %s: score %d deaths %d health %d %s\n", p.netname, p.frags, p.deaths,
-				p.health, (slot >= 0i && g_coopDown[slot] && !is.Alive(p)) ? "DOWN" : ""));
-
-			if (autocvar_coop_debug) {
-				print(sprintf("    at %v inventory %s\n", p.origin, actor.GetInventory(p)));
+		for (entity b = world; (b = next.Player(b));) {
+			if (!is.Bot(b)) {
+				continue;
 			}
+
+			self = b;
+
+			if (argv(0) == "coop_botvote") {
+				callVote(voteText);
+				self = oldSelf;
+				break;
+			} else if (firstBot == false || argv(1) != "skipfirst") {
+				voteYes();
+			}
+
+			firstBot = false;
 		}
 
-		if (autocvar_coop_debug) {
-			for (int i = 0i; i < g_coopMonsterCount; i++) {
-				entity m = g_coopMonsters[i];
-				print(sprintf("  %s at %v health %d enemy %s\n", m.classname, m.origin, m.health, m.enemy.netname));
-			}
-		}
+		self = oldSelf;
 		break;
 	case "coop_nextwave":
 		g_coopWaveNext = time;
