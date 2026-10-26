@@ -67,6 +67,9 @@ vguiComboBox::vguiComboBox(void)
 	m_selected = -1i;
 	m_open = false;
 	m_first = 0i;
+
+	if (g_vguiPopup == this)
+		g_vguiPopup = __NULL__;
 }
 
 int
@@ -225,6 +228,8 @@ vguiComboBox::Input(float flEVType, float flKey, float flChar, float flDevID)
 		int vis = _Visible();
 
 		m_open = false;
+		if (g_vguiPopup == this)
+			g_vguiPopup = __NULL__;
 
 		for (int r = 0i; r < vis; r++) {
 			if (Util_MouseAbove(g_vecMousePos, listPos + [0, r * COMBOBOX_ROW], [m_vecSize[0], COMBOBOX_ROW])) {
@@ -242,6 +247,7 @@ vguiComboBox::Input(float flEVType, float flKey, float flChar, float flDevID)
 
 	if (Util_MouseAbove(g_vecMousePos, pos, m_vecSize)) {
 		m_open = true;
+		g_vguiPopup = this;
 		/* the selected item in view */
 		int lastFirst = m_count - _Visible();
 		m_first = m_selected - _Visible() / 2i;
