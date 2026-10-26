@@ -36,10 +36,13 @@ one and provides:
 Objective events come from the server entities through CodeCallback_Input:
 TF_FlagPickup, TF_FlagDropped, TF_FlagReturned, TF_FlagCaptured (data: the
 flag's team), TF_PointCaptured (data: "<index> <team>"), TF_PlayerCapped
-(data: point index, one per capper).
+(data: point index, one per capper), TF_CartDelivered (data: the pushing
+team). TF_RoundWin, TF_AddTime, TF_SetTime and TF_ForceRespawn, from map
+entities, are handled here for every mode.
 
-A mode can also define TFRules_AllowFlagCapture(entity carrier) and
-TFRules_AllowPointCapture(entity point, float team) to veto captures.
+A mode can also define TFRules_AllowFlagCapture(entity carrier),
+TFRules_AllowPointCapture(entity point, float team) and
+TFRules_AllowCartPush(entity watcher, float team) to veto captures.
 */
 
 /* provided by the mode file */
@@ -679,7 +682,38 @@ CodeCallback_ConsoleCommand(entity playerEntity, string command)
 		} else {
 			pinPlayer.tf_testPin = pinTarget;
 			pinPlayer.tf_testPinPos = pinTarget.origin;
+			pinPlayer.tf_testFollow = 0;
 			print(sprintf("tf_test_pin: %s -> %s\n", pinPlayer.netname, pinTarget ? pinTarget.targetname : "nothing"));
+		}
+		break;
+	/* tf_test_follow <player> <targetname> <x> <y> <z>: like tf_test_pin,
+	   but stays at that offset from the target as it moves (a payload cart) */
+	case "tf_test_follow":
+		entity followPlayer = TF_FindPlayer(argv(1));
+		entity followTarget = STRING_SET(argv(2)) ? find(world, ::targetname, argv(2)) : world;
+
+		if (!followPlayer) {
+			print(sprintf("tf_test_follow: no player %S\n", argv(1)));
+		} else {
+			followPlayer.tf_testPin = followTarget;
+			followPlayer.tf_testPinPos = [stof(argv(3)), stof(argv(4)), stof(argv(5))];
+			followPlayer.tf_testFollow = 1;
+			print(sprintf("tf_test_follow: %s -> %s\n", followPlayer.netname, followTarget ? followTarget.targetname : "nothing"));
+		}
+		break;
+	/* tf_test_trace <player> <x y z> <x y z>: puts the player at the first
+	   point, sweeps their box to the second and prints how far it got and
+	   what stopped it (team-only walls depend on who is asking) */
+	case "tf_test_trace":
+		entity tracePlayer = TF_FindPlayer(argv(1));
+
+		if (tracePlayer) {
+			vector traceStart = [stof(argv(2)), stof(argv(3)), stof(argv(4))];
+			vector traceEnd = [stof(argv(5)), stof(argv(6)), stof(argv(7))];
+			setorigin(tracePlayer, traceStart);
+			tracebox(tracePlayer.origin, tracePlayer.mins, tracePlayer.maxs, traceEnd, MOVE_NORMAL, tracePlayer);
+			print(sprintf("tf_test_trace: %s (%s) from %v: fraction %.2f, hit %s\n", tracePlayer.netname,
+				TF_TeamName(tracePlayer.team), tracePlayer.origin, trace_fraction, (trace_fraction < 1.0f) ? trace_ent.classname : "nothing"));
 		}
 		break;
 	case "tf_test_kill":
@@ -717,7 +751,12 @@ TF_PlayerFrames(void)
 		TFServer_PlayerThink(e);
 
 		if (e.tf_testPin && is.Alive(e)) {
-			setorigin(e, e.tf_testPinPos + [0, 0, 32]);
+			if (e.tf_testFollow) {
+				setorigin(e, e.tf_testPin.origin + e.tf_testPinPos);
+			} else {
+				setorigin(e, e.tf_testPinPos + [0, 0, 32]);
+			}
+
 			e.velocity = [0, 0, 0];
 		}
 	}
@@ -755,6 +794,48 @@ void
 CodeCallback_Input(entity activator, string inputName, string dataString)
 {
 	TF_Debug(sprintf("event %s (%s) from %s", inputName, dataString, activator.netname));
+
+	tokenize_console(dataString);
+
+	/* map entities that work the same in every mode: game_round_win,
+	   team_round_timer and game_forcerespawn */
+	switch (inputName) {
+	case "TF_RoundWin":
+		if (g_tfRoundState == TFROUND_ACTIVE || g_tfRoundState == TFROUND_SETUP) {
+			float mapWinner = stof(argv(0));
+
+			if (mapWinner != TF_TEAM_NONE) {
+				teams.AddScore((int)mapWinner, 1);
+			}
+
+			TF_RoundWin(mapWinner, "");
+		}
+		return;
+	case "TF_AddTime":
+		/* "<seconds> <most the clock may show, 0 for no limit>" */
+		float maxLeft = stof(argv(1));
+		TF_AddRoundTime(stof(argv(0)));
+
+		if (maxLeft > 0 && g_tfRoundEnds > time + maxLeft) {
+			g_tfRoundEnds = time + maxLeft;
+		}
+		return;
+	case "TF_SetTime":
+		if (g_tfRoundEnds > 0) {
+			g_tfRoundEnds = time + stof(argv(0));
+		}
+		return;
+	case "TF_ForceRespawn":
+		/* team 0 is everyone */
+		float respawnTeam = stof(argv(0));
+
+		for (int t = 1; t <= 2; t++) {
+			if (respawnTeam == 0 || respawnTeam == t) {
+				g_tfNextWave[t] = 0;
+			}
+		}
+		return;
+	}
 
 	/* objective play only counts while the round is live */
 	if (substring(inputName, 0, 3) == "TF_") {

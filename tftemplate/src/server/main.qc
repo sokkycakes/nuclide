@@ -20,8 +20,8 @@ Game_Worldspawn(void)
 }
 
 /** Picks the game mode when g_gametype isn't set, from the map name's prefix
-like Team Fortress 2 does: ctf_ maps run tf_ctf, cp_ maps tf_cp and koth_
-maps tf_koth. Anything else falls back to tf_ctf. */
+like Team Fortress 2 does: ctf_ maps run tf_ctf, cp_ maps tf_cp, koth_
+maps tf_koth and pl_ maps tf_pl. Anything else falls back to tf_ctf. */
 string
 Game_DefaultRules(void)
 {
@@ -37,6 +37,8 @@ Game_DefaultRules(void)
 		gameType = "tf_cp";
 	} else if (substring(mapname, 0, 5) == "koth_") {
 		gameType = "tf_koth";
+	} else if (substring(mapname, 0, 3) == "pl_") {
+		gameType = "tf_pl";
 	} else {
 		gameType = "tf_ctf";
 	}

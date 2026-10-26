@@ -63,7 +63,8 @@ entityDef team_control_point_master
 
 entityDef team_round_timer
 {
-	"spawnclass"	"info_null"
+	"editor_usage"	"The map's round clock: lengths for the rules, outputs as the round goes."
+	"spawnclass"	"tfRoundTimer"
 }
 
 entityDef tf_gamerules
@@ -74,4 +75,124 @@ entityDef tf_gamerules
 entityDef tf_logic_koth
 {
 	"spawnclass"	"info_null"
+}
+
+// Payload (tf_pl). The cart is a func_tracktrain driven by a
+// team_train_watcher; see src/server/tf_payload.qc.
+entityDef func_tracktrain
+{
+	"editor_usage"	"Train that slides along path_tracks. Payload carts are driven by a team_train_watcher."
+	"spawnclass"	"tfTrackTrain"
+}
+
+entityDef team_train_watcher
+{
+	"editor_usage"	"Turns the players at a payload cart into its speed."
+	"spawnclass"	"tfTrainWatcher"
+}
+
+entityDef mapobj_cart_dispenser
+{
+	"editor_usage"	"Heals and resupplies TeamNum players in its touch_trigger."
+	"spawnclass"	"tfCartDispenser"
+}
+
+entityDef dispenser_touch_trigger
+{
+	"editor_usage"	"The volume a mapobj_cart_dispenser serves."
+	"spawnclass"	"tfDispenserTouch"
+}
+
+entityDef game_round_win
+{
+	"editor_usage"	"Input RoundWin ends the round for TeamNum."
+	"spawnclass"	"tfRoundWin"
+}
+
+entityDef game_forcerespawn
+{
+	"editor_usage"	"ForceRespawn / ForceTeamRespawn bring dead players back now."
+	"spawnclass"	"tfForceRespawn"
+}
+
+entityDef func_respawnroomvisualizer
+{
+	"editor_usage"	"Spawn room door wall, solid to the room's enemies."
+	"spawnclass"	"tfRespawnVisualizer"
+}
+
+// Triggers with TF2's filters and outputs.
+entityDef filter_activator_tfteam
+{
+	"spawnclass"	"tfFilterTeam"
+}
+
+entityDef filter_activator_name
+{
+	"spawnclass"	"tfFilterName"
+}
+
+entityDef filter_activator_class
+{
+	"spawnclass"	"tfFilterClass"
+}
+
+entityDef trigger_multiple
+{
+	"spawnclass"	"tfTrigger"
+}
+
+entityDef trigger_once
+{
+	"spawnclass"	"tfTriggerOnce"
+}
+
+entityDef trigger_hurt
+{
+	"spawnclass"	"tfTriggerHurt"
+}
+
+// Things TF2 maps carry that only matter to TF2's renderer or buildings.
+entityDef func_nobuild
+{
+	"spawnclass"	"info_null"
+}
+
+entityDef env_tonemap_controller
+{
+	"spawnclass"	"info_null"
+}
+
+// Props from TF2's content are usually not installed: these hide them
+// instead of showing the error model. Collision is kept by the engine (see
+// scripts/propclip.txt).
+entityDef prop_dynamic
+{
+	"spawnclass"	"tfPropDynamic"
+}
+
+entityDef prop_dynamic_override
+{
+	"spawnclass"	"tfPropDynamic"
+}
+
+entityDef prop_physics
+{
+	"spawnclass"	"tfPropPhysics"
+}
+
+entityDef prop_physics_override
+{
+	"spawnclass"	"tfPropPhysics"
+}
+
+entityDef prop_physics_multiplayer
+{
+	"spawnclass"	"tfPropPhysics"
+}
+
+entityDef trigger_catapult
+{
+	"editor_usage"	"Jump pad: throws players onto launchTarget."
+	"spawnclass"	"tfTriggerCatapult"
 }
