@@ -836,12 +836,34 @@ ncMonster::SeeThink(void)
 
 	/* a horde type monster always knows where the nearest player is */
 	if (m_iFlags & MSF_HORDE) {
-		if (!m_eEnemy || PathNodeCount() < 1i) {
+		if (!m_eEnemy || m_eEnemy.health <= 0) {
 			m_eEnemy = ncMonster_FindClosestPlayer(this);
+		}
 
-			if (m_eEnemy) {
-				RouteToPositionDenyFlags(m_eEnemy.origin, LF_JUMP | LF_CROUCH | LF_HAZARDOUS | LF_AIM);
+		if (!m_eEnemy) {
+			return;
+		}
+
+		/* in reach with a clear line: stop walking and let the combat
+		   schedules attack. Routing all the time kept any schedule from
+		   running, so horde monsters walked up to players and never hit
+		   them. */
+		float enemyDist = vlen(origin - m_eEnemy.origin);
+		bool inReach = (enemyDist < MeleeMaxDistance() || (m_flRanged1Range > 0 && enemyDist < m_flRanged1Range));
+
+		if (inReach && ncMonster_TraceAgainsTarget(this, (ncEntity)m_eEnemy) == true) {
+			if (PathNodeCount() > 0i) {
+				RouteClear();
 			}
+
+			if (m_mindset != "combat") {
+				m_mindset = "combat";
+				CancelSchedule();
+			}
+		} else if (PathNodeCount() < 1i) {
+			CancelSchedule();
+			m_mindset = "";
+			RouteToPositionDenyFlags(m_eEnemy.origin, LF_JUMP | LF_CROUCH | LF_HAZARDOUS | LF_AIM);
 		}
 
 		return;
@@ -1086,52 +1108,74 @@ ncMonster::AttackThink(void)
 	m_flAttackThink = time + 0.25f;
 }
 
-int
-ncMonster::AttackMelee(void)
+/* Hits land on a timer taken from the def_attack_melee def (delay, then
+   wait between attempts), so any monster with a melee def does damage
+   while its melee activity plays, without per-model event codes. */
+void
+ncMonster::MeleeStrikeStart(void)
 {
-#if 1
-	float actMelee1 = GetDefAct("meleeAttack1");
-	float actMelee2 = GetDefAct("meleeAttack2");
-
-	if (STRING_SET(m_defMelee))
-		return (false);
+	if not (STRING_SET(m_defMelee))
+		return;
 
 	_m_flMeleeDelay = GetSubDefFloat(m_defMelee, "delay");
 	_m_flMeleeAttempts = GetSubDefFloat(m_defMelee, "attempts");
 
-	//print(sprintf("Melee attack %S with delay %f and %d attempts\n", m_defMelee, _m_flMeleeDelay, _m_flMeleeAttempts));
+	if (_m_flMeleeAttempts < 1)
+		_m_flMeleeAttempts = 1;
 
 	static void
 	AttackMelee_AttackFlail(void)
 	{
 		ncActor targetEnt;
+		float meleeWait = GetSubDefFloat(m_defMelee, "wait");
 
-		if (distance(origin, m_eEnemy.origin) > m_flMeleeRange) {
-			return (false);
+		if (!m_eEnemy || health <= 0 || m_eEnemy.health <= 0) {
+			return;
 		}
 
-		float meleeWait = GetSubDefFloat(m_defMelee, "wait");
-		traceline(origin, m_eEnemy.origin, FALSE, this);
+		_m_flMeleeAttempts--;
 
-		if (trace_fraction >= 1.0 || trace_ent.takedamage == DAMAGE_NO) {
+		if (_m_flMeleeAttempts > 0)
+			ScheduleThink(AttackMelee_AttackFlail, meleeWait > 0 ? meleeWait : _m_flMeleeDelay);
+
+		/* range is measured between the hulls, not the origins */
+		vector ourCenter = WorldSpaceCenter();
+		vector enemyCenter = m_eEnemy.origin + (m_eEnemy.mins + m_eEnemy.maxs) * 0.5f;
+		float reach = m_flMeleeRange + vlen([m_eEnemy.maxs[0], m_eEnemy.maxs[1], 0]);
+
+		if (vlen(enemyCenter - ourCenter) > reach) {
 			StartSoundDef(m_sndMeleeAttackMiss, CHAN_WEAPON, true);
-			return (false);
+			return;
+		}
+
+		traceline(ourCenter, enemyCenter, MOVE_NORMAL, this);
+
+		if (trace_ent != m_eEnemy || trace_ent.takedamage == DAMAGE_NO) {
+			StartSoundDef(m_sndMeleeAttackMiss, CHAN_WEAPON, true);
+			return;
 		}
 
 		targetEnt = (ncActor)trace_ent;
 
 		ncDict damageDecl = spawn(ncDict);
 		damageDecl.AddKey("damage", GetSubDefString(m_defMelee, "damage"));
-		targetEnt.Damage(this, this, damageDecl, 1.0, vectorNormalize(angles), trace_endpos);
+		targetEnt.Damage(this, this, damageDecl, 1.0, vectorNormalize(enemyCenter - ourCenter), trace_endpos);
 		remove(damageDecl);
 
 		StartSoundDef(m_sndMeleeAttackHit, CHAN_WEAPON, true);
-
-		_m_flMeleeAttempts--;
-
-		if (_m_flMeleeAttempts > 0)
-			ScheduleThink(AttackMelee_AttackFlail, _m_flMeleeDelay + meleeWait);
 	}
+
+	ScheduleThink(AttackMelee_AttackFlail, _m_flMeleeDelay);
+}
+
+int
+ncMonster::AttackMelee(void)
+{
+	float actMelee1 = GetDefAct("meleeAttack1");
+	float actMelee2 = GetDefAct("meleeAttack2");
+
+	if not (STRING_SET(m_defMelee))
+		return (false);
 
 	AnimationRewind();
 
@@ -1142,10 +1186,7 @@ ncMonster::AttackMelee(void)
 
 	m_flAttackThink = m_flAnimTime;
 	StartSoundDef(m_sndMeleeAttack, CHAN_WEAPON, true);
-
-	/* functional */
-	ScheduleThink(AttackMelee_AttackFlail, _m_flMeleeDelay);
-#endif
+	MeleeStrikeStart();
 	return (true);
 }
 
@@ -2313,6 +2354,11 @@ ncMonster::Input( entity entityActivator, string inputName, string dataField )
 		if (STRING_SET(dataField)) {
 			AnimPlay(GetDefAct(dataField));
 
+			if (substring(dataField, 0, 11) == "meleeAttack") {
+				StartSoundDef(m_sndMeleeAttack, CHAN_WEAPON, true);
+				MeleeStrikeStart();
+			}
+
 			if (m_activeSchedule) {
 				m_activeSchedule.AdvanceLater(frameduration(modelindex, frame));
 			}
@@ -2447,10 +2493,14 @@ ncMonster::Input( entity entityActivator, string inputName, string dataField )
 	case "AttackMelee1":
 		AnimationRewind();
 		AnimPlay(GetDefAct("meleeAttack1"));
+		StartSoundDef(m_sndMeleeAttack, CHAN_WEAPON, true);
+		MeleeStrikeStart();
 		break;
 	case "AttackMelee2":
 		AnimationRewind();
 		AnimPlay(GetDefAct("meleeAttack2"));
+		StartSoundDef(m_sndMeleeAttack, CHAN_WEAPON, true);
+		MeleeStrikeStart();
 		break;
 	case "AttackRanged1":
 		AnimationRewind();

@@ -49,7 +49,7 @@ ncBot::SetEnemy(entity en)
 	m_eTarget = en;
 
 	if (m_eTarget) {
-		m_flEnemyDist = distanceSquared(origin, m_eTarget.origin);
+		m_flEnemyDist = vlen(origin - m_eTarget.origin); /* linear, like RunAI keeps it */
 	} else {
 		m_flEnemyDist = -1;
 	}

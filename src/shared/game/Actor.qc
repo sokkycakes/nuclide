@@ -811,6 +811,9 @@ ncActor::Input(entity eAct, string strInput, string strData)
 		angles[1] += randomYaw;
 		v_angle = angles;
 		break;
+	case "GoToPosition":
+		RouteToPosition(stov(strData));
+		break;
 	case "GoForward":
 		float distance = stof(strData);
 

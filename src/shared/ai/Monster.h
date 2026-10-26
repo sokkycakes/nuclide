@@ -345,6 +345,8 @@ public:
 	virtual void AttackThink(void);
 	/** Overridable: Called when attempting to melee attack. Return 0 if impossible. */
 	virtual int AttackMelee(void);
+	/** Starts the timed hits of the def_attack_melee def against the enemy. */
+	nonvirtual void MeleeStrikeStart(void);
 	/** Overridable: Called when attempting to attack from a distance. Return 0 if impossible. */
 	virtual int AttackRanged(void);
 	nonvirtual void PerformAttack(string);

@@ -169,6 +169,9 @@ EntityDef_ReadFile(string filePath)
 	fclose(defFile);
 }
 
+/* "class key" -> "=value", see EntityDef_GetKeyValue */
+hashtable g_entDefKeyCache;
+
 void
 EntityDef_Init(void)
 {
@@ -176,6 +179,12 @@ EntityDef_Init(void)
 	searchhandle pm;
 
 	InitStart();
+
+	/* the defs are read again: forget the cached key lookups */
+	if (g_entDefKeyCache) {
+		hash_destroytab(g_entDefKeyCache);
+		g_entDefKeyCache = 0;
+	}
 
 	g_entDefInclude = "";
 
@@ -282,13 +291,11 @@ EntityDef_CheckCondition(ncEntity target, int id, string keyWord, float tweakCon
 
 
 var bool autocvar_entityDef_profile = false;
+static string EntityDef_LookUpKeyValue(string className, string keyName);
 
 string
 EntityDef_GetKeyValue(string className, string keyName)
 {
-	float spawnWords = 0;
-	string inheritKeys = __NULL__;
-
 	static string lastClass, lastKey, lastResult;
 
 	if (className == lastClass && keyName == lastKey) {
@@ -299,6 +306,35 @@ EntityDef_GetKeyValue(string className, string keyName)
 	if (!STRING_SET(className)) {
 		return "";
 	}
+
+	/* Every answer, misses included, is kept: monsters ask for keys
+	   like act_run each frame, and a miss walks every def. The value
+	   is stored behind a '=' so an empty answer differs from none. */
+	if (!g_entDefKeyCache) {
+		g_entDefKeyCache = hash_createtab(4096, EV_STRING);
+	}
+
+	string cacheKey = strcat(className, " ", keyName);
+	string cachedValue = (string)hash_get(g_entDefKeyCache, cacheKey, "", EV_STRING);
+
+	if (cachedValue != "") {
+		lastClass = className;
+		lastKey = keyName;
+		lastResult = substring(cachedValue, 1, -1);
+		return (lastResult);
+	}
+
+	lastResult = EntityDef_LookUpKeyValue(className, keyName);
+	lastClass = className;
+	lastKey = keyName;
+	hash_add(g_entDefKeyCache, cacheKey, strcat("=", lastResult), HASH_REPLACE | EV_STRING);
+	return (lastResult);
+}
+
+static string
+EntityDef_LookUpKeyValue(string className, string keyName)
+{
+	float spawnWords = 0;
 
 	if (autocvar_entityDef_profile) {
 		breakpoint();
@@ -319,10 +355,7 @@ EntityDef_GetKeyValue(string className, string keyName)
 				/* iterate over our own spawnkeys first */
 				for (int c = 0i; c < spawnWords; c+= 2i) {
 					if (argv(c) == keyName) {
-						lastClass = className;
-						lastKey = keyName;
-						lastResult = argv(c+1);
-						return (lastResult);
+						return (argv(c+1));
 					}
 				}
 
