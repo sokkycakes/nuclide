@@ -239,7 +239,12 @@ ncSchedule::CreateSchedule(ncActor targetActor, string scheduleDecl)
 		return (__NULL__);
 	}
 
-	newSchedule.m_taskCount = (newSchedule.m_scheduleDecl.TokenCount() / 2);
+	/* only the task_N keys are tasks; the rest are condition handlers */
+	newSchedule.m_taskCount = 0i;
+
+	while (STRING_SET(newSchedule.m_scheduleDecl.GetString(sprintf("task_%i", newSchedule.m_taskCount + 1i)))) {
+		newSchedule.m_taskCount++;
+	}
 
 	if (newSchedule.AssignActor(targetActor) == false) {
 		newSchedule.ScheduleThink(Destroy, 0.0f);

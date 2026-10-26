@@ -182,21 +182,31 @@ ncBot::SeeThink(void)
 		m_flSeeTime = time + 1.0f;
 	}
 
-	for (entity w = world; (w = findfloat(w, ::takedamage, DAMAGE_YES));) {
+	/* players and monsters alike: monsters take damage as DAMAGE_AIM */
+	for (entity w = world; (w = next.Actor(w));) {
 		float flDot;
 
-		/* is w a client? */
-		if (!(w.flags & FL_CLIENT))
+		if (w == this || w.takedamage == DAMAGE_NO)
 			continue;
 
 		/* is w alive? */
 		if (w.health <= 0)
 			continue;
 
-		/* ain't go hurt our brothers and sisters */
-		if (teams.TeamCount() > 1)
-			if (team == w.team)
+		if (w.flags & FL_CLIENT) {
+			/* ain't go hurt our brothers and sisters */
+			if (teams.TeamCount() > 0)
+				if (team == w.team)
+					continue;
+		} else if (is.AI(w)) {
+			/* monsters are fair game, unless they're on the players' side */
+			ncMonster m = (ncMonster)w;
+
+			if (m.m_iAlliance == MAL_FRIEND || m.m_iAlliance == MAL_NEUTRAL)
 				continue;
+		} else {
+			continue;
+		}
 
 		/* first, is the potential enemy in our field of view? */
 		flDot = vectorNormalize(w.origin - origin) * anglesToForward(v_angle);
@@ -209,6 +219,7 @@ ncBot::SeeThink(void)
 
 		/* break out if at all a valid trace */
 		if (trace_ent == w) {
+			BotLog("Bot %S (%d) sees enemy %S (%d)", netname, num_for_edict(this), w.classname, num_for_edict(w));
 			SetEnemy(w);
 			return;
 		}
@@ -425,8 +436,9 @@ ncBot::RunAI(void)
 					aimPos = PathDestination();
 			}
 		} else {
-			/* aim towards the enemy */
-			aimPos = m_eTarget.origin;
+			/* aim towards the middle of the enemy: a monster's origin is
+			   at its feet, so aiming at it shot over its head */
+			aimPos = m_eTarget.origin + (m_eTarget.mins + m_eTarget.maxs) * 0.5f;
 		}
 
 		/* force bot to fire at a position if desired */
@@ -544,7 +556,7 @@ ncBot::RunAI(void)
 		   face them, and keep closing in with a melee weapon. Without this
 		   the bot froze in place facing wherever it last looked, and melee
 		   swings went into the air. */
-		input_angles = angles = v_angle = vectorToAngles(m_eTarget.origin - GetEyePos());
+		input_angles = angles = v_angle = vectorToAngles(m_eTarget.origin + (m_eTarget.mins + m_eTarget.maxs) * 0.5f - origin);
 
 		if (m_wtWeaponType == WPNTYPE_CLOSE) {
 			vector chaseDir = vectorNormalize(m_eTarget.origin - origin) * g_pmoveVars.pm_walkspeed;
