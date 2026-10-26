@@ -29,4 +29,5 @@
 ../vgui/TextView.qc
 ../vgui/ComboBox.qc
 ../vgui/ResFile.qc
+../vgui/SchemeTheme.qc
 #endlist

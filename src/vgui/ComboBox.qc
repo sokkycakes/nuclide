@@ -145,15 +145,11 @@ vguiComboBox::Draw(void)
 {
 	vguiTheme theme = GetTheme();
 	vector pos = m_parent.m_vecOrigin + m_vecOrigin;
-	vector arrowPos = pos + [m_vecSize[0] - m_vecSize[1], 0];
 
-	theme.DrawTextBackground(pos, m_vecSize, VGUI_STATE_NORMAL);
-	theme.DrawBorder(pos, m_vecSize, VGUI_BORDER_INSET, __NULL__);
-	theme.DrawButton(arrowPos, [m_vecSize[1], m_vecSize[1]], m_open ? VGUI_STATE_ACTIVE : VGUI_STATE_NORMAL);
-	theme.DrawText(arrowPos + [m_vecSize[1] / 2 - 4, m_vecSize[1] / 2 - 6], "v", [m_vecSize[1], m_vecSize[1]], g_fntDefault);
+	theme.DrawComboBox(pos, m_vecSize, m_open ? VGUI_STATE_ACTIVE : VGUI_STATE_NORMAL);
 
 	drawsetcliparea(pos[0], pos[1], m_vecSize[0] - m_vecSize[1], m_vecSize[1]);
-	theme.DrawText(pos + [6, m_vecSize[1] / 2 - 6], GetText(), m_vecSize, g_fntDefault);
+	theme.DrawTextEntryText(pos + [6, m_vecSize[1] / 2 - 6], GetText(), m_vecSize, g_fntDefault);
 	drawresetcliparea();
 
 	if (!m_open)
@@ -161,20 +157,14 @@ vguiComboBox::Draw(void)
 
 	/* the list, under the box */
 	vector listPos = pos + [0, m_vecSize[1]];
-	vector listSize = [m_vecSize[0], m_count * COMBOBOX_ROW];
-	/* opaque, so the controls under the list don't show through */
-	drawfill(listPos, listSize, UI_MAINCOLOR, 1.0f);
-	theme.DrawWindowBackground(listPos, listSize, VGUI_STATE_NORMAL);
-	theme.DrawBorder(listPos, listSize, VGUI_BORDER_OUTSET, __NULL__);
+	theme.DrawMenuBackground(listPos, [m_vecSize[0], m_count * COMBOBOX_ROW]);
 
 	for (int i = 0i; i < m_count; i++) {
 		vector rowPos = listPos + [0, i * COMBOBOX_ROW];
 		vector rowSize = [m_vecSize[0], COMBOBOX_ROW];
+		bool armed = Util_MouseAbove(g_vecMousePos, rowPos, rowSize);
 
-		if (Util_MouseAbove(g_vecMousePos, rowPos, rowSize) || i == m_selected)
-			drawfill(rowPos, rowSize, UI_HICOLOR, (i == m_selected) ? 0.25f : 0.125f);
-
-		theme.DrawText(rowPos + [6, COMBOBOX_ROW / 2 - 6], hash_get(m_items, strcat("t", sprintf("%i", i)), "", EV_STRING), rowSize, g_fntDefault);
+		theme.DrawMenuItem(rowPos, rowSize, hash_get(m_items, strcat("t", sprintf("%i", i)), "", EV_STRING), g_fntDefault, armed, i == m_selected);
 	}
 }
 
