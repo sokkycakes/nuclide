@@ -57,6 +57,8 @@ This builds `tftemplate/progs.dat` (server), `tftemplate/hud.dat` (HUD) and
 | `src/shared/tf_api.h` | Team numbers, objective kinds and entity fields shared by the server and rules progs |
 | `src/server/` | Server progs: `base`'s server plus the template's entities and helpers |
 | `src/server/tf_api.qc` | Query helpers for bots and server code, and the bridge the rules call |
+| `src/server/bots/` | The template's bots, on the Bulwark bot framework (see [Bots](#bots)) |
+| `src/server/bwbots/` | A copy of the Bulwark bot framework (`qc/bots` in bulwark-engine, ISC) |
 | `src/rules/tf_common.qc` | Teams, class choice, respawn waves, rounds, HUD state, test commands |
 | `src/rules/tf_ctf.qc`, `tf_cp.qc`, `tf_koth.qc` | One file per game mode |
 | `src/hud/` | `base`'s HUD with an objective strip added (`tf_hud.qc`) |
@@ -250,6 +252,49 @@ HUDs can read the same keys.
 `bot_pause 1` stops Nuclide's bots from moving and shooting, which makes
 pinned capture tests repeatable.
 
+## Bots
+
+`addBot` bots run on the Bulwark bot framework (`src/server/bwbots/`, a copy
+of `qc/bots` from bulwark-engine) instead of Nuclide's botlib. A bot is a
+fake client that joins, picks a class and respawns like a player. The
+framework only fills in its input each frame (view angles, movement,
+buttons), so the template's own player physics, weapons and objectives
+apply to bots exactly as they do to players.
+
+`src/server/bots/tf_bots_pre.h` turns them on: it defines `TF_BOT_PAWN` and
+makes the framework's `BWBot` derive from `tfPlayer`. `src/server/bots/tf_bots.qc`
+declares `class tfBotPawn:BWBot` and the behaviours:
+
+- **Combat**, always running: picks the weapon for the range from the class's
+  `tf_weaponRanges`, aims at the chest (the head for snipers, the feet with
+  lead for rockets and grenades) and fires when its crosshair, aim error
+  included, is on the target. Being shot makes the attacker known.
+- **Tactical**: below 40% health it goes for the nearest health pickup, and
+  with only melee left it goes for ammo.
+- **Job**, from the class's `tf_role`:
+  - `offense` and `defense` play `TF_ObjectiveFor()`. They stand in the
+    capture area (spread around it when defending), take the enemy flag and
+    carry it home, and escort a teammate who has it. In CTF, defenders guard
+    their own flag and go after whoever took it.
+  - `sniper` takes a waypoint on its own side that can see the objective, 600
+    to 1600 units away, and watches it. It moves on after being hurt.
+  - `support` follows the teammate fighting nearest the objective.
+
+Bots navigate on Nuclide's waypoint files (`data/<map>.way`). Without one
+they still fight but walk straight at their goals.
+
+| Command | What it does |
+| --- | --- |
+| `set bot_skill 1-3` | Aim error, reaction time and turn speed (default 2, from `base`) |
+| `set tfbot_report N` | Prints every bot's class, health, score and behaviour every N seconds |
+| `bot_status` | Lists the bots with their behaviour stacks |
+| `bot_debug <category>...` | Framework debug output: `behavior`, `look`, `path`, `locomotion`, `vision`, `events` ... |
+| `bot_debug_filter <name or entnum>...` | Limits `bot_debug` to some bots |
+
+To build the template without the bots, drop `bots/tf_bots_pre.h`,
+`bwbots/bots.qc` and `bots/tf_bots.qc` from `src/server/progs.src`; bots then
+fall back to Nuclide's botlib.
+
 ## Known gaps
 
 - Weapons, models and sounds are `base` placeholders. There are no
@@ -258,5 +303,5 @@ pinned capture tests repeatable.
   networks health as a byte. The fix is commit 238cce6 on the branch
   `claude/project-thread-upkyrb`.
 - Payload (`team_train_watcher`) and arena modes aren't in yet.
-- Nuclide's bots fight but don't play objectives. Objective-aware bots
-  belong to the bot framework, which uses the interface above.
+- Bots don't use class abilities yet (no sticky traps, uber, sentries or
+  disguises), because the classes don't have them either.
