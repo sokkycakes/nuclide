@@ -253,6 +253,9 @@ TF_PlayerThink(entity targetEnt)
 	ncPlayer thePlayer = (ncPlayer)targetEnt;
 	float deltaTime = time - thePlayer.tf_lastRegenTime;
 
+	/* team-only walls (func_respawnroomvisualizer) block by dimension */
+	thePlayer.dimension_hit = 255 | TF_DimensionBlocking(thePlayer.team);
+
 	if (deltaTime < 1.0f) {
 		return;
 	}
@@ -329,6 +332,28 @@ TF_ResetObjectives(void)
 	}
 }
 
+/** Rules bridge. Puts the whole map back as it spawned, like Team
+Fortress 2's full map reset: doors close, paths re-enable, carts go home. */
+void
+TF_ResetMap(void)
+{
+	/* only what the map placed: carried weapons and players stay */
+	for (entity e = world; (e = findfloat(e, ::_mapspawned, true));) {
+		if (is.Player(e) || e.owner) {
+			continue;
+		}
+
+		ncEntity mapEnt = (ncEntity)e;
+		mapEnt.Respawn();
+	}
+
+	/* outputs that fire a limited number of times count again */
+	for (entity o = world; (o = find(o, ::classname, "triggerminion"));) {
+		ncOutput theOutput = (ncOutput)o;
+		theOutput.Respawn();
+	}
+}
+
 /** Rules bridge. Locks or unlocks every control point. */
 void
 TF_LockAllPoints(float lockState)
@@ -345,6 +370,7 @@ TF_LockAllPoints(float lockState)
 space separated tokens, one per objective.
 - flags: f<team><state>, e.g. "f10" is RED's flag at home
 - points: p<index>:<owner>:<capteam>:<progress 0-100>:<locked>:<contested>
+- payload carts: c<team>:<progress 0-100>:<pushers>:<state>
 Capture zones are left out. */
 string
 TF_ObjectiveSummary(void)
@@ -357,6 +383,9 @@ TF_ObjectiveSummary(void)
 		} else if (e.tf_objective == TFOBJ_POINT) {
 			summary = sprintf("%s p%d:%d:%d:%d:%d:%d", summary, e.tf_cpIndex, e.team,
 				e.tf_cpCapTeam, rint(e.tf_cpProgress * 100), e.tf_cpLocked, e.tf_cpContested);
+		} else if (e.tf_objective == TFOBJ_CART) {
+			summary = sprintf("%s c%d:%d:%d:%d", summary, e.team, floor(e.tf_cartProgress * 100),
+				e.tf_cartPushers, e.tf_cartState);
 		}
 	}
 

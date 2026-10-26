@@ -29,6 +29,9 @@ bots/tf_bots.qc
 
 tf_flag.qc
 tf_controlpoint.qc
+tf_triggers.qc
+tf_props.qc
+tf_payload.qc
 tf_spawns.qc
 tf_api.qc
 main.qc

@@ -337,6 +337,7 @@ public:
 	virtual void Input(entity, string, string);
 
 	nonvirtual tfControlPoint GetPoint(void);
+	nonvirtual bool TeamCanCap(float);
 
 private:
 	string m_pointName;
@@ -466,6 +467,17 @@ tfCaptureArea::GetPoint(void)
 	}
 
 	return ((tfControlPoint)find(world, ::targetname, m_pointName));
+}
+
+/** Whether `teamID` may capture here at all ("team_cancap_*"). */
+bool
+tfCaptureArea::TeamCanCap(float teamID)
+{
+	if (teamID != TF_TEAM_RED && teamID != TF_TEAM_BLU) {
+		return (false);
+	}
+
+	return (m_canCap[teamID]);
 }
 
 void
@@ -623,8 +635,20 @@ tfCaptureArea::Input(entity activatorEnt, string inputName, string dataField)
 	case "CaptureCurrentCP":
 		ourPoint = GetPoint();
 
-		if (ourPoint)
-			ourPoint.SetOwner(activatorEnt.team, activatorEnt);
+		/* map logic (a payload path_track) has no team: the point goes
+		   to the one team allowed to capture here */
+		float capTeam = activatorEnt.team;
+
+		if (capTeam != TF_TEAM_RED && capTeam != TF_TEAM_BLU) {
+			if (m_canCap[TF_TEAM_BLU] && !m_canCap[TF_TEAM_RED]) {
+				capTeam = TF_TEAM_BLU;
+			} else if (m_canCap[TF_TEAM_RED] && !m_canCap[TF_TEAM_BLU]) {
+				capTeam = TF_TEAM_RED;
+			}
+		}
+
+		if (ourPoint && capTeam != TF_TEAM_NONE)
+			ourPoint.SetOwner(capTeam, activatorEnt);
 		break;
 	default:
 		super::Input(activatorEnt, inputName, dataField);

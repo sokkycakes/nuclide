@@ -35,6 +35,13 @@ Fortress 2's numbering (2 = RED, 3 = BLU) go through TF_TeamFromMapKey().
 #define TFOBJ_FLAG 1		/**< item_teamflag */
 #define TFOBJ_CAPZONE 2		/**< func_capturezone */
 #define TFOBJ_POINT 3		/**< team_control_point */
+#define TFOBJ_CART 4		/**< team_train_watcher (payload) */
+
+/* values of .tf_cartState */
+#define TFCART_IDLE 0
+#define TFCART_PUSHED 1
+#define TFCART_BLOCKED 2	/**< both teams at the cart */
+#define TFCART_RECEDING 3
 
 /* values of .tf_flagState */
 #define TFFLAG_HOME 0
@@ -65,6 +72,17 @@ Fortress 2's numbering (2 = RED, 3 = BLU) go through TF_TeamFromMapKey().
 .float tf_cpContested;	/**< 1 while both teams stand on it */
 .entity tf_cpArea;		/**< the trigger_capture_area feeding this point */
 
+/* payload carts (the team_train_watcher). .team is the pushing team. */
+.float tf_cartProgress;	/**< 0 at the start of the track, 1 at the goal */
+.float tf_cartPushers;	/**< weight of the attackers at the cart, Scouts count as 2 */
+.float tf_cartState;	/**< TFCART_* */
+
+/* team_round_timer: the map's round lengths, read by the rules */
+.float tf_roundTimer;	/**< 1 on the timer entity */
+.float tf_timerLength;	/**< seconds of play */
+.float tf_setupLength;	/**< seconds of setup */
+.float tf_timerMax;		/**< most the clock can be stretched to, 0 for no limit */
+
 /* flags */
 .float tf_flagState;	/**< TFFLAG_* */
 .entity tf_flagCarrier;
@@ -84,6 +102,7 @@ Fortress 2's numbering (2 = RED, 3 = BLU) go through TF_TeamFromMapKey().
    exist and can't add fields of their own. */
 .entity tf_testPin;
 .vector tf_testPinPos;
+.float tf_testFollow;	/**< 1: tf_testPinPos is an offset from tf_testPin, which may move */
 
 /* per-class state for bots and HUDs. weapons that implement these
    behaviours should keep them up to date. */
@@ -117,6 +136,25 @@ TF_EnemyTeam(float teamID)
 	}
 
 	return (TF_TEAM_NONE);
+}
+
+/** Collision dimension bits for team-only walls (func_respawnroomvisualizer).
+Players carry their team's bit in dimension_hit; a wall that blocks a team
+is solid only in that team's bit. The bits sit above the default 255 so
+nothing else bumps into these walls. */
+#define TF_DIM_BLOCKS_RED 256
+#define TF_DIM_BLOCKS_BLU 512
+
+float
+TF_DimensionBlocking(float teamID)
+{
+	if (teamID == TF_TEAM_RED) {
+		return (TF_DIM_BLOCKS_RED);
+	} else if (teamID == TF_TEAM_BLU) {
+		return (TF_DIM_BLOCKS_BLU);
+	}
+
+	return (0);
 }
 
 string
