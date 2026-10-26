@@ -1892,8 +1892,9 @@ ncActor::RemoveAllWeapons(void)
 				m_activeWeapon = __NULL__;
 			}
 
-			linkedList._RemovedCallback();
-			continue;
+			/* unlink it like RemoveAllItems does; calling _RemovedCallback
+			   alone left it in the list and looped on it forever */
+			RemoveItem(linkedList.declclass);
 		}
 
 		linkedList = nextItem;

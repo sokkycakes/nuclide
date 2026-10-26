@@ -100,6 +100,7 @@ private:
 	entity m_eTarget;
 	int m_iAttackMode;
 	float m_flAttackTime;
+	float m_flChaseTime;
 
 	/* items */
 	int m_iOldItems;

@@ -363,6 +363,11 @@ ncItem::Touch(entity eToucher)
 
 	pl = (ncPlayer)eToucher;
 
+	/* a player class can refuse all pickups, e.g. "noItemPickup" "1" */
+	if (stof(EntityDef_GetKeyValue(pl.declclass, "noItemPickup")) != 0) {
+		return;
+	}
+
 	/* 'requires' affects main item and bonus items */
 	if (STRING_SET(m_itemRequiresItem)) {
 		if (pl.HasItem(m_itemRequiresItem) == false) {

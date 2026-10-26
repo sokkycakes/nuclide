@@ -102,13 +102,21 @@ void
 ncBot::BrainThink(int enemyvisible, int enemydistant)
 {
 	/* we had a target and it's now dead. now what? */
-	if (m_eTarget) {
-		if (m_eTarget.health <= 0) {
-			SetEnemy(__NULL__);
-			RouteClear();
-		}
-	} else if (m_eTarget && enemyvisible && enemydistant) {
-		/* we can see the player, but are too far away, plot a route */
+	if (!m_eTarget)
+		return;
+
+	if (m_eTarget.health <= 0) {
+		SetEnemy(__NULL__);
+		RouteClear();
+		return;
+	}
+
+	/* we can see them but can't reach them from here (too far for most
+	   guns, or out of reach of a melee weapon): plot a route to them,
+	   at most once a second. This branch used to sit under the else of
+	   the m_eTarget check and could never run. */
+	if (enemyvisible && (enemydistant || m_flEnemyDist > 128.0f) && m_flChaseTime < time) {
+		m_flChaseTime = time + 1.0f;
 		RouteToPosition(m_eTarget.origin);
 	}
 }
