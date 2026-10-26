@@ -408,6 +408,34 @@ VGUI_LoadLocalization(string fileName)
 	return g_vguiLocalization.LoadFile(fileName);
 }
 
+/** Removes VGUI2's hotkey marks: "&x" shows as "x" (VGUI2 underlines
+it; this draws it plain), and "&&" is a literal "&". */
+string
+VGUI_StripHotkey(string text)
+{
+	if (strstrofs(text, "&") < 0)
+		return text;
+
+	string out = "";
+	float len = strlen(text);
+
+	for (float i = 0; i < len; i++) {
+		string c = substring(text, i, 1);
+
+		if (c == "&") {
+			if (substring(text, i + 1, 1) == "&") {
+				out = strcat(out, "&");
+				i++;
+			}
+			continue;
+		}
+
+		out = strcat(out, c);
+	}
+
+	return out;
+}
+
 /** Returns the text for "#Token", or the input unchanged when it is not a token or is unknown. */
 string
 VGUI_Localize(string text)
@@ -424,7 +452,7 @@ VGUI_Localize(string text)
 		val = g_vguiLocalization.GetString(strcat(root, "/tokens/", substring(text, 1, -1)));
 
 		if (val != "")
-			return val;
+			return strreplace("\\n", "\n", VGUI_StripHotkey(val));
 	}
 
 	return text;
@@ -497,12 +525,9 @@ vguiResLayout::PanelPath(int idx)
 string
 vguiResLayout::PanelName(int idx)
 {
-	string path = PanelPath(idx);
-	string field = GetString(strcat(path, "/fieldName"));
-
-	if (field != "")
-		return field;
-
+	/* the block's key, as VGUI2's BuildGroup matches panels by it; a
+	   "fieldName" that disagrees (CSO's room_roominformationv7.res has a
+	   Money block named GameMode) is ignored */
 	return ChildKey(RootPath(), idx);
 }
 
@@ -569,14 +594,124 @@ class vguiResButton:vguiButton
 public:
 	void vguiResButton(void);
 	virtual void OnMouseUp(void);
+	virtual void Draw(void);
+
+	/** Images per state; any left "" falls back to the normal one. */
+	nonvirtual void SetImages(string, string, string, string);
+	/** A three-piece image base drawn with @n, @o and @c suffixes. */
+	nonvirtual void SetThreePic(string);
+	/** Hides the label (the image carries the text). */
+	nonvirtual void SetTextHidden(bool);
+	/** Draws the button's images at this alpha, such as for an unavailable feature. */
+	nonvirtual void SetAlpha(float);
+	/** Suffixes of the three-piece art per state (default "@n", "@o", "@c"). */
+	nonvirtual void SetThreePicSuffixes(string, string, string);
+	/** Shows the button as pressed (such as the current tab). */
+	nonvirtual void SetLatched(bool);
 
 	string m_resCommand;
+	string m_resNormal;
+	string m_resArmed;
+	string m_resClicked;
+	string m_resDisabled;
+	string m_resThree;
+	bool m_resTextHidden;
+	float m_resAlpha;
+	string m_resSuffixN;
+	string m_resSuffixO;
+	string m_resSuffixC;
+	bool m_resLatched;
 };
 
 void
 vguiResButton::vguiResButton(void)
 {
 	m_resCommand = "";
+	m_resNormal = m_resArmed = m_resClicked = m_resDisabled = m_resThree = "";
+	m_resAlpha = 1.0f;
+	m_resSuffixN = "@n";
+	m_resSuffixO = "@o";
+	m_resSuffixC = "@c";
+}
+
+void
+vguiResButton::SetThreePicSuffixes(string normal, string over, string down)
+{
+	m_resSuffixN = strzone(normal);
+	m_resSuffixO = strzone(over);
+	m_resSuffixC = strzone(down);
+}
+
+void
+vguiResButton::SetLatched(bool val)
+{
+	m_resLatched = val;
+}
+
+void
+vguiResButton::SetAlpha(float alpha)
+{
+	m_resAlpha = alpha;
+}
+
+void
+vguiResButton::SetImages(string normal, string armed, string clicked, string disabled)
+{
+	m_resNormal = strzone(normal);
+	m_resArmed = strzone(armed != "" ? armed : normal);
+	m_resClicked = strzone(clicked != "" ? clicked : m_resArmed);
+	m_resDisabled = strzone(disabled != "" ? disabled : normal);
+}
+
+void
+vguiResButton::SetThreePic(string base)
+{
+	m_resThree = strzone(strtolower(base));
+}
+
+void
+vguiResButton::SetTextHidden(bool val)
+{
+	m_resTextHidden = val;
+}
+
+void
+vguiResButton::Draw(void)
+{
+	vector pos = m_parent.m_vecOrigin + m_vecOrigin;
+	VGUIDrawState_t state = VGUI_STATE_NORMAL;
+	string img = m_resNormal;
+	string suffix = m_resSuffixN;
+
+	if (m_resNormal == "" && m_resThree == "") {
+		if (m_resTextHidden == false)
+			super::Draw();
+		return;
+	}
+
+	if (IsEnabled() == false) {
+		state = VGUI_STATE_DISABLED;
+		img = m_resDisabled;
+	} else if (m_iFlags & BUTTON_DOWN || m_resLatched) {
+		state = VGUI_STATE_ACTIVE;
+		img = m_resClicked;
+		suffix = m_resSuffixC;
+	} else if (m_iFlags & BUTTON_HOVER) {
+		state = VGUI_STATE_HOVER;
+		img = m_resArmed;
+		suffix = m_resSuffixO;
+	}
+
+	if (m_resThree != "")
+		VGUI_DrawThreePic(pos, m_vecSize, m_resThree, suffix, m_resAlpha);
+
+	if (img != "")
+		drawpic(pos, img, m_vecSize, [1,1,1], m_resAlpha, 0);
+
+	if (m_resTextHidden == false && STRING_SET(m_strTitle)) {
+		vguiTheme theme = GetTheme();
+		theme.DrawButtonTitle(pos, m_vecSize, m_strTitle, g_fntDefault, state);
+	}
 }
 
 void
@@ -623,10 +758,30 @@ VGUI_ResBuild(vguiWindow frame, vguiResLayout res, string framePanel, float scal
 		frameSize = frame.GetSize();
 	}
 
+	/* panels are added in zpos order (lowest first, file order among
+	   equals), so higher ones draw on top */
+	int count = res.PanelCount();
+	int order[256];
+	int n = (count > 256i) ? 256i : count;
+
+	for (int k = 0i; k < n; k++) {
+		int m = k;
+		float z = res.GetFloat(strcat(res.PanelPath(k), "/zpos"));
+
+		/* QC's && doesn't short-circuit: test m first on its own */
+		while (m > 0i) {
+			if (res.GetFloat(strcat(res.PanelPath(order[m - 1i]), "/zpos")) <= z)
+				break;
+			order[m] = order[m - 1i];
+			m--;
+		}
+		order[m] = k;
+	}
+
 	for (int pass = 0i; pass < 2i; pass++) {
-		for (int j = 0i; j < res.PanelCount(); j++) {
+		for (int j = 0i; j < n; j++) {
 			/* combo boxes go in the second pass, lowest on screen first */
-			int i = (pass == 1i) ? (res.PanelCount() - 1i - j) : j;
+			int i = (pass == 1i) ? (n - 1i - j) : order[j];
 			string path = res.PanelPath(i);
 			string ctl = strtolower(res.GetString(strcat(path, "/ControlName")));
 			string label = VGUI_Localize(res.GetString(strcat(path, "/labelText")));
@@ -656,12 +811,47 @@ VGUI_ResBuild(vguiWindow frame, vguiResLayout res, string framePanel, float scal
 				vguiResButton btn = spawn(vguiResButton);
 				btn.SetTitle(label);
 				btn.m_resCommand = strzone(res.GetString(strcat(path, "/command")));
+				if (res.GetString(strcat(path, "/normalImage")) != "")
+					btn.SetImages(res.GetString(strcat(path, "/normalImage")),
+						res.GetString(strcat(path, "/armedImage")),
+						res.GetString(strcat(path, "/clickedImage")),
+						res.GetString(strcat(path, "/disabledImage")));
+				if (res.GetString(strcat(path, "/ThreePicsTgaPath")) != "")
+					btn.SetThreePic(res.GetString(strcat(path, "/ThreePicsTgaPath")));
+				btn.SetTextHidden(res.GetFloat(strcat(path, "/textHidden")) != 0);
 				w = btn;
 				break;
+			case "imagepanel":
+			case "signalimagepanel":
+			case "roundpanel":
+				vguiResImage pic = spawn(vguiResImage);
+				float fillAlpha;
+				vector fill = VGUI_ResColor(res.GetString(strcat(path, "/fillcolor")), fillAlpha);
+				pic.SetImage(res.GetString(strcat(path, "/image")));
+				pic.SetScaleImage(res.GetFloat(strcat(path, "/scaleImage")) != 0);
+				pic.SetFillColor(fill, fillAlpha);
+				pic.SetThreePic(strtolower(res.GetString(strcat(path, "/ThreePicsTgaPath"))));
+				pic.SetNinePic(res.GetString(strcat(path, "/NinePicsTgaPath")));
+				pic.SetCommand(res.GetString(strcat(path, "/command")));
+				/* RoundPanel art is drawn by the original's code (UNRESOLVED);
+				   the custom-control hook may replace it */
+				if (ctl == "roundpanel" && g_vguiResCustomControl) {
+					vguiWidget custom = g_vguiResCustomControl(res, path);
+					if (custom) {
+						remove(pic);
+						w = custom;
+						break;
+					}
+				}
+				w = pic;
+				break;
+			case "imetextentry":
 			case "textentry":
 				vguiTextBox txt = spawn(vguiTextBox);
 				w = txt;
 				break;
+			case "radiobutton":
+			case "ccvartogglecheckbutton":
 			case "checkbutton":
 				vguiCheckbox chk = spawn(vguiCheckbox);
 				chk.SetTitle(label);
@@ -670,6 +860,17 @@ VGUI_ResBuild(vguiWindow frame, vguiResLayout res, string framePanel, float scal
 			case "combobox":
 				vguiComboBox combo = spawn(vguiComboBox);
 				w = combo;
+				break;
+			case "slider":
+			case "ccvarslider":
+				/* the caller sets the range and links the value */
+				vguiResSlider slider = spawn(vguiResSlider);
+				w = slider;
+				break;
+			case "listpanel":
+				/* columns and rows are set by code, as in VGUI2 */
+				vguiResList list = spawn(vguiResList);
+				w = list;
 				break;
 			default:
 				if (g_vguiResCustomControl)
@@ -692,6 +893,19 @@ VGUI_ResBuild(vguiWindow frame, vguiResLayout res, string framePanel, float scal
 	}
 
 	return made;
+}
+
+/** Finds a widget that VGUI_ResBuild made inside one frame, by panel name.
+Use this when several layouts share panel names (such as "ListPanel1"). */
+vguiWidget
+VGUI_ResFindIn(vguiWidget frame, string name)
+{
+	for (entity e = find(__NULL__, vguiResName, name); e; e = find(e, vguiResName, name)) {
+		if (e.isVGUI && ((vguiWidget)e).m_parent == frame)
+			return (vguiWidget)e;
+	}
+
+	return __NULL__;
 }
 
 /** Finds a widget that VGUI_ResBuild made, by panel name. */

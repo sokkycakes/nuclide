@@ -135,8 +135,10 @@ bool vguiTextBox::Input (float flEVType, float flKey, float flChar, float flDevI
 					m_strText = substring(m_strText, 0, strlen(m_strText) - 1);
 		break;
 	case K_ENTER:
-		if (tmpvguiTextBox1) {
+		/* only the focused box answers, once per press */
+		if (flEVType == IE_KEYDOWN && m_iFlags & TEXTBOX_FOCUS && tmpvguiTextBox1) {
 			tmpvguiTextBox1();
+			ret = true;
 		}
 		break;
 	default:
