@@ -27,4 +27,6 @@
 ../vgui/ProgressBar.qc
 ../vgui/LoadingPanel.qc
 ../vgui/TextView.qc
+../vgui/ComboBox.qc
+../vgui/ResFile.qc
 #endlist

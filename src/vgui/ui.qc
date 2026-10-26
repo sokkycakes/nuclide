@@ -14,12 +14,12 @@
  * OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
-#warning vguiWidget needs methods to deal with .res/.gui type files.
-
 #include "Widget.h"
 
 .string classname;
 .bool isVGUI;
+/** Panel name of a widget made from a .res layout, see VGUI_ResBuild(). */
+.string vguiResName;
 
 font_s g_fntDefault;
 font_s g_fntTitle;
