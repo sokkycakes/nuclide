@@ -372,6 +372,8 @@ they still fight but walk straight at their goals.
 
 | Command | What it does |
 | --- | --- |
+| `set bot_minClients N` | Keeps the server at N players, adding or kicking bots (Nuclide's; 24 is 12 a side, which needs `maxplayers 24` or more) |
+| `set tf_bot_mixclasses 0/1` | Joining bots take the class fewest teammates play (default 1); 0 picks at random |
 | `set bot_skill 1-3` | Aim error, reaction time and turn speed (default 2, from `base`) |
 | `set tfbot_report N` | Prints every bot's class, health, score and behaviour every N seconds |
 | `bot_status` | Lists the bots with their behaviour stacks |

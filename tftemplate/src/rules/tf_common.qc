@@ -595,6 +595,45 @@ CodeCallback_CallRequestTeam(entity playerEntity, int teamNum)
 	return (true);
 }
 
+var bool autocvar_tf_bot_mixclasses = true;
+
+/** The class in tf_classes that the fewest players on a team have picked,
+a random one among ties, or fallback if there are none. */
+string
+TF_LeastPlayedClass(float teamNum, string fallback)
+{
+	float classCount = tokenize_console(autocvar_tf_classes);
+	float fewest = 999999;
+	float ties = 0;
+	string pick = fallback;
+
+	for (float i = 0; i < classCount; i++) {
+		string candidate = argv(i);
+		float players = 0;
+
+		for (entity e = world; (e = next.Player(e));) {
+			if (e.team == teamNum && e.tf_desiredClass == candidate) {
+				players++;
+			}
+		}
+
+		if (players < fewest) {
+			fewest = players;
+			pick = candidate;
+			ties = 1;
+		} else if (players == fewest) {
+			/* each tie has an even chance of being the one kept */
+			ties++;
+
+			if (random() * ties < 1) {
+				pick = candidate;
+			}
+		}
+	}
+
+	return (pick);
+}
+
 void
 TF_ChooseClass(entity playerEntity, string className)
 {
@@ -619,8 +658,14 @@ TF_ChooseClass(entity playerEntity, string className)
 		}
 	}
 
-	TF_Debug(sprintf("%s chose %s", playerEntity.netname, className));
 	bool firstClass = STRING_SET(playerEntity.tf_desiredClass) ? false : true;
+
+	/* bots joining fill out their team: the class fewest teammates have */
+	if (firstClass && is.Bot(playerEntity) && autocvar_tf_bot_mixclasses) {
+		className = TF_LeastPlayedClass(playerEntity.team, className);
+	}
+
+	TF_Debug(sprintf("%s chose %s", playerEntity.netname, className));
 	playerEntity.tf_desiredClass = className;
 
 	/* first pick, waiting for players, or standing in the respawn room:
