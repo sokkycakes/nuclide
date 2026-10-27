@@ -924,8 +924,21 @@ sendInput(entity theTarget, string inputName, string dataString, entity activato
 	}
 
 #ifdef SERVER
+	if (scriptInput(theTarget, activator, inputName, dataString, activator))
+		return;
+
 	targetEntity.Input(activator, inputName, dataString);
 #endif
+}
+
+bool
+scriptInput(entity theTarget, entity activator, string inputName, string dataString, entity caller)
+{
+#ifdef SERVER
+	if (checkbuiltin(script_input))
+		return (script_input(theTarget, activator, inputName, dataString, caller) != 0) ? true : false;
+#endif
+	return (false);
 }
 
 /* helper functions */
