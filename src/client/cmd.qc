@@ -308,34 +308,22 @@ Cmd_Parse(string sCMD)
 	switch (argv(0)) {
 
 	case "slot1":
-		Textmenu_Input(0);
-		break;
 	case "slot2":
-		Textmenu_Input(1);
-		break;
 	case "slot3":
-		Textmenu_Input(2);
-		break;
 	case "slot4":
-		Textmenu_Input(3);
-		break;
 	case "slot5":
-		Textmenu_Input(4);
-		break;
 	case "slot6":
-		Textmenu_Input(5);
-		break;
 	case "slot7":
-		Textmenu_Input(6);
-		break;
 	case "slot8":
-		Textmenu_Input(7);
-		break;
 	case "slot9":
-		Textmenu_Input(8);
-		break;
 	case "slot10":
-		Textmenu_Input(9);
+		/* an open text menu takes number keys; otherwise the HUD
+		   progs gets them for weapon selection */
+		if (STRING_SET(g_textmenu)) {
+			Textmenu_Input(stoi(substring(argv(0), 4, -1)) - 1i);
+		} else {
+			return HUD_ConsoleCommand(sCMD);
+		}
 		break;
 
 	case "listFramegroups":
