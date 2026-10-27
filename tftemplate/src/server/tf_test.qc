@@ -26,7 +26,10 @@ rules progs pass any tf_test_* command they don't know to TF_TestCommand.
 - tf_test_hold <player> <buttons> <seconds> [target player]: pins the
   player and holds buttons ("primary", "secondary", "reload", "jump",
   "use", "none", joined with +) for that long, aiming at the target if
-  given (a player name, or @classname for the first entity of a class). Bot AI is off while pinned.
+  given (a player name, @classname for the first entity of a class, or
+  =pitch,yaw for fixed view angles, negative pitch looking up).
+- tf_test_projectiles [clear]: every projectile's position and velocity,
+  or removes them all Bot AI is off while pinned.
 - tf_test_release <player>: unpins, giving control back
 - tf_test_report: health and state of every player and building
 */
@@ -40,7 +43,11 @@ TF_TestFindPlayer(string playerName)
 		}
 	}
 
-	print(sprintf("no player %S\n", playerName));
+	print(sprintf("no player %S; players:", playerName));
+	for (entity e = world; (e = next.Player(e));) {
+		print(sprintf(" %S", e.netname));
+	}
+	print("\n");
 	return (__NULL__);
 }
 
@@ -135,8 +142,16 @@ TF_TestCommand(string commandLine)
 			thePlayer.m_tfTestUntil = time + stof(argv(3));
 			string aimName = argv(4);
 
-			/* "@classname" aims at the first entity of that class */
-			if (substring(aimName, 0, 1) == "@") {
+			thePlayer.m_tfTestFixedAim = false;
+
+			/* "@classname" aims at the first entity of that class,
+			   "=pitch,yaw" at fixed view angles (negative pitch is up) */
+			if (substring(aimName, 0, 1) == "=") {
+				tokenizebyseparator(substring(aimName, 1, -1), ",");
+				thePlayer.m_tfTestFixedAim = true;
+				thePlayer.m_tfTestAngles = [stof(argv(0)), stof(argv(1)), 0];
+				thePlayer.m_tfTestAim = world;
+			} else if (substring(aimName, 0, 1) == "@") {
 				thePlayer.m_tfTestAim = find(world, ::classname, substring(aimName, 1, -1));
 			} else {
 				thePlayer.m_tfTestAim = STRING_SET(aimName) ? (entity)TF_TestFindPlayer(aimName) : world;
@@ -151,6 +166,18 @@ TF_TestCommand(string commandLine)
 
 		if (thePlayer) {
 			thePlayer.m_tfTestPinned = false;
+		}
+		break;
+	case "tf_test_projectiles":
+		for (entity proj = world; (proj = nextent(proj));) {
+			if (substring(proj.classname, 0, 11) == "projectile_") {
+				if (argv(1) == "clear") {
+					remove(proj);
+					continue;
+				}
+
+				print(sprintf("%s of %s: origin %v velocity %v\n", proj.classname, proj.owner.netname, proj.origin, proj.velocity));
+			}
 		}
 		break;
 	case "tf_test_report":
