@@ -123,6 +123,14 @@ TF2 knockback (cvars `tf_knockback`, `tf_selfknockback`,
 `tf_knockback_max`), and the HUD shows the active weapon's meter (charge,
 stickies, spin, uber, cloak, metal) above the ammo.
 
+When you die, the view works like TF2's. A death cam pulls back from where
+you fell and looks at your killer (a building's kill counts as its
+Engineer's). After 2 seconds (`cl_freezecam_delay`) a freeze cam moves in
+on the killer and holds. Then you spectate a living teammate in a chase
+cam until you respawn, 6.4 seconds after dying (`tf_deathcam_time`, or
+`tf_deathcam_time_suicide` 2 when nobody else killed you). Bots skip all
+of this. The HUD shows "Killed by" and "Spectating".
+
 Weapon mechanics that need prediction are Nuclide def keys, so the client
 predicts them: `pm_airjumps` and `pm_backspeed` on the player, and `speed_mod_firing` and
 `speed_mod_zoomed` on weapons. The rest runs on the server only, because

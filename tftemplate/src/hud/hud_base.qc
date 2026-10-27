@@ -128,11 +128,21 @@ HUD_DrawSpectator(void)
 	vector hud_size = screen.HUDSize();
 	vector vecPos = g_vec_null;
 
+	/* death and freeze cam: who got us */
+	if (spectating.Mode() == SPECMODE_DEATHCAM) {
+		string killerName = spectating.Name();
+		strText = STRING_SET(killerName) ? sprintf("Killed by %s", killerName) : "You died";
+		vecPos[0] = hud_mins[0] + (hud_size[0] / 2) - (font.StringWidth(strText, true, FONT_HUD) / 2);
+		vecPos[1] = hud_mins[1] + hud_size[1] - 60;
+		draw.Text_A(vecPos, strText, 1.0f, FONT_HUD);
+		return;
+	}
+
 	if (spectating.Mode() == SPECMODE_FREE) {
 		palpha = 0.5f;
 	}
 
-	strText = sprintf("Tracking: %s", spectating.Name());
+	strText = sprintf("Spectating: %s", spectating.Name());
 	vecPos[0] = hud_mins[0] + (hud_size[0] / 2) - (font.StringWidth(strText, true, FONT_HUD) / 2);
 	vecPos[1] = hud_mins[1] + hud_size[1] - 60;
 	draw.Text_A(vecPos, strText, palpha, FONT_HUD);
