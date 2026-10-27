@@ -41,6 +41,10 @@ var float autocvar_tf_knockback_max = 1000;
 var float autocvar_tf_afterburn_damage = 4;
 var float autocvar_tf_cloak_drain = 10;
 var float autocvar_tf_cloak_regen = 3.3;
+/** seconds of death cam and freeze cam before spectating (TF2: 2 + 0.4 + 4) */
+var float autocvar_tf_deathcam_time = 6.4;
+/** the same when nobody else killed us: no freeze cam */
+var float autocvar_tf_deathcam_time_suicide = 2.0;
 
 #define TFCLASS_SPY 9
 
@@ -91,6 +95,8 @@ public:
 private:
 	nonvirtual void TFFrame(void);
 	nonvirtual void UpdateSpeedTarget(void);
+	nonvirtual void StartDeathCam(entity);
+	nonvirtual void StartSpectating(void);
 	nonvirtual void UpdateRender(void);
 	nonvirtual void PublishInfo(void);
 
@@ -105,6 +111,7 @@ private:
 	float m_tfNextPublish;
 	string m_tfWeaponMeter;
 	float m_tfRenderState;
+	float m_tfSpectateAt;
 };
 
 void
@@ -159,6 +166,7 @@ tfPlayer::Respawn(void)
 	m_tfUberCharge = 0.0f;
 	m_tfWeaponMeter = "";
 	m_tfRenderState = -1;
+	m_tfSpectateAt = 0.0f;
 	Undisguise();
 }
 
@@ -257,6 +265,71 @@ tfPlayer::Death(entity inflictor, entity attacker, int damagePoints, vector dmgD
 	tf_uberUntil = 0.0f;
 	tf_healTarget = __NULL__;
 	super::Death(inflictor, attacker, damagePoints, dmgDir, hitLocation, hitBody);
+	StartDeathCam(attacker);
+}
+
+/** Team Fortress 2's view after dying: the death cam looks at the killer
+from where we fell (the client moves in on them for the freeze cam after
+cl_freezecam_delay seconds), then we spectate teammates until we respawn.
+A building's kill counts as its Engineer's. Bots skip it. */
+void
+tfPlayer::StartDeathCam(entity killer)
+{
+	m_tfSpectateAt = 0.0f;
+
+	if (clienttype(this) != CLIENTTYPE_REAL) {
+		return;
+	}
+
+	if (killer && is.Player(killer) == false && killer.tf_builder) {
+		killer = killer.tf_builder;
+	}
+
+	if (killer && killer != this && is.Player(killer)) {
+		m_spectatingEntity = num_for_edict(killer);
+		m_tfSpectateAt = time + autocvar_tf_deathcam_time;
+	} else {
+		m_spectatingEntity = 0;
+		m_tfSpectateAt = time + autocvar_tf_deathcam_time_suicide;
+	}
+
+	m_spectatingMode = SPECMODE_DEATHCAM;
+}
+
+/** After the death cam: follow a living teammate (the one we watched last
+if they're still up), or the killer, or fly freely. */
+void
+tfPlayer::StartSpectating(void)
+{
+	entity watchTarget = __NULL__;
+
+	for (entity e = world; (e = next.Player(e));) {
+		if (e == this || e.team != team || is.Alive(e) == false) {
+			continue;
+		}
+
+		watchTarget = e;
+		break;
+	}
+
+	if (!watchTarget && m_spectatingEntity > 0) {
+		entity killerEnt = edict_num(m_spectatingEntity);
+
+		if (is.Player(killerEnt) && is.Alive(killerEnt)) {
+			watchTarget = killerEnt;
+		}
+	}
+
+	MakeTempSpectator();
+
+	if (watchTarget) {
+		m_spectatingEntity = num_for_edict(watchTarget);
+		m_spectatingMode = SPECMODE_THIRDPERSON;
+		SetOrigin(watchTarget.origin);
+	} else {
+		m_spectatingEntity = 0;
+		m_spectatingMode = SPECMODE_FREE;
+	}
 }
 
 void
@@ -412,6 +485,11 @@ tfPlayer::TFFrame(void)
 	UpdateSpeedTarget();
 
 	if (is.Alive(this) == false) {
+		if (m_tfSpectateAt > 0.0f && time >= m_tfSpectateAt) {
+			m_tfSpectateAt = 0.0f;
+			StartSpectating();
+		}
+
 		if (time >= m_tfNextPublish) {
 			m_tfNextPublish = time + 0.1f;
 			PublishInfo();

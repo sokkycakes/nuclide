@@ -240,7 +240,7 @@ CSQC_Update2D(float w, float h, bool focus)
 	ncPlayer cl = (ncPlayer)pSeat->m_ePlayer;
 	self = cl;
 
-	if (Util_GetMaxPlayers() > 1 && !VGUI_Active() && (Client_InIntermission() || (!cl.IsFakeSpectator() && cl.IsDead()))) {
+	if (Util_GetMaxPlayers() > 1 && !VGUI_Active() && (Client_InIntermission() || (!cl.IsFakeSpectator() && cl.IsDead() && cl.m_spectatingMode != SPECMODE_DEATHCAM))) {
 		HUD_DrawIntermission();
 		Textmenu_Draw();
 		HUDProgs_DrawScores();
