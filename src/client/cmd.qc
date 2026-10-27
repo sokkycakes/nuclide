@@ -326,6 +326,14 @@ Cmd_Parse(string sCMD)
 		}
 		break;
 
+	case "svmenu":
+		/* svmenu "<text>": a text menu from a server mod; an empty one closes */
+		if (STRING_SET(argv(1))) {
+			Textmenu_ServerMenu(argv(1));
+		} else {
+			Textmenu_Hide();
+		}
+		break;
 	case "listFramegroups":
 		CMD_ListModelFramegroups();
 		break;
@@ -741,6 +749,7 @@ Cmd_Init(void)
 	registercommand("motd");
 
 	/* hud weapon selection system */
+	registercommand("svmenu");
 	registercommand("slot1");
 	registercommand("slot2");
 	registercommand("slot3");
