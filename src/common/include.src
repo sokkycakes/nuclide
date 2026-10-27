@@ -10,4 +10,5 @@ c_math_vector.h
 c_memory.h
 c_platform.h
 c_teams.h
+c_script.h
 #endlist

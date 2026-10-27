@@ -14,6 +14,16 @@
  * OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
+/* the script layer sees each input first, see c_script.h */
+static void
+ncOutput_Deliver(ncIO target, entity activatorEnt, entity callerEnt, string inputName, string dataString)
+{
+	if (scriptInput(target, activatorEnt, inputName, dataString, callerEnt))
+		return;
+
+	target.Input(activatorEnt, inputName, dataString);
+}
+
 void
 ncOutput::TriggerOutput(void)
 {
@@ -23,20 +33,20 @@ ncOutput::TriggerOutput(void)
 	/* plug into all the inputs. */
 	if (m_strTarget == "!self") {
 		if (ourOwner)
-			ourOwner.Input(ourOwner, m_strInput, m_strData);
+			ncOutput_Deliver(ourOwner, ourOwner, ourOwner, m_strInput, m_strData);
 	} else if (m_strTarget == "!activator") {
 		if (ourActivator)
-			ourActivator.Input(ourActivator, m_strInput, m_strData);
+			ncOutput_Deliver(ourActivator, ourActivator, ourOwner, m_strInput, m_strData);
 	} else if (m_strTarget == "!target") {
 		ncEntity ourTarget = (ncEntity)find(world, ::targetname, ourOwner.target);
 
 		if (ourTarget)
-			ourTarget.Input(ourActivator, m_strInput, m_strData);
+			ncOutput_Deliver(ourTarget, ourActivator, ourOwner, m_strInput, m_strData);
 	} else if (m_strTarget == "!rules") {
 		ncRuleDelegate ourRules = ncRuleDelegate::ActiveInstance();
 
 		if (ourRules)
-			ourRules.Input(ourActivator, m_strInput, m_strData);
+			ncOutput_Deliver(ourRules, ourActivator, ourOwner, m_strInput, m_strData);
 	} else {
 		if (!STRING_SET(m_strTarget)) {
 			EntError("target invalid.");
@@ -47,7 +57,7 @@ ncOutput::TriggerOutput(void)
 			ncEntity trigger = (ncEntity)f;
 
 			if (trigger.Input != __NULL__) {
-				trigger.Input(m_eActivator, m_strInput, m_strData);
+				ncOutput_Deliver(trigger, m_eActivator, ourOwner, m_strInput, m_strData);
 			}
 		}
 	}

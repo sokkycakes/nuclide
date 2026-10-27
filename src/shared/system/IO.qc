@@ -77,7 +77,7 @@ ncIO::Spawned(void)
 	if (STRING_SET(m_outputOnKilled))
 		m_outputOnKilled = CreateOutput(m_outputOnKilled);
 	if (STRING_SET(m_outputOnTrigger))
-		m_outputOnKilled = CreateOutput(m_outputOnTrigger);
+		m_outputOnTrigger = CreateOutput(m_outputOnTrigger);
 	if (STRING_SET(m_outputOnUser1))
 		m_outputOnUser1 = CreateOutput(m_outputOnUser1);
 	if (STRING_SET(m_outputOnUser2))
@@ -94,6 +94,11 @@ ncIO::Spawned(void)
 	solid = SOLID_NOT;
 
 #ifdef SERVER
+	if (STRING_SET(m_scriptFiles) && checkbuiltin(script_attach))
+		script_attach(this, m_scriptFiles);
+	if (STRING_SET(m_scriptThink) && checkbuiltin(script_think))
+		script_think(this, m_scriptThink);
+
 	UseOutput(this, m_outputOnSpawn);
 #endif
 }
@@ -608,6 +613,12 @@ ncIO::SpawnKey(string keyName, string setValue)
 #ifdef SERVER
 	case "script_gametype":
 		m_gameModeFilter = ReadString(setValue);
+		break;
+	case "vscripts":
+		m_scriptFiles = ReadString(setValue);
+		break;
+	case "thinkfunction":
+		m_scriptThink = ReadString(setValue);
 		break;
 	/* Input/Output system */
 	case "OnSpawn":
