@@ -27,7 +27,8 @@ and drops down ledges of up to TFNAV_DROP units, one way. Doors, trains and
 spawn room walls are made non-solid while it runs, so the graph goes
 through them. Spots inside a trigger_hurt are left out, and waypoints held
 up only by a corner of the box (the edge of a ramp or a ledge) are moved
-onto the floor or dropped.
+onto the floor or dropped. Waypoints near a wall or a drop are moved up
+to TFNAV_EDGE / 2 units away from it, to the middle of narrow ramps.
 
 The file is Nuclide's waypoint format, which both Nuclide's botlib and the
 Bulwark bot framework read. Jump links carry LF_JUMP. */
@@ -40,6 +41,8 @@ Bulwark bot framework read. Jump links carry LF_JUMP. */
 #define TFNAV_DROP 250
 #define TFNAV_MAXNODES 16384
 #define TFNAV_MAXLINKS 8
+/* waypoints closer than this to a wall or a drop are moved away from it */
+#define TFNAV_EDGE 24
 
 static vector *g_navPos;
 static int *g_navLinkTo;
@@ -191,6 +194,20 @@ TFNav_Move(vector fromPos, vector toXY)
 			liftedTo = [partXY[0], partXY[1], liftedFrom[2]];
 			tracebox(liftedFrom, g_navMins, g_navMaxs, liftedTo, MOVE_NOMONSTERS, world);
 
+			/* stepped up onto the foot of a slope: the physics slides up
+			   it, so lift by as much as the slope rises over the rest */
+			if (trace_startsolid == false && trace_fraction < 1.0f && trace_plane_normal[2] >= 0.7f) {
+				float slopeRise = vlen(liftedTo - liftedFrom) * (1.0f - trace_fraction)
+					* sqrt(1.0f - trace_plane_normal[2] * trace_plane_normal[2]) / trace_plane_normal[2];
+				liftedFrom = walkPos + [0, 0, TFNAV_STEP + slopeRise + 1];
+				liftedTo = [partXY[0], partXY[1], liftedFrom[2]];
+				tracebox(walkPos, g_navMins, g_navMaxs, liftedFrom, MOVE_NOMONSTERS, world);
+
+				if (trace_fraction >= 1.0f) {
+					tracebox(liftedFrom, g_navMins, g_navMaxs, liftedTo, MOVE_NOMONSTERS, world);
+				}
+			}
+
 			if (trace_startsolid || trace_fraction < 1.0f) {
 				walked = false;
 				break;
@@ -260,13 +277,14 @@ TFNav_Settle(vector pos)
 	for (int i = 0i; i < 8i; i++) {
 		vector tryPos = pos + g_navNudges[i];
 
-		tracebox(pos, g_navMins, g_navMaxs, tryPos, MOVE_NOMONSTERS, world);
+		/* a step up, as walking would, so it can go up a slope */
+		tracebox(pos + [0, 0, TFNAV_STEP], g_navMins, g_navMaxs, tryPos + [0, 0, TFNAV_STEP], MOVE_NOMONSTERS, world);
 
 		if (trace_startsolid || trace_fraction < 1.0f) {
 			continue;
 		}
 
-		if (TFNav_Ground(tryPos + [0, 0, TFNAV_STEP], TFNAV_STEP * 2) == false) {
+		if (TFNav_Ground(tryPos + [0, 0, TFNAV_STEP], TFNAV_STEP * 3) == false) {
 			continue;
 		}
 
@@ -279,6 +297,77 @@ TFNav_Settle(vector pos)
 	}
 
 	return (false);
+}
+
+/** How far a player at pos can move along dir (up to TFNAV_EDGE) and
+still stand with the whole box over the floor, in steps of 4 units. */
+static float
+TFNav_Clearance(vector pos, vector dir)
+{
+	float edgeOffset = g_navMaxs[0] - 1;
+	float clearance = 0;
+
+	for (float dist = 4; dist <= TFNAV_EDGE; dist += 4) {
+		vector tryPos = pos + dir * dist;
+		vector liftedFrom = pos + [0, 0, TFNAV_STEP];
+		vector liftedTo = tryPos + [0, 0, TFNAV_STEP];
+
+		tracebox(liftedFrom, g_navMins, g_navMaxs, liftedTo, MOVE_NOMONSTERS, world);
+
+		if (trace_startsolid || trace_fraction < 1.0f) {
+			break;
+		}
+
+		if (TFNav_Ground(liftedTo, TFNAV_STEP * 2) == false) {
+			break;
+		}
+
+		/* the leading edge of the box still over the floor */
+		if (TFNav_Centred(trace_endpos + dir * edgeOffset) == false) {
+			break;
+		}
+
+		clearance = dist;
+	}
+
+	return (clearance);
+}
+
+/** Moves a waypoint off a wall or the edge of a drop, to the middle of a
+narrow ramp or corridor, so bots following the graph keep clear of both.
+Returns pos when there's nothing to do or nowhere better. */
+static vector
+TFNav_Centre(vector pos)
+{
+	vector shift = [0, 0, 0];
+
+	for (float axis = 0; axis < 2; axis++) {
+		vector dir = (axis == 0) ? [1, 0, 0] : [0, 1, 0];
+		float ahead = TFNav_Clearance(pos, dir);
+		float behind = TFNav_Clearance(pos, -dir);
+
+		if (ahead < TFNAV_EDGE || behind < TFNAV_EDGE) {
+			shift += dir * rint((ahead - behind) * 0.5f);
+		}
+	}
+
+	if (vlen(shift) < 4) {
+		return (pos);
+	}
+
+	vector liftedTo = pos + shift + [0, 0, TFNAV_STEP];
+	tracebox(pos + [0, 0, TFNAV_STEP], g_navMins, g_navMaxs, liftedTo, MOVE_NOMONSTERS, world);
+
+	if (trace_startsolid || trace_fraction < 1.0f) {
+		return (pos);
+	}
+
+	if (TFNav_Ground(liftedTo, TFNAV_STEP * 2) == false) {
+		return (pos);
+	}
+
+	vector groundPos = trace_endpos;
+	return (TFNav_Centred(groundPos)) ? groundPos : pos;
 }
 
 static int
@@ -295,7 +384,7 @@ TFNav_Seed(vector seedPos)
 				continue;
 			}
 
-			vector groundPos = g_navSettled;
+			vector groundPos = TFNav_Centre(g_navSettled);
 
 			if (TFNav_Hurts(groundPos)) {
 				continue;
@@ -425,6 +514,17 @@ TF_NavGenerate(float nodeSpacing)
 			}
 
 			vector landPos = g_navSettled;
+			vector centredPos = TFNav_Centre(landPos);
+
+			/* the centred spot has to be reachable too */
+			if (centredPos != landPos) {
+				int centredFlags = TFNav_Move(fromPos, centredPos);
+
+				if (centredFlags >= 0i && vlen(trace_endpos - centredPos) < 2) {
+					landPos = centredPos;
+					linkFlags = centredFlags;
+				}
+			}
 
 			if (TFNav_Hurts(landPos)) {
 				continue;
