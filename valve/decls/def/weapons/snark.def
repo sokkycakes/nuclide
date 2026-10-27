@@ -48,16 +48,24 @@ entityDef fireInfo_snark
 	"removeOnEmpty" 	"1"
 }
 
+// a thrown snark is on the thrower's side: it hunts monsters, not players
 entityDef projectile_snark
 {
-	"spawnclass"			"ncProjectile"
-	"OnSpawn"				"!self,SpawnDefAttachment,monster_snark,0,-1"
+	"spawnclass"		"ncAttack"
+	"def_drop"			"monster_snark_thrown"
+	"dropDistance"		"32"
+	"dropVelocity"		"250 0 120"
+	"drop"				"1"
+}
 
-	"health"				"0"
-	"velocity"				"0"
-	"angular_velocity"		"0 0 200"
-	"detonate_on_death"		"1"
-	"detonate_on_world"		"1"
-	"detonate_on_actor"		"1"
-	"offset"				"32 0 0"
+entityDef monster_snark_thrown
+{
+	"inherit"			"monster_snark"
+	"team"				"0"
+
+	// event blocks aren't inherited
+	events {
+		jump "AddVelocity" "512 0 250"
+		jump "StartSoundDef" "Snark.Squeak"
+	}
 }

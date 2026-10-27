@@ -14,10 +14,15 @@
  * OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#ifdef CLIENT
-var float TRAIL_GAUSSBEAM;
+/* where each segment of the last beam ends: the server fills it in
+   before FX_GaussBeam sends it, the client as it reads it */
+#define GAUSSBEAM_MAXPOINTS 12
+vector g_gaussBeamPoints[GAUSSBEAM_MAXPOINTS];
 
 void FX_GaussBeam(vector, vector, int, entity);
+
+#ifdef CLIENT
+var float TRAIL_GAUSSBEAM;
 
 void
 FX_GaussBeam_Init(void)
@@ -32,7 +37,7 @@ void
 FX_GaussBeam_Parse(void)
 {
 	vector pos, angle;
-	int beams;
+	int points;
 	entity eowner;
 
 	pos[0] = readcoord();
@@ -42,11 +47,22 @@ FX_GaussBeam_Parse(void)
 	angle[0] = readcoord();
 	angle[1] = readcoord();
 	angle[2] = readcoord();
-	beams = (int)readbyte();
-	
+	points = (int)readbyte();
+
+	for (int i = 0i; i < points; i++) {
+		vector p;
+		p[0] = readcoord();
+		p[1] = readcoord();
+		p[2] = readcoord();
+
+		if (i < GAUSSBEAM_MAXPOINTS) {
+			g_gaussBeamPoints[i] = p;
+		}
+	}
+
 	eowner = findfloat(world, ::entnum, readentitynum());
 
-	FX_GaussBeam(pos, angle, beams, eowner);
+	FX_GaussBeam(pos, angle, min(points, GAUSSBEAM_MAXPOINTS), eowner);
 }
 
 void
@@ -114,8 +130,10 @@ FX_GaussBeam_Piece(vector vecPos, vector vecFlyDir)
 }
 #endif
 
+/* the beam from vecPos (the shooter's eye) through each of the numPoints
+   points in g_gaussBeamPoints */
 void
-FX_GaussBeam(vector vecPos, vector vecAngle, int numBeams, entity eOwner)
+FX_GaussBeam(vector vecPos, vector vecAngle, int numPoints, entity eOwner)
 {
 #ifdef SERVER
 	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
@@ -123,64 +141,40 @@ FX_GaussBeam(vector vecPos, vector vecAngle, int numBeams, entity eOwner)
 	WriteCoord(MSG_MULTICAST, vecPos[0]); 
 	WriteCoord(MSG_MULTICAST, vecPos[1]); 
 	WriteCoord(MSG_MULTICAST, vecPos[2]);
-	WriteFloat(MSG_MULTICAST, vecAngle[0]); 
-	WriteFloat(MSG_MULTICAST, vecAngle[1]); 
-	WriteFloat(MSG_MULTICAST, vecAngle[2]);
-	WriteByte(MSG_MULTICAST, numBeams);
+	WriteCoord(MSG_MULTICAST, vecAngle[0]); 
+	WriteCoord(MSG_MULTICAST, vecAngle[1]); 
+	WriteCoord(MSG_MULTICAST, vecAngle[2]);
+	WriteByte(MSG_MULTICAST, numPoints);
+
+	for (int i = 0i; i < numPoints; i++) {
+		WriteCoord(MSG_MULTICAST, g_gaussBeamPoints[i][0]);
+		WriteCoord(MSG_MULTICAST, g_gaussBeamPoints[i][1]);
+		WriteCoord(MSG_MULTICAST, g_gaussBeamPoints[i][2]);
+	}
+
 	WriteEntity(MSG_MULTICAST, eOwner);
 
 	msg_entity = self;
 	multicast(vecPos, MULTICAST_PVS);
 #else
 	vector vecSrc;
-	vector vecEndPos;
 	vector vecDir;
-	vector vecCurPlane;
-	vector vecCurPos;
-	int totalBeams = numBeams;
 
-	makevectors(vecAngle);
-	vecDir = v_forward;
-	vecSrc = vecPos;
-	vecEndPos = vecSrc + v_forward * 1024;
-	traceline(vecSrc, vecEndPos, FALSE, eOwner);
-	vecCurPlane = trace_plane_normal;
-	vecCurPos = trace_endpos;
-	trailparticles(TRAIL_GAUSSBEAM, eOwner, vecSrc + (v_right * 8) + (v_up * -12), trace_endpos);
-	FX_GaussBeam_Piece(trace_endpos, vecDir * -1);
-	Decals_Place(trace_endpos, "{gaussshot1");
-
-	makevectors(vecAngle);
-	vecDir = v_forward;
-	trace_plane_normal = vecCurPlane;
-	trace_endpos = vecCurPos;
-
-	while (numBeams > 0) {
-		vector newDir;
-		trace_plane_normal = vecCurPlane;
-		trace_endpos = vecCurPos;
-		newDir = vecDir - 2 * (vecDir * trace_plane_normal) * trace_plane_normal;
-		vecDir = newDir;
-		vecSrc = trace_endpos + (vecDir * -1);
-		vecEndPos = trace_endpos + (vecDir * 8192);
-		traceline(vecSrc, vecEndPos, FALSE, eOwner);
-		vecCurPlane = trace_plane_normal;
-		vecCurPos = trace_endpos;
-
-		trailparticles(TRAIL_GAUSSBEAM, eOwner, vecSrc, trace_endpos);
-		FX_GaussBeam_Piece(trace_endpos, vecDir);
-		numBeams--;
-
-#if 1
-		if (serverkeyfloat("*bspversion") == BSPVER_HL)
-			if (getsurfacetexture(trace_ent, getsurfacenearpoint(trace_ent, trace_endpos)) != "sky") {
-				Decals_Place(trace_endpos, "{gaussshot1");
-			} else {
-				break;
-			}
-#endif
+	if (numPoints <= 0i) {
+		return;
 	}
 
+	/* the first segment leaves the gun, not the eye */
+	makevectors(vecAngle);
+	vecSrc = vecPos + (v_right * 8) + (v_up * -12);
+
+	for (int i = 0i; i < numPoints; i++) {
+		vector vecEnd = g_gaussBeamPoints[i];
+		vecDir = normalize(vecEnd - vecSrc);
+		trailparticles(TRAIL_GAUSSBEAM, eOwner, vecSrc, vecEnd);
+		FX_GaussBeam_Piece(vecEnd, vecDir * -1);
+		Decals_Place(vecEnd, "{gaussshot1");
+		vecSrc = vecEnd;
+	}
 #endif
 }
-

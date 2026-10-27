@@ -24,6 +24,7 @@
 /* for full description check the docs. */
 var bool autocvar_bot_enable = true;
 var bool autocvar_bot_pause = false;
+var int autocvar_bot_forceAttack = 0i; /* developer: 1/2 tap primary/secondary attack, 3/4 hold it */
 var bool autocvar_bot_noChat = false;
 var bool autocvar_bot_fastChat = false;
 var bool autocvar_bot_developer = false;

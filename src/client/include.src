@@ -38,6 +38,7 @@ shake.qc
 cmd.qc
 event.qc
 commandmenu.qc
+nameplates.qc
 entry.qc
 crosshair.qc
 util.qc

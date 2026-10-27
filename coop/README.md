@@ -44,6 +44,10 @@ Headless test with bots (prints the wave and scores every 10 seconds):
   `coop_statusInterval N` prints the status every N seconds. For tests,
   `sv coop_botvote skill 3` has a bot call a vote and
   `sv coop_botvoteyes [skipfirst]` has the bots vote yes.
+- Teammates and friendly NPCs get a name and health bar overhead (the
+  rules set serverinfo `nameplates 1`). The drawing is shared client code in
+  `src/client/nameplates.qc`; `cg_nameplates 0|1` overrides it per player and
+  `cg_nameplatesRange` sets the distance (1000).
 
 ## Tested on Bulwark
 
@@ -52,6 +56,17 @@ down and get revived, survival mode restarts the map after a wipe, and a
 skill vote passes and applies. 32 bots against 40 monsters run faster than
 real time on one core. At that size the 4x health cap makes waves slow to
 clear with starting weapons; `coop_healthPerPlayer` is the knob.
+
+## Weapon test
+
+`coop_weapontest 1` has the first bot try every Half-Life weapon against a
+pinned 50000 hp zombie, primary then secondary fire, and prints the damage
+each one did. `coop_weapontestList crowbar,gauss` limits it to some weapons
+(comma separated, no spaces). Run it with `coop_waveDelay 9999` and
+`bot_pause 1` so nothing else is fighting. The bot's firing comes from the
+`bot_forceAttack` developer cvar (1/2 tap primary/secondary, 3/4 hold).
+All weapons deal damage except snarks (they don't reach the target yet) and
+the chumtoad, which is a decoy.
 
 ## Test map
 

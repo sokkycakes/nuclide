@@ -1103,6 +1103,67 @@ ncProjectile::_FireSingle(vector vecPos, vector vecAngles, float flDamage, float
 	}
 }
 
+/* what a tracking projectile steers towards: a monster's own enemy, or
+   for anyone else the nearest visible thing that is fair game, kept until
+   it dies */
+entity
+ncProjectile::_TrackTarget(void)
+{
+	entity best = world;
+	float bestDist = 1024.0f;
+
+	if (owner.flags & FL_MONSTER) {
+		ncMonster monOwner = (ncMonster)owner;
+		return (monOwner.m_eEnemy);
+	}
+
+	if (m_trackTarget && !wasfreed(m_trackTarget) && m_trackTarget.health > 0 && m_trackTarget.takedamage != DAMAGE_NO) {
+		return (m_trackTarget);
+	}
+
+	for (entity e = findradius(GetOrigin(), bestDist); e; e = e.chain) {
+		float dist;
+
+		if (e == owner || e == this || e.takedamage == DAMAGE_NO || e.health <= 0) {
+			continue;
+		}
+
+		if (e.flags & FL_MONSTER) {
+			ncMonster mon = (ncMonster)e;
+
+			/* allies of the player and bystanders are left alone */
+			if (mon.m_iAlliance == MAL_FRIEND || mon.m_iAlliance == MAL_NEUTRAL) {
+				continue;
+			}
+		} else if (e.flags & FL_CLIENT) {
+			/* players on the shooter's team are left alone */
+			if (owner.team != 0 && e.team == owner.team) {
+				continue;
+			}
+		} else {
+			continue;
+		}
+
+		dist = vlen(e.origin - GetOrigin());
+
+		if (dist >= bestDist) {
+			continue;
+		}
+
+		traceline(GetOrigin(), (e.absmin + e.absmax) * 0.5f, MOVE_NOMONSTERS, this);
+
+		if (trace_fraction < 1.0f) {
+			continue;
+		}
+
+		best = e;
+		bestDist = dist;
+	}
+
+	m_trackTarget = best;
+	return (best);
+}
+
 void
 ncProjectile::_ThrustThink(void)
 {
@@ -1131,17 +1192,27 @@ ncProjectile::_ThrustThink(void)
 		traceline(ownerPos, endPos, MOVE_NORMAL, projectileOwner);
 		SetAngles(vectoangles(trace_endpos - GetOrigin()));
 	} else if (m_bTrackEnemy) {
+		if (m_trackDelayTime <= time) {
+			entity trackTarget = _TrackTarget();
 
-		if (m_trackDelayTime > time) {
-			ncMonster monOwner = (ncMonster)owner;
-			vector angleToTarget = vectoangles(monOwner.m_eEnemy.origin - GetOrigin());
-			angleToTarget[0] += random(-m_trackJitter[0],m_trackJitter[0]);
-			angleToTarget[1] += random(-m_trackJitter[1],m_trackJitter[1]);
-			angleToTarget[2] += random(-m_trackJitter[2],m_trackJitter[2]);
-			SetAngles(angleToTarget);
+			if (trackTarget) {
+				vector targetPos = (trackTarget.absmin + trackTarget.absmax) * 0.5f;
+				vector angleToTarget = vectoangles(targetPos - GetOrigin());
+				angleToTarget[0] += random(-m_trackJitter[0],m_trackJitter[0]);
+				angleToTarget[1] += random(-m_trackJitter[1],m_trackJitter[1]);
+				angleToTarget[2] += random(-m_trackJitter[2],m_trackJitter[2]);
+				SetAngles(angleToTarget);
+			}
+
+			m_trackDelayTime = time + m_trackDelay;
 		}
+	}
 
-		m_trackDelayTime = time + m_trackDelay;
+	/* the fuse is checked here too, as the think that would end it can be
+	   replaced (by animation, for one) while we keep flying */
+	if (m_flFuse > 0.0f && GetSpawnAge() > m_flFuse + 0.1f) {
+		_FuseEnded();
+		return;
 	}
 
 	makevectors(GetAngles());
