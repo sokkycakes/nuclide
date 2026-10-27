@@ -358,12 +358,16 @@ builds the graph (`src/server/tf_navgen.qc`):
 
 - It floods out from every spawn point, `path_track` and objective in
   64-unit steps (or the spacing given), with the player's box.
-- It walks up stairs and slopes, and links jumps up ledges a jump clears.
+- It walks up stairs and slopes (including onto the raised foot of a
+  ramp, which the physics slides up), and links jumps up ledges a jump
+  clears.
   Higher ledges that a crouch jump clears get `LF_JUMP` and `LF_CROUCH`.
   Drops of up to 250 units are one-way links.
 - Doors, trains and spawn room walls are left out of the traces, so the
   graph goes through them. Spots inside a `trigger_hurt` are skipped, and
   waypoints balanced on the edge of a ramp or ledge are moved onto it.
+  Waypoints near a wall or a drop are moved up to 12 units away from it,
+  so on narrow ramps the path runs down the middle.
 
 Run it once on a server with the map loaded. The file is written to
 `tftemplate/data/`, where the bots read it on the next map load.
