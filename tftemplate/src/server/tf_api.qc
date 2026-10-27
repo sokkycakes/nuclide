@@ -53,12 +53,22 @@ TF_CanCapture(entity pointEnt, float teamID)
   (wherever it is; check tf_flagState and tf_flagCarrier).
 - CP/KOTH: the lowest-index point we can capture. If there is none, the
   point the enemy can capture that we own, so we defend it.
+- Payload: the cart's team_train_watcher, for both teams: one pushes it, the
+  other stops it. Its origin is the middle of the cart's push zone, and its
+  team is the attacking team.
 Returns world when the map has nothing to do. */
 entity
 TF_ObjectiveFor(float teamID)
 {
 	entity bestEnt = world;
 	entity e;
+
+	/* payload: everyone plays the cart (checkpoints only fall to it) */
+	for (e = world; (e = TF_NextObjective(e));) {
+		if (e.tf_objective == TFOBJ_CART) {
+			return (e);
+		}
+	}
 
 	/* flag carriers go home */
 	for (e = world; (e = next.Player(e));) {

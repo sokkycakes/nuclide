@@ -275,9 +275,12 @@ Bots should read the game only through this interface. It is declared in
 - **Functions**:
   - `TF_NextObjective(prev)` steps through the objectives.
   - `TF_CanCapture(point, team)` says whether a team can capture a point.
-  - `TF_ObjectiveFor(team)` returns where a team should go now: its
-    capture zone if it carries a flag, otherwise the enemy flag, otherwise
-    the lowest point it can capture, otherwise a point it has to defend.
+  - `TF_ObjectiveFor(team)` returns where a team should go now. On payload
+    maps that is the cart's `team_train_watcher` (`TFOBJ_CART`) for both
+    teams: its origin follows the cart's push zone and its `.team` is the
+    attacking team. Otherwise it is the team's capture zone if it carries a
+    flag, then the enemy flag, then the lowest point it can capture, then
+    a point it has to defend.
   - `TF_KothTimeLeft(team)` and `TF_Mode()` report the KOTH clock and the
     current mode.
   - Pickups: `TF_NextPickup(prev)`, `TF_PickupKind(e)` (`"health"` or
@@ -339,10 +342,35 @@ publishes, since the HUD progs can't read entity health.
 | `tf_test_hurt <player> <amount>` | Takes health away |
 | `tf_test_uber <player>` | Fills a Medic's Ubercharge |
 | `tf_test_report` | Health, weapon, ammo, meter and state of every player and building |
+| `tf_test_settime <seconds>` | Sets the round or setup clock (the map's `team_round_timer` when there is one) |
+| `tf_nav_generate [spacing]` | Builds bot waypoints for the map and saves them as `data/<map>.way` (see below) |
 | `set tf_debug 1` | Logs round changes, spawns and objective events |
 
 `bot_pause 1` stops Nuclide's bots from moving and shooting, which makes
 pinned capture tests repeatable.
+
+### Bot waypoints
+
+Both Nuclide's botlib and the Bulwark bot framework navigate on
+`data/<map>.way`, and refuse to add bots ("No nodes") without one. TF2 maps
+ship a `.nav` file instead, which neither reads, so `tf_nav_generate`
+builds the graph (`src/server/tf_navgen.qc`):
+
+- It floods out from every spawn point, `path_track` and objective in
+  64-unit steps (or the spacing given), with the player's box.
+- It walks up stairs and slopes, and links jumps up ledges a jump clears.
+  Higher ledges that a crouch jump clears get `LF_JUMP` and `LF_CROUCH`.
+  Drops of up to 250 units are one-way links.
+- Doors, trains and spawn room walls are left out of the traces, so the
+  graph goes through them. Spots inside a `trigger_hurt` are skipped, and
+  waypoints balanced on the edge of a ramp or ledge are moved onto it.
+
+Run it once on a server with the map loaded. The file is written to
+`tftemplate/data/`, where the bots read it on the next map load.
+`data/pl_circle_a9a.way` was made this way (1565 waypoints).
+
+Classes jump at TF2's 289 units/s (`pm_jumpheight` on `tf_player_base`),
+so ledges in Source maps are as reachable as they are in TF2.
 
 ## Known gaps
 
@@ -356,5 +384,6 @@ pinned capture tests repeatable.
   `claude/project-thread-upkyrb`.
 - Arena mode isn't in yet. Payload has one cart per map (no payload race),
   carts don't turn, and teams don't swap sides between rounds.
-- Nuclide's bots fight but don't play objectives. Objective-aware bots
+- Nuclide's bots fight but only play payload objectives, through a
+  `GOALITEM` hint that rides on the cart. Other objective-aware bots
   belong to the bot framework, which uses the interface above.

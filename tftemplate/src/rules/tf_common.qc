@@ -76,6 +76,7 @@ var string(entity, string) TFServer_ClassDefFor;
 var void(entity) TFServer_Resupply;
 var void(entity) TFServer_PlayerThink;
 var bool(string) TFServer_TestCommand;
+var void(float) TFServer_NavGenerate;
 var entity(entity) TFServer_NextObjective;
 
 /* optional bot hooks, present when a bot framework is compiled into the
@@ -104,6 +105,7 @@ TFRules_Link(void)
 	TFServer_Resupply = externvalue(0, "TF_Resupply");
 	TFServer_PlayerThink = externvalue(0, "TF_PlayerThink");
 	TFServer_TestCommand = externvalue(0, "TF_TestCommand");
+	TFServer_NavGenerate = externvalue(0, "TF_NavGenerate");
 	TFServer_NextObjective = externvalue(0, "TF_NextObjective");
 
 	BWHook_NotifyInjured = externvalue(0, "bw_notify_injured");
@@ -680,6 +682,25 @@ CodeCallback_ConsoleCommand(entity playerEntity, string command)
 		break;
 	case "tf_forcewin":
 		TF_RoundWin(stof(argv(1)), "Forced from the console.");
+		break;
+	/* tf_test_settime <seconds>: sets the clock of the round or setup */
+	case "tf_test_settime":
+		entity mapTimer = findfloat(world, ::tf_roundTimer, 1);
+		string newTime = argv(1);
+
+		/* a map's team_round_timer owns the clock when there is one */
+		if (mapTimer) {
+			ents.Input(mapTimer, "SetTime", newTime, world);
+		} else if (g_tfRoundEnds > 0) {
+			g_tfRoundEnds = time + stof(newTime);
+		}
+		break;
+	/* tf_nav_generate [spacing]: builds bot waypoints for this map and
+	   saves them as data/<map>.way (server/tf_navgen.qc) */
+	case "tf_nav_generate":
+		if (TFServer_NavGenerate) {
+			TFServer_NavGenerate(stof(argv(1)));
+		}
 		break;
 	/* test hooks: tf_test_pin <player> <targetname> keeps a player standing
 	   on an entity (a flag, zone or point) until unpinned with no target */
