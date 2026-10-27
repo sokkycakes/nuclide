@@ -218,6 +218,60 @@ HLWeaponSelect::DrawSlotNum(vector vecPos, float fValue)
 void
 HLWeaponSelect::SelectSlot(int wantedSlot, bool fastSwitch)
 {
+	entity firstInSlot = __NULL__;
+	entity nextInSlot = __NULL__;
+	bool pastSelected = false;
+	entity selectedNow = m_selectedWeapon;
+
+	if (!weapon.GetActiveWeapon()) {
+		return;
+	}
+
+	/* without an open selection, start from the weapon in hand */
+	if (!Active() || !selectedNow) {
+		selectedNow = weapon.GetActiveWeapon();
+	}
+
+	/* pressing a slot again steps through the weapons in it */
+	for (entity w = weapon.GetFirstWeaponInInventory(); w; w = weapon.GetNextWeaponRelativeTo(w)) {
+		if (weapon.IsValid(w) == false || weapon.GetSlot(w) != wantedSlot) {
+			continue;
+		}
+
+		if (!firstInSlot) {
+			firstInSlot = w;
+		}
+
+		if (pastSelected && !nextInSlot) {
+			nextInSlot = w;
+		}
+
+		if (w == selectedNow) {
+			pastSelected = true;
+		}
+	}
+
+	if (!firstInSlot) {
+		return;
+	}
+
+	bool wasOpen = Active();
+	m_selectedWeapon = (nextInSlot) ? nextInSlot : firstInSlot;
+
+	if (fastSwitch) {
+		Trigger();
+		return;
+	}
+
+	if (wasOpen) {
+		Event_SelectionChanged();
+	} else {
+		Event_Opened();
+	}
+
+	m_flHUDWeaponSelectTime = time + autocvar_hlhud_hideTime;
+	m_iWantSlot = weapon.GetSlot(m_selectedWeapon);
+	m_iWantSlotPos = weapon.GetSlotPos(m_selectedWeapon);
 }
 
 void

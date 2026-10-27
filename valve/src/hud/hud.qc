@@ -640,6 +640,18 @@ HUD_ConsoleCommand(string commandString)
 	case "invprev":
 		weaponSelectionHUD.SelectPrevious(false);
 		break;
+	case "slot1":
+	case "slot2":
+	case "slot3":
+	case "slot4":
+	case "slot5":
+	case "slot6":
+	case "slot7":
+	case "slot8":
+	case "slot9":
+	case "slot10":
+		weaponSelectionHUD.SelectSlot(stoi(substring(argv(0), 4, -1)) - 1i, autocvar_hud_fastswitch ? true : false);
+		break;
 	default:
 		return (false);
 	}

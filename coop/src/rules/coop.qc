@@ -940,7 +940,36 @@ CodeCallback_ImpulseCommand(entity playerEntity, float impulseNum)
 {
 	/* called every input frame, impulse or not */
 	Coop_ReviveInput(playerEntity);
-	return (false);
+
+	switch (impulseNum) {
+	case 100:
+		/* the suit's flashlight, as in Rad-Therapy's own rules */
+		if (AllowFlashlight() == true) {
+			ents.Input(playerEntity, "UseItem", "item_suit", playerEntity);
+		}
+		return (true);
+	case 101:
+		/* every weapon and full ammo, with sv_cheats on */
+		if (cvar("sv_cheats") == 0) {
+			return (false);
+		}
+
+		ents.Input(playerEntity, "GiveItem", "item_suit", world);
+
+		/* Input can tokenize, so re-split the lists every time */
+		for (int i = 0i; i < tokenize(g_coopWeapons); i++) {
+			tokenize(g_coopWeapons);
+			ents.Input(playerEntity, "GiveItem", argv(i), world);
+		}
+
+		for (int i = 0i; i < tokenize(g_coopTestAmmo); i++) {
+			tokenize(g_coopTestAmmo);
+			ents.Input(playerEntity, "GiveAmmo", sprintf("%s 255", argv(i)), world);
+		}
+		return (true);
+	default:
+		return (false);
+	}
 }
 
 void
