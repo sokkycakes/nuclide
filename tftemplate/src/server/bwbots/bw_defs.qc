@@ -239,6 +239,7 @@ class BWLocomotion : BWComponent {
 	/* tuning, set by the bot or its factory */
 	float m_run_speed, m_walk_speed, m_accel, m_yaw_rate;
 	float m_step, m_max_jump, m_slope, m_gravity_scale;
+	float m_crouch_gain;	/* extra height a crouch jump clears (0: none) */
 	float m_desired_speed;
 
 	vector m_pend_dir;
@@ -310,6 +311,7 @@ class BWPlayerLocomotion : BWLocomotion {
 	float m_jump_press;	/* press jump on the next input frame */
 	float m_jump_at;	/* when the jump was asked for */
 	float m_air_steer;	/* keep moving towards m_air_goal while airborne */
+	float m_crouch_air;	/* hold crouch until we land: a crouch jump */
 
 	virtual void Reset(void);
 	virtual void FrameUpdate(float dt);
