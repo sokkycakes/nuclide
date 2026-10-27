@@ -5,6 +5,7 @@
 #includelist
 ../../../src/hud.src
 ../shared/tf_api.h
+nameplates.qc
 tf_hud.qc
 hud_base.qc
 #endlist

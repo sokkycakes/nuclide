@@ -22,6 +22,9 @@ bots/tf_bots_pre.h
 tf_server.h
 tf_volume.qc
 tf_player.qc
+tf_buildings.qc
+tf_weapons.qc
+tf_test.qc
 
 /* the Bulwark bot framework and the template's bots */
 bwbots/bots.qc

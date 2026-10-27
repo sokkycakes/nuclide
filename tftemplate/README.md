@@ -46,9 +46,10 @@ The compiled progs are committed. To rebuild them after changing the QC:
 make -C tftemplate/src QCC=/path/to/fteqcc
 ```
 
-This builds `tftemplate/progs.dat` (server), `tftemplate/hud.dat` (HUD) and
-`tftemplate/progs/tf_{ctf,cp,koth}.dat` (rules). The client game
-(`csprogs.dat`) and menu come from `base`.
+This builds `tftemplate/csprogs.dat` (client), `tftemplate/progs.dat`
+(server), `tftemplate/hud.dat` (HUD) and `tftemplate/progs/tf_{ctf,cp,koth}.dat`
+(rules). The client is `base`'s, rebuilt with the template's shared header so
+its entity fields line up with the server's. The menu comes from `base`.
 
 ## Layout
 
@@ -61,8 +62,16 @@ This builds `tftemplate/progs.dat` (server), `tftemplate/hud.dat` (HUD) and
 | `src/server/bwbots/` | A copy of the Bulwark bot framework (`qc/bots` in bulwark-engine, ISC) |
 | `src/rules/tf_common.qc` | Teams, class choice, respawn waves, rounds, HUD state, test commands |
 | `src/rules/tf_ctf.qc`, `tf_cp.qc`, `tf_koth.qc` | One file per game mode |
-| `src/hud/` | `base`'s HUD with an objective strip added (`tf_hud.qc`) |
+| `src/server/tf_player.qc` | `tfPlayer`: knockback, afterburn, uber, cloak, disguise, the weapon meter |
+| `src/server/tf_weapons.qc` | Weapons that need code: stickybombs, minigun, flamethrower airblast, medigun, sniper rifle, knife, wrench, PDAs, sapper |
+| `src/server/tf_buildings.qc` | Sentry gun, dispenser and teleporters |
+| `src/server/tf_test.qc` | `tf_test_*` commands for driving players and bots from the console |
+| `src/client/` | Build files for the template's client progs |
+| `src/hud/` | `base`'s HUD with an objective strip (`tf_hud.qc`), nameplates and target ID (`nameplates.qc`) |
 | `decls/def/tf_classes.def` | The nine classes |
+| `decls/def/tf_weapons.def`, `tfweapons/` | Every class's stock weapons |
+| `decls/def/tf_buildings.def` | Engineer buildings |
+| `decls/def/ammo.def`, `weapons.def` | TF ammo types; Quake map weapons and ammo turned into ammo packs |
 | `decls/def/tf_objectives.def` | TF2 entity names mapped to the template's classes |
 | `decls/def/tf_pickups.def` | TF2 style health kits and ammo packs |
 | `maps/*.add` | Objective overlays for `base` maps |
@@ -72,8 +81,9 @@ This builds `tftemplate/progs.dat` (server), `tftemplate/hud.dat` (HUD) and
 Each class is an entityDef, `tfclass_<name>`, that inherits `tf_player_base`.
 `tf_player_base` inherits `base`'s `player` def and spawns as `tfPlayer`.
 Health and speed match TF2: for example, the Scout has 125 health and moves
-at 400, and the Heavy has 300 health and moves at 230. Weapons are
-placeholders from Quake's arsenal.
+at 400, and the Heavy has 300 health and moves at 230. Each class carries
+its TF2 stock loadout with TF2's damage, clip sizes and fire rates, drawn
+with Quake models.
 
 Template keys:
 
@@ -84,6 +94,36 @@ Template keys:
 | `tf_capRate` | How many players this class counts as on a capture area (the Scout counts as 2) |
 | `tf_regen` | Health regenerated per second (the Medic has 3) |
 | `tf_weaponRanges` | `"<weapon> <min> <max> ..."`, effective ranges with the best weapon first |
+| `tf_noAfterburn` | 1 if flames don't set this class on fire (the Pyro) |
+| `tf_cloak` | 1 if secondary fire cloaks this class (the Spy) |
+| `pm_airjumps` | Extra jumps in the air (the Scout's double jump). A Nuclide key, predicted on the client |
+
+### Weapons and abilities
+
+| Class | Weapons and what's special |
+| --- | --- |
+| Scout | Scattergun, pistol, bat. Double jump |
+| Soldier | Rocket launcher (rocket jumping through self knockback), shotgun, shovel |
+| Pyro | Flamethrower with afterburn; secondary fire is an airblast that pushes enemies, reflects projectiles and puts out teammates. Shotgun, fire axe |
+| Demoman | Grenade launcher; stickybomb launcher: hold to charge, release to fire, secondary detonates armed stickies, at most 8 out. Bottle |
+| Heavy | Minigun: spins up before firing, secondary spins without firing, slows you while firing. Shotgun, fists |
+| Engineer | Shotgun, pistol, wrench, construction PDA (primary builds, secondary cycles the building, reload destroys it). Wrench hits on your buildings repair, refill, upgrade to level 3 and remove sappers, using metal |
+| Medic | Syringe gun; medigun: hold on a teammate to heal (faster when they haven't been hurt for 10 s), overheal to 150%, builds Ubercharge; secondary deploys it. Bonesaw |
+| Sniper | Sniper rifle: secondary zooms, damage charges from 50 to 150 while zoomed, headshots triple it. SMG, kukri |
+| Spy | Revolver, knife (backstabs kill), sapper (disables and damages enemy buildings), disguise kit (primary cycles disguises, reload drops it). Secondary fire cloaks |
+
+Buildings: the sentry (three levels, rockets at level 3, ignores cloaked
+Spies and Spies disguised as its team), the dispenser (health, ammo, and
+metal for Engineers) and the teleporter entrance and exit. Damage applies
+TF2 knockback (cvars `tf_knockback`, `tf_selfknockback`,
+`tf_knockback_max`), and the HUD shows the active weapon's meter (charge,
+stickies, spin, uber, cloak, metal) above the ammo.
+
+Weapon mechanics that need prediction are Nuclide def keys, so the client
+predicts them: `pm_airjumps` on the player, and `speed_mod_firing` and
+`speed_mod_zoomed` on weapons. The rest runs on the server only, because
+the client always predicts plain `ncPlayer`/`ncWeapon`; charging and spin-up
+can look slightly off on a laggy client.
 
 To add or change a class, edit the def and list it in the `tf_classes` cvar.
 The cvar sets which classes exist and their order on the class menu. New
@@ -202,8 +242,10 @@ Bots should read the game only through this interface. It is declared in
     `TFFLAG_DROPPED`) and `tf_flagCarrier`.
 - **Player fields**: `tf_carriedFlag`, `tf_desiredClass`, `tf_classIndex`,
   `tf_capRate`, `tf_regenRate`, `tf_charge` (0 to 1: sniper charge, uber,
-  minigun spin), and `tf_healTarget`. The template doesn't drive the last
-  two yet, because its weapons are placeholders.
+  minigun spin, sticky charge), `tf_healTarget`, `tf_uberUntil`,
+  `tf_cloaked`, `tf_disguiseTeam`, `tf_disguiseClass` and `tf_burnUntil`.
+  Buildings have `tf_isBuilding`, `tf_builder`, `tf_buildingLevel` and
+  `tf_sapped`.
 - **Functions**:
   - `TF_NextObjective(prev)` steps through the objectives.
   - `TF_CanCapture(point, team)` says whether a team can capture a point.
@@ -237,6 +279,20 @@ state, and the KOTH clocks. It reads the serverinfo keys `tf_mode`,
 `tf_round`, `tf_timer`, `tf_obj`, `tf_caps`, `tf_koth` and `tf_wins`. Other
 HUDs can read the same keys.
 
+`nameplates.qc` adds two things over friendly players:
+
+- a name and health bar floating over each teammate's head (`cl_nameplates`,
+  `cl_nameplates_range`), and
+- a TF2-style target ID: a panel under the crosshair with the name, a
+  health bar and the numbers of the teammate you are aiming at
+  (`cl_targetid`, `cl_targetid_range`).
+
+Both use three optional callbacks, `Nameplates_IsFriendly`,
+`Nameplates_Name` and `Nameplates_Health`. The TF HUD sets the first two
+so enemy Spies disguised as your team get a plate and a borrowed teammate's
+name. Health comes from the `*hp` and `*maxhp` userinfo keys the server
+publishes, since the HUD progs can't read entity health.
+
 ## Test and debug commands (server console)
 
 | Command | What it does |
@@ -247,6 +303,14 @@ HUDs can read the same keys.
 | `tf_test_players` | Lists every player's team, class, health, position and carried flag |
 | `tf_test_pin <player> <targetname>` | Keeps a player standing on an entity. Run it with no target to release them |
 | `tf_test_kill <player>` | Kills a player |
+| `tf_test_class <player> <tfclass_name>` | Respawns a player as a class |
+| `tf_test_put <player> <x> <y> <z> [yaw]` | Moves a player and pins them there with bot AI off |
+| `tf_test_hold <player> <buttons> <seconds> [target]` | Pins a player and holds `primary`, `secondary`, `reload`, `jump` or `use` (join with `+`), aiming at a player or `@classname` |
+| `tf_test_release <player>` | Unpins a player |
+| `tf_test_use <player> <weapon>` | Switches weapon |
+| `tf_test_hurt <player> <amount>` | Takes health away |
+| `tf_test_uber <player>` | Fills a Medic's Ubercharge |
+| `tf_test_report` | Health, weapon, ammo, meter and state of every player and building |
 | `set tf_debug 1` | Logs round changes, spawns and objective events |
 
 `bot_pause 1` stops Nuclide's bots from moving and shooting, which makes
@@ -297,8 +361,11 @@ fall back to Nuclide's botlib.
 
 ## Known gaps
 
-- Weapons, models and sounds are `base` placeholders. There are no
-  TF-specific weapons, buildings, uber or cloak yet.
+- Models and sounds are Quake's. Buildings use stand-in models.
+- The wrench didn't upgrade a sentry in the headless tests, where the bot
+  couldn't land the swing. It needs a check in the game client.
+- A bot holding the construction PDA can destroy its own building, since
+  bots press reload. Bot code should keep bots off the PDA.
 - Players over 255 health show wrapped values on the client. `base`
   networks health as a byte. The fix is commit 238cce6 on the branch
   `claude/project-thread-upkyrb`.

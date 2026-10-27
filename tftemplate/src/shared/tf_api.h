@@ -89,6 +89,19 @@ Fortress 2's numbering (2 = RED, 3 = BLU) go through TF_TeamFromMapKey().
    behaviours should keep them up to date. */
 .float tf_charge;			/**< sniper charge, medic uber, minigun spin: 0 to 1 */
 .entity tf_healTarget;		/**< medic's current patient */
+
+/* class abilities, readable by bots and rules */
+.float tf_uberUntil;		/**< time the player's Ubercharge invulnerability ends */
+.float tf_cloaked;			/**< 1 while a Spy is cloaked */
+.float tf_disguiseTeam;		/**< team a disguised Spy looks like, 0 when not disguised */
+.string tf_disguiseClass;	/**< class def a disguised Spy looks like */
+.float tf_burnUntil;		/**< time the player's afterburn ends */
+
+/* Engineer buildings */
+.float tf_isBuilding;		/**< 1 on sentries, dispensers and teleporters */
+.entity tf_builder;			/**< the Engineer who built it */
+.float tf_buildingLevel;	/**< 1 to 3 */
+.float tf_sapped;			/**< 1 while a Spy's sapper is on it */
 #endif
 
 /** Converts a team number from a Team Fortress 2 map key (2 = RED, 3 = BLU)

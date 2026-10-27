@@ -833,6 +833,8 @@ ncWeapon::ReloadCachedAttributes(void)
 
 	/* movement vars */
 	m_fiSpeedMod = GetDefFloat("speed_mod");
+	m_fiSpeedModFiring = GetDefFloat("speed_mod_firing");
+	m_fiSpeedModZoomed = GetDefFloat("speed_mod_zoomed");
 	m_fiBuggyIdleAnim = GetDefBool("buggyIdleAnim");
 	m_animPrefix = GetDefString("animPrefix");
 
@@ -2080,6 +2082,19 @@ ncWeapon::WeaponStoppedFiring(void)
 float
 ncWeapon::PlayerSpeedMod(void)
 {
+	ncPlayer ourOwner = (ncPlayer)GetOwner();
+
+	/* both use predicted player state, so movement stays in sync */
+	if (ourOwner) {
+		if (m_fiSpeedModZoomed > 0.0f && ourOwner.viewzoom < 1.0f) {
+			return (m_fiSpeedModZoomed);
+		}
+
+		if (m_fiSpeedModFiring > 0.0f && (ourOwner.m_nuclideFlags & VFL_FIRING)) {
+			return (m_fiSpeedModFiring);
+		}
+	}
+
 	return (m_fiSpeedMod);
 }
 
