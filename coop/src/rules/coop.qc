@@ -61,6 +61,9 @@ var float autocvar_coop_healthScaleMax = 4;
 var float autocvar_coop_allyKillPenalty = 10;
 var int autocvar_coop_debug = 0;
 var float autocvar_coop_statusInterval = 0;	/* print coop_status every N seconds (tests) */
+var int autocvar_coop_weapontest = 0;	/* tests: the first bot fires every weapon at a target */
+var string autocvar_coop_weapontestList = "";	/* tests: comma-separated weapons to try, all if empty */
+var float autocvar_coop_weapontestSettle = 1.5;	/* tests: seconds to wait for slow projectiles */
 
 /* per player slot, indexed by entity number - 1 */
 float g_coopDownTime[COOP_MAXPLAYERS];
@@ -525,6 +528,11 @@ AllowFlashlight(void)
 	return (true);
 }
 
+/* every Half-Life weapon: maps hand out whatever they like in co-op, so
+   all of them are precached, along with what they spawn */
+const string g_coopWeapons = "weapon_crowbar weapon_9mmhandgun weapon_357 weapon_9mmAR weapon_shotgun weapon_crossbow weapon_rpg weapon_gauss weapon_egon weapon_hornetgun weapon_handgrenade weapon_satchel weapon_tripmine weapon_snark weapon_chumtoad";
+const string g_coopWeaponExtras = "monster_snark monster_snark_thrown monster_tripmine monster_chumtoad";
+
 void
 CodeCallback_Precache(void)
 {
@@ -545,6 +553,17 @@ CodeCallback_Precache(void)
 	}
 
 	for (int i = 0i; i < monsterCount; i++) {
+		precache.Entity(monsterClasses[i]);
+	}
+
+	string weaponList = strcat(g_coopWeapons, " ", g_coopWeaponExtras);
+	int weaponCount = min((int)tokenize(weaponList), 64i);
+
+	for (int i = 0i; i < weaponCount; i++) {
+		monsterClasses[i] = argv(i);
+	}
+
+	for (int i = 0i; i < weaponCount; i++) {
 		precache.Entity(monsterClasses[i]);
 	}
 }
@@ -584,6 +603,7 @@ CodeCallback_StartGameType(void)
 	g_coopMonsterCount = 0i;
 	g_coopRestarting = false;
 	serverinfo.SetString("coop_wave", "0");
+	serverinfo.SetString("nameplates", "1");
 }
 
 string
@@ -731,6 +751,163 @@ CodeCallback_NPCKilled(entity npcEntity, entity inflictor, entity attacker, stri
 	teams.AddScore(COOP_PLAYERTEAM, 1i);
 }
 
+/* weapon test (coop_weapontest 1): the first bot is given each weapon in
+   turn and taps, then holds primary and then secondary attack at a sturdy
+   zombie in front of it; a line per attack reports the damage done and
+   what was left in the world. Run with bot_pause 1 so the bot holds still. */
+const string g_coopTestAmmo = "ammo_9mm ammo_357 ammo_buckshot ammo_bolt ammo_rocket ammo_uranium ammo_handgrenade ammo_satchel ammo_tripmine ammo_snark ammo_hornet ammo_m203_grenade ammo_chumtoad";
+var int g_coopTestIndex = -1i;
+#define COOP_TESTLIST (autocvar_coop_weapontestList != "" ? strreplace(",", " ", autocvar_coop_weapontestList) : g_coopWeapons)
+float g_coopTestNext;
+int g_coopTestPhase;
+entity g_coopTestTarget;
+float g_coopTestHealth;
+vector g_coopTestSpot;
+
+string
+Coop_TestLeftovers(void)
+{
+	string out = "";
+
+	for (entity e = world; (e = nextent(e));) {
+		string c = e.classname;
+
+		if (substring(c, 0, 11) == "projectile_" || substring(c, 0, 7) == "ranged_" || substring(c, 0, 7) == "monster" && e != g_coopTestTarget) {
+			out = strcat(out, " ", c);
+
+			if (autocvar_coop_debug) {
+				print(sprintf("weapontest:   %s at %v vel %v movetype %d solid %d\n", c, e.origin, e.velocity, e.movetype, e.solid));
+			}
+		}
+	}
+
+	return out;
+}
+
+void
+Coop_TestGiveAmmo(entity b)
+{
+	for (int i = 0i; i < tokenize(g_coopTestAmmo); i++) {
+		tokenize(g_coopTestAmmo);
+		ents.Input(b, "GiveAmmo", sprintf("%s 100", argv(i)), world);
+	}
+}
+
+void
+Coop_WeaponTestThink(void)
+{
+	entity b = world;
+	string weaponName;
+
+	/* the target stays put, so every shot aimed straight ahead can land */
+	if (g_coopTestTarget && !wasfreed(g_coopTestTarget) && g_coopTestTarget.origin != g_coopTestSpot) {
+		ents.Input(g_coopTestTarget, "SetOrigin", vtos(g_coopTestSpot), world);
+	}
+
+	if (!g_coopStarted || time < g_coopTestNext) {
+		return;
+	}
+
+	for (entity p = world; (p = next.Player(p));) {
+		if (is.Bot(p) && is.Alive(p)) {
+			b = p;
+			break;
+		}
+	}
+
+	if (!b) {
+		return;
+	}
+
+	if (g_coopTestPhase == 0i) {
+		/* next weapon, fresh target */
+		g_coopTestIndex++;
+
+		if (g_coopTestIndex >= tokenize(COOP_TESTLIST)) {
+			print("weapontest: done\n");
+			cvar_set("coop_weapontest", "0");
+			cvar_set("bot_forceAttack", "0");
+			return;
+		}
+
+		weaponName = argv(g_coopTestIndex);
+		ents.Input(b, "SetMaxHealth", "10000", world);
+		ents.Input(b, "SetHealth", "10000", world);
+
+		/* a tripmine needs a wall close in front: stand by the far one */
+		if (weaponName == "weapon_tripmine") {
+			ents.Input(b, "SetOrigin", vtos([1990, b.origin[1], b.origin[2]]), world);
+		}
+		ents.Input(b, "GiveItem", weaponName, world);
+
+		Coop_TestGiveAmmo(b);
+		ents.Input(b, "SwitchToWeapon", weaponName, world);
+
+		if (g_coopTestTarget && !wasfreed(g_coopTestTarget)) {
+			remove(g_coopTestTarget);
+		}
+
+		/* nobody else may hurt the target */
+		for (entity m = world; (m = nextent(m));) {
+			if (substring(m.classname, 0, 8) == "monster_") {
+				remove(m);
+			}
+		}
+
+		vector targetOffset = [128, 0, 0];
+
+		switch (weaponName) {
+		case "weapon_crowbar": targetOffset = [56, 0, 0]; break;
+		case "weapon_snark": targetOffset = [320, 0, 0]; break;
+		case "weapon_tripmine": targetOffset = [0, 64, 0]; break;
+		}
+
+		g_coopTestTarget = ents.Create("monster_zombie", b.origin + targetOffset);
+		ents.Input(g_coopTestTarget, "DropToFloor", "", world);
+		g_coopTestSpot = g_coopTestTarget.origin;
+		ents.Input(g_coopTestTarget, "SetMaxHealth", "50000", world);
+		ents.Input(g_coopTestTarget, "SetHealth", "50000", world);
+		g_coopTestHealth = 50000;
+		g_coopTestPhase = 1i;
+		g_coopTestNext = time + 1.0f;
+	} else if (g_coopTestPhase == 4i || g_coopTestPhase == 8i) {
+		/* the shots have landed: report */
+		tokenize(COOP_TESTLIST);
+		weaponName = argv(g_coopTestIndex);
+		print(sprintf("weapontest: %s %s damage %d left:%s\n", weaponName,
+			g_coopTestPhase == 4i ? "primary" : "secondary",
+			g_coopTestHealth - g_coopTestTarget.health, Coop_TestLeftovers()));
+		g_coopTestHealth = g_coopTestTarget.health;
+		g_coopTestPhase = g_coopTestPhase == 8i ? 0i : 5i;
+		g_coopTestNext = time + 0.1f;
+	} else {
+		/* 1, 2: tap then hold primary; 5, 6: the same for secondary;
+		   3, 7: let go and wait for slow projectiles */
+		string force = "0";
+		float wait = 1.5f;
+
+		switch (g_coopTestPhase) {
+		case 1i: force = "1"; break;
+		case 2i: force = "3"; break;
+		case 5i: force = "2"; break;
+		case 6i: force = "4"; break;
+		default: wait = autocvar_coop_weapontestSettle;
+		}
+
+		if (g_coopTestPhase == 5i) {
+			Coop_TestGiveAmmo(b);
+		}
+
+		cvar_set("bot_forceAttack", force);
+		if (autocvar_coop_debug) {
+			print(sprintf("weapontest:   phase %i force %s for %f\n", g_coopTestPhase, force, wait));
+		}
+		ents.Input(b, "SetHealth", "10000", world);
+		g_coopTestPhase++;
+		g_coopTestNext = time + wait;
+	}
+}
+
 void
 CodeCallback_FrameStart(void)
 {
@@ -745,6 +922,10 @@ CodeCallback_FrameStart(void)
 
 	Coop_WaveThink();
 	Coop_BotThink();
+
+	if (autocvar_coop_weapontest) {
+		Coop_WeaponTestThink();
+	}
 
 	if (autocvar_coop_statusInterval > 0 && time >= g_coopStatusNext) {
 		if (g_coopStatusNext > 0)

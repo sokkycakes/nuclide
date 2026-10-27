@@ -32,9 +32,8 @@ entityDef weapon_egon
 	"act_draw"			"$EGON_DRAW"
 	"act_loop"			"$EGON_FIRE1,$EGON_FIRE2,$EGON_FIRE3,$EGON_FIRE4"
 	"act_fireStart"			"$EGON_FIRE4"
-	"act_fireStop"		"$EGON_FIDGET"
 	"act_holster"		"$EGON_HOLSTER"
-	"fireRate"			"0.2"
+	"fireRate"			"0.1"
 
 	"snd_fireStart"		"Weapon_Gluon.Start"
 	"snd_fireLoop"		"Weapon_Gluon.Run"

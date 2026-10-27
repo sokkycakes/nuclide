@@ -18,6 +18,11 @@ entityDef monster_snark
 
 	"attack_ranged_range"	"96"
 
+	// runs at its enemy and leaps at it
+	"mindset_idle"			"snark_idle"
+	"mindset_combat"		"snark_hunt"
+	"mindset_hunt"			"snark_hunt"
+
 	//					Snark.Deploy
 	"snd_attack"		"Snark.Bounce"
 	"snd_pain"			"Snark.Die"

@@ -1,0 +1,11 @@
+typeInfo snark_leap
+{
+	"task_1"			"StopMovement"
+	"task_2"			"TurnToEnemy"
+	"task_3"			"PlayActivity run"
+	"task_4"			"AttackRanged1"
+	"task_5"			"Wait 0.6"
+	"task_6"			"PerformSchedule snark_hunt"
+	"fail_onDeadEnemy"	"1"
+	"DeadEnemy"			"PerformSchedule snark_idle"
+}

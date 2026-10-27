@@ -352,6 +352,13 @@ ncBot::RunAI(void)
 		return;
 	}
 
+	/* DEVELOPER CVAR: press an attack button. 1 and 2 tap primary and
+	   secondary (released every other tenth of a second, so
+	   semi-automatic weapons fire too), 3 and 4 hold them down */
+	if (autocvar_bot_forceAttack >= 3i || (autocvar_bot_forceAttack && ((int)(time * 10.0f) & 1i))) {
+		input_buttons |= (autocvar_bot_forceAttack & 1i) ? INPUT_PRIMARY : INPUT_SECONDARY;
+	}
+
 	/* DEVELOPER CVAR: freeze the bot */
 	if (autocvar_bot_pause)
 		return;

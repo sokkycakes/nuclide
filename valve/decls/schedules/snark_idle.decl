@@ -1,0 +1,9 @@
+typeInfo snark_idle
+{
+	"task_1"			"StopMovement"
+	"task_2"			"PlayActivity idle"
+	"task_3"			"Wait 1"
+	"task_4"			"WaitPVS"
+	"NewEnemy"			"ChangeMindset combat"
+	"CanRangedAttack1"	"PerformSchedule snark_leap"
+}

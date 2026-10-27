@@ -39,17 +39,23 @@ entityDef weapon_hornetgun
 	"regenRate"			"0.7"
 }
 
+// a player's hornets use the player damage value, not the alien grunt's
+entityDef damage_hornetPlayer
+{
+	damage "skill:plr_hornet"
+}
+
 entityDef projectile_hornet
 {
 	"inherit" 	"ranged_agrunt_shot_orange"
-	"damage"	"10"
+	"def_damage"	"damage_hornetPlayer"
 	"offset"	"24 8 -16"
 }
 
 entityDef projectile_hornet_red
 {
 	"inherit" 	"ranged_agrunt_shot_red"
-	"damage"	"10"
+	"def_damage"	"damage_hornetPlayer"
 	"offset"	"24 8 -16"
 }
 
@@ -59,7 +65,7 @@ entityDef fireInfo_hornetgun
 	"ammoType"			"ammo_hornet"
 	"ammoRequired"		"1"
 	"ammoPerShot"		"1"
-	"fireRate"			"1.0"
+	"fireRate"			"0.25"
 	"punchAngle"		"-1 0 0"
 }
 

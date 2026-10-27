@@ -258,6 +258,7 @@ CSQC_Update2D(float w, float h, bool focus)
 					cl.m_activeWeapon.UpdateGUI();
 				}
 
+				Nameplates_Draw();
 				HUD_Draw();
 			} else {
 				HUD_DrawSpectator();

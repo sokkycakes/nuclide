@@ -276,6 +276,7 @@ private:
 	/* temp */
 	float m_flDmgMultiplier;
 	float m_trackDelayTime;
+	entity m_trackTarget;
 
 	/* defAPI */
 	string m_defDamage;
@@ -359,6 +360,7 @@ private:
 
 	nonvirtual void _AnimateThink(void);
 	nonvirtual void _ThrustThink(void);
+	nonvirtual entity _TrackTarget(void);
 	nonvirtual void _AnimateThinkDead(void);
 
 	virtual void _ApplyDamage(void);

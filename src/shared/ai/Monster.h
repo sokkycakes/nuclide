@@ -157,6 +157,12 @@ typedef enum
 /* FIXME: I'd like to move this into ncMonster, but our current IsFriend()
  * check is currently only checking on a .takedamage basis. */
 .int m_iAlliance;
+.int m_iAlliance_net;
+.float max_health_net;
+#ifdef CSQC
+.float max_health; /* server-only in fteextensions, networked for nameplates */
+.string netname;
+#endif
 
 /*! \brief This entity class represents non-player characters. */
 /*!QUAKED ncMonster (0 0.8 0.8) (-16 -16 0) (16 16 72) WAITTILLSEEN GAG MONSTERCLIP x PRISONER x IGNOREPLAYER WAITFORSCRIPT PREDISASTER FADECORPSE MULTIPLAYER FALLING HORDE

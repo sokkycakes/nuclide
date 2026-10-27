@@ -1,0 +1,9 @@
+typeInfo snark_hunt
+{
+	"task_1"			"RunToEnemyWithinRadius 48"
+	"task_2"			"WaitForMovement"
+	"task_3"			"PerformSchedule snark_leap"
+	"fail_onDeadEnemy"	"1"
+	"DeadEnemy"			"PerformSchedule snark_idle"
+	"CanRangedAttack1"	"PerformSchedule snark_leap"
+}
