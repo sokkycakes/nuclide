@@ -1,0 +1,90 @@
+// Engineer: Shotgun, Pistol, Wrench (repairs, upgrades and refills your
+// buildings with metal), Construction PDA (primary builds, secondary picks
+// the building, reload destroys the selected one).
+
+entityDef tf_weapon_pistol
+{
+	"inherit"					"tf_weapon_base"
+	"spawnclass"				"ncWeapon"
+	"inv_name"					"Pistol"
+	"model"						"progs/g_shot1.mdl"
+	"model_view"				"progs/v_shot.mdl"
+	"def_fireInfo"				"fireInfo_tf_pistol"
+	"hudSlot"					"1"
+	"hudSlotPos"				"0"
+	"ammoType"					"ammo_tf_pistol_eng"
+	"ammoRequired"				"1"
+	"ammoPerShot"				"1"
+	"inv_ammo_tf_pistol_eng"	"200"
+	"clipSize"					"12"
+	"clipSizeDefault"			"12"
+	"reloadTime"				"1.25"
+	"act_reload"				"0"
+	"msg_obituary"				"%s was shot by %s's pistol."
+	"snd_fire"					"weapon_shotgun.shoot"
+}
+
+entityDef fireInfo_tf_pistol
+{
+	"def_onFire"	"projectile_tf_pistol"
+	"fireRate"		"0.15"
+	"punchSpring"	"-1 0 0"
+}
+
+entityDef tf_weapon_wrench
+{
+	"inherit"			"tf_weapon_base"
+	"spawnclass"		"tfWrench"
+	"inv_name"			"Wrench"
+	"model"				""
+	"model_view"		"progs/v_axe.mdl"
+	"def_fireInfo"		"fireInfo_tf_weapon_wrench"
+	"hudSlot"			"2"
+	"hudSlotPos"		"0"
+	"ammoRequired"		"0"
+	"msg_obituary"		"%s was wrenched by %s."
+	"animPrefix"		"axe"
+	"act_fire"			"1,2"
+	"act_fireFailed"	"1,2"
+	"silent_fire"		"1"
+	"tf_metalPerHit"	"25"
+	"tf_repairPerMetal"	"3"
+}
+
+entityDef fireInfo_tf_weapon_wrench
+{
+	"def_onFire"	"projectile_tf_weapon_wrench"
+	"testDistance"	"-72"
+	"fireRate"		"0.8"
+	"failRate"		"0.8"
+	"snd_hit"		"Weapon_Axe.Melee_Hit"
+	"snd_failed"	"Weapon_Axe.Miss"
+}
+
+entityDef projectile_tf_weapon_wrench
+{
+	"inherit"	"tf_melee_base"
+	"damage"	"65"
+}
+
+entityDef tf_weapon_pda_engineer_build
+{
+	"inherit"		"tf_weapon_base"
+	"spawnclass"	"tfBuildPDA"
+	"inv_name"		"Construction PDA"
+	"model"			""
+	"model_view"	"progs/v_axe.mdl"
+	"def_fireInfo"	"fireInfo_tf_pda_build"
+	"hudSlot"		"3"
+	"hudSlotPos"	"0"
+	"ammoRequired"	"0"
+	"animPrefix"	"axe"
+	"act_fire"		"0"
+	"tf_buildings"	"tf_building_sentry tf_building_dispenser tf_building_tele_entrance tf_building_tele_exit"
+}
+
+entityDef fireInfo_tf_pda_build
+{
+	"fireRate"	"0.5"
+}
+

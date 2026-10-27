@@ -279,6 +279,36 @@ ncPlayer::Physics_Jump(void)
 	}
 }
 
+/* a mid-air jump: TF2's double jump. the new horizontal speed follows the
+   movement keys, so the player can change direction in the air. */
+void
+ncPlayer::Physics_AirJump(void)
+{
+	vector wishMove = input_movevalues;
+	vector moveAngles = [0, input_angles[1], 0];
+	vector wishDir = (anglesToForward(moveAngles) * wishMove[0]) + (anglesToRight(moveAngles) * wishMove[1]);
+	float horizontalSpeed = Physics_MaxSpeed();
+
+	wishDir[2] = 0;
+
+	if (vlen(wishDir) > 0) {
+		wishDir = normalize(wishDir);
+		velocity[0] = wishDir[0] * horizontalSpeed;
+		velocity[1] = wishDir[1] * horizontalSpeed;
+	} else {
+		velocity[0] = 0;
+		velocity[1] = 0;
+	}
+
+	velocity[2] = m_pmoveVars.pm_jumpheight;
+
+#ifdef SERVER
+	if (STRING_SET(m_sndJump)) {
+		StartSoundDef(m_sndJump, CHAN_BODY, true);
+	}
+#endif
+}
+
 /* check if we're elligible to jump */
 void
 ncPlayer::Physics_CheckJump(float premove)
@@ -291,8 +321,23 @@ ncPlayer::Physics_CheckJump(float premove)
 
 	if (GetFlags() & FL_WATERJUMP)
 		return;
-	if (!(GetFlags() & FL_ONGROUND))
+
+	if (GetFlags() & FL_ONGROUND) {
+		m_nuclideFlags &= ~VFL_AIRJUMPS;
+	} else {
+		/* air jumps need a fresh press of the jump key */
+		if (premove && HasFlags(FL_JUMPRELEASED) && m_pmoveVars.pm_airjumps > 0) {
+			float airJumpsUsed = (m_nuclideFlags & VFL_AIRJUMPS) / VFL_AIRJUMP_ONE;
+
+			if (airJumpsUsed < m_pmoveVars.pm_airjumps && GetMovetype() == MOVETYPE_WALK && WaterLevel() < 2) {
+				Physics_AirJump();
+				m_nuclideFlags = (m_nuclideFlags & ~VFL_AIRJUMPS) | ((airJumpsUsed + 1) * VFL_AIRJUMP_ONE);
+				RemoveFlags(FL_JUMPRELEASED);
+			}
+		}
+
 		return;
+	}
 
 	/* if a player wants to be able to hold jump, let them */
 	if (!(infokey(this, "autojump") == "1"))

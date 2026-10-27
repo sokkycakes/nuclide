@@ -75,6 +75,7 @@ var string(void) TFServer_ObjectiveSummary;
 var string(entity, string) TFServer_ClassDefFor;
 var void(entity) TFServer_Resupply;
 var void(entity) TFServer_PlayerThink;
+var bool(string) TFServer_TestCommand;
 var entity(entity) TFServer_NextObjective;
 
 /* optional bot hooks, present when a bot framework is compiled into the
@@ -102,6 +103,7 @@ TFRules_Link(void)
 	TFServer_ClassDefFor = externvalue(0, "TF_ClassDefFor");
 	TFServer_Resupply = externvalue(0, "TF_Resupply");
 	TFServer_PlayerThink = externvalue(0, "TF_PlayerThink");
+	TFServer_TestCommand = externvalue(0, "TF_TestCommand");
 	TFServer_NextObjective = externvalue(0, "TF_NextObjective");
 
 	BWHook_NotifyInjured = externvalue(0, "bw_notify_injured");
@@ -740,6 +742,11 @@ CodeCallback_ConsoleCommand(entity playerEntity, string command)
 		}
 		break;
 	default:
+		/* the rest of the tf_test_* commands live in the server progs */
+		if (TFServer_TestCommand && TFServer_TestCommand(command)) {
+			break;
+		}
+
 		return (false);
 	}
 
