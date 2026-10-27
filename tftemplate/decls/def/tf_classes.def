@@ -5,7 +5,8 @@
 // register the classes listed in the tf_classes cvar for both teams, in that
 // order, which also fills Nuclide's class menu.
 //
-// Stats are Team Fortress 2's health and speeds, and each class carries its
+// Stats are Team Fortress 2's health and speeds (crouching moves at a third
+// of the class's speed, backing up at 90%), and each class carries its
 // TF2 stock loadout from tf_weapons.def (Quake models stand in for TF2's).
 // "pm_airjumps" gives the Scout the double jump.
 //
@@ -26,6 +27,7 @@ entityDef tf_player_base
 	"armorProtection"	"0"
 	"maxarmor"			"0"
 	"pm_runfiring"		"1"
+	"pm_backspeed"		"0.9"
 	"tf_capRate"		"1"
 	"tf_regen"			"0"
 }
@@ -39,6 +41,7 @@ entityDef tfclass_scout
 	"max_health"		"125"
 	"pm_walkspeed"		"400"
 	"pm_runspeed"		"400"
+	"pm_crouchspeed"	"133"
 	"weapon"			"tf_weapon_scattergun,tf_weapon_pistol_scout,tf_weapon_bat"
 	"current_weapon"	"0"
 	"tf_weaponRanges"	"tf_weapon_scattergun 0 600 tf_weapon_pistol_scout 0 1500 tf_weapon_bat 0 64"
@@ -61,6 +64,7 @@ entityDef tfclass_soldier
 	"max_health"		"200"
 	"pm_walkspeed"		"240"
 	"pm_runspeed"		"240"
+	"pm_crouchspeed"	"80"
 	"weapon"			"tf_weapon_rocketlauncher,tf_weapon_shotgun_soldier,tf_weapon_shovel"
 	"current_weapon"	"0"
 	"tf_weaponRanges"	"tf_weapon_rocketlauncher 150 1500 tf_weapon_shotgun_soldier 0 600 tf_weapon_shovel 0 64"
@@ -81,6 +85,7 @@ entityDef tfclass_pyro
 	"max_health"		"175"
 	"pm_walkspeed"		"300"
 	"pm_runspeed"		"300"
+	"pm_crouchspeed"	"100"
 	"weapon"			"tf_weapon_flamethrower,tf_weapon_shotgun_pyro,tf_weapon_fireaxe"
 	"current_weapon"	"0"
 	"tf_weaponRanges"	"tf_weapon_flamethrower 0 300 tf_weapon_shotgun_pyro 0 600 tf_weapon_fireaxe 0 64"
@@ -102,6 +107,7 @@ entityDef tfclass_demoman
 	"max_health"		"175"
 	"pm_walkspeed"		"280"
 	"pm_runspeed"		"280"
+	"pm_crouchspeed"	"93"
 	"weapon"			"tf_weapon_grenadelauncher,tf_weapon_pipebomblauncher,tf_weapon_bottle"
 	"current_weapon"	"0"
 	"tf_weaponRanges"	"tf_weapon_grenadelauncher 150 1000 tf_weapon_bottle 0 64"
@@ -122,6 +128,7 @@ entityDef tfclass_heavy
 	"max_health"		"300"
 	"pm_walkspeed"		"230"
 	"pm_runspeed"		"230"
+	"pm_crouchspeed"	"77"
 	"weapon"			"tf_weapon_minigun,tf_weapon_shotgun_hwg,tf_weapon_fists"
 	"current_weapon"	"0"
 	"tf_weaponRanges"	"tf_weapon_minigun 0 1200 tf_weapon_shotgun_hwg 0 600 tf_weapon_fists 0 64"
@@ -142,6 +149,7 @@ entityDef tfclass_engineer
 	"max_health"		"125"
 	"pm_walkspeed"		"300"
 	"pm_runspeed"		"300"
+	"pm_crouchspeed"	"100"
 	"weapon"			"tf_weapon_shotgun_primary,tf_weapon_pistol,tf_weapon_wrench,tf_weapon_pda_engineer_build"
 	"current_weapon"	"0"
 	"tf_weaponRanges"	"tf_weapon_shotgun_primary 0 600 tf_weapon_pistol 0 1500 tf_weapon_wrench 0 64"
@@ -162,6 +170,7 @@ entityDef tfclass_medic
 	"max_health"		"150"
 	"pm_walkspeed"		"320"
 	"pm_runspeed"		"320"
+	"pm_crouchspeed"	"107"
 	"weapon"			"tf_weapon_syringegun_medic,tf_weapon_medigun,tf_weapon_bonesaw"
 	"current_weapon"	"0"
 	"tf_weaponRanges"	"tf_weapon_syringegun_medic 0 800 tf_weapon_bonesaw 0 64"
@@ -183,6 +192,7 @@ entityDef tfclass_sniper
 	"max_health"		"125"
 	"pm_walkspeed"		"300"
 	"pm_runspeed"		"300"
+	"pm_crouchspeed"	"100"
 	"weapon"			"tf_weapon_sniperrifle,tf_weapon_smg,tf_weapon_club"
 	"current_weapon"	"0"
 	"tf_weaponRanges"	"tf_weapon_sniperrifle 400 8192 tf_weapon_smg 0 1000 tf_weapon_club 0 64"
@@ -203,6 +213,7 @@ entityDef tfclass_spy
 	"max_health"		"125"
 	"pm_walkspeed"		"320"
 	"pm_runspeed"		"320"
+	"pm_crouchspeed"	"107"
 	"weapon"			"tf_weapon_revolver,tf_weapon_knife,tf_weapon_builder,tf_weapon_pda_spy"
 	"current_weapon"	"0"
 	"tf_weaponRanges"	"tf_weapon_revolver 0 1200 tf_weapon_knife 0 64"

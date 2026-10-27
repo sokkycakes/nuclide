@@ -79,7 +79,11 @@ its entity fields line up with the server's. The menu comes from `base`.
 Each class is an entityDef, `tfclass_<name>`, that inherits `tf_player_base`.
 `tf_player_base` inherits `base`'s `player` def and spawns as `tfPlayer`.
 Health and speed match TF2: for example, the Scout has 125 health and moves
-at 400, and the Heavy has 300 health and moves at 230. Each class carries
+at 400, and the Heavy has 300 health and moves at 230. As in TF2, crouching
+moves at a third of the class's speed (`pm_crouchspeed`), backing up at 90%
+(`pm_backspeed`), a spun-up Heavy at 110 and a zoomed Sniper at 80, and the
+server sets TF2's acceleration and stopping (`pm_accelerate 10`,
+`pm_stopspeed 100`) on every map. Each class carries
 its TF2 stock loadout with TF2's damage, clip sizes and fire rates, drawn
 with Quake models.
 
@@ -118,7 +122,7 @@ TF2 knockback (cvars `tf_knockback`, `tf_selfknockback`,
 stickies, spin, uber, cloak, metal) above the ammo.
 
 Weapon mechanics that need prediction are Nuclide def keys, so the client
-predicts them: `pm_airjumps` on the player, and `speed_mod_firing` and
+predicts them: `pm_airjumps` and `pm_backspeed` on the player, and `speed_mod_firing` and
 `speed_mod_zoomed` on weapons. The rest runs on the server only, because
 the client always predicts plain `ncPlayer`/`ncWeapon`; charging and spin-up
 can look slightly off on a laggy client.

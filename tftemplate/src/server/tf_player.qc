@@ -86,6 +86,7 @@ public:
 	vector m_tfTestPos;
 	bool m_tfTestFixedAim;
 	vector m_tfTestAngles;
+	vector m_tfTestMove;
 
 private:
 	nonvirtual void TFFrame(void);
@@ -453,12 +454,16 @@ tfPlayer::ServerInputFrame(void)
 	if (m_tfTestPinned) {
 		/* ncPlayer::ServerInputFrame without the bot's AI, which would
 		   switch weapons and steer */
-		input_buttons = (time < m_tfTestUntil) ? m_tfTestButtons : 0;
-		input_movevalues = movement = [0, 0, 0];
+		bool testHeld = (time < m_tfTestUntil);
+		input_buttons = testHeld ? m_tfTestButtons : 0;
+		input_movevalues = movement = (testHeld ? m_tfTestMove : [0, 0, 0]);
 
-		/* bots steer themselves in ways input can't undo: pin them */
-		SetOrigin(m_tfTestPos);
-		SetVelocity([0, 0, 0]);
+		/* bots steer themselves in ways input can't undo: pin them,
+		   unless they are told to walk */
+		if (m_tfTestMove == [0, 0, 0]) {
+			SetOrigin(m_tfTestPos);
+			SetVelocity([0, 0, 0]);
+		}
 
 		if (m_tfTestFixedAim) {
 			input_angles = v_angle = m_tfTestAngles;

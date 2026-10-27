@@ -17,7 +17,7 @@ entityDef tf_weapon_sniperrifle
 	"inv_ammo_tf_sniper"	"25"
 	"msg_obituary"			"%s was sniped by %s."
 	"snd_fire"				"weapon_shotgun.shoot"
-	"speed_mod_zoomed"		"0.27"
+	"speed_mod_zoomed"		"0.2667"
 	"tf_baseDamage"			"50"
 	"tf_maxDamage"			"150"
 	"tf_chargeTime"			"3.3"

@@ -17,6 +17,12 @@
 void
 Game_Worldspawn(void)
 {
+	/* Team Fortress 2's ground movement: it speeds up and stops a little
+	   quicker than Nuclide's defaults (sv_accelerate 10, sv_stopspeed 100) */
+	cvars.SetString("pm_accelerate", "10");
+	cvars.SetString("pm_stopspeed", "100");
+	cvars.SetString("pm_friction", "4");
+	cvars.SetString("pm_airaccelerate", "10");
 }
 
 /** Picks the game mode when g_gametype isn't set, from the map name's prefix
