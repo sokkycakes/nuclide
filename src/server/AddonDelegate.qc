@@ -113,6 +113,14 @@ ncAddonDelegate::CreateFromProgs(string addonName, float progHandle)
 	ncAddonDelegate newRule = __NULL__;
 
 	if (progHandle) {
+		/* main() links the API (ents., next., game. ...) for the addon,
+		   the same way the rules progs get theirs */
+		void(void) mainFunction = externvalue(progHandle, "main");
+
+		if (mainFunction) {
+			mainFunction();
+		}
+
 		newRule = spawn(ncAddonDelegate);
 		newRule.m_progHandle = progHandle;
 		newRule.m_name = addonName;

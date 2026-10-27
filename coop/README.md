@@ -51,6 +51,34 @@ Headless test with bots (prints the wave and scores every 10 seconds):
   TF2-style target ID panel (name, health) under the crosshair: serverinfo
   `targetid 1`, `cg_targetID 0|1`, `cg_targetIDRange` (2000).
 
+## XP mod (`src/plugins/xpm.qc`)
+
+A server plugin in the style of the Sven Co-op XP mod (SCXPM), written
+fresh from a description of how that mod plays. The rules load the plugins
+named in `coop_plugins` (default `xpm`) on every map; `sv addon load xpm`
+also works.
+
+- Each point of score is worth `5 * xpm_xpgain` XP. Reaching the next level
+  from level L takes `70L + 3.5L² + 30` XP, up to level 1800, and each level
+  is a skill point. Rank names go with level bands.
+- Nine skills: Strength (+1 health each), Superior Armor (+1 armour),
+  Health Regeneration, Nano Armor, Ammo Reincarnation, Anti Gravity (lower
+  gravity while you hold jump after a jump), Awareness (boosts the others),
+  Team Power (heals and armours teammates within 650 units) and Block
+  Attack (a chance each half second to take no damage).
+- Medals (0 to 15, three to start) add a little to most skills.
+- The skill menu opens on level-up and with `selectskills`: keys 1 to 9
+  spend a point, 0 closes it. It is a server-driven text menu
+  (`svmenu` on the client, answered with `menuselect`).
+- Commands, in the console or in chat with or without `/`: `selectskills`,
+  `resetskills`, `playerskills`, `skillsinfo`, `xpminfo`. Admin: `setlvl
+  <name> <level>`, `addmedal <name>`, `removemedal <name>`, `godmode
+  <name>`, `noclipmode <name>`. Admins are the listen server host, anyone
+  with `sv_cheats 1`, or the names in `xpm_admins`.
+- The HUD shows XP, level, rank and medals on the left (`xpm_hud 0` hides
+  it). Progress is saved to `data/xpm/` by GUID, certificate or name, on
+  level-up, every 30 seconds and on disconnect. Bots aren't saved.
+
 ## Tested on Bulwark
 
 With Half-Life's assets: zombies and headcrabs hit players, players go

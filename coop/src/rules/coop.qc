@@ -64,6 +64,7 @@ var float autocvar_coop_statusInterval = 0;	/* print coop_status every N seconds
 var int autocvar_coop_weapontest = 0;	/* tests: the first bot fires every weapon at a target */
 var string autocvar_coop_weapontestList = "";	/* tests: comma-separated weapons to try, all if empty */
 var float autocvar_coop_weapontestSettle = 1.5;	/* tests: seconds to wait for slow projectiles */
+var string autocvar_coop_plugins = "xpm";	/* server plugins (plugins/<name>.dat) loaded every map */
 
 /* per player slot, indexed by entity number - 1 */
 float g_coopDownTime[COOP_MAXPLAYERS];
@@ -605,6 +606,13 @@ CodeCallback_StartGameType(void)
 	serverinfo.SetString("coop_wave", "0");
 	serverinfo.SetString("nameplates", "1");
 	serverinfo.SetString("targetid", "1");
+
+	/* plugins live as long as the map, so load them again on each one */
+	int pluginCount = (int)tokenize(autocvar_coop_plugins);
+
+	for (int i = 0i; i < pluginCount; i++) {
+		localcmd(sprintf("sv addon load %s\n", argv(i)));
+	}
 }
 
 string

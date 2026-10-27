@@ -22,10 +22,15 @@ Textmenu_IsActive(void)
     return STRING_SET(g_textmenu);
 }
 
+/* a menu the server sent as text (svmenu): number keys go back to the
+   server as "menuselect <n>" instead of calling a client function */
+static bool g_textmenuFromServer;
+
 void
 Textmenu_Hide(void)
 {
 	g_textmenu = "";
+	g_textmenuFromServer = false;
 	g_textchannels[5].m_flTime = 0.0f;
 	g_textmenucheck = 0.0f;
 }
@@ -33,6 +38,7 @@ Textmenu_Hide(void)
 void
 Textmenu_Call(string menu)
 {
+	g_textmenuFromServer = false;
 	g_textmenu = menu;
 	g_textchannels[5].m_flTime = 0.0f;
 	g_textmenucheck = 0.0f;
@@ -75,6 +81,12 @@ Textmenu_Input(int nr)
 		return;
 	}
 
+	if (g_textmenuFromServer) {
+		localcmd(sprintf("menuselect %i\n", nr + 1i));
+		Textmenu_Hide();
+		return;
+	}
+
 	void(int) vFunc = externvalue(-1, g_textmenu);
 
 	if (vFunc) {
@@ -83,4 +95,13 @@ Textmenu_Input(int nr)
 	}
 
 	print(sprintf("Warning! %s not implemented!\n", g_textmenu));
+}
+
+/** Shows a menu the server sent as text, with "\\n" for line breaks.
+The pressed number goes back as "menuselect <n>" (0 is sent as 10). */
+void
+Textmenu_ServerMenu(string menuText)
+{
+	Textmenu_Call(strreplace("\\n", "\n", menuText));
+	g_textmenuFromServer = true;
 }
