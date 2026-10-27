@@ -1,6 +1,7 @@
 font_s FONT_20;
 font_s FONT_CHAT;
 
+var float autocvar_hud_fastswitch = 0;
 var vector autocvar_hlhud_fgColor  = [1, 160/255, 0];
 var float autocvar_hlhud_fgAlpha  = 100/255;
 var float autocvar_hlhud_fgAlphaScale  = 1.0;
