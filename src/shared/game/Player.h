@@ -303,6 +303,11 @@ private:
 	NETWORKED_ENT(vehicle)
 	NETWORKED_VECTOR(m_pmoveHookVelocity)
 
+	/** Set by the server: when above 0, the player moves as if their
+	run speed were this instead (a Team Fortress Medic matching a faster
+	patient). Crouching, backing up and weapon slowdowns scale with it. */
+	NETWORKED_FLOAT(m_pmoveSpeedTarget)
+
 #ifdef CLIENT
 	int sequence;
 

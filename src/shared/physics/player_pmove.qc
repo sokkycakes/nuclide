@@ -504,6 +504,11 @@ ncPlayer::Physics_MaxSpeed(void)
 		wishSpeed = walkSpeed;
 	}
 
+	/* moving at another speed than our own, as the server says */
+	if (m_pmoveSpeedTarget > 0.0f && walkSpeed > 0.0f) {
+		wishSpeed *= m_pmoveSpeedTarget / walkSpeed;
+	}
+
 	/* slower when backing up, in games that want it */
 	if (input_movevalues[0] < 0 && m_pmoveVars.pm_backspeed > 0.0f) {
 		wishSpeed *= m_pmoveVars.pm_backspeed;

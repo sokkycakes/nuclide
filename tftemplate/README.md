@@ -86,7 +86,9 @@ at 400, and the Heavy has 300 health and moves at 230. As in TF2, crouching
 moves at a third of the class's speed (`pm_crouchspeed`), backing up at 90%
 (`pm_backspeed`), a spun-up Heavy at 110 and a zoomed Sniper at 80, and the
 server sets TF2's acceleration and stopping (`pm_accelerate 10`,
-`pm_stopspeed 100`) on every map. Each class carries
+`pm_stopspeed 100`) on every map. A Medic healing a faster patient keeps up
+with them, and a disguised Spy moves no faster than the disguise's class
+(the server sets Nuclide's predicted `m_pmoveSpeedTarget`). Each class carries
 its TF2 stock loadout with TF2's damage, clip sizes and fire rates, drawn
 with Quake models.
 
