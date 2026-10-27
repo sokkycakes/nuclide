@@ -77,11 +77,13 @@ float bw_wp_load(void)
 	return TRUE;
 }
 
-/* the waypoint nearest pos; with los, the nearest of the closest few that
- * can be seen from pos, falling back to the nearest */
+/* the waypoint nearest pos (height counting three times); with los, the
+ * nearest of the closest few that can be seen from pos, falling back to the
+ * nearest */
 float bw_wp_nearest(vector pos, float los)
 {
 	float i, k, best, bd, d, first = -1;
+	vector wp;
 	float tried[8];
 	float ntried = 0;
 	if (!bw_wp_load())
@@ -96,7 +98,10 @@ float bw_wp_nearest(vector pos, float los)
 					skip = TRUE;
 			if (skip)
 				continue;
-			d = vlen(bw_wps[i].pos - pos);
+			/* height counts extra: a waypoint on the floor below or above
+			 * is further to walk than it looks */
+			wp = bw_wps[i].pos;
+			d = vlen(wp - pos) + fabs(wp_z - pos_z) * 2;
 			if (d < bd) {
 				bd = d;
 				best = i;

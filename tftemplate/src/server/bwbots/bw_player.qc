@@ -34,6 +34,7 @@ void BWPlayerLocomotion::Reset(void)
 	m_in_move = '0 0 0';
 	m_jump_press = FALSE;
 	m_air_steer = FALSE;
+	m_crouch_air = FALSE;
 	m_was_ground = (m_bot.flags & FL_ONGROUND) ? TRUE : FALSE;
 }
 
@@ -61,12 +62,13 @@ float BWPlayerLocomotion::JumpAcrossGap(vector landing, vector fwd)
 }
 
 /* jump while pressing into the face: once the feet clear the lip the bot
- * moves on top */
+ * moves on top. A ledge above a plain jump gets a crouch jump. */
 float BWPlayerLocomotion::ClimbUpToLedge(vector ledge, vector fwd)
 {
-	if (!IsOnGround() || ledge_z - m_bot.origin_z > m_max_jump)
+	if (!IsOnGround() || ledge_z - m_bot.origin_z > m_max_jump + m_crouch_gain)
 		return FALSE;
 	Jump(0);
+	m_crouch_air = (ledge_z - m_bot.origin_z > m_max_jump) ? TRUE : FALSE;
 	m_climbing = TRUE;
 	m_air_goal = ledge + bw_flat(fwd) * 16;
 	m_air_steer = TRUE;
@@ -81,6 +83,7 @@ void BWPlayerLocomotion::Observe(void)
 	if (now && !m_was_ground) {
 		m_jumping = m_climbing = FALSE;
 		m_air_steer = FALSE;
+		m_crouch_air = FALSE;
 		bw_log(m_bot, BWD_LOCOMOTION, "landed");
 		bw_ev_clear();
 		bw_ev_e1 = m_bot.groundentity;
@@ -93,6 +96,7 @@ void BWPlayerLocomotion::Observe(void)
 		/* the physics didn't take the jump (no room, say) */
 		m_jumping = m_climbing = FALSE;
 		m_air_steer = FALSE;
+		m_crouch_air = FALSE;
 	}
 	m_was_ground = now;
 }
@@ -223,6 +227,8 @@ void BWBot::PlayerInput(void)
 		b |= BWIN_JUMP;
 		pl.m_jump_press = FALSE;
 	}
+	if (pl.m_crouch_air)
+		b |= BWIN_CROUCH;
 	switch (m_body.m_posture) {
 	case BWPOSTURE_CROUCH:
 	case BWPOSTURE_SIT:

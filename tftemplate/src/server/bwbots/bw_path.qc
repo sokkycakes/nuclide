@@ -109,6 +109,44 @@ vector bw_stand_at(BWBot bot, vector pos)
 	return trace_endpos - [0, 0, bot.mins_z];
 }
 
+/* a ramp rises more than a step over one probe step even when it's
+ * walkable: walk it in short steps instead, each up at most a step onto
+ * walkable ground. True with bw_slope_end set to where it got to; false at
+ * a ledge or a wall. */
+vector bw_slope_end;
+float BWPath_WalkSlope(BWBot bot, vector pos, vector dir, float adv)
+{
+	vector up = '0 0 1', nxt;
+	float k, sub, lift, step = bot.m_loco.m_step, slope = bot.m_loco.m_slope;
+	for (k = 0; k < adv; k += sub) {
+		sub = min(8, adv - k);
+		/* as high as the steepest walkable ground rises over sub, plus a step */
+		lift = step + sub * sqrt(1 - slope * slope) / slope;
+		nxt = pos + dir * sub;
+		tracebox(pos + up * lift, bot.mins, bot.maxs, nxt + up * lift, MOVE_NOMONSTERS, bot);
+		if (trace_startsolid || trace_fraction < 1) {
+			bw_log(bot, BWD_PATH, sprintf("slope: blocked at %v", pos));
+			return FALSE;
+		}
+		nxt = trace_endpos;
+		tracebox(nxt, bot.mins, bot.maxs, nxt - up * (lift + step + 1), MOVE_NOMONSTERS, bot);
+		/* some world surfaces (Source displacements) report no normal: take
+		   those as ground, and the ledge check below still applies */
+		if (trace_startsolid || trace_fraction == 1 || (trace_plane_normal_z < slope && trace_plane_normal != '0 0 0')) {
+			bw_log(bot, BWD_PATH, sprintf("slope: no ground at %v n %v", trace_endpos, trace_plane_normal));
+			return FALSE;
+		}
+		/* up more than a step onto flat ground is a ledge, not a ramp */
+		if (trace_endpos_z - pos_z > step && (trace_plane_normal_z > 0.99 || trace_endpos_z - pos_z > lift)) {
+			bw_log(bot, BWD_PATH, sprintf("slope: ledge at %v", trace_endpos));
+			return FALSE;
+		}
+		pos = trace_endpos;
+	}
+	bw_slope_end = pos;
+	return TRUE;
+}
+
 /* walks the bot's box from a to b and adds the points needed to get
  * there: plain ground, a climb at the foot of a ledge, a jump over a gap or
  * a drop off an edge. b is added last. */
@@ -131,14 +169,21 @@ void BWPath::Probe(BWBot bot, vector a, vector b)
 		if (trace_startsolid)
 			break;
 		if (trace_fraction < 1) {
-			/* blocked by something taller than a step: a ledge to climb? */
 			foot = trace_endpos - up * step;
+			/* a ramp too steep to take in one probe step, but walkable */
+			if (BWPath_WalkSlope(bot, pos, dir, adv)) {
+				pos = bw_slope_end;
+				s += adv;
+				continue;
+			}
+			/* blocked by something taller than a step: a ledge to climb? */
 			q = foot + dir * (bot.maxs_x * 2 + 4);
-			q_z = pos_z + loco.m_max_jump + step;
-			tracebox(q, bot.mins, bot.maxs, q - up * (loco.m_max_jump + step), MOVE_NOMONSTERS, bot);
+			q_z = pos_z + loco.m_max_jump + loco.m_crouch_gain + step;
+			tracebox(q, bot.mins, bot.maxs, q - up * (loco.m_max_jump + loco.m_crouch_gain + step), MOVE_NOMONSTERS, bot);
 			if (!trace_startsolid && trace_fraction < 1 && trace_plane_normal_z >= loco.m_slope) {
 				top = trace_endpos;
-				if (top_z - pos_z > step && top_z - pos_z <= loco.m_max_jump && bw_cvar("bot_allow_climb")) {
+				if (top_z - pos_z > step && top_z - pos_z <= loco.m_max_jump + loco.m_crouch_gain && bw_cvar("bot_allow_climb")) {
+					bw_log(bot, BWD_PATH, sprintf("probe climb from %v foot %v top %v", pos, foot, top));
 					AddPoint(foot, BWSEG_GROUND);
 					AddPoint(top, BWSEG_CLIMB);
 					pos = top;

@@ -494,6 +494,10 @@ bw_bot_respawned(entity botEnt)
 		b.m_loco.m_max_jump = jumpVel * jumpVel / (2 * grav) - 2;
 	}
 
+	/* crouching in the air lifts the feet by half the height it takes off
+	   the centred box, so a crouch jump clears that much more */
+	b.m_loco.m_crouch_gain = (g_pmoveVars.pm_normalheight - g_pmoveVars.pm_crouchheight) * 0.5 - 2;
+
 	if (g_pmoveVars.pm_stepsize > 0) {
 		b.m_loco.m_step = g_pmoveVars.pm_stepsize;
 	}
