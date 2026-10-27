@@ -960,7 +960,8 @@ ncWeapon::Draw(void)
 	#if 0
 	SwitchFireInfo(m_primaryFireInfo);
 	#else
-	SwitchFireInfo(m_weaponLastFireInfo);
+	/* nothing fired yet: use the primary fire info, so zoomFov and the like work from the start */
+	SwitchFireInfo(STRING_SET(m_weaponLastFireInfo) ? m_weaponLastFireInfo : m_primaryFireInfo);
 	#endif
 
 	float drawAnimation = -1;
