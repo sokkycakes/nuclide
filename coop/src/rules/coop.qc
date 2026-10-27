@@ -940,7 +940,17 @@ CodeCallback_ImpulseCommand(entity playerEntity, float impulseNum)
 {
 	/* called every input frame, impulse or not */
 	Coop_ReviveInput(playerEntity);
-	return (false);
+
+	switch (impulseNum) {
+	case 100:
+		/* the suit's flashlight, as in Rad-Therapy's own rules */
+		if (AllowFlashlight() == true) {
+			ents.Input(playerEntity, "UseItem", "item_suit", playerEntity);
+		}
+		return (true);
+	default:
+		return (false);
+	}
 }
 
 void
