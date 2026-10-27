@@ -219,3 +219,87 @@ TFHUD_Draw(void)
 		draw.Text_RGB(topCenter + [40, 36], bluClock, TFHUD_TeamColor(TF_TEAM_BLU), FONT_TF);
 	}
 }
+
+/* ---- nameplates and weapon meter ---------------------------------------- */
+
+/** Team a disguised spy shows as, or 0 when they aren't disguised. */
+float
+TFHUD_DisguiseTeam(float playerSlot)
+{
+	string disguiseInfo = getplayerkeyvalue(playerSlot, "*tf_disguise");
+
+	if (!STRING_SET(disguiseInfo)) {
+		return (0);
+	}
+
+	tokenize_console(disguiseInfo);
+	return stof(argv(0));
+}
+
+/** Nameplates callback: teammates, plus enemy spies disguised as our team,
+so a disguise fools the plates too. */
+bool
+TFHUD_PlateIsFriendly(entity targetEnt)
+{
+	float playerSlot = Nameplates_PlayerSlot(targetEnt);
+
+	if (Nameplates_DefaultIsFriendly(targetEnt)) {
+		return (true);
+	}
+
+	if (playerSlot < 0 || targetEnt.entnum == player_localentnum) {
+		return (false);
+	}
+
+	if (getplayerkeyfloat(playerSlot, "*dead") != 0) {
+		return (false);
+	}
+
+	float ourTeam = getplayerkeyfloat(player_localnum, "*team");
+	return (ourTeam > 0 && TFHUD_DisguiseTeam(playerSlot) == ourTeam);
+}
+
+/** Nameplates callback: a disguised enemy spy borrows the name of one of
+our teammates, like TF2. */
+string
+TFHUD_PlateName(entity targetEnt)
+{
+	float playerSlot = Nameplates_PlayerSlot(targetEnt);
+	float ourTeam = getplayerkeyfloat(player_localnum, "*team");
+
+	if (playerSlot >= 0 && getplayerkeyfloat(playerSlot, "*team") != ourTeam) {
+		for (float i = 0; i < maxclients; i++) {
+			if (i != player_localnum && i != playerSlot && getplayerkeyfloat(i, "*team") == ourTeam) {
+				string borrowedName = getplayerkeyvalue(i, "name");
+
+				if (STRING_SET(borrowedName)) {
+					return (borrowedName);
+				}
+			}
+		}
+	}
+
+	return Nameplates_DefaultName(targetEnt);
+}
+
+/** The weapon or ability meter the server publishes in "*tf_meter"
+(stickies, minigun spin, sniper charge, ubercharge, cloak, metal), drawn
+above the ammo counter. */
+void
+TFHUD_DrawMeter(void)
+{
+	string meterText = getplayerkeyvalue(player_localnum, "*tf_meter");
+
+	if (!STRING_SET(meterText) || getplayerkeyfloat(player_localnum, "*dead") != 0) {
+		return;
+	}
+
+	if (g_tfHUDInit == false) {
+		font.Load("fonts/font16.font", FONT_TF);
+		g_tfHUDInit = true;
+	}
+
+	vector hudMins = screen.HUDMins();
+	vector hudSize = screen.HUDSize();
+	TFHUD_CenteredText(hudMins + [hudSize[0] / 2, hudSize[1] - 72], meterText, [1, 0.85, 0.4]);
+}

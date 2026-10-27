@@ -1,0 +1,92 @@
+// Pyro: Flamethrower (airblast on secondary fire), Shotgun, Fire Axe.
+// Flames set targets on fire with "tf_afterburn" (seconds), handled by tfPlayer.
+
+entityDef tf_weapon_flamethrower
+{
+	"inherit"			"tf_weapon_base"
+	"spawnclass"		"tfFlamethrower"
+	"inv_name"			"Flamethrower"
+	"model"				"progs/g_light.mdl"
+	"model_view"		"progs/v_light.mdl"
+	"def_fireInfo"		"fireInfo_tf_flamethrower"
+	"hudSlot"			"0"
+	"hudSlotPos"		"0"
+	"ammoType"			"ammo_tf_flame"
+	"ammoRequired"		"1"
+	"ammoPerShot"		"1"
+	"inv_ammo_tf_flame"	"200"
+	"msg_obituary"		"%s was burned by %s."
+	"snd_fire"			"weapon_lightning.shoot"
+	"animPrefix"		"lightning"
+	"act_draw"			"-1"	// v_light.mdl's frame 0 reports an endless duration
+	"tf_airblastCost"	"20"
+	"tf_airblastRate"	"0.75"
+	"tf_airblastRange"	"128"
+	"tf_airblastForce"	"600"
+}
+
+entityDef fireInfo_tf_flamethrower
+{
+	"def_onFire"	"projectile_tf_flame"
+	"fireRate"		"0.08"
+	"ammoPerShot"	"2"
+}
+
+entityDef projectile_tf_flame
+{
+	"spawnclass"		"ncProjectile"
+	"offset"			"16 6 -10"
+	"velocity"			"1400"
+	"inherit_velocity"	"1"
+	"mins"				"-6 -6 -6"
+	"maxs"				"6 6 6"
+	"fuse"				"0.25"
+	"detonate_on_fuse"	"0"
+	"detonate_on_world"	"1"
+	"detonate_on_actor"	"1"
+	"smoke_fly"			"tf_weapons.flame"
+	"def_damage"		"damage_tf_flame"
+}
+
+entityDef damage_tf_flame
+{
+	"damage"		"13"
+	"tf_afterburn"	"6"
+	"knockback"		"0"
+	"weapon"		"tf_weapon_flamethrower"
+}
+
+entityDef tf_weapon_fireaxe
+{
+	"inherit"			"tf_weapon_base"
+	"spawnclass"		"ncWeapon"
+	"inv_name"			"Fire Axe"
+	"model"				""
+	"model_view"		"progs/v_axe.mdl"
+	"def_fireInfo"		"fireInfo_tf_weapon_fireaxe"
+	"hudSlot"			"2"
+	"hudSlotPos"		"0"
+	"ammoRequired"		"0"
+	"msg_obituary"		"%s was chopped by %s's fire axe."
+	"animPrefix"		"axe"
+	"act_fire"			"1,2"
+	"act_fireFailed"	"1,2"
+	"silent_fire"		"1"
+}
+
+entityDef fireInfo_tf_weapon_fireaxe
+{
+	"def_onFire"	"projectile_tf_weapon_fireaxe"
+	"testDistance"	"-72"
+	"fireRate"		"0.8"
+	"failRate"		"0.8"
+	"snd_hit"		"Weapon_Axe.Melee_Hit"
+	"snd_failed"	"Weapon_Axe.Miss"
+}
+
+entityDef projectile_tf_weapon_fireaxe
+{
+	"inherit"	"tf_melee_base"
+	"damage"	"65"
+}
+

@@ -1,0 +1,86 @@
+// Team Fortress template: the Engineer's buildings, placed with the
+// Construction PDA. Stats are TF2's; models are Quake placeholders.
+// The keys are described in src/server/tf_buildings.qc.
+
+entityDef tf_building_base
+{
+	"tf_upgradeCost"	"200"
+	"snd_acquire"		"weapon.pickup"
+}
+
+entityDef tf_building_sentry
+{
+	"inherit"			"tf_building_base"
+	"spawnclass"		"tfSentryGun"
+	"inv_name"			"Sentry Gun"
+	"model"				"progs/g_nail2.mdl"
+	"mins"				"-20 -20 0"
+	"maxs"				"20 20 40"
+	"tf_buildingType"	"sentry"
+	"tf_cost"			"130"
+	"tf_buildTime"		"10.5"
+	"tf_health"			"150 180 216"
+	"tf_range"			"1100"
+	"tf_damage"			"16"
+	"tf_fireRate"		"0.25 0.125 0.125"
+	"tf_shells"			"150 200 200"
+	"tf_rockets"		"20"
+	"tf_rocketRate"		"3"
+	"tf_rocketDef"		"projectile_tf_sentryrocket"
+}
+
+entityDef projectile_tf_sentryrocket
+{
+	"inherit"			"projectile_tf_rocket"
+	"offset"			"0 0 0"
+	"def_splash_damage"	"damage_tf_sentryrocket"
+}
+
+entityDef damage_tf_sentryrocket
+{
+	"damage"	"100"
+	"damage_min" "50"
+	"radius"	"146"
+	"knockback"	"0"
+	"weapon"	"tf_building_sentry"
+}
+
+entityDef tf_building_dispenser
+{
+	"inherit"			"tf_building_base"
+	"spawnclass"		"tfDispenser"
+	"inv_name"			"Dispenser"
+	"model"				"maps/b_batt1.bsp"
+	"mins"				"-16 -16 0"
+	"maxs"				"16 16 40"
+	"tf_buildingType"	"dispenser"
+	"tf_cost"			"100"
+	"tf_buildTime"		"21"
+	"tf_health"			"150 180 216"
+	"tf_range"			"96"
+	"tf_heal"			"10 15 20"
+	"tf_ammo"			"0.2 0.3 0.4"
+	"tf_metal"			"8 10 12"
+}
+
+entityDef tf_building_tele_entrance
+{
+	"inherit"			"tf_building_base"
+	"spawnclass"		"tfTeleporter"
+	"inv_name"			"Teleporter Entrance"
+	"model"				"progs/teleport.mdl"
+	"mins"				"-24 -24 0"
+	"maxs"				"24 24 12"
+	"tf_buildingType"	"tele_entrance"
+	"tf_cost"			"50"
+	"tf_buildTime"		"21"
+	"tf_health"			"150 180 216"
+	"tf_recharge"		"10 5 3"
+}
+
+entityDef tf_building_tele_exit
+{
+	"inherit"			"tf_building_tele_entrance"
+	"inv_name"			"Teleporter Exit"
+	"tf_buildingType"	"tele_exit"
+}

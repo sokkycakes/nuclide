@@ -23,12 +23,16 @@ HUD_Init(void)
 {
 	font.Load("fonts/font16.font", FONT_HUD);
 	g_ammoPic = 0;
+	Nameplates_IsFriendly = TFHUD_PlateIsFriendly;
+	Nameplates_Name = TFHUD_PlateName;
 }
 
 void
 HUD_Draw(void)
 {
+	Nameplates_Draw();
 	TFHUD_Draw();
+	TFHUD_DrawMeter();
 
 	vector hud_mins = screen.HUDMins();
 	vector hudSize = screen.HUDSize();
@@ -116,6 +120,7 @@ void
 HUD_DrawSpectator(void)
 {
 	TFHUD_Draw();
+	TFHUD_DrawMeter();
 	float palpha = 1.0f;
 	string strText;
 

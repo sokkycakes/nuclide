@@ -1,0 +1,164 @@
+// Demoman: Grenade Launcher, Stickybomb Launcher (hold to charge, secondary
+// fire detonates), Bottle.
+
+entityDef tf_weapon_grenadelauncher
+{
+	"inherit"			"tf_weapon_base"
+	"spawnclass"		"ncWeapon"
+	"inv_name"			"Grenade Launcher"
+	"model"				"progs/g_rock.mdl"
+	"model_view"		"progs/v_rock.mdl"
+	"def_fireInfo"		"fireInfo_tf_grenadelauncher"
+	"hudSlot"			"0"
+	"hudSlotPos"		"0"
+	"ammoType"			"ammo_tf_pipes"
+	"ammoRequired"		"1"
+	"ammoPerShot"		"1"
+	"inv_ammo_tf_pipes"	"16"
+	"clipSize"			"4"
+	"clipSizeDefault"	"4"
+	"reloadTime"		"0.6"
+	"act_reload"		"0"
+	"act_reloadStart"	"0"
+	"act_reloadEnd"		"0"
+	"msg_obituary"		"%s caught %s's pipe bomb."
+	"snd_fire"			"weapon_grenadelauncher.shoot"
+}
+
+entityDef fireInfo_tf_grenadelauncher
+{
+	"def_onFire"	"projectile_tf_pipe"
+	"fireRate"		"0.6"
+	"punchSpring"	"-4 0 0"
+}
+
+entityDef projectile_tf_pipe
+{
+	"spawnclass"		"ncProjectile"
+	"model"				"progs/grenade.mdl"
+	"offset"			"16 8 -8"
+	"velocity"			"1216 0 200"
+	"angular_velocity"	"300 300 300"
+	"gravity"			"1"
+	"fuse"				"2.3"
+	"bounce"			"1"
+	"detonate_on_fuse"	"1"
+	"detonate_on_death"	"0"
+	"detonate_on_world"	"0"
+	"detonate_on_actor"	"1"
+	"detonate_offset"	"32"
+	"smoke_fly"			"weapon_grenadelauncher.trail"
+	"decal_detonate"	"ExplosionScorch"
+	"model_detonate"	"fx_explosion.main"
+	"snd_explode"		"weapon_grenadelauncher.explode"
+	"snd_bounce"		"weapon_grenadelauncher.bounce"
+	"def_splash_damage"	"damage_tf_pipe"
+}
+
+entityDef damage_tf_pipe
+{
+	"damage"		"100"
+	"damage_min"	"50"
+	"radius"		"146"
+	"knockback"		"0"
+	"weapon"		"tf_weapon_grenadelauncher"
+}
+
+entityDef tf_weapon_pipebomblauncher
+{
+	"inherit"				"tf_weapon_base"
+	"spawnclass"			"tfStickybombLauncher"
+	"inv_name"				"Stickybomb Launcher"
+	"model"					"progs/g_rock.mdl"
+	"model_view"			"progs/v_rock.mdl"
+	"def_fireInfo"			"fireInfo_tf_pipebomblauncher"
+	"hudSlot"				"1"
+	"hudSlotPos"			"0"
+	"ammoType"				"ammo_tf_stickies"
+	"ammoRequired"			"1"
+	"ammoPerShot"			"1"
+	"inv_ammo_tf_stickies"	"24"
+	"clipSize"				"8"
+	"clipSizeDefault"		"8"
+	"reloadTime"			"0.67"
+	"act_reload"			"0"
+	"act_reloadStart"		"0"
+	"act_reloadEnd"			"0"
+	"msg_obituary"			"%s was blown up by %s's stickybomb."
+	"snd_fire"				"weapon_grenadelauncher.shoot"
+	"tf_chargeTime"			"4"
+	"tf_chargePower"		"2.98"
+	"tf_maxStickies"		"8"
+	"tf_armTime"			"0.7"
+	"tf_stickyDef"			"projectile_tf_sticky"
+}
+
+entityDef fireInfo_tf_pipebomblauncher
+{
+	"def_onFire"	"projectile_tf_sticky"
+	"fireRate"		"0.6"
+	"punchSpring"	"-3 0 0"
+}
+
+entityDef projectile_tf_sticky
+{
+	"spawnclass"		"ncProjectile"
+	"model"				"progs/grenade.mdl"
+	"offset"			"16 8 -8"
+	"velocity"			"805 0 200"
+	"gravity"			"1"
+	"fuse"				"3600"
+	"bounce"			"0"
+	"stick_to_world"	"1"
+	"detonate_on_fuse"	"0"
+	"detonate_on_world"	"0"
+	"detonate_on_actor"	"0"
+	"decal_detonate"	"ExplosionScorch"
+	"model_detonate"	"fx_explosion.main"
+	"snd_explode"		"weapon_grenadelauncher.explode"
+	"def_splash_damage"	"damage_tf_sticky"
+}
+
+entityDef damage_tf_sticky
+{
+	"damage"		"120"
+	"damage_min"	"60"
+	"radius"		"146"
+	"knockback"		"0"
+	"weapon"		"tf_weapon_pipebomblauncher"
+}
+
+entityDef tf_weapon_bottle
+{
+	"inherit"			"tf_weapon_base"
+	"spawnclass"		"ncWeapon"
+	"inv_name"			"Bottle"
+	"model"				""
+	"model_view"		"progs/v_axe.mdl"
+	"def_fireInfo"		"fireInfo_tf_weapon_bottle"
+	"hudSlot"			"2"
+	"hudSlotPos"		"0"
+	"ammoRequired"		"0"
+	"msg_obituary"		"%s was smashed by %s's bottle."
+	"animPrefix"		"axe"
+	"act_fire"			"1,2"
+	"act_fireFailed"	"1,2"
+	"silent_fire"		"1"
+}
+
+entityDef fireInfo_tf_weapon_bottle
+{
+	"def_onFire"	"projectile_tf_weapon_bottle"
+	"testDistance"	"-72"
+	"fireRate"		"0.8"
+	"failRate"		"0.8"
+	"snd_hit"		"Weapon_Axe.Melee_Hit"
+	"snd_failed"	"Weapon_Axe.Miss"
+}
+
+entityDef projectile_tf_weapon_bottle
+{
+	"inherit"	"tf_melee_base"
+	"damage"	"65"
+}
+
