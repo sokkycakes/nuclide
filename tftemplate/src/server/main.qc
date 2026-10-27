@@ -17,6 +17,9 @@
 void
 Game_Worldspawn(void)
 {
+#ifdef BW_BOTS
+	bw_init();
+#endif
 }
 
 /** Picks the game mode when g_gametype isn't set, from the map name's prefix
