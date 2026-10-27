@@ -18,7 +18,7 @@ entityDef tf_weapon_minigun
 	"msg_obituary"			"%s was mowed down by %s's minigun."
 	"snd_fire"				"weapon_supernailgun.shoot"
 	"animPrefix"			"nailgun"
-	"speed_mod_firing"		"0.47"
+	"speed_mod_firing"		"0.4783"
 	"tf_spinUp"				"0.87"
 }
 

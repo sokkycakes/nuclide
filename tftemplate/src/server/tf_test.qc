@@ -23,11 +23,14 @@ rules progs pass any tf_test_* command they don't know to TF_TestCommand.
 - tf_test_uber <player>: fills a Medic's Ubercharge
 - tf_test_use <player> <weapon def>: switches weapon
 - tf_test_put <player> <x> <y> <z> [yaw]: moves and pins the player
-- tf_test_hold <player> <buttons> <seconds> [target player]: pins the
-  player and holds buttons ("primary", "secondary", "reload", "jump",
-  "use", "none", joined with +) for that long, aiming at the target if
-  given (a player name, @classname for the first entity of a class, or
-  =pitch,yaw for fixed view angles, negative pitch looking up).
+- tf_test_hold <player> <buttons> <seconds> [target player] [forward,side]:
+  pins the player and holds buttons ("primary", "secondary", "reload",
+  "jump", "use", "crouch", "none", joined with +) for that long, aiming at
+  the target if given (a player name, @classname for the first entity of a
+  class, =pitch,yaw for fixed view angles, negative pitch looking up, or
+  "-" for none). With forward,side move values the player walks instead of
+  staying put, for as long as the buttons are held.
+- tf_test_speed: every player's class, ground speed and top speed
 - tf_test_projectiles [clear]: every projectile's position and velocity,
   or removes them all Bot AI is off while pinned.
 - tf_test_release <player>: unpins, giving control back
@@ -51,7 +54,7 @@ TF_TestFindPlayer(string playerName)
 	return (__NULL__);
 }
 
-/** "primary", "secondary", "reload", "jump", "use" or "none", joined with
+/** "primary", "secondary", "reload", "jump", "use", "crouch" or "none", joined with
 "+", or a number of input_buttons bits. */
 static float
 TF_TestButtons(string buttonNames)
@@ -75,6 +78,9 @@ TF_TestButtons(string buttonNames)
 			break;
 		case "use":
 			buttonBits |= INPUT_USE;
+			break;
+		case "crouch":
+			buttonBits |= INPUT_CROUCH;
 			break;
 		default:
 			buttonBits |= stof(argv(i));
@@ -130,6 +136,7 @@ TF_TestCommand(string commandLine)
 			thePlayer.SetVelocity([0, 0, 0]);
 			thePlayer.m_tfTestPos = thePlayer.origin;
 			thePlayer.m_tfTestPinned = true;
+			thePlayer.m_tfTestMove = [0, 0, 0];
 			thePlayer.angles = thePlayer.v_angle = [0, stof(argv(5)), 0];
 			thePlayer.fixangle = 1;
 		}
@@ -141,6 +148,7 @@ TF_TestCommand(string commandLine)
 			string buttonNames = argv(2);
 			thePlayer.m_tfTestUntil = time + stof(argv(3));
 			string aimName = argv(4);
+			string moveValues = argv(5);
 
 			thePlayer.m_tfTestFixedAim = false;
 
@@ -153,12 +161,27 @@ TF_TestCommand(string commandLine)
 				thePlayer.m_tfTestAim = world;
 			} else if (substring(aimName, 0, 1) == "@") {
 				thePlayer.m_tfTestAim = find(world, ::classname, substring(aimName, 1, -1));
+			} else if (aimName == "-") {
+				thePlayer.m_tfTestAim = world;
 			} else {
 				thePlayer.m_tfTestAim = STRING_SET(aimName) ? (entity)TF_TestFindPlayer(aimName) : world;
+			}
+
+			thePlayer.m_tfTestMove = [0, 0, 0];
+
+			if (STRING_SET(moveValues)) {
+				tokenizebyseparator(moveValues, ",");
+				thePlayer.m_tfTestMove = [stof(argv(0)), stof(argv(1)), 0];
 			}
 			thePlayer.m_tfTestButtons = TF_TestButtons(buttonNames);
 			thePlayer.m_tfTestPos = thePlayer.origin;
 			thePlayer.m_tfTestPinned = true;
+		}
+		break;
+	case "tf_test_speed":
+		for (entity e = world; (e = next.Player(e));) {
+			tfPlayer speedPlayer = (tfPlayer)e;
+			print(sprintf("%s (%s): ground speed %d, top speed %d%s at %v\n", speedPlayer.netname, speedPlayer.tf_desiredClass, vlen([speedPlayer.velocity[0], speedPlayer.velocity[1], 0]), speedPlayer.maxspeed, speedPlayer.IsCrouching() ? ", crouching" : "", speedPlayer.origin));
 		}
 		break;
 	case "tf_test_release":
