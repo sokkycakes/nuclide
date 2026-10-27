@@ -30,10 +30,11 @@ fteqw -manifest tftemplate.fmf +set g_gametype tf_ctf +map lqdm1
 fteqw-sv -manifest tftemplate.fmf +set g_gametype tf_koth +map lqdm1
 ```
 
-`g_gametype` picks the mode: `tf_ctf`, `tf_cp`, `tf_koth` or `tf_pl`. When
-it isn't set, the map name decides, as in TF2: `ctf_*` maps run CTF, `cp_*`
-maps run CP, `koth_*` maps run KOTH and `pl_*` maps run Payload. Anything
-else falls back to CTF.
+The map name picks the mode, as in TF2: `ctf_*` maps run CTF, `cp_*` maps
+run CP, `koth_*` maps run KOTH and `pl_*` maps run Payload, whatever
+`g_gametype` says (it keeps the last map's mode across `map` and
+`changelevel`). Other maps run `g_gametype` (`tf_ctf`, `tf_cp`, `tf_koth`
+or `tf_pl`), or CTF when it isn't set.
 
 `lqdm1` from `base` comes with test layouts for all three modes (see
 [Objective overlays](#objective-overlays)). Add bots with `addBot marco`,
