@@ -1,0 +1,73 @@
+// Heavy: Minigun (secondary fire spins it, it spins up before firing and
+// slows the Heavy down), Shotgun, Fists.
+
+entityDef tf_weapon_minigun
+{
+	"inherit"				"tf_weapon_base"
+	"spawnclass"			"tfMinigun"
+	"inv_name"				"Minigun"
+	"model"					"progs/g_nail2.mdl"
+	"model_view"			"progs/v_nail2.mdl"
+	"def_fireInfo"			"fireInfo_tf_minigun"
+	"hudSlot"				"0"
+	"hudSlotPos"			"0"
+	"ammoType"				"ammo_tf_minigun"
+	"ammoRequired"			"1"
+	"ammoPerShot"			"1"
+	"inv_ammo_tf_minigun"	"200"
+	"msg_obituary"			"%s was mowed down by %s's minigun."
+	"snd_fire"				"weapon_supernailgun.shoot"
+	"animPrefix"			"nailgun"
+	"speed_mod_firing"		"0.47"
+	"tf_spinUp"				"0.87"
+}
+
+entityDef fireInfo_tf_minigun
+{
+	"def_onFire"	"projectile_tf_minigun"
+	"fireRate"		"0.105"
+	"punchSpring"	"-0.5 1 -1"
+}
+
+entityDef projectile_tf_minigun
+{
+	"inherit"	"tf_bullet_base"
+	"damage"	"9"
+	"hitscans"	"4"
+	"spread"	"0.08 0.08"
+}
+
+entityDef tf_weapon_fists
+{
+	"inherit"			"tf_weapon_base"
+	"spawnclass"		"ncWeapon"
+	"inv_name"			"Fists"
+	"model"				""
+	"model_view"		"progs/v_axe.mdl"
+	"def_fireInfo"		"fireInfo_tf_weapon_fists"
+	"hudSlot"			"2"
+	"hudSlotPos"		"0"
+	"ammoRequired"		"0"
+	"msg_obituary"		"%s was punched out by %s."
+	"animPrefix"		"axe"
+	"act_fire"			"1,2"
+	"act_fireFailed"	"1,2"
+	"silent_fire"		"1"
+}
+
+entityDef fireInfo_tf_weapon_fists
+{
+	"def_onFire"	"projectile_tf_weapon_fists"
+	"testDistance"	"-72"
+	"fireRate"		"0.8"
+	"failRate"		"0.8"
+	"snd_hit"		"Weapon_Axe.Melee_Hit"
+	"snd_failed"	"Weapon_Axe.Miss"
+}
+
+entityDef projectile_tf_weapon_fists
+{
+	"inherit"	"tf_melee_base"
+	"damage"	"65"
+}
+

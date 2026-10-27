@@ -21,6 +21,9 @@
 tf_server.h
 tf_volume.qc
 tf_player.qc
+tf_buildings.qc
+tf_weapons.qc
+tf_test.qc
 tf_flag.qc
 tf_controlpoint.qc
 tf_spawns.qc

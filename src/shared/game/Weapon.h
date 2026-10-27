@@ -110,6 +110,9 @@ FireInfo. If that does not exist, secondary attacks are not possible.
 - "continuousSmoke" : whether the particle effect is continous
 - "clipSize" : maximum clip size
 - "clipSizeDefault" : Initial clip size on pickup.
+- "speed_mod" : Multiplier on the holder's movement speed.
+- "speed_mod_firing" : When set, replaces "speed_mod" while the weapon is being fired or charged (like a spun-up minigun).
+- "speed_mod_zoomed" : When set, replaces "speed_mod" while the holder is zoomed in.
 - "animPrefix" : Alternative set of animations to use by the weapon. See the ncPlayer documentation for details about the set of activities that will be picked from.
 
 ## FireInfo related keys
@@ -538,6 +541,8 @@ private:
 	vector m_fiPunchAngle;
 	vector m_fiPunchSpring;
 	float m_fiSpeedMod;
+	float m_fiSpeedModFiring;
+	float m_fiSpeedModZoomed;
 	bool m_fiAltModeSwitch;
 	bool m_fiBuggyIdleAnim;
 	int m_fiRegenAmmo;

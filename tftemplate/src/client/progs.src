@@ -1,0 +1,27 @@
+#pragma target fte_5768
+#pragma progs_dat  "../../csprogs.dat"
+#pragma forcecrc 54730
+
+/* The client progs: base's client with the template's shared header, so
+   the template's shared player and weapon code predicts on the client. */
+#define CSQC
+#define CLIENT
+
+#includelist
+../../../src/common/include.src
+../../../src/shared/defs.h
+../../../src/client/defs.h
+
+../../../base/src/client/defs.h
+../../../src/vgui/include.src
+
+../../../src/gs-entbase/client.src
+../../../src/gs-entbase/shared.src
+
+../shared/include.src
+
+../../../base/src/client/main.qc
+
+../../../src/client/include.src
+../../../src/shared/include.src
+#endlist

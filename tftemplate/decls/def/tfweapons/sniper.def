@@ -1,0 +1,105 @@
+// Sniper: Sniper Rifle (secondary fire zooms; zoomed shots charge from 50
+// to 150 damage and headshots triple it), SMG, Kukri.
+
+entityDef tf_weapon_sniperrifle
+{
+	"inherit"				"tf_weapon_base"
+	"spawnclass"			"tfSniperRifle"
+	"inv_name"				"Sniper Rifle"
+	"model"					"progs/g_shot.mdl"
+	"model_view"			"progs/v_shot2.mdl"
+	"def_fireInfo"			"fireInfo_tf_sniperrifle"
+	"hudSlot"				"0"
+	"hudSlotPos"			"0"
+	"ammoType"				"ammo_tf_sniper"
+	"ammoRequired"			"1"
+	"ammoPerShot"			"1"
+	"inv_ammo_tf_sniper"	"25"
+	"msg_obituary"			"%s was sniped by %s."
+	"snd_fire"				"weapon_shotgun.shoot"
+	"speed_mod_zoomed"		"0.27"
+	"tf_baseDamage"			"50"
+	"tf_maxDamage"			"150"
+	"tf_chargeTime"			"3.3"
+	"tf_headshotMult"		"3"
+}
+
+entityDef fireInfo_tf_sniperrifle
+{
+	"fireRate"		"1.5"
+	"zoomFov"		"20"
+	"punchSpring"	"-6 0 0"
+}
+
+entityDef tf_weapon_smg
+{
+	"inherit"			"tf_weapon_base"
+	"spawnclass"		"ncWeapon"
+	"inv_name"			"SMG"
+	"model"				"progs/g_nail.mdl"
+	"model_view"		"progs/v_nail.mdl"
+	"def_fireInfo"		"fireInfo_tf_smg"
+	"hudSlot"			"1"
+	"hudSlotPos"		"0"
+	"ammoType"			"ammo_tf_smg"
+	"ammoRequired"		"1"
+	"ammoPerShot"		"1"
+	"inv_ammo_tf_smg"	"75"
+	"clipSize"			"25"
+	"clipSizeDefault"	"25"
+	"reloadTime"		"1.1"
+	"act_reload"		"0"
+	"msg_obituary"		"%s was riddled by %s's SMG."
+	"snd_fire"			"weapon_nailgun.shoot"
+	"animPrefix"		"nailgun"
+}
+
+entityDef fireInfo_tf_smg
+{
+	"def_onFire"	"projectile_tf_smg"
+	"fireRate"		"0.1"
+	"punchSpring"	"-0.5 1 -1"
+}
+
+entityDef projectile_tf_smg
+{
+	"inherit"	"tf_bullet_base"
+	"damage"	"8"
+	"hitscans"	"1"
+	"spread"	"0.025 0.025"
+}
+
+entityDef tf_weapon_club
+{
+	"inherit"			"tf_weapon_base"
+	"spawnclass"		"ncWeapon"
+	"inv_name"			"Kukri"
+	"model"				""
+	"model_view"		"progs/v_axe.mdl"
+	"def_fireInfo"		"fireInfo_tf_weapon_club"
+	"hudSlot"			"2"
+	"hudSlotPos"		"0"
+	"ammoRequired"		"0"
+	"msg_obituary"		"%s was slashed by %s's kukri."
+	"animPrefix"		"axe"
+	"act_fire"			"1,2"
+	"act_fireFailed"	"1,2"
+	"silent_fire"		"1"
+}
+
+entityDef fireInfo_tf_weapon_club
+{
+	"def_onFire"	"projectile_tf_weapon_club"
+	"testDistance"	"-72"
+	"fireRate"		"0.8"
+	"failRate"		"0.8"
+	"snd_hit"		"Weapon_Axe.Melee_Hit"
+	"snd_failed"	"Weapon_Axe.Miss"
+}
+
+entityDef projectile_tf_weapon_club
+{
+	"inherit"	"tf_melee_base"
+	"damage"	"65"
+}
+
