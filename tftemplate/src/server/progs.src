@@ -35,6 +35,7 @@ tf_controlpoint.qc
 tf_triggers.qc
 tf_props.qc
 tf_payload.qc
+tf_navgen.qc
 tf_spawns.qc
 tf_api.qc
 main.qc

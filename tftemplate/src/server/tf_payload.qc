@@ -617,6 +617,10 @@ private:
 	bool m_receding;
 	bool m_delivered;
 
+	/* Nuclide's botlib goes for GOALITEM hints whose owner isn't on its
+	   team: one rides on the cart, owned by the (teamless) train */
+	ncHint m_botHint;
+
 	string m_outputOnTrainStartRecede;
 	string m_outputOnTrainStopRecede;
 };
@@ -800,6 +804,13 @@ tfTrainWatcher::_Activate(void)
 	}
 
 	team = AttackingTeam();
+
+	if (!m_botHint) {
+		m_botHint = spawn(ncHint);
+		m_botHint.m_hintType = "GOALITEM";
+	}
+
+	m_botHint.owner = GetTrain();
 	ScheduleThink(_Tick, 0.1f);
 }
 
@@ -844,6 +855,18 @@ tfTrainWatcher::_Tick(void)
 	}
 
 	tf_cartProgress = Progress();
+
+	/* the watcher stands where the cart's push zone is, so bot code can
+	   go to it like any other objective (TF_ObjectiveFor) */
+	if (theArea) {
+		setorigin(this, (theArea.absmin + theArea.absmax) * 0.5f);
+	} else {
+		setorigin(this, theTrain.WorldSpaceCenter());
+	}
+
+	if (m_botHint) {
+		setorigin(m_botHint, origin);
+	}
 
 	if (m_disabled || !theArea) {
 		return;
