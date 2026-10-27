@@ -604,6 +604,7 @@ CodeCallback_StartGameType(void)
 	g_coopRestarting = false;
 	serverinfo.SetString("coop_wave", "0");
 	serverinfo.SetString("nameplates", "1");
+	serverinfo.SetString("targetid", "1");
 }
 
 string
