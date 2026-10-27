@@ -47,7 +47,9 @@ Headless test with bots (prints the wave and scores every 10 seconds):
 - Teammates and friendly NPCs get a name and health bar overhead (the
   rules set serverinfo `nameplates 1`). The drawing is shared client code in
   `src/client/nameplates.qc`; `cg_nameplates 0|1` overrides it per player and
-  `cg_nameplatesRange` sets the distance (1000).
+  `cg_nameplatesRange` sets the distance (1000). Aiming at one also shows a
+  TF2-style target ID panel (name, health) under the crosshair: serverinfo
+  `targetid 1`, `cg_targetID 0|1`, `cg_targetIDRange` (2000).
 
 ## Tested on Bulwark
 
