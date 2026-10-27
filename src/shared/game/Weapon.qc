@@ -960,7 +960,13 @@ ncWeapon::Draw(void)
 	#if 0
 	SwitchFireInfo(m_primaryFireInfo);
 	#else
-	SwitchFireInfo(m_weaponLastFireInfo);
+	/* never fired yet: start on the primary fire info, so that keys like
+	   zoomFov work before the first shot */
+	if (!m_weaponLastFireInfo) {
+		SwitchFireInfo(m_primaryFireInfo);
+	} else {
+		SwitchFireInfo(m_weaponLastFireInfo);
+	}
 	#endif
 
 	float drawAnimation = -1;

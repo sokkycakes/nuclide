@@ -332,7 +332,15 @@ declares `class tfBotPawn:BWBot` and the behaviours:
 - **Combat**, always running: picks the weapon for the range from the class's
   `tf_weaponRanges`, aims at the chest (the head for snipers, the feet with
   lead for rockets and grenades) and fires when its crosshair, aim error
-  included, is on the target. Being shot makes the attacker known.
+  included, is on the target. Being shot makes the attacker known. With no
+  player in sight it shoots enemy buildings it can see. Cloaked Spies, and
+  Spies disguised as the bot's team, go unnoticed until they hurt it.
+- **Weapons with their own handling**: the Minigun spins while a target is
+  near and for a couple of seconds after. The Sniper Rifle zooms at its spot
+  and for far targets, waits for 60% charge unless the target is close or
+  shooting back, and unzooms to move. Spies switch to the knife behind a
+  target. Demomen plant up to four stickybombs around the objective while
+  holding it, and set them off when an enemy is on them.
 - **Tactical**: below 40% health it goes for the nearest health pickup, and
   with only melee left it goes for ammo.
 - **Job**, from the class's `tf_role`:
@@ -343,6 +351,21 @@ declares `class tfBotPawn:BWBot` and the behaviours:
   - `sniper` takes a waypoint on its own side that can see the objective, 600
     to 1600 units away, and watches it. It moves on after being hurt.
   - `support` follows the teammate fighting nearest the objective.
+  - Medics (any class with `tf_weapon_medigun`) keep the Medi Gun on a
+    patient instead: hurt, nearby and near the objective first, the flag
+    carrier above all, snipers and other Medics last. They uber when charged
+    and either of them is in trouble, and fight back only when someone is
+    in their face and the patient is healthy.
+  - Engineers (any class with `tf_weapon_pda_engineer_build`) build a sentry
+    gun near the objective, wrench it while it is going up, damaged, sapped
+    or not yet level 3, and stand behind it. They fetch metal when low. When
+    the objective moves far from the gun they blow it up with the PDA's
+    reload once they get there and build again; that is the only time a bot
+    presses reload with the PDA out.
+
+The framework's button bits are Bulwark's, where secondary fire is 16 and use
+is 32. Nuclide has them the other way round, so `tfBotPawn::RunAI` swaps them
+(`TFBot_NuclideButtons`).
 
 Bots navigate on Nuclide's waypoint files (`data/<map>.way`). Without one
 they still fight but walk straight at their goals.
