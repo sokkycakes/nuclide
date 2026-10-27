@@ -31,6 +31,7 @@ rules progs pass any tf_test_* command they don't know to TF_TestCommand.
   "-" for none). With forward,side move values the player walks instead of
   staying put, for as long as the buttons are held.
 - tf_test_speed: every player's class, ground speed and top speed
+- tf_test_disguise <player> <team> <class def> | off: disguises a Spy
 - tf_test_projectiles [clear]: every projectile's position and velocity,
   or removes them all Bot AI is off while pinned.
 - tf_test_release <player>: unpins, giving control back
@@ -176,6 +177,17 @@ TF_TestCommand(string commandLine)
 			thePlayer.m_tfTestButtons = TF_TestButtons(buttonNames);
 			thePlayer.m_tfTestPos = thePlayer.origin;
 			thePlayer.m_tfTestPinned = true;
+		}
+		break;
+	case "tf_test_disguise":
+		thePlayer = TF_TestFindPlayer(argv(1));
+
+		if (thePlayer) {
+			if (argv(2) == "off") {
+				thePlayer.Undisguise();
+			} else {
+				thePlayer.Disguise(stof(argv(2)), argv(3));
+			}
 		}
 		break;
 	case "tf_test_speed":

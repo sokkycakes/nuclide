@@ -1074,6 +1074,7 @@ ncPlayer::ReceiveEntity(float isNew, float flChanged)
 	READENTITY_FLOAT(gflags, PLAYER_FLAGS)
 	READENTITY_FLOAT(gravity, PLAYER_FLAGS)
 	READENTITY_FLOAT(friction, PLAYER_FLAGS)
+	READENTITY_FLOAT(m_pmoveSpeedTarget, PLAYER_FLAGS)
 	READENTITY_FLOAT(m_timeSinceJump, PLAYER_TIMINGS)
 	READENTITY_FLOAT(m_timeSinceTeleport, PLAYER_TIMINGS)
 	READENTITY_BYTE(m_weaponAnimSequence, PLAYER_WEAPONFRAME)
@@ -1331,6 +1332,7 @@ ncPlayer::Save(float handle)
 	SaveFloat(handle, "activeweapon", activeweapon);
 	SaveFloat(handle, "colormap", colormap);
 	SaveFloat(handle, "friction", friction);
+	SaveFloat(handle, "m_pmoveSpeedTarget", m_pmoveSpeedTarget);
 	SaveFloat(handle, "gflags", gflags);
 	SaveFloat(handle, "gravity", gravity);
 	SaveFloat(handle, "health", health);
@@ -1389,6 +1391,9 @@ ncPlayer::Restore(string keyName, string setValue)
 		break;
 	case "friction":
 		friction = ReadFloat(setValue);
+		break;
+	case "m_pmoveSpeedTarget":
+		m_pmoveSpeedTarget = ReadFloat(setValue);
 		break;
 	case "gflags":
 		gflags = ReadFloat(setValue);
@@ -1676,6 +1681,7 @@ ncPlayer::EvaluateEntity(void)
 	EVALUATE_FIELD(gflags, PLAYER_FLAGS)
 	EVALUATE_FIELD(gravity, PLAYER_FLAGS)
 	EVALUATE_FIELD(friction, PLAYER_FLAGS)
+	EVALUATE_FIELD(m_pmoveSpeedTarget, PLAYER_FLAGS)
 	EVALUATE_FIELD(m_timeSinceJump, PLAYER_TIMINGS)
 	EVALUATE_FIELD(m_timeSinceTeleport, PLAYER_TIMINGS)
 	EVALUATE_FIELD(m_weaponAnimSequence, PLAYER_WEAPONFRAME)
@@ -1789,6 +1795,7 @@ ncPlayer::SendEntity(entity ePEnt, float flChanged)
 	SENDENTITY_FLOAT(gflags, PLAYER_FLAGS)
 	SENDENTITY_FLOAT(gravity, PLAYER_FLAGS)
 	SENDENTITY_FLOAT(friction, PLAYER_FLAGS)
+	SENDENTITY_FLOAT(m_pmoveSpeedTarget, PLAYER_FLAGS)
 	SENDENTITY_FLOAT(m_timeSinceJump, PLAYER_TIMINGS)
 	SENDENTITY_FLOAT(m_timeSinceTeleport, PLAYER_TIMINGS)
 	SENDENTITY_BYTE(m_weaponAnimSequence, PLAYER_WEAPONFRAME)

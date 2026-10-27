@@ -90,6 +90,7 @@ public:
 
 private:
 	nonvirtual void TFFrame(void);
+	nonvirtual void UpdateSpeedTarget(void);
 	nonvirtual void UpdateRender(void);
 	nonvirtual void PublishInfo(void);
 
@@ -368,11 +369,47 @@ tfPlayer::PublishInfo(void)
 	}
 }
 
+/** Team Fortress 2's speed rules: a Medic healing a faster patient keeps
+up with them, and a disguised Spy moves no faster than the disguise's
+class. The client predicts the result (m_pmoveSpeedTarget). */
+void
+tfPlayer::UpdateSpeedTarget(void)
+{
+	float speedTarget = 0.0f;
+	float ownSpeed = m_pmoveVars ? m_pmoveVars.pm_walkspeed : 0.0f;
+
+	if (is.Alive(this) == false) {
+		m_pmoveSpeedTarget = 0.0f;
+		return;
+	}
+
+	if (tf_healTarget && m_activeWeapon && m_activeWeapon.classname == "tf_weapon_medigun") {
+		tfPlayer patient = (tfPlayer)tf_healTarget;
+		float patientSpeed = patient.m_pmoveVars ? patient.m_pmoveVars.pm_walkspeed : 0.0f;
+
+		if (patientSpeed > ownSpeed) {
+			speedTarget = patientSpeed;
+		}
+	}
+
+	if (STRING_SET(tf_disguiseClass)) {
+		float disguiseSpeed = stof(EntityDef_GetKeyValue(tf_disguiseClass, "pm_walkspeed"));
+
+		if (disguiseSpeed > 0.0f && disguiseSpeed < ownSpeed) {
+			speedTarget = disguiseSpeed;
+		}
+	}
+
+	m_pmoveSpeedTarget = speedTarget;
+}
+
 void
 tfPlayer::TFFrame(void)
 {
 	float frameTime = bound(0.0f, time - m_tfLastFrame, 0.2f);
 	m_tfLastFrame = time;
+
+	UpdateSpeedTarget();
 
 	if (is.Alive(this) == false) {
 		if (time >= m_tfNextPublish) {
