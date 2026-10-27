@@ -25,17 +25,15 @@ Game_Worldspawn(void)
 	cvars.SetString("pm_airaccelerate", "10");
 }
 
-/** Picks the game mode when g_gametype isn't set, from the map name's prefix
-like Team Fortress 2 does: ctf_ maps run tf_ctf, cp_ maps tf_cp, koth_
-maps tf_koth and pl_ maps tf_pl. Anything else falls back to tf_ctf. */
+/** Picks the game mode from the map name's prefix like Team Fortress 2
+does: ctf_ maps run tf_ctf, cp_ maps tf_cp, koth_ maps tf_koth and pl_ maps
+tf_pl. The prefix wins over g_gametype, which is left over from the last
+map after a `map` or `changelevel` (run-tf.sh sets tf_koth for lqdm1).
+Maps without one of these prefixes use g_gametype, or tf_ctf. */
 string
 Game_DefaultRules(void)
 {
 	string gameType = cvars.GetString("g_gametype");
-
-	if (STRING_SET(gameType)) {
-		return (gameType);
-	}
 
 	if (substring(mapname, 0, 4) == "ctf_") {
 		gameType = "tf_ctf";
@@ -45,7 +43,7 @@ Game_DefaultRules(void)
 		gameType = "tf_koth";
 	} else if (substring(mapname, 0, 3) == "pl_") {
 		gameType = "tf_pl";
-	} else {
+	} else if (!STRING_SET(gameType)) {
 		gameType = "tf_ctf";
 	}
 
