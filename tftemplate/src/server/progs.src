@@ -26,6 +26,10 @@ tf_weapons.qc
 tf_test.qc
 tf_flag.qc
 tf_controlpoint.qc
+tf_triggers.qc
+tf_props.qc
+tf_payload.qc
+tf_navgen.qc
 tf_spawns.qc
 tf_api.qc
 main.qc

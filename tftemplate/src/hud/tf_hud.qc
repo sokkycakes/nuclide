@@ -17,7 +17,7 @@
 /** @file tf_hud.qc
 The objective strip at the top of the screen. Everything comes from
 serverinfo keys the rules publish, so the HUD needs no networked entities:
-- tf_mode: ctf, cp or koth
+- tf_mode: ctf, cp, koth or pl
 - tf_round: round state (TFROUND_*)
 - tf_timer: seconds left on the round (or until the KOTH point unlocks), -1 for none
 - tf_obj: objective summary, see TF_ObjectiveSummary() in server/tf_api.qc
@@ -70,6 +70,32 @@ TFHUD_DrawPoint(vector boxPos, float owner, float capTeam, float progress, float
 		TFHUD_CenteredText(boxPos + [boxSize[0] / 2, 12], "L", [1, 1, 1]);
 	} else if (contested) {
 		TFHUD_CenteredText(boxPos + [boxSize[0] / 2, 12], "!", [1, 1, 0]);
+	}
+}
+
+/** The cart's progress bar: filled to `progress` percent in the pushing
+team's colour, with the pusher count, a stop sign when the defenders block
+it and an arrow back while it rolls back. */
+void
+TFHUD_DrawCart(vector barPos, float pushTeam, float progress, float pushers, float cartState)
+{
+	vector barSize = [240, 12];
+	string stateText = "";
+
+	draw.Rect(barPos, barSize, [0.15, 0.15, 0.15], 0.8f);
+	draw.Rect(barPos, [barSize[0] * (progress / 100), barSize[1]], TFHUD_TeamColor(pushTeam), 1.0f);
+	draw.RectOutline(barPos, barSize, 1.0f, [0, 0, 0], 1.0f);
+
+	if (cartState == TFCART_PUSHED) {
+		stateText = sprintf("x%d", pushers);
+	} else if (cartState == TFCART_BLOCKED) {
+		stateText = "BLOCKED";
+	} else if (cartState == TFCART_RECEDING) {
+		stateText = "<<";
+	}
+
+	if (STRING_SET(stateText)) {
+		TFHUD_CenteredText(barPos + [barSize[0] / 2, barSize[1] + 4], stateText, [1, 1, 1]);
 	}
 }
 
@@ -170,6 +196,17 @@ TFHUD_Draw(void)
 			tokenizebyseparator(substring(token, 1, -1), ":");
 			TFHUD_DrawPoint(rowPos, stof(argv(1)), stof(argv(2)), stof(argv(3)), stof(argv(4)), stof(argv(5)));
 			rowPos[0] += itemWidth;
+		}
+	}
+
+	/* payload: the cart's way to the goal, under the checkpoints */
+	for (int i = 0; i < tokenize_console(objectives); i++) {
+		string cartToken = argv(i);
+
+		if (substring(cartToken, 0, 1) == "c") {
+			tokenizebyseparator(substring(cartToken, 1, -1), ":");
+			TFHUD_DrawCart(topCenter + [-120, 70], stof(argv(0)), stof(argv(1)), stof(argv(2)), stof(argv(3)));
+			break;
 		}
 	}
 

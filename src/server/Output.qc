@@ -43,11 +43,30 @@ ncOutput::TriggerOutput(void)
 			return;
 		}
 
-		for (entity f = world; (f = find(f, ::targetname, m_strTarget));) {
-			ncEntity trigger = (ncEntity)f;
+		float targetLength = strlen(m_strTarget);
 
-			if (trigger.Input != __NULL__) {
-				trigger.Input(m_eActivator, m_strInput, m_strData);
+		/* Source Engine: a trailing * matches every name with that prefix */
+		if (substring(m_strTarget, targetLength - 1, 1) == "*") {
+			string targetPrefix = substring(m_strTarget, 0, targetLength - 1);
+
+			for (entity f = world; (f = nextent(f));) {
+				if (!STRING_SET(f.targetname) || substring(f.targetname, 0, targetLength - 1) != targetPrefix) {
+					continue;
+				}
+
+				ncEntity wildTrigger = (ncEntity)f;
+
+				if (wildTrigger.Input != __NULL__) {
+					wildTrigger.Input(m_eActivator, m_strInput, m_strData);
+				}
+			}
+		} else {
+			for (entity f = world; (f = find(f, ::targetname, m_strTarget));) {
+				ncEntity trigger = (ncEntity)f;
+
+				if (trigger.Input != __NULL__) {
+					trigger.Input(m_eActivator, m_strInput, m_strData);
+				}
 			}
 		}
 	}

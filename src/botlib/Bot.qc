@@ -301,8 +301,12 @@ ncBot::CheckRoute(void)
 			input_buttons |= INPUT_JUMP;
 		}
 	} else {
-		/* entire way-link needs to be crouched. that's the law of the land */
-		if (Route_GetNodeFlags(&m_pathfindingGraph[m_pathfindingCurrentNode]) & LF_CROUCH || autocvar_bot_crouch)
+		/* entire way-link needs to be crouched. that's the law of the land.
+		   (QC's && and || don't short-circuit: no node flags when we're
+		   heading for the destination itself) */
+		int crouchFlags = (m_pathfindingCurrentNode >= 0) ? Route_GetNodeFlags(&m_pathfindingGraph[m_pathfindingCurrentNode]) : 0i;
+
+		if (crouchFlags & LF_CROUCH || autocvar_bot_crouch)
 			input_buttons |= INPUT_CROUCH;
 	}
 }
@@ -402,10 +406,14 @@ ncBot::RunAI(void)
 			if (m_pathfindingCurrentNode == BOTROUTE_DESTINATION)
 				aimPos = PathDestination();
 			else {
-				if (m_pathfindingCurrentNode > 0 && !(Route_GetNodeFlags(&m_pathfindingGraph[m_pathfindingCurrentNode]) & LF_AIM))
+				int aimFlags = (m_pathfindingCurrentNode >= 0) ? Route_GetNodeFlags(&m_pathfindingGraph[m_pathfindingCurrentNode]) : LF_AIM;
+
+				if (m_pathfindingCurrentNode > 0 && !(aimFlags & LF_AIM))
 					aimPos = m_pathfindingGraph[m_pathfindingCurrentNode - 1].dest;
-				else
+				else if (m_pathfindingCurrentNode >= 0)
 					aimPos = m_pathfindingGraph[m_pathfindingCurrentNode].dest;
+				else
+					aimPos = PathDestination();
 			}
 		} else {
 			/* aim towards the enemy */
@@ -498,7 +506,9 @@ ncBot::RunAI(void)
 		}
 
 		/* make them walk when they need to. */
-		if ((m_pathfindingCurrentNode >= 0 && Route_GetNodeFlags(&m_pathfindingGraph[m_pathfindingCurrentNode]) & LF_WALK) || shouldWalk)
+		int walkFlags = (m_pathfindingCurrentNode >= 0) ? Route_GetNodeFlags(&m_pathfindingGraph[m_pathfindingCurrentNode]) : 0i;
+
+		if ((walkFlags & LF_WALK) || shouldWalk)
 			SetMoveSpeedScale(0.5f);
 		else
 			SetMoveSpeedScale(1.0f);

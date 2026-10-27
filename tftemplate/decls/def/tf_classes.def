@@ -8,7 +8,10 @@
 // Stats are Team Fortress 2's health and speeds (crouching moves at a third
 // of the class's speed, backing up at 90%), and each class carries its
 // TF2 stock loadout from tf_weapons.def (Quake models stand in for TF2's).
-// "pm_airjumps" gives the Scout the double jump.
+// "pm_airjumps" gives the Scout the double jump. "pm_jumpheight" is TF2's
+// jump speed (289 units/s, a 52 unit jump at 800 gravity): Source maps are
+// built around it (pl_circle_a9a's RED spawn exit is a 52 unit ledge,
+// a crouch jump).
 //
 // Template keys, read by tfPlayer and by bots:
 //   tf_classIndex  1-9, class menu slot
@@ -27,6 +30,7 @@ entityDef tf_player_base
 	"armorProtection"	"0"
 	"maxarmor"			"0"
 	"pm_runfiring"		"1"
+	"pm_jumpheight"		"289"
 	"pm_backspeed"		"0.9"
 	"tf_capRate"		"1"
 	"tf_regen"			"0"
