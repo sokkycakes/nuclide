@@ -775,6 +775,9 @@ void
 ncProjectile::_FuseEnded(void)
 {
 	if (m_bDetonateOnFuse) {
+		/* it explodes where it is now, not where it last touched something
+		   (or at the world's origin, if it never did) */
+		m_vecImpactPos = GetOrigin();
 		_Explode(this);
 		return;
 	}
