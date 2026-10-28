@@ -14,6 +14,23 @@
  * OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+/* menus asked for while the MOTD is up wait for it to close */
+var bool g_motdVisible;
+var string g_motdPendingMenu;
+
+/** Returns true (and remembers the command) when a team or class menu must
+wait for the MOTD. */
+bool
+VGUI_MOTDDefersMenu(string menuCommand)
+{
+	if (g_motdVisible == false) {
+		return (false);
+	}
+
+	g_motdPendingMenu = menuCommand;
+	return (true);
+}
+
 void
 VGUI_ShowMOTD(void)
 {
@@ -32,7 +49,12 @@ VGUI_ShowMOTD(void)
 			teamSelect = true;
 		}
 
-		if ((teams.OpenTeamCount() > 0i) && (teamSelect == true)) {
+		g_motdVisible = false;
+
+		if (STRING_SET(g_motdPendingMenu)) {
+			localcmd(sprintf("%s\n", g_motdPendingMenu));
+			g_motdPendingMenu = "";
+		} else if ((teams.OpenTeamCount() > 0i) && (teamSelect == true)) {
 			printf("Opening Team Selection\n");
 			localcmd("showTeamSelectionMenu\n");
 		}
@@ -77,6 +99,7 @@ VGUI_ShowMOTD(void)
 		winMotd.Add(winMotdBody);
 	}
 
+	g_motdVisible = true;
 	winMotd.Show();
 	winMotd.SetPos((g_vidsize / 2) - (winMotd.GetSize() / 2));
 }
