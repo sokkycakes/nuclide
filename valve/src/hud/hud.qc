@@ -606,8 +606,21 @@ HUD_DrawSpectator(vector hud_mins, vector hud_size)
 void
 HUD_WeaponSwitched(string weaponName)
 {
-	g_spriteAmmoIcon = atlasPic.Load(strcat(weaponName, ".ammo"));
-	g_spriteCrosshair = atlasPic.Load(strcat(weaponName, ".crosshair"));
+	/* the def names its sprites, so multiplayer variants (weapon_shotgun_mp)
+	   inherit the base weapon's; the decl name is only a fallback */
+	string ammoIcon = entityDef.GetString(weaponName, "ammoIcon");
+	string crossHair = entityDef.GetString(weaponName, "crosshair");
+
+	if (ammoIcon == "") {
+		ammoIcon = strcat(weaponName, ".ammo");
+	}
+
+	if (crossHair == "") {
+		crossHair = strcat(weaponName, ".crosshair");
+	}
+
+	g_spriteAmmoIcon = atlasPic.Load(ammoIcon);
+	g_spriteCrosshair = atlasPic.Load(crossHair);
 	g_ammoDisplayAlpha = 1.0f;
 }
 
