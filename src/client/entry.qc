@@ -313,6 +313,7 @@ CSQC_UpdateView(float w, float h, float focus)
 
 	g_focus = (bool)focus;
 	CSQC_SyncCursor();
+	Cmd_MenuBinds();
 
 	if (w == 0 || h == 0) {
 		return;
