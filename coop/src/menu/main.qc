@@ -22,9 +22,10 @@
 
    Views: layout/coop/menu.xml is the title menu and, in a game, the pause
    menu; the script is told which with the "context" event.
-   layout/coop/shop.xml is the points shop. The server sends its list as
-   menu_coop shop_begin/shop_item/shop_end commands (coop/src/rules/shop.qc),
-   which open the view, and buying is "cmd buy <n>". */
+   layout/coop/shop.xml is the points shop and layout/coop/skills.xml the
+   XP mod's skill menu. The server sends them as menu_coop commands
+   (coop/src/rules/shop.qc, coop/src/plugins/xpm.qc), which open the view;
+   buying is "cmd buy <n>" and spending a skill point "cmd menuselect <n>". */
 
 /* Bulwark's view builtins, bound by name (docs/spec/ui.md) */
 float(string layout, float flags) ui_open = #0:ui_open;
@@ -39,6 +40,7 @@ typedef float bool;
 #define UI_INPUT 1
 #define MENU_LAYOUT "layout/coop/menu.xml"
 #define SHOP_LAYOUT "layout/coop/shop.xml"
+#define SKILLS_LAYOUT "layout/coop/skills.xml"
 
 float g_view;
 bool g_inGame;		/* the open view was opened in a game (pause menu) */
@@ -47,8 +49,9 @@ bool g_browsing;
 float g_browseNext;
 float g_serverCount;
 vector g_screen;
-float g_shopView;
-string g_shopJson;	/* the list being received, zoned */
+float g_panelView;	/* the shop or the skill menu */
+string g_panelKind;
+string g_panelJson;	/* the panel being received, zoned */
 
 /* ---- JSON --------------------------------------------------------------- */
 
@@ -187,74 +190,131 @@ Menu_Open(void)
 	ui_post(g_view, "context", sprintf("{\"ingame\":%s}", inGame ? "true" : "false"));
 }
 
-/* ---- points shop -------------------------------------------------------- */
+/* ---- panels the server fills: the points shop and the XP skill menu ---- */
+
+/* A server sends a panel as menu_coop <kind>_begin, <kind>_item lines and
+   <kind>_end (coop/src/rules/shop.qc, coop/src/plugins/xpm.qc). One panel
+   is open at a time. */
 
 void
-Shop_Close(void)
+Panel_Close(void)
 {
-	if (g_shopView && ui_isopen(g_shopView))
-		ui_close(g_shopView);
+	if (g_panelView && ui_isopen(g_panelView))
+		ui_close(g_panelView);
 
-	if (g_shopView && !Menu_IsOpen())
+	if (g_panelView && !Menu_IsOpen())
 		setkeydest(0);
 
-	g_shopView = 0;
+	g_panelView = 0;
+	g_panelKind = "";
 }
 
 void
-Shop_Append(string s)
+Panel_Append(string s)
 {
-	string old = g_shopJson;
-	g_shopJson = strzone(strcat(old, s));
+	string old = g_panelJson;
+	g_panelJson = strzone(strcat(old, s));
 
 	if (old)
 		strunzone(old);
 }
 
-/* menu_coop shop_begin <points> "<closed>" "<message>",
-   shop_item <n> <category> "<name>" <price> <state>, shop_end */
 void
-Shop_Command(void)
+Panel_Drop(void)
+{
+	if (g_panelJson)
+		strunzone(g_panelJson);
+
+	g_panelJson = __NULL__;
+}
+
+void
+Panel_Begin(string json)
+{
+	if (g_panelJson)
+		strunzone(g_panelJson);
+
+	g_panelJson = strzone(json);
+}
+
+/* the comma before an item, none after the opening bracket */
+string
+Panel_Comma(void)
+{
+	return (substring(g_panelJson, strlen(g_panelJson) - 1, 1) == "[") ? "" : ",";
+}
+
+void
+Panel_End(string kind, string layout)
+{
+	if (!g_panelJson || clientstate() != 2)
+		return;
+
+	Panel_Append("]}");
+
+	if (Menu_IsOpen())
+		Menu_Close();
+
+	if (g_panelKind != kind)
+		Panel_Close();
+
+	if (!g_panelView || !ui_isopen(g_panelView)) {
+		g_panelView = ui_open(layout, UI_INPUT);
+
+		if (!g_panelView) {
+			print(sprintf("^1menu: can't open %s\n", layout));
+			return;
+		}
+
+		g_panelKind = kind;
+	}
+
+	setkeydest(2);
+	ui_post(g_panelView, kind, g_panelJson);
+	Panel_Drop();
+}
+
+/* menu_coop shop_begin <points> "<closed>" "<message>",
+   shop_item <n> <category> "<name>" <price> <state>, shop_end;
+   menu_coop skills_begin <points> <level> "<rank>",
+   skills_item <n> "<name>" <level> <max>, skills_end */
+void
+Panel_Command(void)
 {
 	switch (argv(1)) {
 	case "shop_begin":
-		if (g_shopJson)
-			strunzone(g_shopJson);
-
-		g_shopJson = strzone(sprintf("{\"points\":%d,\"closed\":%s,\"message\":%s,\"items\":[",
+		Panel_Begin(sprintf("{\"points\":%d,\"closed\":%s,\"message\":%s,\"items\":[",
 			stof(argv(2)), Json_Str(argv(3)), Json_Str(argv(4))));
 		break;
 	case "shop_item":
-		if (!g_shopJson)
-			break;
-
-		Shop_Append(sprintf("%s{\"id\":%d,\"category\":%s,\"name\":%s,\"price\":%d,\"state\":%d}",
-			substring(g_shopJson, strlen(g_shopJson) - 1, 1) == "[" ? "" : ",",
-			stof(argv(2)), Json_Str(argv(3)), Json_Str(argv(4)), stof(argv(5)), stof(argv(6))));
+		if (g_panelJson)
+			Panel_Append(sprintf("%s{\"id\":%d,\"category\":%s,\"name\":%s,\"price\":%d,\"state\":%d}",
+				Panel_Comma(), stof(argv(2)), Json_Str(argv(3)), Json_Str(argv(4)), stof(argv(5)), stof(argv(6))));
 		break;
 	case "shop_end":
-		if (!g_shopJson || clientstate() != 2)
+		Panel_End("shop", SHOP_LAYOUT);
+		break;
+	case "skills_begin":
+		/* out of points while the menu is up: the last one was just spent */
+		if (stof(argv(2)) <= 0 && g_panelKind == "skills") {
+			Panel_Close();
+			Panel_Drop();	/* and ignore its items */
 			break;
-
-		Shop_Append("]}");
-
-		if (Menu_IsOpen())
-			Menu_Close();
-
-		if (!g_shopView || !ui_isopen(g_shopView)) {
-			g_shopView = ui_open(SHOP_LAYOUT, UI_INPUT);
-
-			if (!g_shopView) {
-				print(sprintf("^1menu: can't open %s\n", SHOP_LAYOUT));
-				break;
-			}
 		}
 
-		setkeydest(2);
-		ui_post(g_shopView, "shop", g_shopJson);
+		Panel_Begin(sprintf("{\"points\":%d,\"level\":%d,\"rank\":%s,\"skills\":[",
+			stof(argv(2)), stof(argv(3)), Json_Str(argv(4))));
 		break;
-	case "shop_close":
-		Shop_Close();
+	case "skills_item":
+		if (g_panelJson)
+			Panel_Append(sprintf("%s{\"id\":%d,\"name\":%s,\"level\":%d,\"max\":%d}",
+				Panel_Comma(), stof(argv(2)), Json_Str(argv(3)), stof(argv(4)), stof(argv(5))));
+		break;
+	case "skills_end":
+		Panel_End("skills", SKILLS_LAYOUT);
+		break;
+	case "panel_close":
+		Panel_Close();
 		break;
 	}
 }
@@ -266,11 +326,13 @@ float g_bindsFrames;
 void
 Menu_UIAction(float view, string action, string arg)
 {
-	if (view == g_shopView) {
+	if (view == g_panelView) {
 		if (action == "buy")
 			localcmd(sprintf("cmd buy %d\n", stof(arg)));
+		else if (action == "spend")
+			localcmd(sprintf("cmd menuselect %d\n", stof(arg)));
 		else if (action == "close")
-			Shop_Close();
+			Panel_Close();
 		return;
 	}
 
@@ -326,7 +388,7 @@ m_init(void)
 void
 m_shutdown(void)
 {
-	Shop_Close();
+	Panel_Close();
 	Menu_Close();
 }
 
@@ -354,7 +416,7 @@ m_draw(vector screensize)
 
 		if (!Menu_IsOpen() || g_inGame)
 			Menu_Open();
-		Shop_Close();
+		Panel_Close();
 	} else if (Menu_IsOpen() && !g_inGame) {
 		/* just joined a game from the title menu */
 		Menu_Close();
@@ -408,8 +470,8 @@ m_consolecommand(string cmd)
 
 	switch (argv(0)) {
 	case "menu_coop":
-		if (substring(argv(1), 0, 5) == "shop_")
-			Shop_Command();
+		if (strstrofs(argv(1), "_") > 0)
+			Panel_Command();
 		else if (argv(1) == "close")
 			Menu_Close();
 		else

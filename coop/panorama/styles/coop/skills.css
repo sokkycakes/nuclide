@@ -1,0 +1,81 @@
+/* XP mod skill menu, on top of menu.css and shop.css. */
+
+.skills
+{
+	width: 1000px;
+	height: 800px;
+}
+.skills-rank
+{
+	width: 100%;
+	height: 44px;
+	padding: 12px 28px 0px 28px;
+	font-size: 21px;
+	color: #9a9a9a;
+}
+.skills-list
+{
+	width: 100%;
+	height: fill-parent-flow( 1.0 );
+	padding: 6px 28px 0px 28px;
+	flow-children: down;
+}
+.skill
+{
+	width: 100%;
+	height: 64px;
+	flow-children: right;
+	background-color: #00000001;
+	border: 1px solid #00000000;
+}
+.skill:hover { background-color: #ffa31a1f; }
+.skill-text
+{
+	width: fill-parent-flow( 1.0 );
+	height: 100%;
+	flow-children: down;
+}
+.skill-name
+{
+	margin-top: 6px;
+	font-size: 23px;
+	color: #e6e6e6;
+}
+.skill-desc
+{
+	font-size: 17px;
+	color: #8a8a8a;
+}
+.skill-meter
+{
+	width: 260px;
+	height: 100%;
+	margin-right: 10px;
+	flow-children: down;
+}
+.skill-bar
+{
+	width: 100%;
+	height: 10px;
+	margin-top: 16px;
+	background-color: #262626;
+}
+.skill-fill
+{
+	height: 100%;
+	background-color: #ffa31a;
+}
+.skill-count
+{
+	horizontal-align: right;
+	margin-top: 4px;
+	font-size: 18px;
+	color: #bdbdbd;
+}
+.skill.maxed .skill-fill { background-color: #7aa36a; }
+.skill.maxed .skill-count { color: #7aa36a; }
+.skill.maxed .shop-key,
+.skills-list.spent .shop-key
+{
+	color: #555555;
+}

@@ -41,6 +41,7 @@
 var float autocvar_xpm_xpgain = 1.0;	/* XP per point of score is 5 * this */
 var string autocvar_xpm_admins = "";	/* names allowed to use the admin commands */
 var bool autocvar_xpm_hud = true;
+var bool autocvar_xpm_textmenu = false;	/* the plain text menu instead of co-op's Panorama one */
 
 enum
 {
@@ -327,6 +328,19 @@ XPM_Load(entity pl, int s)
 static void
 XPM_ShowMenu(entity pl, int s)
 {
+	/* co-op's menu progs draws it (coop/src/menu/main.qc, panorama/scripts/coop/skills.js) */
+	if (!autocvar_xpm_textmenu) {
+		stuffcmd(pl, sprintf("menu_coop skills_begin %i %i \"%s\"\n", g_xpm[s].points, g_xpm[s].level, XPM_Rank(g_xpm[s].level)));
+
+		for (int i = 0i; i < SK_COUNT; i++) {
+			stuffcmd(pl, sprintf("menu_coop skills_item %i \"%s\" %i %i\n", i + 1i, g_xpmSkillNames[i], g_xpm[s].skill[i], g_xpmSkillCaps[i]));
+		}
+
+		stuffcmd(pl, "menu_coop skills_end\n");
+		g_xpm[s].menuOpen = true;
+		return;
+	}
+
 	string text = sprintf("Select Skills - Skillpoints available: %i\\n\\n", g_xpm[s].points);
 
 	for (int i = 0i; i < SK_COUNT; i++) {
@@ -361,7 +375,8 @@ XPM_Spend(entity pl, int s, int skillNum)
 		}
 	}
 
-	if (g_xpm[s].points > 0i) {
+	/* the Panorama menu is told too, so it can close when the points run out */
+	if (g_xpm[s].points > 0i || !autocvar_xpm_textmenu) {
 		XPM_ShowMenu(pl, s);
 	}
 }

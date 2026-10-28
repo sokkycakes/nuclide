@@ -1,0 +1,34 @@
+<!--
+	XP mod skill menu. The plugin (coop/src/plugins/xpm.qc) sends the
+	skills through coop/src/menu/main.qc, which posts them as "skills";
+	scripts/coop/skills.js fills it in. Sizes are at the 1080-line design
+	height.
+-->
+<root>
+	<styles>
+		<include src="file://{resources}/styles/coop/menu.css" />
+		<include src="file://{resources}/styles/coop/shop.css" />
+		<include src="file://{resources}/styles/coop/skills.css" />
+	</styles>
+	<scripts>
+		<include src="file://{resources}/scripts/coop/skills.js" />
+	</scripts>
+
+	<Panel id="Stage" class="stage shop-stage">
+		<Panel class="shop skills" hittest="false">
+			<Panel class="page-header" hittest="false">
+				<Label class="page-title" text="Skills" hittest="false" />
+				<Label id="Points" class="shop-points" text="" hittest="false" />
+			</Panel>
+			<Label id="Rank" class="skills-rank" text="" hittest="false" />
+			<Panel id="Skills" class="skills-list" hittest="false" />
+			<Panel class="page-footer" hittest="false">
+				<Label id="Keys" class="shop-keys" text="" hittest="false" />
+				<Panel class="shop-footer-fill" hittest="false" />
+				<Button id="Close" class="btn" hittest="true">
+					<Label text="Done" hittest="false" />
+				</Button>
+			</Panel>
+		</Panel>
+	</Panel>
+</root>

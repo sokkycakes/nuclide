@@ -21,7 +21,8 @@
 
 		<Panel class="brand" hittest="false">
 			<Label class="brand-small" text="HALF-LIFE" hittest="false" />
-			<Label class="brand-big" text="CO-OP" hittest="false" />
+			<Label class="brand-big" text="JUSTICE" hittest="false" />
+			<Label class="brand-big" text="TASK FORCE" hittest="false" />
 		</Panel>
 
 		<Panel id="MainButtons" class="main-buttons" />
