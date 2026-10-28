@@ -75,6 +75,7 @@ in the game to spawn a projectile. Refer to ncEntity its own documentation for d
 - "smoke_fly" : Particle effect to use when flying.
 - "fx_path" : Particle trail to use when flying.
 - "model_detonate" : Particle effect to play when the projectile explodes.
+- "model_detonate_air" : Particle effect to play instead when nothing solid is next to it (TF2's ExplosionCore_MidAir).
 - "smoke_bounce" : Smoke effect to play when bouncing around.
 - "smoke_fuse" : Particle effect to play when the fuse timer runs out.
 - "projectile_debris" : Another projectile to spawn when this one detonates.
@@ -302,6 +303,7 @@ private:
 	string m_partSmokeFly;
 	string m_partFXPath;
 	string m_partModelDetonate;
+	string m_partModelDetonateAir;
 	string m_partSmokeDetonate;
 	string m_partSmokeBounce; 
 	string m_partSmokeFuse;

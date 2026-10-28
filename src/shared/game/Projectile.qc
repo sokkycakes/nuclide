@@ -45,6 +45,7 @@ ncProjectile::ncProjectile(void)
 	m_partSmokeFly = __NULL__;
 	m_partFXPath = __NULL__;
 	m_partModelDetonate = __NULL__;
+	m_partModelDetonateAir = __NULL__;
 	m_partSmokeDetonate = __NULL__;
 	m_partSmokeBounce = __NULL__;
 	m_partSmokeFuse = __NULL__;
@@ -172,6 +173,9 @@ ncProjectile::SpawnKey(string keyName, string setValue)
 		break;
 	case "model_detonate":
 		m_partModelDetonate = ReadString(setValue);
+		break;
+	case "model_detonate_air":
+		m_partModelDetonateAir = ReadString(setValue);
 		break;
 	case "smoke_detonate":
 		m_partSmokeDetonate = ReadString(setValue);
@@ -356,6 +360,7 @@ ncProjectile::Save(float handle)
 	SaveString(handle, "m_partSmokeFly", m_partSmokeFly);
 	SaveString(handle, "m_partFXPath", m_partFXPath);
 	SaveString(handle, "m_partModelDetonate", m_partModelDetonate);
+	SaveString(handle, "m_partModelDetonateAir", m_partModelDetonateAir);
 	SaveString(handle, "m_partSmokeDetonate", m_partSmokeDetonate);
 	SaveString(handle, "m_partSmokeBounce", m_partSmokeBounce); 
 	SaveString(handle, "m_partSmokeFuse", m_partSmokeFuse);
@@ -463,6 +468,9 @@ ncProjectile::Restore(string keyName, string setValue)
 		break;
 	case "m_partModelDetonate":
 		m_partModelDetonate = ReadString(setValue);
+		break;
+	case "m_partModelDetonateAir":
+		m_partModelDetonateAir = ReadString(setValue);
 		break;
 	case "m_partSmokeDetonate":
 		m_partSmokeDetonate = ReadString(setValue);
@@ -845,7 +853,21 @@ ncProjectile::_Explode(entity explodedOn)
 	}
 
 	if (STRING_SET(m_partModelDetonate)) {
-		pointparticles(particleeffectnum(m_partModelDetonate), detonatePos, m_lastPlaneNormal, 1);
+		string detonateFX = m_partModelDetonate;
+		vector detonateDir = m_lastPlaneNormal;
+
+		/* nothing solid within 48 units: the mid-air effect, when there is one */
+		if (STRING_SET(m_partModelDetonateAir)) {
+			vector awayDir = (length(m_lastPlaneNormal) > 0) ? m_lastPlaneNormal : [0, 0, 1];
+			traceline(detonatePos + (awayDir * 2), detonatePos - (awayDir * 48), MOVE_NORMAL, this);
+
+			if (trace_fraction == 1.0) {
+				detonateFX = m_partModelDetonateAir;
+				detonateDir = g_vec_null;
+			}
+		}
+
+		pointparticles(particleeffectnum(detonateFX), detonatePos, detonateDir, 1);
 	}
 
 	if (STRING_SET(m_defSplashDamage)) {
