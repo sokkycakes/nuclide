@@ -608,7 +608,6 @@ var CoopMenu = ( function ()
 			b.pageName = it[ 0 ];
 			mainButtons.push( b );
 		} );
-		$( "#Hint" ).text = "Justice Task Force  ·  Bulwark  ·  Rad-Therapy";
 		markButtons();
 	}
 

@@ -49,12 +49,6 @@
 	y: 14%;
 	flow-children: down;
 }
-.brand-small
-{
-	font-size: 26px;
-	letter-spacing: 8px;
-	color: #bdbdbd;
-}
 .brand-big
 {
 	font-size: 72px;
@@ -406,14 +400,6 @@
 	margin-top: 8px;
 }
 
-.hint
-{
-	x: 6%;
-	y: 93%;
-	font-size: 18px;
-	color: #7a7a7a;
-}
-.ingame .hint { visibility: collapse; }
 
 /* key binding capture */
 .capture .row-value { border: 1px solid #ffa31a; background-color: #3a2a10; }
