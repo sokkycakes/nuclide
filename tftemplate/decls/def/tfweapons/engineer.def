@@ -29,7 +29,6 @@ entityDef fireInfo_tf_pistol
 {
 	"def_onFire"	"projectile_tf_pistol"
 	"fireRate"		"0.15"
-	"punchSpring"	"-1 0 0"
 }
 
 entityDef tf_weapon_wrench

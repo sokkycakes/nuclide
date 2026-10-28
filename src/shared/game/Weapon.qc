@@ -43,6 +43,7 @@ ncWeapon::ncWeapon(void)
 	m_fiSpeedMod = 1.0f;
 	m_fiReloadTime = -1.0f;
 	m_reloadStepLength = 0.0f;
+	m_weaponSpin = 0.0f;
 	m_nextWeapon = __NULL__;
 	m_prevWeapon = __NULL__;
 	m_fiFireUnderwater = true;
@@ -183,6 +184,8 @@ ncWeapon::UpdateFireInfoCache(void)
 	}
 
 	m_fiReloadTimed = GetSubDefBool(m_weaponLastFireInfo, "reloadTimed");
+	m_fiSpinUpTime = GetSubDefFloat(m_weaponLastFireInfo, "spinUpTime");
+	m_fiPunchKick = GetSubDefFloat(m_weaponLastFireInfo, "punchKick");
 	m_fiReloadStartTime = GetSubDefFloat(m_weaponLastFireInfo, "reloadStartTime");
 
 	/* when -1.0 we'll pull it from the animation. */
@@ -551,6 +554,7 @@ ncWeapon::SendEntity(entity ePEnt, float flChanged)
 	SENDENTITY_FLOAT(m_weaponOverheating, WEAPONFL_CHANGED_STATE)
 	SENDENTITY_BYTE(m_burstCount, WEAPONFL_CHANGED_STATE)
 	SENDENTITY_FLOAT(m_reloadStepLength, WEAPONFL_CHANGED_STATE)
+	SENDENTITY_FLOAT(m_weaponSpin, WEAPONFL_CHANGED_STATE)
 	return (true);
 }
 
@@ -601,6 +605,7 @@ ncWeapon::EvaluateEntity(void)
 	EVALUATE_FIELD(m_weaponOverheating, WEAPONFL_CHANGED_STATE)
 	EVALUATE_FIELD(m_burstCount, WEAPONFL_CHANGED_STATE)
 	EVALUATE_FIELD(m_reloadStepLength, WEAPONFL_CHANGED_STATE)
+	EVALUATE_FIELD(m_weaponSpin, WEAPONFL_CHANGED_STATE)
 
 	if (InInventory() == true) {
 		SetOrigin(owner.origin);
@@ -692,6 +697,7 @@ ncWeapon::ReceiveEntity(float flNew, float flChanged)
 	READENTITY_FLOAT(m_weaponOverheating, WEAPONFL_CHANGED_STATE)
 	READENTITY_BYTE(m_burstCount, WEAPONFL_CHANGED_STATE)
 	READENTITY_FLOAT(m_reloadStepLength, WEAPONFL_CHANGED_STATE)
+	READENTITY_FLOAT(m_weaponSpin, WEAPONFL_CHANGED_STATE)
 
 	if (flChanged & WEAPONFL_CHANGED_BODY) {
 		_UpdateGeomset();
@@ -760,6 +766,7 @@ ncWeapon::PredictPreFrame(void)
 	SAVE_STATE(m_weaponOverheating)
 	SAVE_STATE(m_burstCount)
 	SAVE_STATE(m_reloadStepLength)
+	SAVE_STATE(m_weaponSpin)
 
 	SAVE_STATE(m_nextWeapon)
 	SAVE_STATE(m_prevWeapon)
@@ -797,6 +804,7 @@ ncWeapon::PredictPostFrame(void)
 	ROLL_BACK(m_weaponOverheating)
 	ROLL_BACK(m_burstCount)
 	ROLL_BACK(m_reloadStepLength)
+	ROLL_BACK(m_weaponSpin)
 
 	/* relink these */
 	ROLL_BACK(m_nextWeapon)
@@ -1219,7 +1227,24 @@ ncWeapon::FiredWeaponAttack(string fireInfo)
 void
 ncWeapon::InputFrame(void)
 {
+	/* spin-up weapons: either button spins, letting go stops at once */
+	if (m_fiSpinUpTime > 0.0f) {
+		if (input_buttons & (INPUT_PRIMARY | INPUT_SECONDARY)) {
+			m_weaponSpin = min(m_weaponSpin + input_timelength, m_fiSpinUpTime);
+		} else {
+			m_weaponSpin = 0.0f;
+		}
+	}
+}
 
+float
+ncWeapon::SpinProgress(void)
+{
+	if (m_fiSpinUpTime <= 0.0f) {
+		return (0.0f);
+	}
+
+	return bound(0.0f, m_weaponSpin / m_fiSpinUpTime, 1.0f);
 }
 
 void
@@ -1365,8 +1390,17 @@ ncWeapon::Attack(string fireInfo)
 #endif
 	}
 
-	ourOwner.m_punchAngle += m_fiPunchAngle;
-	ourOwner.m_punchVelocity += m_fiPunchSpring * 20.0f;
+	if (m_fiPunchKick > 0.0f) {
+		/* set, not added, so rapid shots don't stack. the predicted
+		   sequence number picks -1, 0 or +1 on client and server alike.
+		   the tiny velocity routes the punch through the spring decay. */
+		float kickPitch = m_fiPunchKick + (float)((int)input_sequence % 3i) - 1.0f;
+		ourOwner.m_punchAngle = [-kickPitch, 0, 0];
+		ourOwner.m_punchVelocity = [-0.01f, 0, 0];
+	} else {
+		ourOwner.m_punchAngle += m_fiPunchAngle;
+		ourOwner.m_punchVelocity += m_fiPunchSpring * 20.0f;
+	}
 
 #ifdef SERVER
 	string fireSound = m_fiSndFire;
@@ -1758,6 +1792,12 @@ ncWeapon::PrimaryAttack(void)
 {
 	ncPlayer ourOwner = (ncPlayer)GetOwner();
 
+	/* barrels still spinning up */
+	if (m_fiSpinUpTime > 0.0f && m_weaponSpin < m_fiSpinUpTime) {
+		Idle();
+		return;
+	}
+
 	if (CanFire() == false) {
 		if (!(ourOwner.gflags & GF_SEMI_TOGGLED)) {
 			Idle();
@@ -1797,6 +1837,16 @@ ncWeapon::SecondaryAttack(void)
 	float shotAnim = 0;
 	ncPlayer ourOwner;
 	float fireRate = 0.0f;
+
+	/* spin-up weapons: secondary only spins, with primary held too it fires */
+	if (m_fiSpinUpTime > 0.0f) {
+		if (input_buttons & INPUT_PRIMARY) {
+			PrimaryAttack();
+		} else {
+			Idle();
+		}
+		return;
+	}
 
 	/* zoom takes priority */
 	if (m_fiZoomFOV > 0.0f) {

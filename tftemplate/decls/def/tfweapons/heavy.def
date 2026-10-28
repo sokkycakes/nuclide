@@ -19,14 +19,13 @@ entityDef tf_weapon_minigun
 	"snd_fire"				"weapon_supernailgun.shoot"
 	"animPrefix"			"nailgun"
 	"speed_mod_firing"		"0.4783"
-	"tf_spinUp"				"0.87"
+	"spinUpTime"			"0.87"
 }
 
 entityDef fireInfo_tf_minigun
 {
 	"def_onFire"	"projectile_tf_minigun"
 	"fireRate"		"0.105"
-	"punchSpring"	"-0.5 1 -1"
 }
 
 entityDef projectile_tf_minigun

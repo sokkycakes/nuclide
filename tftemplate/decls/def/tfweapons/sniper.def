@@ -28,7 +28,6 @@ entityDef fireInfo_tf_sniperrifle
 {
 	"fireRate"		"1.5"
 	"zoomFov"		"20"
-	"punchSpring"	"-6 0 0"
 }
 
 entityDef tf_weapon_smg
@@ -59,7 +58,6 @@ entityDef fireInfo_tf_smg
 {
 	"def_onFire"	"projectile_tf_smg"
 	"fireRate"		"0.1"
-	"punchSpring"	"-0.5 1 -1"
 }
 
 entityDef projectile_tf_smg

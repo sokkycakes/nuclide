@@ -144,6 +144,13 @@ reload animations, the HUD draws a timer bar above the crosshair for the
 round going in ("3/4") or the magazine, and the ammo counter shows the clip
 and the reserve.
 
+View kick follows TF2's weapon scripts: the scattergun, grenade and
+stickybomb launchers and the Engineer's shotgun kick the view 3 degrees up
+(plus or minus one), the other shotguns 2, and everything else not at all.
+It uses Nuclide's `punchKick` key, which sets the punch and lets it spring
+back as Source does. The minigun spins up through Nuclide's `spinUpTime`
+key, so the client predicts it and doesn't fire early.
+
 Weapon mechanics that need prediction are Nuclide def keys, so the client
 predicts them: `pm_airjumps` and `pm_backspeed` on the player, and `speed_mod_firing` and
 `speed_mod_zoomed` on weapons. The rest runs on the server only, because

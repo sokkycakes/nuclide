@@ -24,13 +24,13 @@ entityDef tf_weapon_scattergun
 	"act_reloadEnd"				"0"
 	"msg_obituary"				"%s was blasted by %s's scattergun."
 	"snd_fire"					"weapon_supershotgun.shoot"
+	"punchKick"				"3"
 }
 
 entityDef fireInfo_tf_scattergun
 {
 	"def_onFire"	"projectile_tf_scattergun"
 	"fireRate"		"0.625"
-	"punchSpring"	"-6 0 0"
 }
 
 entityDef projectile_tf_scattergun
@@ -68,7 +68,6 @@ entityDef fireInfo_tf_pistol_scout
 {
 	"def_onFire"	"projectile_tf_pistol"
 	"fireRate"		"0.15"
-	"punchSpring"	"-1 0 0"
 }
 
 entityDef projectile_tf_pistol
