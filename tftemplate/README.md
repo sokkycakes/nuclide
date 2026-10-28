@@ -131,6 +131,19 @@ cam until you respawn, 6.4 seconds after dying (`tf_deathcam_time`, or
 `tf_deathcam_time_suicide` 2 when nobody else killed you). Bots skip all
 of this. The HUD shows "Killed by" and "Spectating".
 
+Reloads follow TF2's rules and times (from the TF2 wiki). Rocket and
+grenade launchers, the stickybomb launcher, scattergun and shotguns load one
+round at a time: the first round takes longer (`reloadStartTime`), each
+round goes in at the end of its step (`reloadTime`), and firing stops the
+reload once a round is in. Pistols, the SMG, syringe gun and revolver
+reload the whole magazine in one go and can't fire meanwhile. An empty
+weapon reloads by itself, even with the trigger held. These weapons set
+Nuclide's `reloadTimed` key, so reloads run on def times instead of the
+placeholder view model animations and the client predicts them. Without
+reload animations, the HUD draws a timer bar above the crosshair for the
+round going in ("3/4") or the magazine, and the ammo counter shows the clip
+and the reserve.
+
 Weapon mechanics that need prediction are Nuclide def keys, so the client
 predicts them: `pm_airjumps` and `pm_backspeed` on the player, and `speed_mod_firing` and
 `speed_mod_zoomed` on weapons. The rest runs on the server only, because

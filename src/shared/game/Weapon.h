@@ -169,6 +169,8 @@ activity override format for existing models.
 
 ### Misc keys
 - "reloadTime" : Time in seconds between the start/end of a reload.
+- "reloadTimed" : When "1", reloads run on def times alone, never on view model animation lengths. A shotgun-style reload loads a round at the end of each step and firing interrupts it once a round is in; a magazine reload fills the clip when "reloadTime" runs out. Both are predicted, and the HUD can read their progress.
+- "reloadStartTime" : With "reloadTimed", how long the first round of a shotgun-style reload takes. Defaults to "reloadTime".
 - "detonateOnFire" : When set, will detonate all entities of specified classname.
 - "punchAngle" : Weapon punchangle to be applied to the camera when shooting "def_onFire".
 - "fireRate" : Firing rate between shots.
@@ -413,6 +415,10 @@ public:
 	nonvirtual bool RequiresAmmo(void);
 	nonvirtual int FireInfoSelected(void);
 	nonvirtual float OverheatingProgress(void);
+	/** Returns how far the current reload step is, from 0.0 to 1.0, or -1.0 when not in a timed reload. */
+	nonvirtual float ReloadProgress(void);
+	/** Returns the round a shotgun-style timed reload is loading, counted from 1. 0 otherwise. */
+	nonvirtual int ReloadRound(void);
 	nonvirtual float PlayerSpeedMod(void);
 
 	/** Overriding this: Called to cache some entityDef values. */
@@ -449,6 +455,9 @@ private:
 #ifdef SERVER
 	nonvirtual void _ReloadFinished(void);
 #endif
+	nonvirtual void _TimedReloadStart(float);
+	nonvirtual void _TimedReloadStop(void);
+	nonvirtual bool _TimedReloadFrame(void);
 
 	/* weapon related spawn keys */
 	string m_weaponTitle;
@@ -475,6 +484,7 @@ private:
 	NETWORKED_BOOL(m_weaponIsFiring)
 	NETWORKED_BOOL(m_weaponOverheating)
 	NETWORKED_FLOAT(m_burstCount)
+	NETWORKED_FLOAT(m_reloadStepLength)
 
 	/* cached variables. don't save - recalculate! */
 	string m_weaponLastFireInfo;
@@ -517,6 +527,8 @@ private:
 	float m_fiOverheatLength;
 	float m_fiOverheatPoints;
 	float m_fiReloadTime;
+	bool m_fiReloadTimed;
+	float m_fiReloadStartTime;
 	int m_fiAmmoPerShot;
 	int m_fiAmmoType;
 	float m_fiPrimedFuse;

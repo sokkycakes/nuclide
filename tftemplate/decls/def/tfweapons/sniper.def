@@ -48,6 +48,7 @@ entityDef tf_weapon_smg
 	"clipSize"			"25"
 	"clipSizeDefault"	"25"
 	"reloadTime"		"1.1"
+	"reloadTimed"		"1"
 	"act_reload"		"0"
 	"msg_obituary"		"%s was riddled by %s's SMG."
 	"snd_fire"			"weapon_nailgun.shoot"
