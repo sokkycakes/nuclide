@@ -1569,8 +1569,7 @@ ncPlayer::Death(entity inflictor, entity attacker, int damagePoints, vector dir,
 {
 	/* either gib, or make a corpse */
 	if (GetHealth()< -50) {
-		float gibStrength = damagePoints * 2.0f;
-		BreakModel_Entity(this, dir, gibStrength);
+		BreakModel_GibEntity(this);
 		SetHealth(0);
 	}
 
