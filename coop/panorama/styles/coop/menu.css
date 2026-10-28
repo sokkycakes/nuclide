@@ -57,11 +57,14 @@
 }
 .brand-big
 {
-	font-size: 96px;
+	font-size: 72px;
 	font-weight: bold;
-	letter-spacing: 6px;
+	letter-spacing: 5px;
 	color: #ffa31a;
 }
+
+/* the name is wider than the gap beside an open page */
+.paging .brand { visibility: collapse; }
 
 .main-buttons
 {

@@ -232,6 +232,7 @@ var CoopMenu = ( function ()
 		footer.RemoveAndDeleteChildren();
 		$( "#PageTitle" ).text = title;
 		page.SetHasClass( "open", true );
+		stage.SetHasClass( "paging", true );
 		markButtons();
 	}
 	function closePage()
@@ -242,6 +243,7 @@ var CoopMenu = ( function ()
 		body.RemoveAndDeleteChildren();
 		footer.RemoveAndDeleteChildren();
 		page.SetHasClass( "open", false );
+		stage.SetHasClass( "paging", false );
 		pending = {};
 		restartVideo = false;
 		Bulwark.Send( "stopservers", "" );
@@ -606,7 +608,7 @@ var CoopMenu = ( function ()
 			b.pageName = it[ 0 ];
 			mainButtons.push( b );
 		} );
-		$( "#Hint" ).text = "Bulwark  ·  Rad-Therapy  ·  co-op";
+		$( "#Hint" ).text = "Justice Task Force  ·  Bulwark  ·  Rad-Therapy";
 		markButtons();
 	}
 

@@ -74,7 +74,8 @@ Headless test with bots (prints the wave and scores every 10 seconds):
 
 ## Menus (`src/menu/`, `panorama/`)
 
-The title menu, the pause menu and the shop are Panorama views drawn by
+The menus carry the name Justice Task Force. The title menu, the pause
+menu, the shop and the XP skill menu are Panorama views drawn by
 Bulwark (`panorama/layout/coop/`, `styles/coop/`, `scripts/coop/`). The
 menu progs (`menu.dat`) only opens and closes them and answers what a
 script can't find out itself: the map list, LAN servers and key bindings
@@ -109,8 +110,11 @@ also works.
   Attack (a chance each half second to take no damage).
 - Medals (0 to 15, three to start) add a little to most skills.
 - The skill menu opens on level-up and with `selectskills`: keys 1 to 9
-  spend a point, 0 closes it. It is a server-driven text menu
-  (`svmenu` on the client, answered with `menuselect`).
+  (or a click) spend a point, 0 closes it. The plugin sends it to the
+  co-op menu progs as `menu_coop skills_*` lines and it's drawn with
+  Panorama (`panorama/layout/coop/skills.xml`); choices come back as
+  `menuselect`. `xpm_textmenu 1` uses the plain text menu (`svmenu`)
+  instead, for clients without the co-op menu.
 - Commands, in the console or in chat with or without `/`: `selectskills`,
   `resetskills`, `playerskills`, `skillsinfo`, `xpminfo`. Admin: `setlvl
   <name> <level>`, `addmedal <name>`, `removemedal <name>`, `godmode
