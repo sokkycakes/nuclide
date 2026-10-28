@@ -87,6 +87,14 @@ VGUIChangeClassButton::OnMouseEntered(void)
 }
 
 void
+VGUI_HideClassSelectionMenu(void)
+{
+	if (winClassSelection) {
+		winClassSelection.Hide();
+	}
+}
+
+void
 VGUI_ShowClassSelectionMenu(int wishTeam)
 {
 	static int initialized;
