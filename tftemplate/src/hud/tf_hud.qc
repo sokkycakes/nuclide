@@ -340,3 +340,43 @@ TFHUD_DrawReload(void)
 	draw.Rect(barPos, [barSize[0] * progress, barSize[1]], [1, 0.85, 0.4], 0.9f);
 	TFHUD_CenteredText(barPos + [barSize[0] / 2, -20], label, [1, 0.85, 0.4]);
 }
+
+var float autocvar_crosshair = 1;
+var float autocvar_cl_crosshair_red = 200;
+var float autocvar_cl_crosshair_green = 200;
+var float autocvar_cl_crosshair_blue = 200;
+var float autocvar_cl_crosshair_alpha = 200;
+var float autocvar_cl_crosshair_scale = 32;
+
+/** Crosshair: a plus with a gap and a centre dot, in the colour TF2's
+cl_crosshair_red/green/blue/alpha cvars give (0-255). cl_crosshair_scale is
+the size in pixels at 32 by default, and `crosshair 0` hides it. Nuclide turns
+the engine's own crosshair off, so the HUD has to draw one. */
+void
+TFHUD_DrawCrosshair(void)
+{
+	if (autocvar_crosshair == 0) {
+		return;
+	}
+
+	vector crossColor = [autocvar_cl_crosshair_red, autocvar_cl_crosshair_green, autocvar_cl_crosshair_blue] / 255;
+	float crossAlpha = bound(0, autocvar_cl_crosshair_alpha / 255, 1);
+	float armLength = rint(max(2, autocvar_cl_crosshair_scale / 6));
+	float armGap = rint(max(1, autocvar_cl_crosshair_scale / 10));
+	vector crossCenter = screen.HUDMins() + screen.HUDSize() / 2;
+	crossCenter[0] = rint(crossCenter[0]);
+	crossCenter[1] = rint(crossCenter[1]);
+
+	/* dark outline first so the lines read on bright walls */
+	drawfill(crossCenter + [-armGap - armLength - 1, -1], [armLength + 2, 3], [0, 0, 0], crossAlpha * 0.5f, DRAWFLAG_NORMAL);
+	drawfill(crossCenter + [armGap, -1], [armLength + 2, 3], [0, 0, 0], crossAlpha * 0.5f, DRAWFLAG_NORMAL);
+	drawfill(crossCenter + [-1, -armGap - armLength - 1], [3, armLength + 2], [0, 0, 0], crossAlpha * 0.5f, DRAWFLAG_NORMAL);
+	drawfill(crossCenter + [-1, armGap], [3, armLength + 2], [0, 0, 0], crossAlpha * 0.5f, DRAWFLAG_NORMAL);
+	drawfill(crossCenter - [1, 1], [3, 3], [0, 0, 0], crossAlpha * 0.5f, DRAWFLAG_NORMAL);
+
+	drawfill(crossCenter + [-armGap - armLength, 0], [armLength, 1], crossColor, crossAlpha, DRAWFLAG_NORMAL);
+	drawfill(crossCenter + [armGap + 1, 0], [armLength, 1], crossColor, crossAlpha, DRAWFLAG_NORMAL);
+	drawfill(crossCenter + [0, -armGap - armLength], [1, armLength], crossColor, crossAlpha, DRAWFLAG_NORMAL);
+	drawfill(crossCenter + [0, armGap + 1], [1, armLength], crossColor, crossAlpha, DRAWFLAG_NORMAL);
+	drawfill(crossCenter, [1, 1], crossColor, crossAlpha, DRAWFLAG_NORMAL);
+}
