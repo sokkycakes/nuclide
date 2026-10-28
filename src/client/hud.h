@@ -16,4 +16,6 @@ void HUDProgs_SetTime(void);
 void HUDProgs_SendStat(string, string);
 float HUDProgs_ClientInputFrame(float);
 bool HUDProgs_ConsoleCommand(string);
+bool HUDProgs_InputEvent(float, float, float, float);
+bool HUDProgs_WantsCursor(void);
 void HUDProgs_Obituary(string, string, string, string);

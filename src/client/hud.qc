@@ -12,6 +12,8 @@ var void(string) g_hudSwitchedWeapon;
 var void(string) g_hudPickedUpItem;
 var float(float) g_hudInputFrame;
 var bool(string) g_hudConsoleCommand;
+var bool(float, float, float, float, vector) g_hudInputEvent;
+var bool(void) g_hudWantsCursor;
 var void(string, string, string, string) g_hudObituary;
 var void(void) g_hudReloadVideoResources;
 var void(vector, int, int) g_hudDamageReceived;
@@ -38,6 +40,8 @@ HUDProgs_Init(void)
 		g_hudSwitchedWeapon = externvalue(g_flHUDProgs, "HUD_WeaponSwitched");
 		g_hudInputFrame = externvalue(g_flHUDProgs, "HUD_InputFrame");
 		g_hudConsoleCommand = externvalue(g_flHUDProgs, "HUD_ConsoleCommand");
+		g_hudInputEvent = externvalue(g_flHUDProgs, "HUD_InputEvent");
+		g_hudWantsCursor = externvalue(g_flHUDProgs, "HUD_WantsCursor");
 		g_hudReloadVideoResources = externvalue(g_flHUDProgs, "HUD_ReloadVideoResources");
 		g_hudPickedUpItem = externvalue(g_flHUDProgs, "HUD_PickedUpItem");
 		g_hudDamageReceived = externvalue(g_flHUDProgs, "HUD_DamageReceived");
@@ -188,6 +192,34 @@ HUDProgs_ConsoleCommand(string commandString)
 	if (g_flHUDProgs > 0) {
 		if (g_hudConsoleCommand) {
 			return g_hudConsoleCommand(commandString);
+		}
+	}
+
+	return (false);
+}
+
+/* input for the HUD progs' own menus: the event plus the client's mouse
+   position. true when the HUD progs used the event. */
+bool
+HUDProgs_InputEvent(float eventType, float key, float character, float deviceID)
+{
+	if (g_flHUDProgs > 0) {
+		if (g_hudInputEvent) {
+			HUDProgs_SetTime();
+			return g_hudInputEvent(eventType, key, character, deviceID, g_vecMousePos);
+		}
+	}
+
+	return (false);
+}
+
+/* true while the HUD progs shows something that needs the mouse */
+bool
+HUDProgs_WantsCursor(void)
+{
+	if (g_flHUDProgs > 0) {
+		if (g_hudWantsCursor) {
+			return g_hudWantsCursor();
 		}
 	}
 

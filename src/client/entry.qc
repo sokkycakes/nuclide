@@ -298,7 +298,7 @@ mouse movement, which would otherwise turn the view. */
 void
 CSQC_SyncCursor(void)
 {
-	if (g_vguiWidgetCount) {
+	if (g_vguiWidgetCount || HUDProgs_WantsCursor()) {
 		setcursormode(TRUE, "gfx/cursor", [0,0,0], 1.0f);
 	} else {
 		setcursormode(FALSE, "gfx/cursor", [0,0,0], 1.0f);
@@ -505,7 +505,11 @@ CSQC_InputEvent(float fEventType, float fKey, float fCharacter, float fDeviceID)
 	//g_vecMousePos = getmousepos();
 
 	bool vgui_pressed;
-	vgui_pressed = Commandmenu_Input(fEventType, fKey, fCharacter, fDeviceID);
+	vgui_pressed = HUDProgs_InputEvent(fEventType, fKey, fCharacter, fDeviceID);
+
+	if (!vgui_pressed) {
+		vgui_pressed = Commandmenu_Input(fEventType, fKey, fCharacter, fDeviceID);
+	}
 
 	if (!vgui_pressed) {
 		vgui_pressed = VGUI_Input(fEventType, fKey, fCharacter, fDeviceID);
