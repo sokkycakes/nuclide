@@ -41,6 +41,7 @@ TFCClass_Init(void)
 }
 
 static vguiWindow winClassSelection;
+void VGUI_MOTDResume(void);
 static vguiPic imgClassPreview;
 static vguiLabel lblClassTitle;
 static vguiLabel lblClassDescription;
@@ -68,6 +69,7 @@ VGUIChangeClassButton::OnMouseUp(void)
 
 	localcmd(sprintf("cmd join %s\n", classType));
 	winClassSelection.Hide();
+	VGUI_MOTDResume();
 }
 
 void

@@ -614,14 +614,11 @@ Cmd_Parse(string sCMD)
 
 	/* Source names, bindable */
 	case "changeclass":
-		if (VGUI_MOTDDefersMenu("changeclass") == false) {
-			Cmd_ChangeClass();
-		}
+		VGUI_MOTDSuspend();
+		Cmd_ChangeClass();
 		break;
 	case "changeteam":
-		if (VGUI_MOTDDefersMenu("changeteam") == true) {
-			break;
-		}
+		VGUI_MOTDSuspend();
 		VGUI_HideClassSelectionMenu();
 		VGUI_ShowTeamSelectionMenu();
 		break;

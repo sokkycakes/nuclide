@@ -14,12 +14,18 @@
  * OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-/* menus asked for while the MOTD is up wait for it to close */
+/* Like Source's viewport, one input panel at a time:
+- a menu the player opens (changeteam, changeclass) puts the MOTD away and
+  the MOTD comes back once that menu is done, as the last active panel.
+- a menu the server pushes waits for the MOTD to close; in Source the team
+  menu only comes after the MOTD's exit command. */
 var bool g_motdVisible;
+var bool g_motdSuspended;
 var string g_motdPendingMenu;
+var vguiWindow g_motdWindow;
 
-/** Returns true (and remembers the command) when a team or class menu must
-wait for the MOTD. */
+/** Returns true (and remembers the command) when a server-pushed team or
+class menu must wait for the MOTD. */
 bool
 VGUI_MOTDDefersMenu(string menuCommand)
 {
@@ -29,6 +35,32 @@ VGUI_MOTDDefersMenu(string menuCommand)
 
 	g_motdPendingMenu = menuCommand;
 	return (true);
+}
+
+/** Puts the MOTD away for a menu the player opened. */
+void
+VGUI_MOTDSuspend(void)
+{
+	if (g_motdVisible == false || !g_motdWindow) {
+		return;
+	}
+
+	g_motdWindow.Hide();
+	g_motdVisible = false;
+	g_motdSuspended = true;
+}
+
+/** Brings the MOTD back once the player's menus are closed. */
+void
+VGUI_MOTDResume(void)
+{
+	if (g_motdSuspended == false || !g_motdWindow) {
+		return;
+	}
+
+	g_motdSuspended = false;
+	g_motdVisible = true;
+	g_motdWindow.Show();
 }
 
 void
@@ -50,6 +82,7 @@ VGUI_ShowMOTD(void)
 		}
 
 		g_motdVisible = false;
+		g_motdSuspended = false;
 
 		if (STRING_SET(g_motdPendingMenu)) {
 			localcmd(sprintf("%s\n", g_motdPendingMenu));
@@ -72,6 +105,7 @@ VGUI_ShowMOTD(void)
 	if (!initialized) {
 		initialized = TRUE;
 		winMotd = spawn(vguiWindow);
+		g_motdWindow = winMotd;
 		winMotd.SetTitle("Message Of The Day");
 		winMotd.SetStyleMask(vguiWindowBorderless | vguiWindowFullscreen);
 		winMotd.SetSize('424 312');
