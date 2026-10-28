@@ -32,9 +32,9 @@ HLHUD_AmmoNotify_Draw(__inout vector pos)
 			DRAWFLAG_ADDITIVE
 		);
 
-		drawfont = 0;
+		/* measure in the font the count is drawn in */
 		string txt = sprintf("%i", g_ammonotify[i].count);
-		float offs = stringwidth(txt, FALSE, [20,20]);
+		float offs = font.StringWidth(txt, false, FONT_20);
 		draw.Text_RGBA(pos + [-offs - 8,4], sprintf("%i", g_ammonotify[i].count), g_fg_color, a, FONT_20);
 
 		g_ammonotify[i].alpha -= (clframetime * 0.5);
@@ -136,9 +136,8 @@ HLHUD_ItemNotify_Draw(__inout vector pos)
 		);
 
 		if (g_itemnotify[i].count > 1) {
-		drawfont = 0;
 		string txt = sprintf("%i", g_itemnotify[i].count);
-		float offs = stringwidth(txt, FALSE, [20,20]) + 16;
+		float offs = font.StringWidth(txt, false, FONT_20) + 16;
 
 		draw.Text_RGBA(pos + [-offs - 8,12], sprintf("%i", g_itemnotify[i].count), g_fg_color, a, FONT_20);
 		}
