@@ -18,6 +18,8 @@ entityDef tf_weapon_rocketlauncher
 	"clipSize"				"4"
 	"clipSizeDefault"		"4"
 	"reloadTime"			"0.8"
+	"reloadTimed"			"1"
+	"reloadStartTime"		"0.92"
 	"act_reload"			"0"
 	"act_reloadStart"		"0"
 	"act_reloadEnd"			"0"

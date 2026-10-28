@@ -42,6 +42,7 @@ ncWeapon::ncWeapon(void)
 	m_weaponLastFireInfo = __NULL__;
 	m_fiSpeedMod = 1.0f;
 	m_fiReloadTime = -1.0f;
+	m_reloadStepLength = 0.0f;
 	m_nextWeapon = __NULL__;
 	m_prevWeapon = __NULL__;
 	m_fiFireUnderwater = true;
@@ -180,6 +181,9 @@ ncWeapon::UpdateFireInfoCache(void)
 	if (m_fiOverheatPoints) {
 		m_fiOverheatLength = GetSubDefFloat(m_weaponLastFireInfo, "overheatLength");
 	}
+
+	m_fiReloadTimed = GetSubDefBool(m_weaponLastFireInfo, "reloadTimed");
+	m_fiReloadStartTime = GetSubDefFloat(m_weaponLastFireInfo, "reloadStartTime");
 
 	/* when -1.0 we'll pull it from the animation. */
 	if (reloadSpeed != "") {
@@ -546,6 +550,7 @@ ncWeapon::SendEntity(entity ePEnt, float flChanged)
 	SENDENTITY_BYTE(m_weaponIsFiring, WEAPONFL_CHANGED_STATE)
 	SENDENTITY_FLOAT(m_weaponOverheating, WEAPONFL_CHANGED_STATE)
 	SENDENTITY_BYTE(m_burstCount, WEAPONFL_CHANGED_STATE)
+	SENDENTITY_FLOAT(m_reloadStepLength, WEAPONFL_CHANGED_STATE)
 	return (true);
 }
 
@@ -595,6 +600,7 @@ ncWeapon::EvaluateEntity(void)
 	EVALUATE_FIELD(m_weaponIsFiring, WEAPONFL_CHANGED_STATE)
 	EVALUATE_FIELD(m_weaponOverheating, WEAPONFL_CHANGED_STATE)
 	EVALUATE_FIELD(m_burstCount, WEAPONFL_CHANGED_STATE)
+	EVALUATE_FIELD(m_reloadStepLength, WEAPONFL_CHANGED_STATE)
 
 	if (InInventory() == true) {
 		SetOrigin(owner.origin);
@@ -685,6 +691,7 @@ ncWeapon::ReceiveEntity(float flNew, float flChanged)
 	READENTITY_BYTE(m_weaponIsFiring, WEAPONFL_CHANGED_STATE)
 	READENTITY_FLOAT(m_weaponOverheating, WEAPONFL_CHANGED_STATE)
 	READENTITY_BYTE(m_burstCount, WEAPONFL_CHANGED_STATE)
+	READENTITY_FLOAT(m_reloadStepLength, WEAPONFL_CHANGED_STATE)
 
 	if (flChanged & WEAPONFL_CHANGED_BODY) {
 		_UpdateGeomset();
@@ -752,6 +759,7 @@ ncWeapon::PredictPreFrame(void)
 	SAVE_STATE(m_weaponIsFiring)
 	SAVE_STATE(m_weaponOverheating)
 	SAVE_STATE(m_burstCount)
+	SAVE_STATE(m_reloadStepLength)
 
 	SAVE_STATE(m_nextWeapon)
 	SAVE_STATE(m_prevWeapon)
@@ -788,6 +796,7 @@ ncWeapon::PredictPostFrame(void)
 	ROLL_BACK(m_weaponIsFiring)
 	ROLL_BACK(m_weaponOverheating)
 	ROLL_BACK(m_burstCount)
+	ROLL_BACK(m_reloadStepLength)
 
 	/* relink these */
 	ROLL_BACK(m_nextWeapon)
@@ -999,6 +1008,12 @@ ncWeapon::Holster(void)
 {
 	ncPlayer ourOwner = (ncPlayer)GetOwner();
 	EntLog("Holstering Weapon!");
+
+	/* switching away cancels a timed reload, rounds already loaded stay in */
+	if (m_fiReloadTimed) {
+		_TimedReloadStop();
+	}
+
 	ourOwner.Event_HolsterWeapon();
 }
 
@@ -1236,6 +1251,24 @@ ncWeapon::Attack(string fireInfo)
 	float shotAnim = -1;
 	float fireRate = 1.0f;
 	float burstDelay = 0.0f;
+
+	/* timed reloads: a shotgun-style reload stops once a round is in, then we fire.
+	   otherwise the reload keeps going. */
+	if (m_fiReloadTimed && (GetWeaponState() == WEAPONSTATE_RELOAD_START || GetWeaponState() == WEAPONSTATE_RELOAD)) {
+		if (GetSubDefAct(m_weaponLastFireInfo, "reloadStart") >= 0 && m_weaponClip > 0) {
+			_TimedReloadStop();
+			SetIdleNext(0.0f);
+		} else {
+			Idle();
+			return;
+		}
+	}
+
+	/* timed reloads: an empty clip reloads even with the trigger held */
+	if (m_fiReloadTimed && m_weaponClipSize > 0 && m_weaponClip == 0 && GetWeaponState() == WEAPONSTATE_IDLE) {
+		Idle();
+		return;
+	}
 
 	if (GetWeaponState() == WEAPONSTATE_RELOAD) {
 		_SetWeaponState(WEAPONSTATE_RELOAD_END);
@@ -1560,6 +1593,13 @@ ncWeapon::Idle(void)
 		}
 	}
 
+	/* timed reloads run on their own clock, so a long idle animation can't hold them up */
+	if (m_fiReloadTimed) {
+		if (_TimedReloadFrame() == true) {
+			return;
+		}
+	}
+
 	if (CanIdle() == false) {
 		return;
 	}
@@ -1877,6 +1917,10 @@ ncWeapon::Reload(void)
 
 	/* already in a reload? */
 	if (m_weaponState >= WEAPONSTATE_RELOAD_START && m_weaponState <= WEAPONSTATE_RELOAD_END) {
+		/* holding reload must not stall a timed reload */
+		if (m_fiReloadTimed) {
+			Idle();
+		}
 		return;
 	}
 	reloadStartAct = GetSubDefAct(m_weaponLastFireInfo, "reloadStart");
@@ -1901,6 +1945,11 @@ ncWeapon::Reload(void)
 
 	/* no leftover ammo at all. */
 	if (ourOwner.HasAmmo(ammoTypeID, 1) == false) {
+		return;
+	}
+
+	if (m_fiReloadTimed) {
+		_TimedReloadStart(reloadStartAct);
 		return;
 	}
 
@@ -1961,6 +2010,190 @@ ncWeapon::Reload(void)
 	SetWeaponFrame(reloadAnimation);
 	SetAttackNext(reloadTime - 0.01);
 	SetIdleNext(reloadTime);
+}
+
+/* Timed reloads. Shared between server and client, so the client predicts
+   them and the HUD can draw how far along the current step is.
+   A step ends when the owner's idle timer runs out. A shotgun-style reload
+   (one with a reloadStart act) loads one round at the end of each step: the
+   first step takes reloadStartTime, the rest reloadTime. A magazine reload is
+   one step of reloadTime that fills the clip and blocks firing meanwhile. */
+void
+ncWeapon::_TimedReloadStart(float reloadStartAct)
+{
+	ncPlayer ourOwner = (ncPlayer)GetOwner();
+	float reloadTime = (m_fiReloadTime > 0.0f) ? m_fiReloadTime : 1.0f;
+	float reloadAnimation = -1;
+
+	if (reloadStartAct >= 0) {
+		if (m_fiReloadStartTime > 0.0f) {
+			reloadTime = m_fiReloadStartTime;
+		}
+
+		_SetWeaponState(WEAPONSTATE_RELOAD_START);
+		reloadAnimation = reloadStartAct;
+		ourOwner.Event_ReloadWeaponStart();
+#ifdef SERVER
+		PlaySound(GetDefString("snd_reloadStart"), CHAN_AUTO, false);
+#endif
+	} else {
+		_SetWeaponState(WEAPONSTATE_RELOAD);
+
+		if (m_weaponClip == 0) {
+			reloadAnimation = GetSubDefAct(m_weaponLastFireInfo, "reloadEmpty");
+		}
+
+		if (reloadAnimation < 0) {
+			reloadAnimation = GetSubDefAct(m_weaponLastFireInfo, "reload");
+		}
+
+		ourOwner.Event_ReloadWeapon();
+		SetAttackNext(reloadTime);
+#ifdef SERVER
+		string reloadSound = GetDefString("snd_reload");
+
+		if (m_weaponClip == 0) {
+			string emptyReload = GetDefString("snd_reloadEmpty");
+
+			if (emptyReload != "") {
+				reloadSound = emptyReload;
+			}
+		}
+
+		ourOwner.StartSoundDef(reloadSound, CHAN_AUTO, true);
+
+		/* cartridge ejection */
+		if (STRING_SET(m_fiCartridgeDef)) {
+			ncTimer::TemporaryTimer(this, EjectCartridge, m_fiCartridgeDelay * 0.01f, false);
+		}
+#endif
+	}
+
+	if (reloadAnimation >= 0) {
+		SetWeaponFrame(reloadAnimation);
+	}
+
+	ourOwner.sndindex_idle = 0;
+	m_burstCount = 0;
+	m_reloadStepLength = reloadTime;
+	SetIdleNext(reloadTime);
+	WeaponStartedReloading();
+}
+
+void
+ncWeapon::_TimedReloadStop(void)
+{
+	if (m_weaponState == WEAPONSTATE_RELOAD_START || m_weaponState == WEAPONSTATE_RELOAD || m_weaponState == WEAPONSTATE_RELOAD_END) {
+		_SetWeaponState(WEAPONSTATE_IDLE);
+		WeaponStoppedReloading();
+	}
+
+	m_reloadStepLength = 0.0f;
+}
+
+bool
+ncWeapon::_TimedReloadFrame(void)
+{
+	ncPlayer ourOwner = (ncPlayer)GetOwner();
+
+	/* not reloading: start one when the clip runs dry */
+	if (m_weaponState != WEAPONSTATE_RELOAD_START && m_weaponState != WEAPONSTATE_RELOAD) {
+		m_reloadStepLength = 0.0f;
+
+		if (m_weaponState == WEAPONSTATE_IDLE && m_weaponClipSize > 0 && m_weaponClip == 0) {
+			if (CanReload() == true && HasReserveAmmo() == true) {
+				_TimedReloadStart(GetSubDefAct(m_weaponLastFireInfo, "reloadStart"));
+				return (true);
+			}
+		}
+
+		return (false);
+	}
+
+	/* step still running */
+	if (CanIdle() == false) {
+		return (true);
+	}
+
+	/* shotgun-style: one round in, then go again or stop */
+	if (GetSubDefAct(m_weaponLastFireInfo, "reloadStart") >= 0) {
+		float reloadTime = (m_fiReloadTime > 0.0f) ? m_fiReloadTime : 1.0f;
+		float reloadAnimation = GetSubDefAct(m_weaponLastFireInfo, "reload");
+
+		if (HasReserveAmmo() == true) {
+			m_weaponClip++;
+			ourOwner.UseAmmo(m_primaryAmmoType, 1);
+			ourOwner.Event_ReloadWeapon();
+#ifdef SERVER
+			PlaySound(GetDefString("snd_reload"), CHAN_AUTO, false);
+#endif
+		}
+
+		if (m_weaponClip >= m_weaponClipSize || HasReserveAmmo() == false) {
+			float reloadEndAct = GetSubDefAct(m_weaponLastFireInfo, "reloadEnd");
+			_TimedReloadStop();
+			ourOwner.Event_ReloadWeaponEnd();
+#ifdef SERVER
+			PlaySound(GetDefString("snd_reloadEnd"), CHAN_AUTO, false);
+#endif
+			if (reloadEndAct >= 0) {
+				SetWeaponFrame(reloadEndAct);
+			}
+			return (false);
+		}
+
+		_SetWeaponState(WEAPONSTATE_RELOAD);
+
+		if (reloadAnimation >= 0) {
+			SetWeaponFrame(reloadAnimation);
+		}
+
+		m_reloadStepLength = reloadTime;
+		SetIdleNext(reloadTime);
+		return (true);
+	}
+
+	/* magazine: fill what the reserve allows */
+	int ammoToDeduct = m_weaponClipSize - m_weaponClip;
+
+	if (ourOwner.HasAmmo(m_primaryAmmoType, ammoToDeduct) == false) {
+		ammoToDeduct = ourOwner.m_ammoTypes[m_primaryAmmoType];
+	}
+
+	m_weaponClip += ammoToDeduct;
+	ourOwner.UseAmmo(m_primaryAmmoType, ammoToDeduct);
+	_TimedReloadStop();
+	return (false);
+}
+
+float
+ncWeapon::ReloadProgress(void)
+{
+	ncPlayer ourOwner = (ncPlayer)GetOwner();
+
+	if (!ourOwner || m_reloadStepLength <= 0.0f) {
+		return (-1.0f);
+	}
+
+	if (m_weaponState != WEAPONSTATE_RELOAD_START && m_weaponState != WEAPONSTATE_RELOAD) {
+		return (-1.0f);
+	}
+
+	return bound(0.0f, 1.0f - (ourOwner.m_timeUntilNextIdle / m_reloadStepLength), 1.0f);
+}
+
+int
+ncWeapon::ReloadRound(void)
+{
+	if (ReloadProgress() < 0.0f) {
+		return (0i);
+	}
+
+	if (GetSubDefAct(m_weaponLastFireInfo, "reloadStart") < 0) {
+		return (0i);
+	}
+
+	return (m_weaponClip + 1i);
 }
 
 bool

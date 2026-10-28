@@ -303,3 +303,40 @@ TFHUD_DrawMeter(void)
 	vector hudSize = screen.HUDSize();
 	TFHUD_CenteredText(hudMins + [hudSize[0] / 2, hudSize[1] - 72], meterText, [1, 0.85, 0.4]);
 }
+
+/** Reload timer bar above the crosshair (the target ID panel is below it), in place of reload animations.
+A shotgun-style reload shows the round going in ("3/4"), a magazine reload
+the whole magazine. Progress comes from the predicted weapon state. */
+void
+TFHUD_DrawReload(void)
+{
+	float progress = weapon.GetReloadProgress();
+
+	if (progress < 0.0f) {
+		return;
+	}
+
+	if (g_tfHUDInit == false) {
+		font.Load("fonts/font16.font", FONT_TF);
+		g_tfHUDInit = true;
+	}
+
+	vector hudMins = screen.HUDMins();
+	vector hudSize = screen.HUDSize();
+	vector barSize = [128, 8];
+	vector barPos = hudMins + [(hudSize[0] - barSize[0]) / 2, (hudSize[1] / 2) - 40];
+	int reloadRound = weapon.GetReloadRound();
+	string label;
+
+	/* a round at a time adds to the clip after each step, a magazine fills at the end */
+	if (reloadRound > 0i) {
+		label = sprintf("%i/%i", reloadRound, weapon.GetClipSize());
+	} else {
+		label = "Reloading";
+	}
+
+	draw.Rect(barPos, barSize, [0, 0, 0], 0.5f);
+	draw.RectOutline(barPos - [1, 1], barSize + [2, 2], 1.0f, [0.6, 0.5, 0.25], 1.0f);
+	draw.Rect(barPos, [barSize[0] * progress, barSize[1]], [1, 0.85, 0.4], 0.9f);
+	TFHUD_CenteredText(barPos + [barSize[0] / 2, -20], label, [1, 0.85, 0.4]);
+}

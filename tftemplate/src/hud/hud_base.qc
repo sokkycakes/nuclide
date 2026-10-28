@@ -33,6 +33,7 @@ HUD_Draw(void)
 	Nameplates_Draw();
 	TFHUD_Draw();
 	TFHUD_DrawMeter();
+	TFHUD_DrawReload();
 
 	vector hud_mins = screen.HUDMins();
 	vector hudSize = screen.HUDSize();
@@ -42,6 +43,11 @@ HUD_Draw(void)
 	string healthValue = ftos(player.GetHealth());
 	string armorValue = ftos(player.GetArmor());
 	string ammoValue = ftos(weapon.GetAmmo1());
+
+	/* clip first, reserve after */
+	if (weapon.GetClipSize() > 0i) {
+		ammoValue = sprintf("%i / %i", weapon.GetClip(), weapon.GetAmmo1());
+	}
 
 	if (g_damageAlpha > 0.0f) {
 		if (autocvar_cg_damageFill > 0.0) {
