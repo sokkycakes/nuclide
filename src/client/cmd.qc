@@ -661,6 +661,32 @@ Cmd_Parse(string sCMD)
 	return (true);
 }
 
+/* games that want Source's menu keys set this (in their default.cfg). A
+saved config starts with unbindall, so the binds are filled in at load
+time, only on keys that are still unbound. */
+var float autocvar_cl_menuBinds = 0;
+
+void
+Cmd_MenuBinds(void)
+{
+	static void Cmd_MenuBinds_Key(string keyName, string command) {
+		float keyNum = stringtokeynum(keyName);
+
+		if (keyNum < 0 || getkeybind(keyNum) != "") {
+			return;
+		}
+
+		localcmd(sprintf("bind \"%s\" \"%s\"\n", keyName, command));
+	}
+
+	if (autocvar_cl_menuBinds == 0) {
+		return;
+	}
+
+	Cmd_MenuBinds_Key(",", "changeclass");
+	Cmd_MenuBinds_Key(".", "changeteam");
+}
+
 void
 Cmd_Init(void)
 {
@@ -823,5 +849,6 @@ Cmd_Init(void)
 
 	registercommand("listUserInfo");
 
+	Cmd_MenuBinds();
 	InitEnd();
 }

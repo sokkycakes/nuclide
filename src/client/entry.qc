@@ -292,6 +292,19 @@ var float autocvar_overview_zoom = 1.0f;
 This is for all clients on display. So we handle splitscreen/multiple-views
 in here.
 */
+/** The cursor shows while a VGUI panel is up. Also run every frame, so a
+panel that opens by itself (the MOTD) frees the mouse before the first
+mouse movement, which would otherwise turn the view. */
+void
+CSQC_SyncCursor(void)
+{
+	if (g_vguiWidgetCount) {
+		setcursormode(TRUE, "gfx/cursor", [0,0,0], 1.0f);
+	} else {
+		setcursormode(FALSE, "gfx/cursor", [0,0,0], 1.0f);
+	}
+}
+
 void
 CSQC_UpdateView(float w, float h, float focus)
 {
@@ -300,6 +313,7 @@ CSQC_UpdateView(float w, float h, float focus)
 	vector vecViewAngles = view_angles;
 
 	g_focus = (bool)focus;
+	CSQC_SyncCursor();
 
 	if (w == 0 || h == 0) {
 		return;
@@ -496,12 +510,7 @@ CSQC_InputEvent(float fEventType, float fKey, float fCharacter, float fDeviceID)
 		vgui_pressed = VGUI_Input(fEventType, fKey, fCharacter, fDeviceID);
 	}
 
-	if (g_vguiWidgetCount) {
-		setcursormode(TRUE, "gfx/cursor", [0,0,0], 1.0f);
-	} else {
-		setcursormode(FALSE, "gfx/cursor", [0,0,0], 1.0f);
-	}
-
+	CSQC_SyncCursor();
 	return (vgui_pressed);
 }
 
