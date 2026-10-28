@@ -257,6 +257,9 @@ HLWeaponSelect::SelectSlot(int wantedSlot, bool fastSwitch)
 
 	bool wasOpen = Active();
 	m_selectedWeapon = (nextInSlot) ? nextInSlot : firstInSlot;
+	/* Draw() walks the inventory from here */
+	m_firstWeapon = weapon.GetFirstWeaponInInventory();
+	m_lastWeapon = weapon.GetLastWeaponInInventory();
 
 	if (fastSwitch) {
 		Trigger();
