@@ -640,8 +640,9 @@ CSQC_Parse_Print(string sMessage, float fLevel)
 
 	pSeat->m_flPrintTime = time + CHAT_TIME;
 
-	/* log to console */
-	localcmd(sprintf("echo \"%s\"\n", sMessage));
+	/* log to console. print it directly: echoing it through localcmd ran
+	   every line after the first as a console command */
+	print(sMessage);
 }
 
 /** Catches every centerprint call and allows us to tinker with it.
