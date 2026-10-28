@@ -20,7 +20,6 @@
 		</Panel>
 
 		<Panel class="brand" hittest="false">
-			<Label class="brand-small" text="HALF-LIFE" hittest="false" />
 			<Label class="brand-big" text="JUSTICE" hittest="false" />
 			<Label class="brand-big" text="TASK FORCE" hittest="false" />
 		</Panel>
@@ -35,6 +34,5 @@
 			<Panel id="PageFooter" class="page-footer" />
 		</Panel>
 
-		<Label id="Hint" class="hint" text="" hittest="false" />
 	</Panel>
 </root>
