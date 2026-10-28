@@ -30,7 +30,6 @@ entityDef fireInfo_tf_revolver
 {
 	"def_onFire"	"projectile_tf_revolver"
 	"fireRate"		"0.5"
-	"punchSpring"	"-3 0 0"
 }
 
 entityDef projectile_tf_revolver

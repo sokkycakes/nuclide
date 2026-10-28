@@ -29,7 +29,6 @@ entityDef fireInfo_tf_syringegun
 {
 	"def_onFire"	"projectile_tf_syringe"
 	"fireRate"		"0.105"
-	"punchSpring"	"-0.5 1 -1"
 }
 
 entityDef projectile_tf_syringe

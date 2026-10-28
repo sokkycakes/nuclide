@@ -170,6 +170,8 @@ activity override format for existing models.
 ### Misc keys
 - "reloadTime" : Time in seconds between the start/end of a reload.
 - "reloadTimed" : When "1", reloads run on def times alone, never on view model animation lengths. A shotgun-style reload loads a round at the end of each step and firing interrupts it once a round is in; a magazine reload fills the clip when "reloadTime" runs out. Both are predicted, and the HUD can read their progress.
+- "spinUpTime" : Seconds either fire button must be held (spinning the barrels) before primary fire shoots. Secondary fire only spins. Predicted.
+- "punchKick" : Source-style kick: each shot sets the view punch to this many degrees up, plus or minus one, and the punch springs back. Predicted.
 - "reloadStartTime" : With "reloadTimed", how long the first round of a shotgun-style reload takes. Defaults to "reloadTime".
 - "detonateOnFire" : When set, will detonate all entities of specified classname.
 - "punchAngle" : Weapon punchangle to be applied to the camera when shooting "def_onFire".
@@ -419,6 +421,8 @@ public:
 	nonvirtual float ReloadProgress(void);
 	/** Returns the round a shotgun-style timed reload is loading, counted from 1. 0 otherwise. */
 	nonvirtual int ReloadRound(void);
+	/** Returns how far the barrels have spun up (see "spinUpTime"), from 0.0 to 1.0. */
+	nonvirtual float SpinProgress(void);
 	nonvirtual float PlayerSpeedMod(void);
 
 	/** Overriding this: Called to cache some entityDef values. */
@@ -485,6 +489,7 @@ private:
 	NETWORKED_BOOL(m_weaponOverheating)
 	NETWORKED_FLOAT(m_burstCount)
 	NETWORKED_FLOAT(m_reloadStepLength)
+	NETWORKED_FLOAT(m_weaponSpin)
 
 	/* cached variables. don't save - recalculate! */
 	string m_weaponLastFireInfo;
@@ -528,6 +533,8 @@ private:
 	float m_fiOverheatPoints;
 	float m_fiReloadTime;
 	bool m_fiReloadTimed;
+	float m_fiSpinUpTime;
+	float m_fiPunchKick;
 	float m_fiReloadStartTime;
 	int m_fiAmmoPerShot;
 	int m_fiAmmoType;

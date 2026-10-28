@@ -222,61 +222,37 @@ tfStickybombLauncher::InputFrame(void)
 
 /* ---- Heavy: Minigun ----------------------------------------------------- */
 
-/** Holding either fire button spins the barrels; it only fires once they
-have spun for "tf_spinUp" seconds. The slowdown while spinning is the
-def's "speed_mod_firing", which the client predicts. */
+/** Holding either fire button spins the barrels; primary only fires once
+they have spun for the def's "spinUpTime". Nuclide does the spinning and the
+firing gate, so the client predicts them; this only adds the spin sound and
+the HUD meter. The slowdown while spinning is "speed_mod_firing". */
 class
 tfMinigun:ncWeapon
 {
 public:
 	void tfMinigun(void);
 
-	virtual void PrimaryAttack(void);
-	virtual void SecondaryAttack(void);
 	virtual void InputFrame(void);
-
-	float m_tfSpinStart;
 };
 
 void
 tfMinigun::tfMinigun(void)
 {
-	m_tfSpinStart = 0.0f;
 }
 
 void
 tfMinigun::InputFrame(void)
 {
 	ncPlayer ourOwner = (ncPlayer)GetOwner();
-	bool wantSpin = (input_buttons & (INPUT_PRIMARY | INPUT_SECONDARY)) ? true : false;
+	bool wasSpinning = (m_weaponSpin > 0.0f) ? true : false;
 
-	if (wantSpin && m_tfSpinStart <= 0.0f) {
-		m_tfSpinStart = time;
+	super::InputFrame();
+
+	if (m_weaponSpin > 0.0f && wasSpinning == false) {
 		ourOwner.StartSoundDef("weapon_supernailgun.shoot", CHAN_ITEM, true);
-	} else if (wantSpin == false) {
-		m_tfSpinStart = 0.0f;
 	}
 
-	ourOwner.tf_charge = (m_tfSpinStart > 0.0f) ? bound(0.0f, (time - m_tfSpinStart) / GetDefFloat("tf_spinUp"), 1.0f) : 0.0f;
-}
-
-void
-tfMinigun::PrimaryAttack(void)
-{
-	if (m_tfSpinStart <= 0.0f || (time - m_tfSpinStart) < GetDefFloat("tf_spinUp")) {
-		return;
-	}
-
-	super::PrimaryAttack();
-}
-
-void
-tfMinigun::SecondaryAttack(void)
-{
-	/* secondary only spins; with primary held as well, fire */
-	if (input_buttons & INPUT_PRIMARY) {
-		PrimaryAttack();
-	}
+	ourOwner.tf_charge = SpinProgress();
 }
 
 /* ---- Pyro: Flamethrower's airblast -------------------------------------- */

@@ -223,7 +223,7 @@ TF_TestCommand(string commandLine)
 			print(sprintf("  weapon %s clip %i reserve %i\n", p.GetCurrentWeapon(),
 				p.m_activeWeapon ? p.m_activeWeapon.GetClip() : 0i,
 				p.m_activeWeapon ? p.GetReserveAmmo(TF_WeaponAmmoType(p.m_activeWeapon)) : 0i));
-			print(sprintf("  t %.2f timers attack %.2f idle %.2f reload %.2f state %d\n", time, p.m_timeUntilNextAttack, p.m_timeUntilNextIdle, p.m_timeUntilReloaded, p.m_activeWeapon ? p.m_activeWeapon.m_weaponState : -1));
+			print(sprintf("  t %.2f timers attack %.2f idle %.2f reload %.2f state %d punch %v\n", time, p.m_timeUntilNextAttack, p.m_timeUntilNextIdle, p.m_timeUntilReloaded, p.m_activeWeapon ? p.m_activeWeapon.m_weaponState : -1, p.m_punchAngle));
 			print(sprintf("  uber %d%% cloaked %d burning %d disguise %S meter %S\n", rint(p.m_tfUberCharge * 100),
 				p.tf_cloaked, (p.tf_burnUntil > time), p.tf_disguiseClass, userinfo.GetString(p, "*tf_meter")));
 		}

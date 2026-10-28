@@ -25,13 +25,13 @@ entityDef tf_weapon_grenadelauncher
 	"act_reloadEnd"		"0"
 	"msg_obituary"		"%s caught %s's pipe bomb."
 	"snd_fire"			"weapon_grenadelauncher.shoot"
+	"punchKick"		"3"
 }
 
 entityDef fireInfo_tf_grenadelauncher
 {
 	"def_onFire"	"projectile_tf_pipe"
 	"fireRate"		"0.6"
-	"punchSpring"	"-4 0 0"
 }
 
 entityDef projectile_tf_pipe
@@ -96,13 +96,13 @@ entityDef tf_weapon_pipebomblauncher
 	"tf_maxStickies"		"8"
 	"tf_armTime"			"0.7"
 	"tf_stickyDef"			"projectile_tf_sticky"
+	"punchKick"			"3"
 }
 
 entityDef fireInfo_tf_pipebomblauncher
 {
 	"def_onFire"	"projectile_tf_sticky"
 	"fireRate"		"0.6"
-	"punchSpring"	"-3 0 0"
 }
 
 entityDef projectile_tf_sticky

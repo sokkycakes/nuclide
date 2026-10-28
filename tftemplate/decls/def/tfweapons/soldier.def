@@ -32,7 +32,6 @@ entityDef fireInfo_tf_rocketlauncher
 {
 	"def_onFire"	"projectile_tf_rocket"
 	"fireRate"		"0.8"
-	"punchSpring"	"-5 0 0"
 }
 
 entityDef projectile_tf_rocket

@@ -24,6 +24,7 @@ entityDef tf_weapon_shotgun_soldier
 	"act_reloadEnd"			"0"
 	"msg_obituary"			"%s was shot by %s's shotgun."
 	"snd_fire"				"weapon_shotgun.shoot"
+	"punchKick"			"2"
 }
 
 entityDef tf_weapon_shotgun_pyro
@@ -50,6 +51,7 @@ entityDef tf_weapon_shotgun_pyro
 	"act_reloadEnd"			"0"
 	"msg_obituary"			"%s was shot by %s's shotgun."
 	"snd_fire"				"weapon_shotgun.shoot"
+	"punchKick"			"2"
 }
 
 entityDef tf_weapon_shotgun_hwg
@@ -76,6 +78,7 @@ entityDef tf_weapon_shotgun_hwg
 	"act_reloadEnd"			"0"
 	"msg_obituary"			"%s was shot by %s's shotgun."
 	"snd_fire"				"weapon_shotgun.shoot"
+	"punchKick"			"2"
 }
 
 entityDef tf_weapon_shotgun_primary
@@ -102,13 +105,13 @@ entityDef tf_weapon_shotgun_primary
 	"act_reloadEnd"			"0"
 	"msg_obituary"			"%s was shot by %s's shotgun."
 	"snd_fire"				"weapon_shotgun.shoot"
+	"punchKick"			"3"
 }
 
 entityDef fireInfo_tf_shotgun
 {
 	"def_onFire"	"projectile_tf_shotgun"
 	"fireRate"		"0.625"
-	"punchSpring"	"-5 0 0"
 }
 
 entityDef projectile_tf_shotgun
