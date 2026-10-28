@@ -1,0 +1,135 @@
+/* Points shop, on top of menu.css's controls. */
+
+.shop-stage
+{
+	background-color: #00000066;
+}
+.shop
+{
+	horizontal-align: center;
+	vertical-align: center;
+	width: 1100px;
+	height: 760px;
+	background-color: #121212f2;
+	border: 1px solid #ffa31a55;
+	flow-children: down;
+}
+.shop-points
+{
+	horizontal-align: right;
+	vertical-align: center;
+	margin-right: 28px;
+	font-size: 28px;
+	font-weight: bold;
+	color: #ffffff;
+}
+.shop-body
+{
+	width: 100%;
+	height: fill-parent-flow( 1.0 );
+	padding: 20px 28px 0px 28px;
+	flow-children: right;
+}
+.shop-categories
+{
+	width: 300px;
+	height: 100%;
+	margin-right: 24px;
+	flow-children: down;
+}
+.shop-items
+{
+	width: fill-parent-flow( 1.0 );
+	height: 100%;
+	flow-children: down;
+}
+
+/* a numbered line: the key, the name and, for items, the price */
+.shop-line
+{
+	width: 100%;
+	height: 50px;
+	flow-children: right;
+	background-color: #00000001;
+	border: 1px solid #00000000;
+}
+.shop-line:hover { background-color: #ffa31a1f; }
+.shop-line.current
+{
+	background-color: #ffa31a33;
+	border: 1px solid #ffa31a88;
+}
+.shop-key
+{
+	width: 44px;
+	vertical-align: center;
+	margin-left: 10px;
+	font-size: 22px;
+	font-weight: bold;
+	color: #ffa31a;
+}
+.shop-name
+{
+	width: fill-parent-flow( 1.0 );
+	vertical-align: center;
+	font-size: 23px;
+	color: #e6e6e6;
+}
+.shop-price
+{
+	vertical-align: center;
+	margin-right: 14px;
+	font-size: 23px;
+	color: #ffa31a;
+}
+.shop-line.dim .shop-name,
+.shop-line.dim .shop-price,
+.shop-line.dim .shop-key
+{
+	color: #666666;
+}
+.shop-line.owned .shop-price { color: #7aa36a; }
+.shop-items.inactive .shop-key { color: #555555; }
+.shop-categories.inactive .shop-key { color: #555555; }
+
+.shop-pager
+{
+	width: 100%;
+	height: 40px;
+	margin-top: 6px;
+	flow-children: right;
+}
+.shop-pager Label
+{
+	vertical-align: center;
+	margin-left: 10px;
+	font-size: 19px;
+	color: #8a8a8a;
+}
+
+.shop-message
+{
+	width: 100%;
+	height: 40px;
+	padding: 0px 28px 0px 28px;
+	font-size: 22px;
+	color: #ffa31a;
+}
+.shop-keys
+{
+	vertical-align: center;
+	font-size: 19px;
+	color: #8a8a8a;
+}
+.shop-footer-fill
+{
+	width: fill-parent-flow( 1.0 );
+	height: 10px;
+}
+.shop-closed
+{
+	width: 100%;
+	margin-top: 40px;
+	font-size: 26px;
+	color: #d0d0d0;
+}
