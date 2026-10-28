@@ -614,17 +614,28 @@ Cmd_Parse(string sCMD)
 
 	/* Source names, bindable */
 	case "changeclass":
-		Cmd_ChangeClass();
+		if (VGUI_MOTDDefersMenu("changeclass") == false) {
+			Cmd_ChangeClass();
+		}
 		break;
 	case "changeteam":
+		if (VGUI_MOTDDefersMenu("changeteam") == true) {
+			break;
+		}
 		VGUI_HideClassSelectionMenu();
 		VGUI_ShowTeamSelectionMenu();
 		break;
 	/* can be overriden as well */
 	case "showClassSelectionMenu":
+		if (VGUI_MOTDDefersMenu("showClassSelectionMenu") == true) {
+			break;
+		}
 		VGUI_ShowClassSelectionMenu(userinfo.GetInteger(pSeat->m_ePlayer, "*team"));
 		break;
 	case "showTeamSelectionMenu":
+		if (VGUI_MOTDDefersMenu("showTeamSelectionMenu") == true) {
+			break;
+		}
 		VGUI_ShowTeamSelectionMenu();
 		break;
 	case "showMOTD":
