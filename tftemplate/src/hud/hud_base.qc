@@ -33,6 +33,7 @@ HUD_Draw(void)
 	Nameplates_Draw();
 	TFHUD_Draw();
 	TFHUD_DrawMeter();
+	TFHUD_DrawCrosshair();
 	TFHUD_DrawReload();
 
 	vector hud_mins = screen.HUDMins();
