@@ -26,7 +26,8 @@
      wave is bigger than the last and scales with the number of players,
      and so does monster health.
    - Score is points: killing a monster gives a share of its health,
-     reviving a teammate gives coop_revivePoints, killing an ally costs. */
+     reviving a teammate gives coop_revivePoints, killing an ally costs.
+     The same points can be spent in the shop (shop.qc). */
 
 #define COOP_MAXPLAYERS 64
 #define COOP_MAXMONSTERS 256
@@ -38,6 +39,11 @@
 
 void CodeCallback_PlayerSpawn(entity playerEntity);
 void Coop_PrintStatus(void);
+void Coop_AddPoints(entity pl, int amount);	/* shop.qc */
+void Shop_Load(void);
+void Shop_PlayerConnect(entity pl);
+bool Shop_ClientCommand(entity pl, string command);
+int Coop_Points(entity pl);
 
 var float autocvar_coop_respawnDelay = 5;
 var bool autocvar_coop_survival = false;
@@ -369,7 +375,7 @@ Coop_Revive(entity reviver, entity target)
 	ents.Input(target, "SetOrigin", vtos(downOrigin + [0, 0, 8]), reviver);
 	ents.Input(target, "SetHealth", ftos(autocvar_coop_reviveHealth), reviver);
 
-	reviver.frags += autocvar_coop_revivePoints;
+	Coop_AddPoints(reviver, autocvar_coop_revivePoints);
 	centerprint(target, sprintf("Revived by %s", reviver.netname));
 	centerprint(reviver, sprintf("You revived %s", target.netname));
 	print(sprintf("coop: %s revived %s\n", reviver.netname, target.netname));
@@ -606,6 +612,7 @@ CodeCallback_StartGameType(void)
 	serverinfo.SetString("coop_wave", "0");
 	serverinfo.SetString("nameplates", "1");
 	serverinfo.SetString("targetid", "1");
+	Shop_Load();
 
 	/* plugins live as long as the map, so load them again on each one */
 	int pluginCount = (int)tokenize(autocvar_coop_plugins);
@@ -657,6 +664,14 @@ CodeCallback_PlayerConnect(entity playerEntity)
 		g_coopDown[slot] = false;
 		g_coopReviveTarget[slot] = world;
 	}
+
+	Shop_PlayerConnect(playerEntity);
+}
+
+bool
+CodeCallback_ClientCommand(entity playerEntity, string command)
+{
+	return Shop_ClientCommand(playerEntity, command);
 }
 
 void
@@ -751,12 +766,12 @@ CodeCallback_NPCKilled(entity npcEntity, entity inflictor, entity attacker, stri
 
 	/* allies are on the player's side */
 	if (npcEntity.team == COOP_PLAYERTEAM || npcEntity.classname == "monster_barney" || npcEntity.classname == "monster_scientist") {
-		attacker.frags -= autocvar_coop_allyKillPenalty;
+		Coop_AddPoints(attacker, -(int)autocvar_coop_allyKillPenalty);
 		return;
 	}
 
 	/* points: a tenth of the monster's health, at least one */
-	attacker.frags += max(1, rint(npcEntity.max_health / 10));
+	Coop_AddPoints(attacker, (int)max(1, rint(npcEntity.max_health / 10)));
 	teams.AddScore(COOP_PLAYERTEAM, 1i);
 }
 
@@ -991,8 +1006,8 @@ Coop_PrintStatus(void)
 
 	for (entity p = world; (p = next.Player(p));) {
 		int slot = Coop_Slot(p);
-		print(sprintf("  %s: score %d deaths %d health %d %s\n", p.netname, p.frags, p.deaths,
-			p.health, (slot >= 0i && g_coopDown[slot] && !is.Alive(p)) ? "DOWN" : ""));
+		print(sprintf("  %s: score %d points %i deaths %d health %d %s\n", p.netname, p.frags, Coop_Points(p),
+			p.deaths, p.health, (slot >= 0i && g_coopDown[slot] && !is.Alive(p)) ? "DOWN" : ""));
 
 		if (autocvar_coop_debug) {
 			print(sprintf("    at %v inventory %s\n", p.origin, actor.GetInventory(p)));
@@ -1044,6 +1059,12 @@ CodeCallback_ConsoleCommand(entity playerEntity, string command)
 		}
 
 		self = oldSelf;
+		break;
+	case "coop_givepoints":
+		/* tests: points for every player */
+		for (entity p = world; (p = next.Player(p));) {
+			Coop_AddPoints(p, stoi(argv(1)));
+		}
 		break;
 	case "coop_nextwave":
 		g_coopWaveNext = time;

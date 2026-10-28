@@ -16,6 +16,9 @@ next to `valve/` and `coop/`, then:
 
     bulwark -game hldata -game valve -game coop +exec default_coop.cfg +map coop_arena
 
+Without `+map` the co-op title menu comes up; its Play page runs
+`default_coop.cfg` itself before starting the map.
+
 Headless test with bots (prints the wave and scores every 10 seconds):
 
     COOP_HLDATA=hldata coop/tests/run.sh path/to/bulwark-ded 8 120
@@ -37,7 +40,8 @@ Headless test with bots (prints the wave and scores every 10 seconds):
 - Monster health scales by `1 + coop_healthPerPlayer * (players - 1)`, up to
   `coop_healthScaleMax`.
 - Score is points: a monster kill is worth a tenth of its health, a revive
-  `coop_revivePoints`, killing an ally costs `coop_allyKillPenalty`.
+  `coop_revivePoints`, killing an ally costs `coop_allyKillPenalty`. The
+  same points can be spent in the shop (below).
 - `callvote skill 1|2|3` changes the skill for monsters spawned after the
   vote passes (`mp_allowvote 1`).
 - Server commands: `sv coop_status`, `sv coop_nextwave`, `sv coop_killmonsters`.
@@ -50,6 +54,43 @@ Headless test with bots (prints the wave and scores every 10 seconds):
   `cg_nameplatesRange` sets the distance (1000). Aiming at one also shows a
   TF2-style target ID panel (name, health) under the crosshair: serverinfo
   `targetid 1`, `cg_targetID 0|1`, `cg_targetIDRange` (2000).
+
+## Points shop (`src/rules/shop.qc`)
+
+- Points are earned with the score but kept apart from it, so buying
+  doesn't lower anyone's score. They start at 0 on each map.
+- `coop_shop 0` turns the shop off, `1` (default) opens it at any time,
+  `2` only between waves. Players who are down can't buy.
+- The list is `scripts/shop.txt` (`coop_shopFile`): category, what to
+  give (a weapon, `ammo_<type> <count>`, `health <n>` or `armor <n>`),
+  price and the name shown. It's read when a map starts. Health and
+  armour stop at `coop_shopMaxHealth` and `coop_shopMaxArmor` (100).
+- `cmd shop` opens it (B, when B is free, or Points shop in the pause
+  menu). The server sends its own list, so clients always see the
+  server's prices. Keys work like Counter-Strike's buy menu: a number picks
+  a category, a number buys, 8 and 9 turn the page, 0 goes back.
+- `cmd buy <n>` buys item n. `sv coop_givepoints <n>` gives every player
+  points, for tests.
+
+## Menus (`src/menu/`, `panorama/`)
+
+The title menu, the pause menu and the shop are Panorama views drawn by
+Bulwark (`panorama/layout/coop/`, `styles/coop/`, `scripts/coop/`). The
+menu progs (`menu.dat`) only opens and closes them and answers what a
+script can't find out itself: the map list, LAN servers and key bindings
+(`Menu_UIAction`, see Bulwark's `docs/spec/ui.md`). Scripts read cvars
+and run commands themselves.
+
+- Title menu: Play (map, server name, max players, difficulty, survival,
+  waves, respawn delay, XP mod, votes), Find servers (LAN and by address),
+  Options, Quit.
+- Pause menu (Escape in a game): Resume, Points shop, Vote, Options,
+  Disconnect, Quit.
+- Options: Player, Video, Audio, Mouse and Keys tabs. Changes wait for OK
+  or Apply, which write them with `seta` and save the config. In Keys,
+  click an action and press a key; Escape cancels, Backspace clears.
+- The menu uses Tahoma when the game has `fonts/tahoma.ttf` and
+  Rad-Therapy's Nimbus Sans otherwise.
 
 ## XP mod (`src/plugins/xpm.qc`)
 
