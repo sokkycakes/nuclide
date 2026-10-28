@@ -170,7 +170,7 @@ tfBuilding::AttachSapper(entity spyEnt)
 void
 tfBuilding::Explode(entity attackerEnt)
 {
-	pointparticles(particleeffectnum("fx_explosion.main"), WorldSpaceCenter(), [0, 0, 1], 1);
+	pointparticles(particleeffectnum("explosion.ExplosionCore_buildings"), WorldSpaceCenter(), [0, 0, 1], 1);
 	StartSoundDef("weapon_rocketlauncher.explode", CHAN_BODY, true);
 
 	if (is.Player(tf_builder) && attackerEnt != tf_builder) {
