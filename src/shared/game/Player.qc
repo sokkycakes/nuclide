@@ -145,8 +145,10 @@ ncPlayer::SharedInputFrame(void)
 				return;
 			}
 
-			/* item isn't a weapon */
-			if (nextWeapon.IsWeapon() == false) {
+			/* item isn't a weapon. checks the field, not the IsWeapon()
+			   method: a stale number can point at an entity that isn't an
+			   ncItem (ncXRInput), and calling it would be a NULL call */
+			if (nextWeapon._isWeapon != true) {
 				return;
 			}
 		}
@@ -2154,6 +2156,8 @@ ncPlayer::Damage(entity inflictor, entity attacker, ncDict damageDecl, float dam
 	if (is.Alive(this) == false) {
 		return;
 	}
+
+	dmg_lastHitBody = (float)damageDecl.GetInteger("hitbody");
 
 	/* friendly fire check */
 	if (this != attacker && attacker != world) {

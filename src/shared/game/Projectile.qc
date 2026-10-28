@@ -940,6 +940,12 @@ ncProjectile::_LaunchHitscan(vector startPos, vector launchDir, float dmgMultipl
 		m_iShots--;
 	}
 
+	if (owner) {
+		owner.stat_shotsFired++;
+		if (m_eMultiTarget && (m_eMultiTarget.flags & (FL_CLIENT | FL_MONSTER)))
+			owner.stat_shotsHit++;
+	}
+
 	if (m_eMultiTarget) {
 		angles = launchDir;
 		_ApplyDamage();
