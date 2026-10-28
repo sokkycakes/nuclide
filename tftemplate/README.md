@@ -156,7 +156,10 @@ class mechanics belong in `tfPlayer` (`src/server/tf_player.qc`) or a
 subclass of it, so they work in every mode.
 
 Players pick a team and a class through Nuclide's team and class menus, or
-with `cmd joinTeam <1|2>` and `cmd join tfclass_<name>`. The first pick
+with `cmd joinTeam <1|2>` and `cmd join tfclass_<name>`. As in TF2, `changeclass`
+(bound to `,`) and `changeteam` (bound to `.`) open the menus; `changeclass`
+opens the team menu first when you have no team. The binds come from
+`default.cfg`, so an existing saved config needs them bound by hand. The first pick
 spawns you right away. Later picks take effect on your next life, or right
 away if you are standing in your team's `func_respawnroom`.
 

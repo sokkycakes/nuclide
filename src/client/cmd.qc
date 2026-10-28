@@ -301,6 +301,22 @@ ncWeapon_SelectWeapon(ncWeapon nextWeapon)
 	pSeat->m_flHUDWeaponSelectTime = time + 0.5f;
 }
 
+/** changeclass: the class menu, or the team menu first when we have no
+playing team yet. */
+void
+Cmd_ChangeClass(void)
+{
+	int ourTeam = userinfo.GetInteger(pSeat->m_ePlayer, "*team");
+
+	if (ourTeam <= 0i || ourTeam == TEAM_SPECTATOR || teams.TotalClasses(ourTeam) <= 0i) {
+		VGUI_HideClassSelectionMenu();
+		VGUI_ShowTeamSelectionMenu();
+	} else {
+		VGUI_HideTeamSelectionMenu();
+		VGUI_ShowClassSelectionMenu(ourTeam);
+	}
+}
+
 bool
 Cmd_Parse(string sCMD)
 {
@@ -596,6 +612,14 @@ Cmd_Parse(string sCMD)
 		ncRagdoll_Create(argv(1));
 		break;
 
+	/* Source names, bindable */
+	case "changeclass":
+		Cmd_ChangeClass();
+		break;
+	case "changeteam":
+		VGUI_HideClassSelectionMenu();
+		VGUI_ShowTeamSelectionMenu();
+		break;
 	/* can be overriden as well */
 	case "showClassSelectionMenu":
 		VGUI_ShowClassSelectionMenu(userinfo.GetInteger(pSeat->m_ePlayer, "*team"));
@@ -638,6 +662,8 @@ Cmd_Init(void)
 {
 	InitStart();
 	registercommand("showClassSelectionMenu");
+	registercommand("changeclass");
+	registercommand("changeteam");
 	registercommand("showTeamSelectionMenu");
 	registercommand("showMOTD");
 	registercommand("showModelSpawner");

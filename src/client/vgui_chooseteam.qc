@@ -71,6 +71,14 @@ VGUI_ChooseTeam_MapInfo(void)
 }
 
 void
+VGUI_HideTeamSelectionMenu(void)
+{
+	if (winChooseTeam) {
+		winChooseTeam.Hide();
+	}
+}
+
+void
 VGUI_ShowTeamSelectionMenu(void)
 {
 	static int initialized;
