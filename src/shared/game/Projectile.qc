@@ -31,6 +31,8 @@ ncProjectile::ncProjectile(void)
 	m_flThrustEnd = 0.0f;
 	m_flFrictionLinear = 0.0f;
 	m_flBounce = 0.0f;
+	m_flBounceFactor = 0.0f;
+	m_flBounceStop = 0.0f;
 	m_flMass = 0.0f;
 	m_flGravity = 0.0f;
 	m_flFuse = 0.0f;
@@ -135,6 +137,12 @@ ncProjectile::SpawnKey(string keyName, string setValue)
 		break;
 	case "bounce": /* bounce multiplier */
 		m_flBounce = ReadFloat(setValue);
+		break;
+	case "bounce_factor":
+		m_flBounceFactor = ReadFloat(setValue);
+		break;
+	case "bounce_stop":
+		m_flBounceStop = ReadFloat(setValue);
 		break;
 	case "mass":
 		m_flMass = ReadFloat(setValue);
@@ -366,6 +374,8 @@ ncProjectile::Save(float handle)
 	SaveFloat(handle, "m_flThrustEnd", m_flThrustEnd);
 	SaveFloat(handle, "m_flFrictionLinear", m_flFrictionLinear);
 	SaveFloat(handle, "m_flBounce", m_flBounce);
+	SaveFloat(handle, "m_flBounceFactor", m_flBounceFactor);
+	SaveFloat(handle, "m_flBounceStop", m_flBounceStop);
 	SaveFloat(handle, "m_flMass", m_flMass);
 	SaveFloat(handle, "m_flGravity", m_flGravity);
 	SaveFloat(handle, "m_flFuse", m_flFuse);
@@ -448,6 +458,12 @@ ncProjectile::Restore(string keyName, string setValue)
 		break;
 	case "m_flBounce":
 		m_flBounce = ReadFloat(setValue);
+		break;
+	case "m_flBounceFactor":
+		m_flBounceFactor = ReadFloat(setValue);
+		break;
+	case "m_flBounceStop":
+		m_flBounceStop = ReadFloat(setValue);
 		break;
 	case "m_flMass":
 		m_flMass = ReadFloat(setValue);
@@ -1416,6 +1432,9 @@ ncProjectile::Launch(vector startPos, vector launchDir, float fuseOffset, float 
 
 	if (m_flBounce > 0) {
 		SetMovetype(MOVETYPE_BOUNCE);
+		/* the engine's bounce extension fields; 0 leaves its defaults */
+		bouncefactor = m_flBounceFactor;
+		bouncestop = m_flBounceStop;
 	} else {
 		SetMovetype(MOVETYPE_FLYMISSILE);
 	}
