@@ -15,6 +15,12 @@ function InputUse()
 	while e ~= nil do
 		Sven.Debug("trigger_hurt_remote %s: %d damage to %s", tostring(keys.targetname), dmg, e:GetClassname())
 		if dmg >= 0 then
+			-- the Damage input takes whole numbers up to about 2 billion,
+			-- while maps give bosses more health than that and kill them
+			-- with an even bigger dmg: bring the health down first
+			if dmg >= e:GetHealth() and e:GetHealth() > 1e9 then
+				e:SetHealth(1e9)
+			end
 			e:FireInput("Damage", string.format("%d", math.min(dmg, 1e9)), 0, activator)
 		else
 			e:SetHealth(math.min(e:GetHealth() - dmg, e:GetMaxHealth()))

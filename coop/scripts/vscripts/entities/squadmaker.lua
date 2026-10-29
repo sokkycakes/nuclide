@@ -11,6 +11,7 @@
 --   health               the child's health (0 keeps the default)
 --   classify, respawn_as_playerally  makes the child an ally of players
 --   trigger_condition, trigger_target  fired by the child, as on monsters
+--   xenmaker             an env_xenmaker whose effect plays at each spawn
 --   weapons, squadname, render keys    passed on to the child
 --   spawnflags 1         starts on (so does a squadmaker with no targetname)
 --   spawnflags 4         cyclic: each trigger spawns one child
@@ -68,6 +69,8 @@ end
 
 local childKeyString = childKeys()
 
+-- precache while the map loads; children spawn later
+QC.Call("Script_PrecacheEntity", monsterType)
 if keys.new_model ~= nil and keys.new_model ~= "" then
 	PrecacheModel(keys.new_model)
 end
@@ -117,6 +120,12 @@ local function spawnChild()
 		remaining = remaining - 1
 	end
 	Sven.Debug("squadmaker %s: spawned %s #%d", tostring(keys.targetname), monsterType, ent:entindex())
+	if keys.xenmaker ~= nil and keys.xenmaker ~= "" then
+		local maker = Entities.FindByName(nil, keys.xenmaker)
+		if maker ~= nil then
+			QC.Call("script_call", maker, "PlayEffect")
+		end
+	end
 	Sven.Fire(keys.target, self)
 	return true
 end

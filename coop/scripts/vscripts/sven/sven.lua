@@ -141,6 +141,16 @@ function Sven.LoadMapConfig()
 		end
 	end
 
+	-- Sven Co-op hands out a medkit unless the map says nomedkit
+	if not loadout.nomedkit then
+		loadout.weapons[#loadout.weapons + 1] = "weapon_medkit"
+	end
+
+	-- what players spawn with has to be precached while the map loads
+	for _, weapon in ipairs(loadout.weapons) do
+		QC.Call("Script_PrecacheEntity", weapon)
+	end
+
 	Sven.Loadout = loadout
 	printl(string.format("[sven] maps/%s.cfg: %d weapons, %d ammo, strip %s; not handled: %s",
 		map, #loadout.weapons, #loadout.ammo, tostring(loadout.strip), table.concat(ignored, " ")))
@@ -167,7 +177,7 @@ function Sven.GiveLoadout(player)
 		end
 	end
 	if loadout.armor ~= nil then
-		player:SetField("armor", loadout.armor)
+		player:FireInput("SetArmor", tostring(loadout.armor))
 	end
 	if loadout.health ~= nil then
 		player:SetHealth(loadout.health)
@@ -208,4 +218,50 @@ function Sven.Debug(fmt, ...)
 	if Convars.GetFloat("developer") > 0 then
 		printl("[sven] " .. string.format(fmt, ...))
 	end
+end
+
+-- Aiming and tracing ---------------------------------------------------
+
+function Sven.EyePos(ent)
+	return ent:GetOrigin() + (ent:GetField("view_ofs") or Vector(0, 0, 0))
+end
+
+function Sven.Forward(ent)
+	return QC.CallVector("anglesToForward", ent:GetField("v_angle") or ent:GetAngles())
+end
+
+-- Traces a line. Returns the end point, the fraction and the entity hit
+-- (nil for none or the world). noMonsters ignores monsters and players.
+function Sven.Trace(from, to, ignore, noMonsters)
+	QC.Call("traceline", from, to, noMonsters and 1 or 0, ignore)
+	local hit = QC.Get("trace_ent")
+	if hit ~= nil and hit:entindex() == 0 then
+		hit = nil
+	end
+	return QC.Get("trace_endpos"), QC.Get("trace_fraction"), hit
+end
+
+-- True if a point is in the sky.
+function Sven.IsSky(pos)
+	return QC.Call("pointcontents", pos) == -6
+end
+
+-- Whether a trace going 'dir' that ended at 'hit' hit the sky. Traces can
+-- end on either side of a sky brush, so both are checked.
+function Sven.HitSky(hit, dir)
+	return Sven.IsSky(hit + dir * 2) or Sven.IsSky(hit - dir * 4)
+end
+
+function Sven.CenterPrint(player, text)
+	QC.Call("centerprint", player, text)
+end
+
+-- Plays a sound from an entity. channel 1 is the weapon channel.
+function Sven.Sound(ent, sample, channel, volume)
+	QC.Call("sound", ent, channel or 1, sample, volume or 1, 1)
+end
+
+function Sven.IsPlayer(ent)
+	local class = ent:GetClassname()
+	return class == "player" or class == "player_mp"
 end
