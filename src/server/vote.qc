@@ -56,9 +56,62 @@ Vote_Passed
 Called whenever enough people agreed, or time has run out with enougn YES's
 =================
 */
+/* hands a finished scripted vote back to its entity */
+static bool
+Vote_ScriptEnd(void)
+{
+	entity voteEntity = g_voteScriptEntity;
+	float playerCount = 0;
+	string voteResult;
+
+	if (!g_voteScriptEntity) {
+		return (false);
+	}
+
+	for (entity e = world; (e = next.Player(e));) {
+		playerCount++;
+	}
+
+	voteResult = sprintf("%d %d %d", serverinfo.GetFloat("votes_y"), serverinfo.GetFloat("votes_n"), playerCount);
+	g_voteScriptEntity = world;
+	g_flVoteTime = 0.0f;
+	g_iVoteState = VOTE_INACTIVE;
+	Vote_Reset();
+
+	if (!wasfreed(voteEntity)) {
+		if (checkbuiltin(script_call)) {
+			tokenize(voteResult);
+			script_call(voteEntity, "OnVoteEnded", argv(0), argv(1), argv(2));
+		} else {
+			sendInput(voteEntity, "VoteEnded", voteResult, world);
+		}
+	}
+
+	return (true);
+}
+
+bool
+Vote_ScriptStart(entity voteEntity, string voteText, float voteTime)
+{
+	if (g_iVoteState != VOTE_INACTIVE) {
+		return (false);
+	}
+
+	Vote_Reset();
+	serverinfo.SetString("vote_cmd", voteText);
+	g_voteScriptEntity = voteEntity;
+	g_flVoteTime = time + ((voteTime > 0.0f) ? voteTime : 30.0f);
+	g_iVoteState = VOTE_INPROGRESS;
+	return (true);
+}
+
 void
 Vote_Passed(void)
 {
+	if (Vote_ScriptEnd()) {
+		return;
+	}
+
 	g_flVoteTime = time + 5.0f;
 	g_iVoteState = VOTE_PASSED;
 	bprint(PRINT_CHAT, "Vote passed.\n");
@@ -76,6 +129,10 @@ Called whenever enough people disagreed, or time has run out below the limit
 void
 Vote_Failed(void)
 {
+	if (Vote_ScriptEnd()) {
+		return;
+	}
+
 	g_flVoteTime = 0.0;
 	g_iVoteState = VOTE_INACTIVE;
 	bprint(PRINT_CHAT, "Vote failed.\n");

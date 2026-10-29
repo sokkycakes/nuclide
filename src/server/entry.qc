@@ -678,6 +678,7 @@ CheckSpawn(void() spawnfunc)
 	string desiredClass = ent.classname;
 	static string lastClass;
 	bool skipLoad = false; /* entity data will be loaded elsewhere */
+	string scriptFile = "";
 
 	/* cancel out early */
 	if (ent == world) {
@@ -736,7 +737,15 @@ CheckSpawn(void() spawnfunc)
 		spawnfunc();
 		ent.classname = desiredClass;
 	} else {
-		ent.identity = 0;
+		/* a script may implement this classname */
+		scriptFile = ScriptedEntity_FileFor(desiredClass);
+
+		if (STRING_SET(scriptFile)) {
+			CallSpawnfuncByName(ent, "ncScriptedEntity");
+			ent.classname = desiredClass;
+		} else {
+			ent.identity = 0;
+		}
 	}
 	g_ents_initialized = true;
 
@@ -784,6 +793,11 @@ CheckSpawn(void() spawnfunc)
 		g_ents_initialized = false;
 		ent.Spawn();
 		g_ents_initialized = true;
+	}
+
+	if (STRING_SET(scriptFile)) {
+		ent.script_spawndata = ent.m_rawSpawnData;
+		script_attach(ent, scriptFile);
 	}
 
 	/* count and mark as map spawned */

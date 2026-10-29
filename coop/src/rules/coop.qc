@@ -56,6 +56,8 @@ var bool autocvar_coop_botsRevive = true;
 var float autocvar_coop_botReviveRange = 1536;
 
 var bool autocvar_coop_waves = true;
+/* maps that bring their own monsters (Sven Co-op maps, monster makers) get no waves unless this is set */
+var bool autocvar_coop_mapWaves = false;
 var string autocvar_coop_waveMonsters = "monster_headcrab monster_zombie;monster_houndeye monster_bullchicken;monster_alien_slave monster_human_grunt;monster_alien_grunt";
 var int autocvar_coop_waveBase = 6;
 var float autocvar_coop_wavePerPlayer = 2;
@@ -101,6 +103,7 @@ entity g_coopMonsters[COOP_MAXMONSTERS];
 int g_coopMonsterCount;
 bool g_coopRestarting;
 bool g_coopStarted;	/* StartGameType ran: frames can come before it */
+bool g_coopMapMonsters;	/* the map spawns its own monsters */
 
 int
 Coop_Slot(entity pl)
@@ -312,6 +315,10 @@ void
 Coop_WaveThink(void)
 {
 	if (!autocvar_coop_waves || g_coopRestarting || !g_coopStarted) {
+		return;
+	}
+
+	if (g_coopMapMonsters && !autocvar_coop_mapWaves) {
 		return;
 	}
 
@@ -576,6 +583,30 @@ CodeCallback_Precache(void)
 	}
 }
 
+/* Bulwark's script layer. src/common/c_script.h skips it here, because rules
+   progs define SERVER only after the common headers */
+void(string name, string keyvalues) script_event = #0:script_event;
+
+/* true when the map places monsters or something that makes them */
+bool
+Coop_MapHasMonsters(void)
+{
+	for (entity e = world; (e = nextent(e));) {
+		if (substring(e.classname, 0, 8) == "monster_" && e.classname != "monster_furniture") {
+			return (true);
+		}
+
+		switch (e.classname) {
+		case "squadmaker":
+		case "monstermaker":
+		case "env_xenmaker":
+			return (true);
+		}
+	}
+
+	return (false);
+}
+
 void
 CodeCallback_StartGameType(void)
 {
@@ -607,6 +638,7 @@ CodeCallback_StartGameType(void)
 	g_coopWaveLeft = 0i;
 	g_coopWaveState = WAVE_WAITING;
 	g_coopStarted = true;
+	g_coopMapMonsters = Coop_MapHasMonsters();
 	g_coopWaveNext = time + autocvar_coop_waveDelay;
 	g_coopMonsterCount = 0i;
 	g_coopRestarting = false;
@@ -656,6 +688,11 @@ CodeCallback_PlayerSpawn(entity playerEntity)
 	}
 
 	Shop_PlayerSpawned(playerEntity);
+
+	/* map scripts hand out the map's loadout from here */
+	if (checkbuiltin(script_event)) {
+		script_event("player_spawn", sprintf("\"entindex\" \"%d\"", num_for_edict(playerEntity)));
+	}
 }
 
 void
@@ -1067,6 +1104,16 @@ CodeCallback_ConsoleCommand(entity playerEntity, string command)
 		/* tests: points for every player */
 		for (entity p = world; (p = next.Player(p));) {
 			Coop_AddPoints(p, stoi(argv(1)));
+		}
+		break;
+	/* map scripts: respawn every player ("all") or only the dead ones */
+	case "coop_respawn":
+		for (entity p = world; (p = next.Player(p));) {
+			if (argv(1) == "dead" && is.Alive(p)) {
+				continue;
+			}
+
+			CodeCallback_PlayerSpawn(p);
 		}
 		break;
 	case "coop_nextwave":
