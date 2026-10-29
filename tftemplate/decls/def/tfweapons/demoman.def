@@ -42,7 +42,7 @@ entityDef fireInfo_tf_grenadelauncher
 entityDef projectile_tf_pipe
 {
 	"spawnclass"		"ncProjectile"
-	"model"				"progs/grenade.mdl"
+	"model"				"progs/dox/pipe.mdl"
 	"offset"			"16 8 -8"
 	"velocity"			"1000 0 200"
 	"angular_velocity"	"300 300 300"
@@ -121,7 +121,7 @@ entityDef fireInfo_tf_pipebomblauncher
 entityDef projectile_tf_sticky
 {
 	"spawnclass"		"ncProjectile"
-	"model"				"progs/grenade.mdl"
+	"model"				"progs/dox/pipe.mdl"
 	"offset"			"16 8 -8"
 	"velocity"			"805 0 200"
 	"gravity"			"1"
