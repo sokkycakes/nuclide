@@ -36,6 +36,7 @@ rules progs pass any tf_test_* command they don't know to TF_TestCommand.
 - tf_test_disguise <player> <team> <class def> | off: disguises a Spy
 - tf_test_projectiles [clear]: every projectile's position and velocity,
   or removes them all Bot AI is off while pinned.
+- tf_test_find <classname prefix>: every entity whose class starts with it
 - tf_test_release <player>: unpins, giving control back
 - tf_test_report: health and state of every player and building
 - tf_test_falloff <damage def or weapon def> <damage> <distance> ...: the
@@ -213,6 +214,13 @@ TF_TestCommand(string commandLine)
 
 		if (thePlayer) {
 			forceinfokey(thePlayer, "autojump", argv(2));
+		}
+		break;
+	case "tf_test_find":
+		for (entity found = world; (found = nextent(found));) {
+			if (substring(found.classname, 0, strlen(argv(1))) == argv(1)) {
+				print(sprintf("%s at %v, model %S\n", found.classname, found.origin, found.model));
+			}
 		}
 		break;
 	case "tf_test_release":
