@@ -39,7 +39,6 @@ a licence from id Software. The pack is for private use only.
 | Pistols, Revolver | Mk23 (`v_blast`) | Quake's |
 | SMG | MP5 (`v_machn`) | `g_machn` |
 | Sniper Rifle | SSG 3000 (`v_sniper`) | `g_sniper` |
-| Minigun | M4 (`v_m4`), a stand-in | `g_m4` |
 | Knife | `v_knife` | none |
 
 The weapons AQ2 has nothing for come from the Quake mod "Worldmodel to
@@ -54,7 +53,8 @@ Arcane Dimensions' (SimonOC, dwere): private use only too.
 | Grenade Launcher | `v_grenade` (world `g_grenade`) | Arcane Dimensions grenade launcher |
 | Stickybomb Launcher | `v_sticky` (world `g_sticky`) | Hipnotic proximity gun |
 | Flamethrower | `v_flame` | Arcane Dimensions thunderbolt |
-| Medi Gun | `v_medigun` | Hipnotic laser cannon |
+| Minigun | `v_minigun` | Hipnotic laser cannon (AQ2's M4 sounds) |
+| Medi Gun | `v_medigun` | Rogue plasma gun |
 | Syringe Gun | `v_syringe` (world `g_syringe`) | Arcane Dimensions nailgun, QTest world model |
 | Fire Axe, Kukri | `v_fireaxe`, `v_kukri` | Arcane Dimensions shadow axes |
 | Wrench | `v_wrench` | Hipnotic Mjolnir |
