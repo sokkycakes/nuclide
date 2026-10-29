@@ -70,7 +70,8 @@ var float autocvar_coop_statusInterval = 0;	/* print coop_status every N seconds
 var int autocvar_coop_weapontest = 0;	/* tests: the first bot fires every weapon at a target */
 var string autocvar_coop_weapontestList = "";	/* tests: comma-separated weapons to try, all if empty */
 var float autocvar_coop_weapontestSettle = 1.5;	/* tests: seconds to wait for slow projectiles */
-var string autocvar_coop_plugins = "xpm";	/* server plugins (plugins/<name>.dat) loaded every map */
+var string autocvar_coop_plugins = "xpm";
+var bool autocvar_coop_pmtrace = false;	/* tests: print human players' movement every input frame */	/* server plugins (plugins/<name>.dat) loaded every map */
 
 /* per player slot, indexed by entity number - 1 */
 float g_coopDownTime[COOP_MAXPLAYERS];
@@ -963,6 +964,11 @@ CodeCallback_ImpulseCommand(entity playerEntity, float impulseNum)
 {
 	/* called every input frame, impulse or not */
 	Coop_ReviveInput(playerEntity);
+
+	if (autocvar_coop_pmtrace && !is.Bot(playerEntity)) {
+		print(sprintf("pmtrace %f %v %v %d\n", time, playerEntity.origin, playerEntity.velocity,
+			(playerEntity.flags & FL_ONGROUND) ? 1 : 0));
+	}
 
 	switch (impulseNum) {
 	case 100:
