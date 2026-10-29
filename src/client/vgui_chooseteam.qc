@@ -39,13 +39,14 @@ VGUITeamSelectButton::OnMouseUp(void)
 
 	localcmd(sprintf("cmd joinTeam %i\n", tag));
 
+	winChooseTeam.Hide();
+
 	if (teams.TotalClasses(tag) > 0i) {
 		VGUI_ShowClassSelectionMenu(tag);
 	} else {
 		localcmd("cmd join\n");
+		VGUI_MOTDResume();
 	}
-
-	winChooseTeam.Hide();
 }
 
 string
@@ -68,6 +69,14 @@ VGUI_ChooseTeam_MapInfo(void)
 	}
 
 	return mapinfo;
+}
+
+void
+VGUI_HideTeamSelectionMenu(void)
+{
+	if (winChooseTeam) {
+		winChooseTeam.Hide();
+	}
 }
 
 void

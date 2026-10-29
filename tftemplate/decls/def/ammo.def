@@ -1,0 +1,68 @@
+// Team Fortress template: ammo types. Replaces the base game's ammo.def.
+//
+// TF2 gives every weapon its own reserve, so each weapon family gets its own
+// type here, with TF2's reserve as the maximum. Nuclide has 16 ammo slots
+// (0 is "none"), so there is room for one more family.
+//
+// Ammo packs (tf_pickups.def) refill a share of each maximum, and
+// func_regenerate and spawning refill everything.
+
+entityDef ammo_types {
+	"ammo_none"				"0"
+	"ammo_tf_scattergun"	"1"
+	"ammo_tf_pistol"		"2"
+	"ammo_tf_rockets"		"3"
+	"ammo_tf_shotgun"		"4"
+	"ammo_tf_flame"			"5"
+	"ammo_tf_pipes"			"6"
+	"ammo_tf_stickies"		"7"
+	"ammo_tf_minigun"		"8"
+	"ammo_tf_metal"			"9"
+	"ammo_tf_syringes"		"10"
+	"ammo_tf_sniper"		"11"
+	"ammo_tf_smg"			"12"
+	"ammo_tf_revolver"		"13"
+	"ammo_tf_pistol_eng"	"14"
+}
+
+entityDef ammo_names {
+	"ammo_none"				"None"
+	"ammo_tf_scattergun"	"Scattergun"
+	"ammo_tf_pistol"		"Pistol"
+	"ammo_tf_rockets"		"Rockets"
+	"ammo_tf_shotgun"		"Shotgun"
+	"ammo_tf_flame"			"Fuel"
+	"ammo_tf_pipes"			"Pipe Bombs"
+	"ammo_tf_stickies"		"Stickybombs"
+	"ammo_tf_minigun"		"Minigun"
+	"ammo_tf_metal"			"Metal"
+	"ammo_tf_syringes"		"Syringes"
+	"ammo_tf_sniper"		"Sniper Rifle"
+	"ammo_tf_smg"			"SMG"
+	"ammo_tf_revolver"		"Revolver"
+	"ammo_tf_pistol_eng"	"Pistol"
+}
+
+entityDef ammo_max {
+	"ammo_none"				"0"
+	"ammo_tf_scattergun"	"32"
+	"ammo_tf_pistol"		"36"
+	"ammo_tf_rockets"		"20"
+	"ammo_tf_shotgun"		"32"
+	"ammo_tf_flame"			"200"
+	"ammo_tf_pipes"			"16"
+	"ammo_tf_stickies"		"24"
+	"ammo_tf_minigun"		"200"
+	"ammo_tf_metal"			"200"
+	"ammo_tf_syringes"		"150"
+	"ammo_tf_sniper"		"25"
+	"ammo_tf_smg"			"75"
+	"ammo_tf_revolver"		"24"
+	"ammo_tf_pistol_eng"	"200"
+}
+
+// Quake ammo boxes on Quake maps become small TF ammo packs.
+entityDef item_shells { "inherit" "item_ammopack_small" }
+entityDef item_spikes { "inherit" "item_ammopack_small" }
+entityDef item_rockets { "inherit" "item_ammopack_small" }
+entityDef item_cells { "inherit" "item_ammopack_small" }

@@ -1,0 +1,14 @@
+// Team Fortress template: replaces the base game's weapons.def. The class
+// loadouts come from tf_weapons.def; Quake maps still place Quake weapons and
+// ammo boxes, so those turn into TF ammo packs here.
+
+entityDef weapon_shotgun { "inherit" "item_ammopack_medium" }
+entityDef weapon_supershotgun { "inherit" "item_ammopack_medium" }
+entityDef weapon_nailgun { "inherit" "item_ammopack_medium" }
+entityDef weapon_supernailgun { "inherit" "item_ammopack_medium" }
+entityDef weapon_grenadelauncher { "inherit" "item_ammopack_medium" }
+entityDef weapon_rocketlauncher { "inherit" "item_ammopack_full" }
+entityDef weapon_lightning { "inherit" "item_ammopack_full" }
+
+// the base "player" def hands out weapon_axe before a class is picked
+entityDef weapon_axe { "inherit" "tf_weapon_shovel" }

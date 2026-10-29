@@ -1,0 +1,114 @@
+// Scout: Scattergun, Pistol, Bat. The double jump is "pm_airjumps" on the class.
+
+entityDef tf_weapon_scattergun
+{
+	"inherit"					"tf_weapon_base"
+	"spawnclass"				"ncWeapon"
+	"inv_name"					"Scattergun"
+	"model"						"progs/g_shot.mdl"
+	"model_view"				"progs/v_shot2.mdl"
+	"def_fireInfo"				"fireInfo_tf_scattergun"
+	"hudSlot"					"0"
+	"hudSlotPos"				"0"
+	"ammoType"					"ammo_tf_scattergun"
+	"ammoRequired"				"1"
+	"ammoPerShot"				"1"
+	"inv_ammo_tf_scattergun"	"32"
+	"clipSize"					"6"
+	"clipSizeDefault"			"6"
+	"reloadTime"				"0.5"
+	"reloadTimed"				"1"
+	"reloadStartTime"			"0.7"
+	"act_reload"				"0"
+	"act_reloadStart"			"0"
+	"act_reloadEnd"				"0"
+	"msg_obituary"				"%s was blasted by %s's scattergun."
+	"snd_fire"					"weapon_supershotgun.shoot"
+	"punchKick"				"3"
+}
+
+entityDef fireInfo_tf_scattergun
+{
+	"def_onFire"	"projectile_tf_scattergun"
+	"fireRate"		"0.625"
+}
+
+entityDef projectile_tf_scattergun
+{
+	"inherit"	"tf_bullet_base"
+	"damage"	"6"
+	"hitscans"	"10"
+	"spread"	"0.0675 0.0675"
+}
+
+entityDef tf_weapon_pistol_scout
+{
+	"inherit"				"tf_weapon_base"
+	"spawnclass"			"ncWeapon"
+	"inv_name"				"Pistol"
+	"model"					"progs/g_shot1.mdl"
+	"model_view"			"progs/v_shot.mdl"
+	"def_fireInfo"			"fireInfo_tf_pistol_scout"
+	"hudSlot"				"1"
+	"hudSlotPos"			"0"
+	"ammoType"				"ammo_tf_pistol"
+	"ammoRequired"			"1"
+	"ammoPerShot"			"1"
+	"inv_ammo_tf_pistol"	"36"
+	"clipSize"				"12"
+	"clipSizeDefault"		"12"
+	"reloadTime"			"1.005"
+	"reloadTimed"			"1"
+	"act_reload"			"0"
+	"msg_obituary"			"%s was shot by %s's pistol."
+	"snd_fire"				"weapon_shotgun.shoot"
+}
+
+entityDef fireInfo_tf_pistol_scout
+{
+	"def_onFire"	"projectile_tf_pistol"
+	"fireRate"		"0.15"
+}
+
+entityDef projectile_tf_pistol
+{
+	"inherit"	"tf_bullet_base"
+	"damage"	"15"
+	"hitscans"	"1"
+	"spread"	"0.02 0.02"
+}
+
+entityDef tf_weapon_bat
+{
+	"inherit"			"tf_weapon_base"
+	"spawnclass"		"ncWeapon"
+	"inv_name"			"Bat"
+	"model"				""
+	"model_view"		"progs/v_axe.mdl"
+	"def_fireInfo"		"fireInfo_tf_weapon_bat"
+	"hudSlot"			"2"
+	"hudSlotPos"		"0"
+	"ammoRequired"		"0"
+	"msg_obituary"		"%s was clubbed by %s's bat."
+	"animPrefix"		"axe"
+	"act_fire"			"1,2"
+	"act_fireFailed"	"1,2"
+	"silent_fire"		"1"
+}
+
+entityDef fireInfo_tf_weapon_bat
+{
+	"def_onFire"	"projectile_tf_weapon_bat"
+	"testDistance"	"-72"
+	"fireRate"		"0.5"
+	"failRate"		"0.5"
+	"snd_hit"		"Weapon_Axe.Melee_Hit"
+	"snd_failed"	"Weapon_Axe.Miss"
+}
+
+entityDef projectile_tf_weapon_bat
+{
+	"inherit"	"tf_melee_base"
+	"damage"	"35"
+}
+

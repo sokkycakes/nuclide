@@ -40,6 +40,15 @@ entityDef player
 	"model"					"progs/player.mdl"
 
 	"snd_jump"				"Player.Jump"
+	"snd_landHard"			"Player.LightFall"
+	"snd_fall"				"Player.FallDamage"
+	"snd_pain"				"Player.Pain"
+	"snd_death"				"Player.Death"
+	"snd_gib"				"Player.Gib"
+	"snd_airGaspLight"		"Player.GaspLight"
+	"snd_airGaspHeavy"		"Player.GaspHeavy"
+	"snd_waterStart"		"Player.WaterEnter"
+	"snd_waterExit"			"Player.WaterExit"
 
 	"act_idle"			"$PLAYER_IDLE"
 	"act_jump"			"$PLAYER_IDLE"

@@ -301,6 +301,22 @@ ncWeapon_SelectWeapon(ncWeapon nextWeapon)
 	pSeat->m_flHUDWeaponSelectTime = time + 0.5f;
 }
 
+/** changeclass: the class menu, or the team menu first when we have no
+playing team yet. */
+void
+Cmd_ChangeClass(void)
+{
+	int ourTeam = userinfo.GetInteger(pSeat->m_ePlayer, "*team");
+
+	if (ourTeam <= 0i || ourTeam == TEAM_SPECTATOR || teams.TotalClasses(ourTeam) <= 0i) {
+		VGUI_HideClassSelectionMenu();
+		VGUI_ShowTeamSelectionMenu();
+	} else {
+		VGUI_HideTeamSelectionMenu();
+		VGUI_ShowClassSelectionMenu(ourTeam);
+	}
+}
+
 bool
 Cmd_Parse(string sCMD)
 {
@@ -592,11 +608,27 @@ Cmd_Parse(string sCMD)
 		ncRagdoll_Create(argv(1));
 		break;
 
+	/* Source names, bindable */
+	case "changeclass":
+		VGUI_MOTDSuspend();
+		Cmd_ChangeClass();
+		break;
+	case "changeteam":
+		VGUI_MOTDSuspend();
+		VGUI_HideClassSelectionMenu();
+		VGUI_ShowTeamSelectionMenu();
+		break;
 	/* can be overriden as well */
 	case "showClassSelectionMenu":
+		if (VGUI_MOTDDefersMenu("showClassSelectionMenu") == true) {
+			break;
+		}
 		VGUI_ShowClassSelectionMenu(userinfo.GetInteger(pSeat->m_ePlayer, "*team"));
 		break;
 	case "showTeamSelectionMenu":
+		if (VGUI_MOTDDefersMenu("showTeamSelectionMenu") == true) {
+			break;
+		}
 		VGUI_ShowTeamSelectionMenu();
 		break;
 	case "showMOTD":
@@ -629,11 +661,44 @@ Cmd_Parse(string sCMD)
 	return (true);
 }
 
+/* games that want Source's menu keys set this (in their default.cfg). A
+saved config starts with unbindall, and the menu progs may load (and run
+the config again) after us, so the binds are filled in every few seconds,
+only on keys that are still unbound. */
+var float autocvar_cl_menuBinds = 0;
+
+void
+Cmd_MenuBinds(void)
+{
+	static void Cmd_MenuBinds_Key(string keyName, string command) {
+		float keyNum = stringtokeynum(keyName);
+
+		if (keyNum < 0 || getkeybind(keyNum) != "") {
+			return;
+		}
+
+		localcmd(sprintf("bind \"%s\" \"%s\"\n", keyName, command));
+	}
+
+	static float nextCheck;
+
+	if (autocvar_cl_menuBinds == 0 || time < nextCheck) {
+		return;
+	}
+
+	nextCheck = time + 2.0f;
+
+	Cmd_MenuBinds_Key(",", "changeclass");
+	Cmd_MenuBinds_Key(".", "changeteam");
+}
+
 void
 Cmd_Init(void)
 {
 	InitStart();
 	registercommand("showClassSelectionMenu");
+	registercommand("changeclass");
+	registercommand("changeteam");
 	registercommand("showTeamSelectionMenu");
 	registercommand("showMOTD");
 	registercommand("showModelSpawner");
@@ -789,5 +854,6 @@ Cmd_Init(void)
 
 	registercommand("listUserInfo");
 
+	Cmd_MenuBinds();
 	InitEnd();
 }

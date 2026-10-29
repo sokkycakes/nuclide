@@ -1056,6 +1056,31 @@ ncRenderableEntity::GetAxialScale(void)
 	return m_axialScale;
 }
 
+#ifdef CLIENT
+/* GoldSrc muzzle flash events (5001, 5011, 5021, 5031) on attachment
+ * 0-3. The options are a number: the last digit picks
+ * sprites/muzzleflash<digit % 3 + 1>.spr and the rest is the size in
+ * tenths, as GoldSrc's own models expect. A model_flash set by the game
+ * takes the sprite's place. */
+void
+ncRenderableEntity::_GSMuzzleFlash(int attachmentNum, string optionString)
+{
+	int muzzleModel = m_iMuzzleModel;
+	float muzzleScale = m_flMuzzleScale;
+	int optionNum = (int)stoi(optionString);
+
+	if (!muzzleModel) {
+		muzzleModel = (int)getmodelindex(sprintf("sprites/muzzleflash%i.spr", ((optionNum % 10i) % 3i) + 1i));
+	}
+
+	if (optionNum >= 10i) {
+		muzzleScale = (float)(optionNum / 10i) * 0.1f;
+	}
+
+	EV_MuzzleFlash_CreateAdditive(this, m_iNumBones + attachmentNum, muzzleScale, muzzleModel);
+}
+#endif
+
 void
 ncRenderableEntity::HandleAnimEvent(float flTimeStamp, int iCode, string strData)
 {
@@ -1118,22 +1143,22 @@ ncRenderableEntity::HandleAnimEvent(float flTimeStamp, int iCode, string strData
 	/* GS events */
 	case 5001: /* muzzle flash on attachment 0 */
 #ifdef CLIENT
-		EV_MuzzleFlash_CreateAdditive(this, m_iNumBones, m_flMuzzleScale, m_iMuzzleModel);
+		_GSMuzzleFlash(0, strData);
 #endif
 		break;
 	case 5011: /* muzzle flash on attachment 1 */
 #ifdef CLIENT
-		EV_MuzzleFlash_CreateAdditive(this, m_iNumBones + 1, m_flMuzzleScale, m_iMuzzleModel);
+		_GSMuzzleFlash(1, strData);
 #endif
 		break;
 	case 5021: /* muzzle flash on attachment 2 */
 #ifdef CLIENT
-		EV_MuzzleFlash_CreateAdditive(this, m_iNumBones + 2, m_flMuzzleScale, m_iMuzzleModel);
+		_GSMuzzleFlash(2, strData);
 #endif
 		break;
 	case 5031: /* muzzle flash on attachment 3 */
 #ifdef CLIENT
-		EV_MuzzleFlash_CreateAdditive(this, m_iNumBones + 3, m_flMuzzleScale, m_iMuzzleModel);
+		_GSMuzzleFlash(3, strData);
 #endif
 		break;
 	case 1003:	/* trigger SSQC entity with specific targetname */

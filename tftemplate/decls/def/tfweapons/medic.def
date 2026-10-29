@@ -1,0 +1,119 @@
+// Medic: Syringe Gun, Medi Gun (hold primary on a teammate to heal and
+// build Ubercharge, secondary fire deploys it), Bonesaw.
+
+entityDef tf_weapon_syringegun_medic
+{
+	"inherit"				"tf_weapon_base"
+	"spawnclass"			"ncWeapon"
+	"inv_name"				"Syringe Gun"
+	"model"					"progs/g_nail.mdl"
+	"model_view"			"progs/v_nail.mdl"
+	"def_fireInfo"			"fireInfo_tf_syringegun"
+	"hudSlot"				"0"
+	"hudSlotPos"			"0"
+	"ammoType"				"ammo_tf_syringes"
+	"ammoRequired"			"1"
+	"ammoPerShot"			"1"
+	"inv_ammo_tf_syringes"	"150"
+	"clipSize"				"40"
+	"clipSizeDefault"		"40"
+	"reloadTime"			"1.305"
+	"reloadTimed"			"1"
+	"act_reload"			"0"
+	"msg_obituary"			"%s was pricked by %s's syringes."
+	"snd_fire"				"weapon_nailgun.shoot"
+	"animPrefix"			"nailgun"
+}
+
+entityDef fireInfo_tf_syringegun
+{
+	"def_onFire"	"projectile_tf_syringe"
+	"fireRate"		"0.105"
+}
+
+entityDef projectile_tf_syringe
+{
+	"spawnclass"		"ncProjectile"
+	"model"				"progs/spike.mdl"
+	"offset"			"16 6 -8"
+	"velocity"			"1000 0 50"
+	"gravity"			"0.3"
+	"mins"				"0 0 0"
+	"maxs"				"0 0 0"
+	"fuse"				"5"
+	"detonate_on_fuse"	"0"
+	"detonate_on_world"	"1"
+	"detonate_on_actor"	"1"
+	"decal_detonate"	"Impact.Shot"
+	"smoke_fly"			"weapon_nailgun.trail"
+	"def_damage"		"damage_tf_syringe"
+}
+
+entityDef damage_tf_syringe
+{
+	"damage"	"10"
+	"knockback"	"0"
+	"weapon"	"tf_weapon_syringegun_medic"
+}
+
+entityDef tf_weapon_medigun
+{
+	"inherit"			"tf_weapon_base"
+	"spawnclass"		"tfMedigun"
+	"inv_name"			"Medi Gun"
+	"model"				"progs/g_light.mdl"
+	"model_view"		"progs/v_light.mdl"
+	"act_draw"			"-1"	// v_light.mdl's frame 0 reports an endless duration
+	"def_fireInfo"		"fireInfo_tf_medigun"
+	"hudSlot"			"1"
+	"hudSlotPos"		"0"
+	"ammoRequired"		"0"
+	"animPrefix"		"lightning"
+	"act_fire"			"0"
+	"tf_healRate"		"24"
+	"tf_healRateMax"	"72"
+	"tf_healRange"		"450"
+	"tf_overheal"		"1.5"
+	"tf_uberRate"		"2.5"
+	"tf_uberTime"		"8"
+}
+
+entityDef fireInfo_tf_medigun
+{
+	"fireRate"	"0.1"
+}
+
+entityDef tf_weapon_bonesaw
+{
+	"inherit"			"tf_weapon_base"
+	"spawnclass"		"ncWeapon"
+	"inv_name"			"Bonesaw"
+	"model"				""
+	"model_view"		"progs/v_axe.mdl"
+	"def_fireInfo"		"fireInfo_tf_weapon_bonesaw"
+	"hudSlot"			"2"
+	"hudSlotPos"		"0"
+	"ammoRequired"		"0"
+	"msg_obituary"		"%s was sawed by %s's bonesaw."
+	"animPrefix"		"axe"
+	"act_fire"			"1,2"
+	"act_fireFailed"	"1,2"
+	"silent_fire"		"1"
+}
+
+entityDef fireInfo_tf_weapon_bonesaw
+{
+	"def_onFire"	"projectile_tf_weapon_bonesaw"
+	"testDistance"	"-72"
+	"fireRate"		"0.8"
+	"failRate"		"0.8"
+	"snd_hit"		"Weapon_Axe.Melee_Hit"
+	"snd_failed"	"Weapon_Axe.Miss"
+}
+
+entityDef projectile_tf_weapon_bonesaw
+{
+	"inherit"	"tf_melee_base"
+	"damage"	"65"
+}
+

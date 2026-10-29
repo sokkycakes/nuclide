@@ -1,0 +1,124 @@
+// Weapons more than one class carries.
+
+entityDef tf_weapon_shotgun_soldier
+{
+	"inherit"				"tf_weapon_base"
+	"spawnclass"			"ncWeapon"
+	"inv_name"				"Shotgun"
+	"model"					"progs/g_shot1.mdl"
+	"model_view"			"progs/v_shot.mdl"
+	"def_fireInfo"			"fireInfo_tf_shotgun"
+	"hudSlot"				"1"
+	"hudSlotPos"			"0"
+	"ammoType"				"ammo_tf_shotgun"
+	"ammoRequired"			"1"
+	"ammoPerShot"			"1"
+	"inv_ammo_tf_shotgun"	"32"
+	"clipSize"				"6"
+	"clipSizeDefault"		"6"
+	"reloadTime"			"0.51"
+	"reloadTimed"			"1"
+	"reloadStartTime"		"1.005"
+	"act_reload"			"0"
+	"act_reloadStart"		"0"
+	"act_reloadEnd"			"0"
+	"msg_obituary"			"%s was shot by %s's shotgun."
+	"snd_fire"				"weapon_shotgun.shoot"
+	"punchKick"			"2"
+}
+
+entityDef tf_weapon_shotgun_pyro
+{
+	"inherit"				"tf_weapon_base"
+	"spawnclass"			"ncWeapon"
+	"inv_name"				"Shotgun"
+	"model"					"progs/g_shot1.mdl"
+	"model_view"			"progs/v_shot.mdl"
+	"def_fireInfo"			"fireInfo_tf_shotgun"
+	"hudSlot"				"1"
+	"hudSlotPos"			"0"
+	"ammoType"				"ammo_tf_shotgun"
+	"ammoRequired"			"1"
+	"ammoPerShot"			"1"
+	"inv_ammo_tf_shotgun"	"32"
+	"clipSize"				"6"
+	"clipSizeDefault"		"6"
+	"reloadTime"			"0.51"
+	"reloadTimed"			"1"
+	"reloadStartTime"		"1.035"
+	"act_reload"			"0"
+	"act_reloadStart"		"0"
+	"act_reloadEnd"			"0"
+	"msg_obituary"			"%s was shot by %s's shotgun."
+	"snd_fire"				"weapon_shotgun.shoot"
+	"punchKick"			"2"
+}
+
+entityDef tf_weapon_shotgun_hwg
+{
+	"inherit"				"tf_weapon_base"
+	"spawnclass"			"ncWeapon"
+	"inv_name"				"Shotgun"
+	"model"					"progs/g_shot1.mdl"
+	"model_view"			"progs/v_shot.mdl"
+	"def_fireInfo"			"fireInfo_tf_shotgun"
+	"hudSlot"				"1"
+	"hudSlotPos"			"0"
+	"ammoType"				"ammo_tf_shotgun"
+	"ammoRequired"			"1"
+	"ammoPerShot"			"1"
+	"inv_ammo_tf_shotgun"	"32"
+	"clipSize"				"6"
+	"clipSizeDefault"		"6"
+	"reloadTime"			"0.51"
+	"reloadTimed"			"1"
+	"reloadStartTime"		"0.87"
+	"act_reload"			"0"
+	"act_reloadStart"		"0"
+	"act_reloadEnd"			"0"
+	"msg_obituary"			"%s was shot by %s's shotgun."
+	"snd_fire"				"weapon_shotgun.shoot"
+	"punchKick"			"2"
+}
+
+entityDef tf_weapon_shotgun_primary
+{
+	"inherit"				"tf_weapon_base"
+	"spawnclass"			"ncWeapon"
+	"inv_name"				"Shotgun"
+	"model"					"progs/g_shot1.mdl"
+	"model_view"			"progs/v_shot.mdl"
+	"def_fireInfo"			"fireInfo_tf_shotgun"
+	"hudSlot"				"0"
+	"hudSlotPos"			"0"
+	"ammoType"				"ammo_tf_shotgun"
+	"ammoRequired"			"1"
+	"ammoPerShot"			"1"
+	"inv_ammo_tf_shotgun"	"32"
+	"clipSize"				"6"
+	"clipSizeDefault"		"6"
+	"reloadTime"			"0.51"
+	"reloadTimed"			"1"
+	"reloadStartTime"		"0.87"
+	"act_reload"			"0"
+	"act_reloadStart"		"0"
+	"act_reloadEnd"			"0"
+	"msg_obituary"			"%s was shot by %s's shotgun."
+	"snd_fire"				"weapon_shotgun.shoot"
+	"punchKick"			"3"
+}
+
+entityDef fireInfo_tf_shotgun
+{
+	"def_onFire"	"projectile_tf_shotgun"
+	"fireRate"		"0.625"
+}
+
+entityDef projectile_tf_shotgun
+{
+	"inherit"	"tf_bullet_base"
+	"damage"	"6"
+	"hitscans"	"10"
+	"spread"	"0.0675 0.0675"
+}
+

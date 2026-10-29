@@ -320,9 +320,15 @@ ncBot::CheckRoute(void)
 			input_buttons |= INPUT_JUMP;
 		}
 	} else {
-		/* entire way-link needs to be crouched. that's the law of the land */
-		if (Route_GetNodeFlags(&m_pathfindingGraph[m_pathfindingCurrentNode]) & LF_CROUCH || autocvar_bot_crouch)
+		/* entire way-link needs to be crouched. that's the law of the land.
+		   heading for the destination itself (node -1) there is no link,
+		   and with a direct route the graph may not exist at all */
+		if (autocvar_bot_crouch) {
 			input_buttons |= INPUT_CROUCH;
+		} else if (m_pathfindingCurrentNode >= 0) {
+			if (Route_GetNodeFlags(&m_pathfindingGraph[m_pathfindingCurrentNode]) & LF_CROUCH)
+				input_buttons |= INPUT_CROUCH;
+		}
 	}
 }
 
@@ -563,7 +569,7 @@ ncBot::RunAI(void)
 		   face them, and keep closing in with a melee weapon. Without this
 		   the bot froze in place facing wherever it last looked, and melee
 		   swings went into the air. */
-		input_angles = angles = v_angle = vectorToAngles(m_eTarget.origin + (m_eTarget.mins + m_eTarget.maxs) * 0.5f - origin);
+		input_angles = angles = v_angle = vectorToAngles(m_eTarget.origin + (m_eTarget.mins + m_eTarget.maxs) * 0.5f - GetEyePos());
 
 		if (m_wtWeaponType == WPNTYPE_CLOSE) {
 			vector chaseDir = vectorNormalize(m_eTarget.origin - origin) * g_pmoveVars.pm_walkspeed;

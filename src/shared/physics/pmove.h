@@ -59,6 +59,8 @@ public:
 	NETWORKED_FLOAT(pm_friction)
 	NETWORKED_FLOAT(pm_gravity)
 	NETWORKED_FLOAT(pm_jumpheight)
+	NETWORKED_FLOAT(pm_airjumps)
+	NETWORKED_FLOAT(pm_backspeed)
 	NETWORKED_FLOAT(pm_maxviewpitch)
 	NETWORKED_FLOAT(pm_minviewpitch)
 	NETWORKED_FLOAT(pm_noclipaccelerate)

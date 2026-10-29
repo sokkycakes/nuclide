@@ -19,6 +19,7 @@ text.qc
 predict.qc
 entities.qc
 modelevent.qc
+viewbob.qc
 viewmodel.qc
 damage.qc
 chat.qc

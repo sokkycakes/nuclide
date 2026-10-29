@@ -538,7 +538,7 @@ ncMonster::Gib(int damage, vector dir)
 	MakeInvulnerable();
 
 	if (STRING_SET(breakModel)) {
-		BreakModel_Spawn(absmin, absmax, dir, damage * 2.5f, vlen(size) / 10, breakModel);
+		BreakModel_Gib(absmin, absmax, vlen(size) / 10, breakModel, GetHealth());
 	}
 
 	Disappear();
@@ -2119,6 +2119,8 @@ ncMonster::Death(entity inflictor, entity attacker, int damage, vector dir, vect
 	} else {
 		/* if we make more than 50 damage, gib immediately */
 		if (GetHealth() < -50) {
+			/* the rules still need to hear about a gibbed kill */
+			g_grMode.NPCDeath(this, (ncActor)inflictor, (ncActor)attacker);
 			HasBeenGibbed();
 			Gib(damage, dir);
 			Extinguish();

@@ -115,6 +115,9 @@ var float autocvar_pm_noclipaccelerate = PMOVE_NOCLIPACCELERATE;
 	#define PMOVE_JUMP_HEIGHT 240.0f
 #endif
 var float autocvar_pm_jumpheight = PMOVE_JUMP_HEIGHT;
+var float autocvar_pm_airjumps = 0;
+/** fraction of the top speed when moving backwards (Team Fortress 2: 0.9) */
+var float autocvar_pm_backspeed = 1.0f;
 
 #ifndef PMOVE_WATERJUMP_HEIGHT
 	#define PMOVE_WATERJUMP_HEIGHT 350.0f
@@ -307,6 +310,16 @@ ncPMoveVars::Refresh(void)
 	else
 		pm_jumpheight = g_pmoveVars.pm_jumpheight;
 
+	if (STRING_SET(EntityDef_GetKeyValue(m_defLink, "pm_airjumps")))
+		pm_airjumps = stof(EntityDef_GetKeyValue(m_defLink, "pm_airjumps"));
+	else
+		pm_airjumps = g_pmoveVars.pm_airjumps;
+
+	if (STRING_SET(EntityDef_GetKeyValue(m_defLink, "pm_backspeed")))
+		pm_backspeed = stof(EntityDef_GetKeyValue(m_defLink, "pm_backspeed"));
+	else
+		pm_backspeed = g_pmoveVars.pm_backspeed;
+
 	if (STRING_SET(EntityDef_GetKeyValue(m_defLink, "pm_maxviewpitch")))
 		pm_maxviewpitch = stof(EntityDef_GetKeyValue(m_defLink, "pm_maxviewpitch"));
 	else
@@ -441,6 +454,8 @@ ncPMoveVars::EvaluateEntity(void)
 	pm_friction = autocvar_pm_friction;
 	pm_gravity = autocvar_pm_gravity;
 	pm_jumpheight = autocvar_pm_jumpheight;
+	pm_airjumps = autocvar_pm_airjumps;
+	pm_backspeed = autocvar_pm_backspeed;
 	pm_maxviewpitch = autocvar_pm_maxviewpitch;
 	pm_minviewpitch = autocvar_pm_minviewpitch;
 	pm_noclipaccelerate = autocvar_pm_noclipaccelerate;
@@ -475,6 +490,8 @@ ncPMoveVars::EvaluateEntity(void)
 	EVALUATE_FIELD(pm_friction, PMOVEVARS_UPDATE)
 	EVALUATE_FIELD(pm_gravity, PMOVEVARS_UPDATE)
 	EVALUATE_FIELD(pm_jumpheight, PMOVEVARS_UPDATE)
+	EVALUATE_FIELD(pm_airjumps, PMOVEVARS_UPDATE)
+	EVALUATE_FIELD(pm_backspeed, PMOVEVARS_UPDATE)
 	EVALUATE_FIELD(pm_maxviewpitch, PMOVEVARS_UPDATE)
 	EVALUATE_FIELD(pm_minviewpitch, PMOVEVARS_UPDATE)
 	EVALUATE_FIELD(pm_noclipaccelerate, PMOVEVARS_UPDATE)
@@ -522,6 +539,8 @@ ncPMoveVars::SendEntity(entity pvsEnt, float flChanged)
 	SENDENTITY_FLOAT(pm_friction, PMOVEVARS_UPDATE)
 	SENDENTITY_FLOAT(pm_gravity, PMOVEVARS_UPDATE)
 	SENDENTITY_FLOAT(pm_jumpheight, PMOVEVARS_UPDATE)
+	SENDENTITY_BYTE(pm_airjumps, PMOVEVARS_UPDATE)
+	SENDENTITY_FLOAT(pm_backspeed, PMOVEVARS_UPDATE)
 	SENDENTITY_FLOAT(pm_maxviewpitch, PMOVEVARS_UPDATE)
 	SENDENTITY_FLOAT(pm_minviewpitch, PMOVEVARS_UPDATE)
 	SENDENTITY_FLOAT(pm_noclipaccelerate, PMOVEVARS_UPDATE)
@@ -563,6 +582,8 @@ ncPMoveVars::ReceiveEntity(float flNew, float flChanged)
 	READENTITY_FLOAT(pm_friction, PMOVEVARS_UPDATE)
 	READENTITY_FLOAT(pm_gravity, PMOVEVARS_UPDATE)
 	READENTITY_FLOAT(pm_jumpheight, PMOVEVARS_UPDATE)
+	READENTITY_BYTE(pm_airjumps, PMOVEVARS_UPDATE)
+	READENTITY_FLOAT(pm_backspeed, PMOVEVARS_UPDATE)
 	READENTITY_FLOAT(pm_maxviewpitch, PMOVEVARS_UPDATE)
 	READENTITY_FLOAT(pm_minviewpitch, PMOVEVARS_UPDATE)
 	READENTITY_FLOAT(pm_noclipaccelerate, PMOVEVARS_UPDATE)
@@ -670,6 +691,8 @@ ncPMoveVars::Save(float handle)
 	SaveFloat(handle, "pm_friction", pm_friction);
 	SaveFloat(handle, "pm_gravity", pm_gravity);
 	SaveFloat(handle, "pm_jumpheight", pm_jumpheight);
+	SaveFloat(handle, "pm_airjumps", pm_airjumps);
+	SaveFloat(handle, "pm_backspeed", pm_backspeed);
 	SaveFloat(handle, "pm_maxviewpitch", pm_maxviewpitch);
 	SaveFloat(handle, "pm_minviewpitch", pm_minviewpitch);
 	SaveFloat(handle, "pm_noclipaccelerate", pm_noclipaccelerate);
@@ -734,6 +757,12 @@ ncPMoveVars::Restore(string keyName, string setValue)
 		break;
 	case "pm_jumpheight":
 		pm_jumpheight = ReadFloat(setValue);
+		break;
+	case "pm_airjumps":
+		pm_airjumps = ReadFloat(setValue);
+		break;
+	case "pm_backspeed":
+		pm_backspeed = ReadFloat(setValue);
 		break;
 	case "pm_maxviewpitch":
 		pm_maxviewpitch = ReadFloat(setValue);
