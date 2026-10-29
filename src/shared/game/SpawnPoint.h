@@ -26,4 +26,12 @@ public:
 	/* overrides */
 	virtual void Respawn(void);
 	virtual void Spawned(void);
+#ifdef SERVER
+	virtual void Trigger(entity,triggermode_t);
+#endif
 };
+
+/** Set on a spawn point that players can't spawn at right now. Sven Co-op
+maps turn spawn points on and off by triggering them, and spawnflag 2
+(start off) makes one start turned off. */
+.float spawnpoint_disabled;

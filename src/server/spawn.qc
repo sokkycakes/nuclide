@@ -97,23 +97,27 @@ living player.
 */
 entity Spawn_SelectRandom(string cname) 
 {
-	static entity lastspot;
 	entity spot = world;
-
 	float max = 0;
+	float enabled = 0;
+	bool skipDisabled;
 
-	/* check if _any_ entity of this type exists */
-	entity testcase = find(world, ::classname, cname);
-
-	/* count our max count */
+	/* count our max count, and how many are turned on */
 	for (entity e = world;(e = find(e, ::classname, cname));) {
 		max++;
+
+		if (!e.spawnpoint_disabled) {
+			enabled++;
+		}
 	}
 
 	if (max <= 0) {
 		print(sprintf("^1Error: %s is not present on this map.\n", cname));
 		return __NULL__;
 	}
+
+	/* when every one is turned off, use them anyway rather than none */
+	skipDisabled = (enabled > 0) ? true : false;
 
 	for (int i = random(1, max); i > 0; i--) {
 		spot = find(spot, classname, cname);
@@ -123,33 +127,24 @@ entity Spawn_SelectRandom(string cname)
 		spot = find(spot, classname, cname);
 	}
 
-	entity firstspot = spot;
-	do {
-		if (spot) {
-			if (Spawn_PlayerRange(spot) > 128) {
-				if (spot.origin == [0,0,0]) {
-					spot = find(spot, classname, cname);
-					continue;
+	/* first pass wants a usable spot away from players, second takes any usable one */
+	for (int pass = 0i; pass < 2i; pass++) {
+		entity firstspot = spot;
+		do {
+			if (spot && !(skipDisabled && spot.spawnpoint_disabled) && spot.origin != [0,0,0]) {
+				if (pass == 1i || Spawn_PlayerRange(spot) > 128) {
+					return spot;
 				}
-				lastspot = spot;
-				return spot;
 			}
-		}
-		spot = find(spot, classname, cname);
-	} while (spot != firstspot);
 
-	if (!spot) {
-		lastspot = spot;
-		return spot;
+			spot = find(spot, classname, cname);
+
+			if (!spot) {
+				spot = find(world, classname, cname);
+			}
+		} while (spot != firstspot);
 	}
 
-	/* still not found any */
-	if (spot == __NULL__) {
-		error(sprintf("Spawn_SelectRandom: no %s on level", cname));
-		return (__NULL__);
-	}
-
-	lastspot = spot;
 	return spot;
 }
 
