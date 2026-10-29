@@ -172,6 +172,9 @@ TFHUD_Draw(void)
 		if (roundState == TFROUND_PREROUND || roundState == TFROUND_WIN || roundState == TFROUND_STALEMATE) {
 			TFHUD_CenteredText(topCenter, headline, [1, 1, 1]);
 		}
+
+		/* and the objectives (tf_vguiobjectives.qc) */
+		return;
 	} else if (STRING_SET(headline)) {
 		TFHUD_CenteredText(topCenter, headline, [1, 1, 1]);
 	}

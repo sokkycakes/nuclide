@@ -47,6 +47,7 @@ TFVGui_Active(void)
 			/* TF2's time panel fills itself from its own file */
 			VGui_LoadElement("HudMatchStatus/ObjectiveStatusTimePanel", "resource/ui/hudobjectivetimepanel.res");
 			VGui_LoadElement("HudKothTimeStatus", "resource/ui/hudobjectivekothtimepanel.res");
+			TFVGui_LoadObjectives();
 		}
 	}
 
@@ -243,15 +244,191 @@ TFVGui_DrawTimer(void)
 	TFVGui_DrawPanel("HudMatchStatus", "ObjectiveStatusTimePanel");
 }
 
-/** Draws the player's status elements. */
+/* ---- kill feed ---------------------------------------------------------- */
+
+#define TFVGUI_NOTICES 8
+#define TFVGUI_NOTICE_TIME 6.0f
+
+string g_tfvgNoticeKiller[TFVGUI_NOTICES];
+string g_tfvgNoticeVictim[TFVGUI_NOTICES];
+string g_tfvgNoticeWeapon[TFVGUI_NOTICES];
+float g_tfvgNoticeKillerTeam[TFVGUI_NOTICES];
+float g_tfvgNoticeVictimTeam[TFVGUI_NOTICES];
+float g_tfvgNoticeTime[TFVGUI_NOTICES];
+int g_tfvgNoticeCount;
+
+/* a player's team by name, 0 when nobody has that name */
+static float
+TFVGui_TeamOfName(string playerName)
+{
+	for (int i = 0; i < maxclients; i++) {
+		if (getplayerkeyvalue(i, "name") == playerName) {
+			return getplayerkeyfloat(i, "*team");
+		}
+	}
+
+	return (0);
+}
+
+/** Adds a kill to the feed, as TF2's HudDeathNotice lists them. */
 void
-TFVGui_Draw(void)
+TFVGui_AddDeathNotice(string victimName, string killerName, string weaponDef, string meansOfDeath)
+{
+	/* oldest out when it's full */
+	if (g_tfvgNoticeCount >= TFVGUI_NOTICES) {
+		for (int i = 0; i < TFVGUI_NOTICES - 1; i++) {
+			g_tfvgNoticeKiller[i] = g_tfvgNoticeKiller[i + 1];
+			g_tfvgNoticeVictim[i] = g_tfvgNoticeVictim[i + 1];
+			g_tfvgNoticeWeapon[i] = g_tfvgNoticeWeapon[i + 1];
+			g_tfvgNoticeKillerTeam[i] = g_tfvgNoticeKillerTeam[i + 1];
+			g_tfvgNoticeVictimTeam[i] = g_tfvgNoticeVictimTeam[i + 1];
+			g_tfvgNoticeTime[i] = g_tfvgNoticeTime[i + 1];
+		}
+
+		g_tfvgNoticeCount = TFVGUI_NOTICES - 1;
+	}
+
+	int newIndex = g_tfvgNoticeCount;
+	bool isSuicide = (wordInString(meansOfDeath, "self") || !STRING_SET(killerName) || killerName == victimName);
+
+	/* TF2 shows a kill icon between the names; the weapon's name stands in */
+	string weaponName = STRING_SET(weaponDef) ? entityDef.GetString(weaponDef, "inv_name") : "";
+
+	if (!STRING_SET(weaponName)) {
+		weaponName = isSuicide ? "died" : "killed";
+	}
+
+	g_tfvgNoticeKiller[newIndex] = isSuicide ? "" : strzone(killerName);
+	g_tfvgNoticeVictim[newIndex] = strzone(victimName);
+	g_tfvgNoticeWeapon[newIndex] = strzone(weaponName);
+	g_tfvgNoticeKillerTeam[newIndex] = TFVGui_TeamOfName(killerName);
+	g_tfvgNoticeVictimTeam[newIndex] = TFVGui_TeamOfName(victimName);
+	g_tfvgNoticeTime[newIndex] = time + TFVGUI_NOTICE_TIME;
+	g_tfvgNoticeCount++;
+}
+
+static vector
+TFVGui_NoticeTeamColor(float teamID, __out float colorAlpha)
+{
+	string colorKey = "hudlayout/HudDeathNotice/TeamRed";
+
+	if (teamID == TF_TEAM_BLU) {
+		colorKey = "hudlayout/HudDeathNotice/TeamBlue";
+	} else if (teamID != TF_TEAM_RED) {
+		return VGui_Color(VGui_Get("hudlayout/HudDeathNotice/IconColor"), colorAlpha);
+	}
+
+	return VGui_Color(VGui_Get(colorKey), colorAlpha);
+}
+
+/* the feed, newest at the bottom, right-aligned at the top right */
+static void
+TFVGui_DrawDeathNotices(void)
+{
+	/* drop the expired ones from the top */
+	while (g_tfvgNoticeCount > 0 && g_tfvgNoticeTime[0] < time) {
+		for (int i = 0; i < g_tfvgNoticeCount - 1; i++) {
+			g_tfvgNoticeKiller[i] = g_tfvgNoticeKiller[i + 1];
+			g_tfvgNoticeVictim[i] = g_tfvgNoticeVictim[i + 1];
+			g_tfvgNoticeWeapon[i] = g_tfvgNoticeWeapon[i + 1];
+			g_tfvgNoticeKillerTeam[i] = g_tfvgNoticeKillerTeam[i + 1];
+			g_tfvgNoticeVictimTeam[i] = g_tfvgNoticeVictimTeam[i + 1];
+			g_tfvgNoticeTime[i] = g_tfvgNoticeTime[i + 1];
+		}
+
+		g_tfvgNoticeCount--;
+	}
+
+	if (g_tfvgNoticeCount <= 0) {
+		return;
+	}
+
+	string settings = "hudlayout/HudDeathNotice/";
+	string textFont = VGui_Get(strcat(settings, "TextFont"));
+	float lineHeight = stof(VGui_Get(strcat(settings, "LineHeight"))) * g_vgScale;
+	float lineSpacing = stof(VGui_Get(strcat(settings, "LineSpacing"))) * g_vgScale;
+	int maxNotices = (int)stof(VGui_Get(strcat(settings, "MaxDeathNotices")));
+	bool rightJustify = (stof(VGui_Get(strcat(settings, "RightJustify"))) != 0);
+	float baseAlpha, localAlpha, iconAlpha, localTextAlpha;
+	vector baseColor = VGui_Color(VGui_Get(strcat(settings, "BaseBackgroundColor")), baseAlpha);
+	vector localColor = VGui_Color(VGui_Get(strcat(settings, "LocalBackgroundColor")), localAlpha);
+	vector iconColor = VGui_Color(VGui_Get(strcat(settings, "IconColor")), iconAlpha);
+	vector localTextColor = VGui_Color(VGui_Get(strcat(settings, "LocalPlayerColor")), localTextAlpha);
+	string localName = getplayerkeyvalue(player_localnum, "name");
+	float textHeight = VGui_FontHeight(textFont);
+	float padSize = 4 * g_vgScale;
+	vector elementSize;
+	vector elementPos = VGui_ElementRect("HudDeathNotice", elementSize);
+	int firstNotice = 0;
+
+	if (maxNotices <= 0) {
+		maxNotices = 4;
+	}
+
+	if (g_tfvgNoticeCount > maxNotices) {
+		firstNotice = g_tfvgNoticeCount - maxNotices;
+	}
+
+	vector linePos = elementPos;
+
+	for (int i = firstNotice; i < g_tfvgNoticeCount; i++) {
+		string killerName = g_tfvgNoticeKiller[i];
+		string victimName = g_tfvgNoticeVictim[i];
+		string weaponName = g_tfvgNoticeWeapon[i];
+		float killerWidth = STRING_SET(killerName) ? VGui_TextWidth(textFont, killerName) + padSize : 0;
+		float weaponWidth = VGui_TextWidth(textFont, weaponName);
+		float victimWidth = VGui_TextWidth(textFont, victimName);
+		float lineWidth = padSize + killerWidth + weaponWidth + padSize + victimWidth + padSize;
+		bool isLocal = (killerName == localName || victimName == localName);
+		float textY = linePos[1] + (lineHeight - textHeight) / 2;
+		float x = rightJustify ? elementPos[0] + elementSize[0] - lineWidth : elementPos[0];
+		float killerAlpha, victimAlpha;
+		vector killerColor = TFVGui_NoticeTeamColor(g_tfvgNoticeKillerTeam[i], killerAlpha);
+		vector victimColor = TFVGui_NoticeTeamColor(g_tfvgNoticeVictimTeam[i], victimAlpha);
+
+		/* lines with the local player in them stand out, as in TF2 */
+		if (isLocal) {
+			drawfill([x, linePos[1]], [lineWidth, lineHeight], localColor, localAlpha, DRAWFLAG_NORMAL);
+		} else {
+			drawfill([x, linePos[1]], [lineWidth, lineHeight], baseColor, baseAlpha, DRAWFLAG_NORMAL);
+		}
+
+		x += padSize;
+
+		if (STRING_SET(killerName)) {
+			VGui_DrawText(textFont, [x, textY], killerName, killerColor, 1.0f);
+			x += killerWidth;
+		}
+
+		VGui_DrawText(textFont, [x, textY], weaponName, isLocal ? localTextColor : iconColor, 1.0f);
+		x += weaponWidth + padSize;
+		VGui_DrawText(textFont, [x, textY], victimName, victimColor, 1.0f);
+		linePos[1] += lineHeight + lineSpacing;
+	}
+}
+
+/* ---- the whole HUD ------------------------------------------------------- */
+
+/** Draws what everyone sees, alive, dead or spectating: the clock, the
+objectives and the kill feed. */
+void
+TFVGui_DrawShared(void)
 {
 	VGui_BeginFrame();
-	TFVGui_DrawTimer();
 
 	float localTeam = getplayerkeyfloat(player_localnum, "*team");
 	g_vgTeam = (localTeam == TF_TEAM_BLU) ? 3 : 2;
+
+	TFVGui_DrawTimer();
+	TFVGui_DrawObjectives();
+	TFVGui_DrawDeathNotices();
+}
+
+/** Draws the whole HUD for a playing client. */
+void
+TFVGui_Draw(void)
+{
+	TFVGui_DrawShared();
 
 	if (getplayerkeyfloat(player_localnum, "*dead") != 0) {
 		return;

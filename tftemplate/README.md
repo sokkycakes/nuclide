@@ -421,17 +421,26 @@ HUDs can read the same keys.
 
 When a pack holds a TF2 HUD's `scripts/hudlayout.res`, `hud.dat` lays out
 health, ammo, the class portrait, the round clock (with its setup and
-waiting notes) and the KOTH clocks from that HUD's own `.res` files, scheme
-colours, borders and fonts (`src/hud/vgui.qc` reads them,
-`src/hud/tf_vguihud.qc` fills in the values TF2's C++ panels would).
-The control points, flags and cart above still use the strip, moved down
-under the clock. `cg_tfhud 0` goes back to the plain HUD.
+waiting notes), the KOTH clocks, the control point icons, the CTF scores
+and flags, the payload track and the kill feed from that HUD's own `.res`
+files, scheme colours, borders and fonts (`src/hud/vgui.qc` reads them;
+`src/hud/tf_vguihud.qc` and `tf_vguiobjectives.qc` fill in the values
+TF2's C++ panels would). Where a panel uses TF2's own pictures, which
+aren't in the pack, the HUD's octagons and icons stand in: a flag that's
+taken shows the alert sign, a dropped one blinks, and the kill feed names
+the weapon in place of a kill icon. Payload checkpoints show as small
+point icons above the track, since the rules don't publish where they are
+on it. The round result lines still use the strip. `cg_tfhud 0` goes back
+to the plain HUD.
 
 The HUD in use is SolarLightHUD REDUX, as `tftemplate/zz_solarlight.pk3`
 (outside git, kept with the project files). The pack is the HUD's
 `resource/` and `scripts/` folders with names lowercased, its VTF images
 converted to PNG under `gfx/vgui/` (Bulwark doesn't load PNGs from
-`materials/`), and the character art scaled down to 512 pixels. The server
+`materials/`), the character art scaled down to 512 pixels, and the CFF
+font `asimov.otf` converted to `asimov.ttf` (the font path in
+`redux_fontpaths.res` changed to match), since Bulwark's font loader
+reads TrueType outlines only. The server
 publishes the class as the `*tf_class` userinfo key for the portrait.
 
 `nameplates.qc` adds two things over friendly players:
