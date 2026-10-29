@@ -461,9 +461,23 @@ TF_UpdateHUD(void)
 /* ---- Nuclide rules callbacks ------------------------------------------- */
 
 void
-CodeCallback_Precaches(void)
+CodeCallback_Precache(void)
 {
 	Util_SharedPrecaches();
+
+	/* class decls pull in their weapons, fireInfo, projectiles and sounds */
+	int classCount = tokenize(autocvar_tf_classes);
+	string classNames[16];
+
+	for (int i = 0; i < classCount && i < 16; i++) {
+		classNames[i] = argv(i);
+	}
+
+	/* precaching tokenizes, so don't read argv while doing it */
+	for (int i = 0; i < classCount && i < 16; i++) {
+		precache.Entity(classNames[i]);
+		precache.Entity(strcat(classNames[i], "_bot"));
+	}
 }
 
 void
