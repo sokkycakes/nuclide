@@ -94,6 +94,7 @@ typedef struct
 	float oldTakeDamage;
 	bool lowGravity;
 	bool menuOpen;
+	float spawnedAt;	/* when to take the spawn snapshot, 0 when done */
 } xpmPlayer_t;
 
 static xpmPlayer_t g_xpm[XPM_PLAYERS];
@@ -740,10 +741,22 @@ XPM_FastTick(void)
 
 		bool alive = XPM_Alive(pl);
 
+		/* the snapshot waits a moment, so health and armour that the map
+		   gives at spawn (Sven's startarmor, sent as a queued input)
+		   are part of the base the skills add to */
 		if (alive && !g_xpm[s].wasAlive) {
+			g_xpm[s].spawnedAt = time + 0.1f;
+		} else if (!alive) {
+			g_xpm[s].spawnedAt = 0.0f;
+
+			if (g_xpm[s].blocking) {
+				g_xpm[s].blocking = false;
+			}
+		}
+
+		if (alive && g_xpm[s].spawnedAt > 0.0f && time >= g_xpm[s].spawnedAt) {
+			g_xpm[s].spawnedAt = 0.0f;
 			XPM_Spawned(pl, s);
-		} else if (!alive && g_xpm[s].blocking) {
-			g_xpm[s].blocking = false;
 		}
 
 		g_xpm[s].wasAlive = alive;
