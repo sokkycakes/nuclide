@@ -86,6 +86,10 @@ TFVGui_DrawClass(void)
 	/* TF2 draws the class's 3D model here; REDUX's class art stands in */
 	VGui_Show("HudPlayerClass", "PlayerStatusSpyImage", false);
 
+	/* TF2 shows this bar only while you carry a weapon you picked up off
+	   the floor (it names that weapon); there are no such weapons here */
+	VGui_Show("HudPlayerClass", "CarryingWeapon", false);
+
 	if (STRING_SET(className)) {
 		VGui_Show("HudPlayerClass", "PlayerStatusClassImage", true);
 		VGui_Override("HudPlayerClass", "PlayerStatusClassImage", "image", sprintf("replay/thumbnails/characters/%s_sepia", className));
