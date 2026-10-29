@@ -380,3 +380,53 @@ TFHUD_DrawCrosshair(void)
 	drawfill(crossCenter + [0, armGap + 1], [1, armLength], crossColor, crossAlpha, DRAWFLAG_NORMAL);
 	drawfill(crossCenter, [1, 1], crossColor, crossAlpha, DRAWFLAG_NORMAL);
 }
+
+/** Number keys switch straight to the weapon in that slot, as in TF2:
+slot1 primary, slot2 secondary, slot3 melee, slot4 and slot5 the PDAs.
+Pressing the key of the slot in hand again steps to the next weapon in it. */
+bool
+HUD_ConsoleCommand(string commandString)
+{
+	tokenize_console(commandString);
+
+	if (substring(argv(0), 0, 4) != "slot") {
+		return (false);
+	}
+
+	int wantedSlot = stoi(substring(argv(0), 4, -1)) - 1i;
+	entity activeWeapon = weapon.GetActiveWeapon();
+	entity firstInSlot = __NULL__;
+	entity nextInSlot = __NULL__;
+	bool pastActive = false;
+
+	if (wantedSlot < 0i || !activeWeapon) {
+		return (true);
+	}
+
+	for (entity w = weapon.GetFirstWeaponInInventory(); w; w = weapon.GetNextWeaponRelativeTo(w)) {
+		if (w == activeWeapon) {
+			pastActive = true;
+			continue;
+		}
+
+		if (weapon.IsValid(w) == false || weapon.GetSlot(w) != wantedSlot) {
+			continue;
+		}
+
+		if (!firstInSlot) {
+			firstInSlot = w;
+		}
+
+		if (pastActive && !nextInSlot) {
+			nextInSlot = w;
+		}
+	}
+
+	if (weapon.GetSlot(activeWeapon) == wantedSlot && nextInSlot) {
+		weapon.SelectWeapon(nextInSlot);
+	} else if (firstInSlot) {
+		weapon.SelectWeapon(firstInSlot);
+	}
+
+	return (true);
+}

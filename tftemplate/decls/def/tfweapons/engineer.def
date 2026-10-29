@@ -8,7 +8,7 @@ entityDef tf_weapon_pistol
 	"spawnclass"				"ncWeapon"
 	"inv_name"					"Pistol"
 	"model"						"progs/g_shot1.mdl"
-	"model_view"				"progs/v_shot.mdl"
+	"model_view"				"models/weapons/v_blast/tris.md2"
 	"def_fireInfo"				"fireInfo_tf_pistol"
 	"hudSlot"					"1"
 	"hudSlotPos"				"0"
@@ -20,9 +20,14 @@ entityDef tf_weapon_pistol
 	"clipSizeDefault"			"12"
 	"reloadTime"				"1.035"
 	"reloadTimed"				"1"
-	"act_reload"				"0"
+	"act_reload"				"4"
 	"msg_obituary"				"%s was shot by %s's pistol."
-	"snd_fire"					"weapon_shotgun.shoot"
+	"snd_fire"					"aq2.mk23.fire"
+	"act_draw"					"0"
+	"act_fire"					"1"
+	"act_idle"					"2"
+	"snd_reload"				"aq2.mk23.reload"
+	"snd_empty"					"aq2.empty"
 }
 
 entityDef fireInfo_tf_pistol
@@ -58,7 +63,7 @@ entityDef fireInfo_tf_weapon_wrench
 	"fireRate"		"0.8"
 	"failRate"		"0.8"
 	"snd_hit"		"Weapon_Axe.Melee_Hit"
-	"snd_failed"	"Weapon_Axe.Miss"
+	"snd_fireFailed"	"Weapon_Axe.Miss"
 }
 
 entityDef projectile_tf_weapon_wrench

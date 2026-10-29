@@ -108,7 +108,7 @@ entityDef fireInfo_tf_weapon_bonesaw
 	"fireRate"		"0.8"
 	"failRate"		"0.8"
 	"snd_hit"		"Weapon_Axe.Melee_Hit"
-	"snd_failed"	"Weapon_Axe.Miss"
+	"snd_fireFailed"	"Weapon_Axe.Miss"
 }
 
 entityDef projectile_tf_weapon_bonesaw

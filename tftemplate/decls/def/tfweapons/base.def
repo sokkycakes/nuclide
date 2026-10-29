@@ -1,7 +1,9 @@
 // Team Fortress template: shared weapon bases. The weapons themselves are in
 // the per-class files next to this one. Stats are TF2's stock weapons
-// (damage at base, without falloff or random crits). Models and sounds are
-// Quake placeholders from the base game.
+// (damage at base, without falloff or random crits). The guns, the knife and
+// their sounds are Action Quake 2's (zz_aq2.pk3, kept outside git: see
+// the README); the rest are Quake placeholders from the base
+// game. The md2 view models' act numbers are framegroups in that pack.
 //
 // hudSlot: 0 primary, 1 secondary, 2 melee, 3 PDA, 4 second PDA.
 

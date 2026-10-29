@@ -6,8 +6,8 @@ entityDef tf_weapon_minigun
 	"inherit"				"tf_weapon_base"
 	"spawnclass"			"tfMinigun"
 	"inv_name"				"Minigun"
-	"model"					"progs/g_nail2.mdl"
-	"model_view"			"progs/v_nail2.mdl"
+	"model"					"models/weapons/g_m4/tris.md2"
+	"model_view"			"models/weapons/v_m4/tris.md2"
 	"def_fireInfo"			"fireInfo_tf_minigun"
 	"hudSlot"				"0"
 	"hudSlotPos"			"0"
@@ -16,10 +16,15 @@ entityDef tf_weapon_minigun
 	"ammoPerShot"			"1"
 	"inv_ammo_tf_minigun"	"200"
 	"msg_obituary"			"%s was mowed down by %s's minigun."
-	"snd_fire"				"weapon_supernailgun.shoot"
+	"snd_fire"				"aq2.m4.fire"
 	"animPrefix"			"nailgun"
 	"speed_mod_firing"		"0.4783"
 	"spinUpTime"			"0.87"
+	"snd_spinUp"			"aq2.m4.slide"
+	"act_draw"				"0"
+	"act_fire"				"1"
+	"act_idle"				"2"
+	"snd_empty"				"aq2.empty"
 }
 
 entityDef fireInfo_tf_minigun
@@ -61,7 +66,7 @@ entityDef fireInfo_tf_weapon_fists
 	"fireRate"		"0.8"
 	"failRate"		"0.8"
 	"snd_hit"		"Weapon_Axe.Melee_Hit"
-	"snd_failed"	"Weapon_Axe.Miss"
+	"snd_fireFailed"	"Weapon_Axe.Miss"
 }
 
 entityDef projectile_tf_weapon_fists
