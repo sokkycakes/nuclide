@@ -869,6 +869,8 @@ TF_PlayerFrames(void)
 void
 CodeCallback_PlayerDamage(entity playerTarget, entity attacker, entity damageDecl)
 {
+	Util_PlayerPainSound(playerTarget);
+
 	if (BWHook_NotifyInjured) {
 		BWHook_NotifyInjured(playerTarget, attacker, attacker, 0);
 	}
@@ -877,6 +879,7 @@ CodeCallback_PlayerDamage(entity playerTarget, entity attacker, entity damageDec
 void
 CodeCallback_PlayerKilled(entity playerTarget, entity inflictor, entity attacker, string weapon)
 {
+	Util_PlayerDeathSound(playerTarget);
 	combat.Obituary(playerTarget.netname, attacker.netname, weapon, "");
 	playerTarget.deaths++;
 	playerTarget.tf_deathTime = time;

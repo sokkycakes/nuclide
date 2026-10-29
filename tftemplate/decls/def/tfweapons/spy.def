@@ -9,7 +9,7 @@ entityDef tf_weapon_revolver
 	"spawnclass"			"ncWeapon"
 	"inv_name"				"Revolver"
 	"model"					"progs/g_shot1.mdl"
-	"model_view"			"progs/v_shot.mdl"
+	"model_view"			"models/weapons/v_blast/tris.md2"
 	"def_fireInfo"			"fireInfo_tf_revolver"
 	"hudSlot"				"0"
 	"hudSlotPos"			"0"
@@ -21,9 +21,14 @@ entityDef tf_weapon_revolver
 	"clipSizeDefault"		"6"
 	"reloadTime"			"1.133"
 	"reloadTimed"			"1"
-	"act_reload"			"0"
+	"act_reload"			"4"
 	"msg_obituary"			"%s was shot by %s's revolver."
-	"snd_fire"				"weapon_shotgun.shoot"
+	"snd_fire"				"aq2.mk23.fire"
+	"act_draw"				"0"
+	"act_fire"				"1"
+	"act_idle"				"2"
+	"snd_reload"			"aq2.mk23.reload"
+	"snd_empty"				"aq2.empty"
 }
 
 entityDef fireInfo_tf_revolver
@@ -46,17 +51,19 @@ entityDef tf_weapon_knife
 	"spawnclass"		"tfKnife"
 	"inv_name"			"Knife"
 	"model"				""
-	"model_view"		"progs/v_axe.mdl"
+	"model_view"		"models/weapons/v_knife/tris.md2"
 	"def_fireInfo"		"fireInfo_tf_weapon_knife"
 	"hudSlot"			"2"
 	"hudSlotPos"		"0"
 	"ammoRequired"		"0"
 	"msg_obituary"		"%s was stabbed by %s."
 	"animPrefix"		"axe"
-	"act_fire"			"1,2"
-	"act_fireFailed"	"1,2"
+	"act_fire"			"1"
+	"act_fireFailed"	"1"
 	"silent_fire"		"1"
 	"tf_backstabMult"	"6"
+	"act_draw"			"0"
+	"act_idle"			"2"
 }
 
 entityDef fireInfo_tf_weapon_knife
@@ -65,14 +72,16 @@ entityDef fireInfo_tf_weapon_knife
 	"testDistance"	"-72"
 	"fireRate"		"0.8"
 	"failRate"		"0.8"
-	"snd_hit"		"Weapon_Axe.Melee_Hit"
-	"snd_failed"	"Weapon_Axe.Miss"
+	"snd_hit"		"aq2.knife.stab"
+	"snd_fireFailed"	"aq2.knife.swish"
 }
 
 entityDef projectile_tf_weapon_knife
 {
 	"inherit"	"tf_melee_base"
 	"damage"	"40"
+	"snd_hitBody"	"aq2.knife.stab"
+	"snd_hitWorld"	"aq2.knife.clank"
 }
 
 entityDef tf_weapon_builder

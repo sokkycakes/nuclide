@@ -20,6 +20,36 @@ built for that entity set work here. It also follows TF2's published game
 rules where it implements them: class health and speeds, harmonic capture
 speed, respawn waves, and KOTH clocks.
 
+### Action Quake 2 weapon and player assets
+
+The guns, the Spy's knife, their sounds, and the player's pain, death, fall,
+water and footstep sounds come from Action Quake 2
+(<https://github.com/actionquake/distrib>, `baseaq/pak0`). They are not in
+git. They ship as `tftemplate/zz_aq2.pk3`, which is kept with the project
+files and goes into the test builds. Without it those weapons have no view
+model and those sounds are silent.
+
+AQ2's distribution is GPLv2, and its README says the original Quake 2 player
+files (the `players/male` sounds used here) can only be redistributed under
+a licence from id Software. The pack is for private use only.
+
+| TF weapons | AQ2 view model | AQ2 world model |
+|---|---|---|
+| Scattergun, every Shotgun | M3 (`v_shotg`), a shell at a time | `g_shotg` |
+| Pistols, Revolver | Mk23 (`v_blast`) | Quake's |
+| SMG | MP5 (`v_machn`) | `g_machn` |
+| Sniper Rifle | SSG 3000 (`v_sniper`) | `g_sniper` |
+| Minigun | M4 (`v_m4`), a stand-in | `g_m4` |
+| Knife | `v_knife` | none |
+
+The other weapons keep their Quake placeholders: AQ2 has nothing like them.
+The pack adds a `.framegroups` file next to each view model that splits its
+frames into animations, so the defs' `act_*` keys are animation numbers. Every
+model has 0 draw, 1 fire and 2 idle; 4 is the reload (a shell for the M3).
+The knife's 1 is the slash. Draw and reload lengths are scaled to TF2's
+times. The sounds are in `decls/sound/tf_aq2.sndshd`, and `player.sndshd`
+and `footsteps.sndshd` here replace base's files of the same name.
+
 ## Running it
 
 The template mounts on top of `base`. Use the manifest in the repository
@@ -362,6 +392,10 @@ Both use three optional callbacks, `Nameplates_IsFriendly`,
 so enemy Spies disguised as your team get a plate and a borrowed teammate's
 name. Health comes from the `*hp` and `*maxhp` userinfo keys the server
 publishes, since the HUD progs can't read entity health.
+
+The number keys switch straight to a slot's weapon, as in TF2 (`slot1`
+primary, `slot2` secondary, `slot3` melee, `slot4` and `slot5` the PDAs).
+Pressing the slot in hand again steps to the next weapon in it.
 
 ## Test and debug commands (server console)
 

@@ -249,7 +249,7 @@ tfMinigun::InputFrame(void)
 	super::InputFrame();
 
 	if (m_weaponSpin > 0.0f && wasSpinning == false) {
-		ourOwner.StartSoundDef("weapon_supernailgun.shoot", CHAN_ITEM, true);
+		ourOwner.StartSoundDef(GetDefString("snd_spinUp"), CHAN_ITEM, true);
 	}
 
 	ourOwner.tf_charge = SpinProgress();
@@ -661,7 +661,7 @@ tfKnife::FiredWeaponAttack(string fireInfo)
 		super::FiredWeaponAttack("");
 		victim.Damage(ourOwner, ourOwner, stabDecl, 1.0f, anglesToForward(ourOwner.GetViewAngle()), trace_endpos);
 		remove(stabDecl);
-		ourOwner.StartSoundDef("Weapon_Axe.Melee_Hit", CHAN_WEAPON, true);
+		ourOwner.StartSoundDef(GetSubDefString(fireInfo, "snd_hit"), CHAN_WEAPON, true);
 		return;
 	}
 

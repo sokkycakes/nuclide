@@ -1,0 +1,59 @@
+// Team Fortress template: base's footsteps with Action Quake 2 samples
+// (from zz_aq2.pk3, kept outside git). This file replaces base's.
+
+step_default.left
+{
+	attenuation static
+	footstep
+	pitch_min 0.9
+	pitch_max 1.1
+	volume 0.6
+	sample aq2/player/step1.wav
+	sample aq2/player/step2.wav
+	sample aq2/player/step3.wav
+	sample aq2/player/step4.wav
+	sample aq2/player/step5.wav
+	sample aq2/player/step6.wav
+	sample aq2/player/step7.wav
+	sample aq2/player/step8.wav
+	sample aq2/player/step9.wav
+	sample aq2/player/step10.wav
+	sample aq2/player/step11.wav
+	sample aq2/player/step12.wav
+}
+
+step_default.right
+{
+	attenuation static
+	footstep
+	pitch_min 0.9
+	pitch_max 1.1
+	volume 0.6
+	sample aq2/player/step1.wav
+	sample aq2/player/step2.wav
+	sample aq2/player/step3.wav
+	sample aq2/player/step4.wav
+	sample aq2/player/step5.wav
+	sample aq2/player/step6.wav
+	sample aq2/player/step7.wav
+	sample aq2/player/step8.wav
+	sample aq2/player/step9.wav
+	sample aq2/player/step10.wav
+	sample aq2/player/step11.wav
+	sample aq2/player/step12.wav
+}
+
+damage_bullet.hit
+{
+	sample common/null.wav
+}
+
+step_ladder.left
+{
+	sample common/null.wav
+}
+
+step_ladder.right
+{
+	sample common/null.wav
+}
