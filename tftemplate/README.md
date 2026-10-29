@@ -53,7 +53,6 @@ Arcane Dimensions' (SimonOC, dwere): private use only too.
 | Grenade Launcher | `v_grenade` (world `g_grenade`) | Arcane Dimensions grenade launcher |
 | Stickybomb Launcher | `v_sticky` (world `g_sticky`) | Hipnotic proximity gun |
 | Flamethrower | `v_flame` | Arcane Dimensions thunderbolt |
-| Minigun | `v_minigun` | Hipnotic laser cannon (AQ2's M4 sounds) |
 | Medi Gun | `v_medigun` | Rogue plasma gun |
 | Syringe Gun | `v_syringe` (world `g_syringe`) | Arcane Dimensions nailgun, QTest world model |
 | Fire Axe, Kukri | `v_fireaxe`, `v_kukri` | Arcane Dimensions shadow axes |
@@ -61,6 +60,24 @@ Arcane Dimensions' (SimonOC, dwere): private use only too.
 | Bat, Bottle, Shovel, Fists, Bonesaw | `v_axe` | Quake's axe world model |
 
 The PDAs keep base's axe.
+
+A third pack, `tftemplate/zz_dox.pk3` (also outside git, private use: its
+author only asks that nobody makes money from it), holds DOX's 1998 Team
+Fortress 1 addon "2men & a fast mofo + techboy" under `progs/dox/` and
+`sound/dox/`, so it replaces no Quake files:
+
+| TF | Model | Notes |
+|---|---|---|
+| Minigun | `v_minigun` | TF1 assault cannon, spin-up sound `asscan1` (AQ2's M4 fire sound) |
+| Sentry Gun | `sentry_gun` on `sentry_base` | skins 0 to 2 by level ("model_base", "tf_levelSkins") |
+| Dispenser | `dispenser` | |
+| Rocket | `rocket` | |
+| Pipe and sticky bombs | `pipe` | |
+
+It has more that isn't used yet: rocket launcher, pump and double-barrel
+shotgun, nailgun, railgun, wrench and fire axe view models, sentry and
+dispenser gibs, a hand grenade, MIRV, ammo box, armour and backpack, and the
+sentry's build and spot sounds (used), its idle sound and a "Medic!" call.
 
 Both packs add a `.framegroups` file next to each view model that splits its
 frames into animations, so the defs' `act_*` keys are animation numbers. Every

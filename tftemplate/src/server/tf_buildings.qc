@@ -59,6 +59,9 @@ public:
 	virtual void LevelChanged(void);
 
 	nonvirtual void _Think(void);
+	/** The "model_base" stand under the building, and the per-level
+	"tf_levelSkins" skin. */
+	nonvirtual void _UpdateLook(void);
 
 	string m_tfType;
 	float m_tfConstructing;
@@ -69,6 +72,7 @@ public:
 	string m_tfLevelHealth;
 	entity m_tfSapper;
 	float m_tfNextSapperTick;
+	ncRenderableEntity m_tfBase;
 };
 
 void
@@ -142,6 +146,32 @@ tfBuilding::PlaceFor(entity engineerEnt, vector placeOrigin, float placeYaw)
 	SetNextThink(0.1f);
 	StartSoundDef("weapon.pickup", CHAN_BODY, true);
 	LevelChanged();
+	_UpdateLook();
+}
+
+void
+tfBuilding::_UpdateLook(void)
+{
+	string baseModel = GetSpawnString("model_base");
+	string levelSkins = GetSpawnString("tf_levelSkins");
+
+	if (STRING_SET(baseModel)) {
+		if (!m_tfBase) {
+			m_tfBase = spawn(ncRenderableEntity);
+			m_tfBase.SetModel(baseModel);
+		}
+
+		m_tfBase.SetOrigin(origin);
+		m_tfBase.SetAngles([0, angles[1], 0]);
+		m_tfBase.SetRenderFX(GetRenderFX());
+		m_tfBase.SetRenderAmt(GetRenderAmt());
+		m_tfBase.SetRenderColor(GetRenderColor());
+	}
+
+	if (STRING_SET(levelSkins)) {
+		int skinCount = tokenize_console(levelSkins);
+		skin = stof(argv((int)bound(0, tf_buildingLevel - 1, skinCount - 1)));
+	}
 }
 
 bool
@@ -178,6 +208,12 @@ tfBuilding::Explode(entity attackerEnt)
 	}
 
 	tf_isBuilding = 0.0f;
+
+	if (m_tfBase) {
+		remove(m_tfBase);
+		m_tfBase = __NULL__;
+	}
+
 	Destroy();
 }
 
@@ -251,6 +287,7 @@ tfBuilding::WrenchHit(entity engineerEnt, float metalPerHit)
 			SetHealth(GetMaxHealth());
 			StartSoundDef("item_artifact_super_damage.pickup", CHAN_BODY, true);
 			LevelChanged();
+			_UpdateLook();
 		}
 	}
 
@@ -278,6 +315,11 @@ tfBuilding::_Think(void)
 		return;
 	}
 
+	/* the stand follows us if we fall, and copies sapper strobing */
+	if (m_tfBase) {
+		_UpdateLook();
+	}
+
 	if (m_tfConstructing) {
 		m_tfBuildProgress += 0.1f;
 		float buildFrac = min(m_tfBuildProgress / m_tfBuildTime, 1.0f);
@@ -285,7 +327,7 @@ tfBuilding::_Think(void)
 
 		if (buildFrac >= 1.0f) {
 			m_tfConstructing = 0.0f;
-			StartSoundDef("item.respawn", CHAN_BODY, true);
+			StartSoundDef(GetSpawnString("snd_built"), CHAN_BODY, true);
 		}
 		return;
 	}
@@ -510,7 +552,7 @@ tfSentryGun::BuildingThink(void)
 			m_tfTarget = FindTarget();
 
 			if (m_tfTarget) {
-				StartSoundDef("item_artifact_super_damage.attack", CHAN_VOICE, true);
+				StartSoundDef(GetSpawnString("snd_spot"), CHAN_VOICE, true);
 			}
 		}
 	}

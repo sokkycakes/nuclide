@@ -478,6 +478,13 @@ CodeCallback_Precache(void)
 		precache.Entity(classNames[i]);
 		precache.Entity(strcat(classNames[i], "_bot"));
 	}
+
+	/* the Engineer's buildings (the build PDA's "tf_buildings"), which no
+	   def_ key points at */
+	precache.Entity("tf_building_sentry");
+	precache.Entity("tf_building_dispenser");
+	precache.Entity("tf_building_tele_entrance");
+	precache.Entity("tf_building_tele_exit");
 }
 
 void

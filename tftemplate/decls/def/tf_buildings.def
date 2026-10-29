@@ -1,11 +1,14 @@
 // Team Fortress template: the Engineer's buildings, placed with the
-// Construction PDA. Stats are TF2's; models are Quake placeholders.
-// The keys are described in src/server/tf_buildings.qc.
+// Construction PDA. Stats are TF2's. The sentry and dispenser models are
+// DOX's TF1 ones (zz_dox.pk3, kept outside git, see the README); the
+// teleporters are still Quake placeholders. The keys are described in
+// src/server/tf_buildings.qc.
 
 entityDef tf_building_base
 {
 	"tf_upgradeCost"	"200"
 	"snd_acquire"		"weapon.pickup"
+	"snd_built"			"item.respawn"
 }
 
 entityDef tf_building_sentry
@@ -17,7 +20,11 @@ entityDef tf_building_sentry
 	"tf_optimalDistance"	"1100"
 	"tf_fromInflictor"		"1"
 	"inv_name"			"Sentry Gun"
-	"model"				"progs/g_nail2.mdl"
+	"model"				"progs/dox/sentry_gun.mdl"
+	"model_base"		"progs/dox/sentry_base.mdl"
+	"tf_levelSkins"		"0 1 2"
+	"snd_built"			"tf_dox.sentry.built"
+	"snd_spot"			"tf_dox.sentry.spot"
 	"mins"				"-20 -20 0"
 	"maxs"				"20 20 40"
 	"tf_buildingType"	"sentry"
@@ -54,7 +61,7 @@ entityDef tf_building_dispenser
 	"inherit"			"tf_building_base"
 	"spawnclass"		"tfDispenser"
 	"inv_name"			"Dispenser"
-	"model"				"maps/b_batt1.bsp"
+	"model"				"progs/dox/dispenser.mdl"
 	"mins"				"-16 -16 0"
 	"maxs"				"16 16 40"
 	"tf_buildingType"	"dispenser"

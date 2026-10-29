@@ -42,7 +42,7 @@ entityDef fireInfo_tf_rocketlauncher
 entityDef projectile_tf_rocket
 {
 	"spawnclass"		"ncProjectile"
-	"model"				"progs/missile.mdl"
+	"model"				"progs/dox/rocket.mdl"
 	"offset"			"24 8 -8"
 	"velocity"			"1100"
 	"fuse"				"10"
