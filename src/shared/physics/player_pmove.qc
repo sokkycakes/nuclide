@@ -61,6 +61,21 @@ ncPlayer::Physics_Fall(float flDownforce)
 
 	/* basic server-side falldamage */
 #ifdef SERVER
+	/* Source's landing step: 0.85 volume from 350 u/s, full volume once it
+	   hurts, or 0.5 landing in water. The next step waits 400 ms. */
+	if (flDownforce >= 350.0f) {
+		float landVolume = 0.85f;
+
+		if (WaterLevel() > 0) {
+			landVolume = 0.5f;
+		} else if (flDownforce >= minFallDistance) {
+			landVolume = 1.0f;
+		}
+
+		Footsteps_Play(landVolume, CHAN_AUTO);
+		m_timeUntilNextFootstep = time + 0.4f;
+	}
+
 	/* if we've reached a fallheight of minFallDistance qu, start applying damage */
 	if (flDownforce >= minFallDistance) {
 		float finalDamage;
@@ -271,6 +286,10 @@ ncPlayer::Physics_Jump(void)
 		if (GetFlags() & FL_ONGROUND) {
 			velocity[2] += m_pmoveVars.pm_jumpheight;
 #ifdef SERVER
+			/* Source pushes off with a full-volume step (CHAN_AUTO so a
+			   jump sound on CHAN_BODY doesn't cut it) */
+			Footsteps_Play(1.0f, CHAN_AUTO);
+
 			if (STRING_SET(m_sndJump)) {
 				StartSoundDef(m_sndJump, CHAN_BODY, true);
 			}

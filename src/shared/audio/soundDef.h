@@ -160,6 +160,8 @@ void SoundDef_Shutdown(void);
 int SoundDef_Precache(string sndDef);
 /** Play a soundDef on a given target entity. */
 void SoundDef_Play(entity targetEntity, int sndChannel, string sndDef);
+/** Play a soundDef on a given target entity at a set volume (0-1), in place of the def's own volume and footstep scaling. */
+void SoundDef_PlayVolume(entity targetEntity, int sndChannel, string sndDef, float sndVolume);
 /** Play a soundDef a a given location. */
 void SoundDef_PlayAt(vector worldPos, string sndDef);
 

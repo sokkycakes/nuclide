@@ -573,8 +573,9 @@ SoundDef_Stop(entity target, float chan)
 	sound(target, chan, "common/null.wav", 0.1f, ATTN_NORM, 100, SOUNDFLAG_FOLLOW, 0 );
 }
 
-void
-SoundDef_Play(entity target, int chan, string shader)
+/* volumeOverride < 0 uses the def's volume (scaled by "footstep") */
+static void
+SoundDef_PlayInternal(entity target, int chan, string shader, float volumeOverride)
 {
 	int r;
 	float volume;
@@ -630,7 +631,9 @@ SoundDef_Play(entity target, int chan, string shader)
 	if (newSound.flags & SNDFL_FOLLOW) {
 		flag |= SOUNDFLAG_FOLLOW;
 	}
-	if (newSound.flags & SNDFL_STEP) {
+	if (volumeOverride >= 0.0f) {
+		volume = volumeOverride;
+	} else if (newSound.flags & SNDFL_STEP) {
 		float s = vlen(target.velocity);
 
 		if (s <= (g_pmoveVars.pm_walkspeed * 0.5)) {
@@ -698,6 +701,18 @@ SoundDef_Play(entity target, int chan, string shader)
 	if (STRING_SET(newSound.distshader)) {
 		SoundDef_Distance(target, newSound.distshader);
 	}
+}
+
+void
+SoundDef_Play(entity target, int chan, string shader)
+{
+	SoundDef_PlayInternal(target, chan, shader, -1.0f);
+}
+
+void
+SoundDef_PlayVolume(entity target, int chan, string shader, float volume)
+{
+	SoundDef_PlayInternal(target, chan, shader, bound(0.0f, volume, 1.0f));
 }
 
 void

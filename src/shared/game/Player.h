@@ -246,6 +246,8 @@ public:
 	nonvirtual float WeaponAnimTime(void);
 
 	virtual void Footsteps_Update(void);
+	/** Plays the next foot's step sound for the surface below, at the given volume, on the given channel. Server-side. */
+	nonvirtual void Footsteps_Play(float, float);
 
 private:
 	nonvirtual void _UpdatePMoveVars(void);
@@ -323,6 +325,7 @@ private:
 	int voted;
 	int step;
 	float m_timeUntilNextFootstep;
+	int m_stepWadeSkip;
 
 	int m_underwaterDamageDealt;
 	float m_timeUnderwater;
