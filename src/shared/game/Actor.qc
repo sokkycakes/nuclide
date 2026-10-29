@@ -1829,43 +1829,61 @@ bool
 ncActor::RemoveAllItems(bool ignoreWeapons)
 {
 	ncItem linkedList = __NULL__;
+	ncItem keptFirst = __NULL__;
+	ncItem keptLast = __NULL__;
 
 	/* we posess nothing. auto return false. */
 	if (!m_itemList) {
 		return (false);
 	}
 
-	/* since we have something in the inventory, start there */
+	/* take the whole chain off first, then hand back what we keep.
+	   removing items one by one through RemoveItem() left the list
+	   pointing at a removed item, so nothing could be given after. */
 	linkedList = m_itemList;
+	m_itemList = __NULL__;
 
-	/* iterate through the inventory, then figure out if we already have it*/
 	while (linkedList) {
 		ncItem nextItem = (ncItem)linkedList.m_nextItem;
 
+		/* already gone */
 		if (!STRING_SET(linkedList.declclass)) {
-			linkedList = __NULL__;
-			break;
-		}
-
-		/* respect weapon filter */
-		if (!(ignoreWeapons && is.Weapon(linkedList) == true)) {
-			/* is this our active weapon? give it a chance to do work first */
-			if (m_activeWeapon == linkedList) {
-				m_activeWeapon._SwitchedFromCallback();
-				m_activeWeapon = __NULL__;
-			}
-
-			if (is.Item(linkedList) == true) {
-				RemoveItem(linkedList.declclass);
-			}
-
 			linkedList = nextItem;
 			continue;
 		}
 
+		/* respect weapon filter */
+		if (ignoreWeapons && is.Weapon(linkedList) == true) {
+			linkedList.m_nextItem = __NULL__;
+
+			if (keptLast) {
+				keptLast.m_nextItem = linkedList;
+			} else {
+				keptFirst = linkedList;
+			}
+
+			keptLast = linkedList;
+			linkedList = nextItem;
+			continue;
+		}
+
+		/* is this our active weapon? give it a chance to do work first */
+		if (m_activeWeapon == linkedList) {
+			m_activeWeapon._SwitchedFromCallback();
+			m_activeWeapon = __NULL__;
+		}
+
+		linkedList._RemovedCallback();
 		linkedList = nextItem;
 	}
 
+	m_itemList = keptFirst;
+
+	if (!m_itemList) {
+		m_firstWeapon = __NULL__;
+	}
+
+	SortWeaponChain();
 	return (true);
 }
 
