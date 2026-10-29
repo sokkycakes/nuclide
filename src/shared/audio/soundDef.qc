@@ -470,7 +470,7 @@ SoundDef_Distance(entity target, string shader)
 	}
 
 	/* pick a sample */
-	r = floor(random(0,  newSound.sample_count));
+	r = (int)min(floor(random(0, newSound.sample_count)), newSound.sample_count - 1);
 	tokenizebyseparator(newSound.samples, "\n");
 
 	/* set pitch */
@@ -534,7 +534,7 @@ SoundDef_DistancePos(vector pos, string shader)
 	}
 
 	/* pick a sample */
-	r = floor(random(0,  newSound.sample_count));
+	r = (int)min(floor(random(0, newSound.sample_count)), newSound.sample_count - 1);
 	tokenizebyseparator(newSound.samples, "\n");
 
 	/* set pitch */
@@ -598,7 +598,7 @@ SoundDef_Play(entity target, int chan, string shader)
 	}
 
 	/* pick a sample */
-	r = floor(random(0,  newSound.sample_count));
+	r = (int)min(floor(random(0, newSound.sample_count)), newSound.sample_count - 1);
 	tokenizebyseparator(newSound.samples, "\n");
 
 	/* set pitch */
@@ -622,6 +622,11 @@ SoundDef_Play(entity target, int chan, string shader)
 		}
 		r = newSound.playc++;
 	}
+
+	/* grab the sample now: the alert and shake calls below can run code
+	   that tokenizes, which would leave argv(r) pointing at their words */
+	string sampleName = argv(r);
+
 	if (newSound.flags & SNDFL_FOLLOW) {
 		flag |= SOUNDFLAG_FOLLOW;
 	}
@@ -651,7 +656,7 @@ SoundDef_Play(entity target, int chan, string shader)
 	}
 #endif
 
-	SndLog("Playing %S (radius: %f)", argv(r), newSound.dist_max );
+	SndLog("Playing %S (radius: %f)", sampleName, newSound.dist_max );
 
 #ifdef SERVER
 	if (newSound.shakes > 0.0) {
@@ -665,7 +670,7 @@ SoundDef_Play(entity target, int chan, string shader)
 			float dif = 1.0 - (dist/srad);
 			pSeat->m_flShakeFreq = (1.0 * dif) * newSound.shakes;
 			pSeat->m_flShakeAmp = (1.0 * dif) * newSound.shakes;
-			pSeat->m_flShakeDuration = soundlength(argv(r));
+			pSeat->m_flShakeDuration = soundlength(sampleName);
 			pSeat->m_flShakeTime = pSeat->m_flShakeDuration;
 		}
 	}
@@ -682,7 +687,7 @@ SoundDef_Play(entity target, int chan, string shader)
 	sound(
 		target,
 		chan,
-		argv(r),
+		sampleName,
 		volume,
 		radius,
 		pitch,
@@ -719,7 +724,7 @@ SoundDef_PlayAt(vector pos, string shader)
 	}
 
 	/* pick a sample */
-	r = floor(random(0,  newSound.sample_count));
+	r = (int)min(floor(random(0, newSound.sample_count)), newSound.sample_count - 1);
 	tokenizebyseparator(newSound.samples, "\n");
 
 	/* set pitch */
@@ -779,7 +784,7 @@ SoundDef_PlayLocal(string shader)
 	}
 
 	/* pick a sample */
-	r = floor(random(0,  newSound.sample_count));
+	r = (int)min(floor(random(0, newSound.sample_count)), newSound.sample_count - 1);
 	tokenizebyseparator(newSound.samples, "\n");
 
 	/* really? this doesn't do any more? */
@@ -813,7 +818,7 @@ SoundDef_Update(entity target, int channel, int sample, float volume)
 	}
 
 	/* pick a sample */
-	r = floor(random(0,  newSound.sample_count));
+	r = (int)min(floor(random(0, newSound.sample_count)), newSound.sample_count - 1);
 	tokenizebyseparator(newSound.samples, "\n");
 
 	/* set pitch */
@@ -875,7 +880,7 @@ SoundDef_Speak(entity target, string shader)
 	}
 
 	/* pick a sample */
-	r = floor(random(0,  newSound.sample_count));
+	r = (int)min(floor(random(0, newSound.sample_count)), newSound.sample_count - 1);
 	tokenizebyseparator(newSound.samples, "\n");
 
 	/* set pitch */

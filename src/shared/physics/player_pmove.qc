@@ -424,14 +424,19 @@ ncPlayer::Physics_WaterMove(void)
 		}
 	}
 
-	/* we've just exited water */
+	/* m_timeUnderwater is when our air runs out, or 0 while our head is
+	   above water, so we only gasp on the frame we surface (not on spawn) */
 	if (WaterLevel() != 3) {
-		if (m_timeUnderwater < time) {
+		if (m_timeUnderwater > 0.0f) {
+			if (m_timeUnderwater < time) {
 #warning Read sound from player decl
-			StartSoundDef(m_sndAirGaspHeavy, CHAN_BODY, true);
-		} else if (m_timeUnderwater < time + 9) {
-			StartSoundDef(m_sndAirGaspLight, CHAN_BODY, true);
+				StartSoundDef(m_sndAirGaspHeavy, CHAN_BODY, true);
+			} else if (m_timeUnderwater < time + 9) {
+				StartSoundDef(m_sndAirGaspLight, CHAN_BODY, true);
+			}
 		}
+		m_timeUnderwater = 0.0f;
+	} else if (m_timeUnderwater <= 0.0f) {
 #warning Read lung capacity for water from typeInfo water
 		m_timeUnderwater = time + 12;
 	} else if (m_timeUnderwater < time) {

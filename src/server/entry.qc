@@ -527,11 +527,12 @@ initents(void)
 	Materials_Init();
 	MOTD_Init();
 	PMove_Init();
+
+	/* before g_ents_initialized is set, or EntityDef_Precaches skips it */
+	precache.Entity("player");
 	g_ents_initialized = true;
 
 	BodyQue_Init();
-
-	precache.Entity("player");
 
 	currentRule.LinkProgs();
 	currentMap.LinkProgs();
