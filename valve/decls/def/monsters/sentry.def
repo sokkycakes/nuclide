@@ -35,10 +35,12 @@ entityDef monster_sentry
 	"fireFromHead"	"1"
 }
 
+// HL's turret.cpp: CSentry fires a dead-on 9mmAR bullet out to 1200 units
 entityDef ranged_sentry_shot
 {
 	"inherit"	"projectile_bullet_base"
-	"damage"	"skill:hgrunt_pellets"
+	"damage"	"skill:9mmAR_bullet"
+	"range"		"1200"
 	"delay"		"0.1"
 	"attempts"	"8"
 	"wait"		"2"

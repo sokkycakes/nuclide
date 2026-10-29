@@ -337,10 +337,7 @@ ncView::UpdateView(void)
 				pSeat->m_flDamageAlpha = 0.0f;
 				pSeat->m_vecDamagePos = g_vec_null;
 				pSeat->m_iDamageFlags = 0i;
-				pSeat->m_flShakeFreq = 0.0f;
-				pSeat->m_flShakeDuration = 0.0f;
-				pSeat->m_flShakeTime = 0.0f;
-				pSeat->m_flShakeAmp = 0.0f;
+				Shake_Stop();
 			}
 			_m_bWasAlive = false;
 		} else {

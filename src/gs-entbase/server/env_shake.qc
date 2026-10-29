@@ -137,16 +137,8 @@ env_shake::SpawnKey(string strKey, string setValue)
 void
 env_shake::Trigger(entity act, triggermode_t state)
 {
-	if (HasSpawnFlags(EVS_GLOBAL)) {
-		WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
-		WriteByte(MSG_MULTICAST, EV_SHAKE);
-		WriteFloat(MSG_MULTICAST, m_flDuration);
-		WriteFloat(MSG_MULTICAST, m_flAmplitude);
-		WriteFloat(MSG_MULTICAST, m_flFrequency);
-		multicast([0,0,0], MULTICAST_ALL_R);
-	} else {
-		Client_ShakeOnce(origin, m_flRadius, m_flDuration, m_flFrequency, m_flAmplitude);
-	}
+	/* a radius of 0 reaches everyone */
+	Client_ShakeOnce(origin, HasSpawnFlags(EVS_GLOBAL) ? 0.0f : m_flRadius, m_flDuration, m_flFrequency, m_flAmplitude);
 }
 
 void

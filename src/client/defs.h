@@ -400,6 +400,9 @@ struct
 	float m_flShakeDuration;
 	float m_flShakeTime;
 	float m_flShakeAmp;
+	float m_flShakeNext;
+	vector m_vecShakeOffset;
+	float m_flShakeAngle;
 
 	vector m_vecLag;
 
@@ -443,3 +446,6 @@ var ncRadar g_overview;
  *  @ingroup entities
  *  Entity classes that run entirely on the client.
  */
+
+void Shake_Start(float amplitude, float frequency, float duration);
+void Shake_Stop(void);

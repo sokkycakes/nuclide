@@ -101,6 +101,8 @@ in the game to spawn a projectile. Refer to ncEntity its own documentation for d
 - "offset" : Offset position from the owner. In units from face. Vector axis are [forward] [right] [up].
 - "damage" : Damage upon direct impact, respected when "def_damage" is not set.
 - "thrown" : Will not fly like a rocket, but be thrown like a grenade. Hold-time will be passed as a fuse.
+- "throw_speed" : When thrown, units per second for each degree the throw aims above straight down (default 5).
+- "throw_speed_max" : When thrown, the fastest throw (default 1000).
 - "reflects" : When 1, will reflect off surfaces.
 - "trackEnemy" : When 1, will track the nearest enemy.
 - "trackJitter" : Will jitter movement when tracking by this many units per second.
@@ -313,6 +315,8 @@ private:
 	vector m_vecDamageOffset;
 	vector m_vecImpactPos;
 	bool m_bThrown;
+	float m_flThrowSpeed;
+	float m_flThrowSpeedMax;
 	float m_timeUntilNextDamage;
 	float m_damageDelay;
 

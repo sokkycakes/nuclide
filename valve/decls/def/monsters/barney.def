@@ -57,10 +57,13 @@ entityDef monster_barney
 	}
 }
 
+// HL's barney.cpp: a 9mm bullet in a 2 degree cone, out to 1024 units
 entityDef ranged_barney_shot
 {
 	"inherit"	"projectile_bullet_base"
-	"damage"	"skill:hgrunt_pellets"
+	"damage"	"skill:9mm_bullet"
+	"spread"	"0.01745 0.01745"
+	"range"		"1024"
 	"delay"		"0.5"
 }
 
