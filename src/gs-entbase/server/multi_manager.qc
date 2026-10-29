@@ -69,10 +69,11 @@ multi_manager_sub::ActivateSub(void)
 	UseTargets(m_lastActivator, TRIG_TOGGLE, 0.0f);
 }
 
-/*! \brief Server-Entity: Triggers Up To 16 Different Targets */
+/*! \brief Server-Entity: Triggers Up To 64 Different Targets */
 /*!QUAKED multi_manager (1 0 0) (-8 -8 -8) (8 8 8) MM_MULTITHREADED
 # OVERVIEW
-Triggers a maximum of 16 user defined entities with additonal timers.
+Triggers a maximum of 64 user defined entities with additonal timers.
+(Half-Life allowed 16; Sven Co-op maps use more.)
 Add a target's name as an entity key, with the value set to the time in seconds
 that'll pass before the entity will be triggered.
 
@@ -89,11 +90,14 @@ This entity was introduced in Half-Life (1998).
 @ingroup serverentity
 @ingroup pointentity
 */
+#define MM_MAXTARGETS 64i
+
 class
 multi_manager:ncPointTrigger
 {
 private:
-	multi_manager_sub m_subTriggers[16];
+	multi_manager_sub m_subTriggers[MM_MAXTARGETS];
+	int m_subCount;
 	string m_triggerBuffer;
 
 public:
@@ -111,9 +115,10 @@ public:
 void
 multi_manager::multi_manager(void)
 {
-	for (int i = 0; i < 16; i++)
+	for (int i = 0; i < MM_MAXTARGETS; i++)
 		m_subTriggers[i] = __NULL__;
 
+	m_subCount = 0i;
 	m_triggerBuffer = __NULL__;
 }
 
@@ -122,22 +127,11 @@ multi_manager::Save(float handle)
 {
 	super::Save(handle);
 	SaveString(handle, "m_triggerBuffer", m_triggerBuffer);
-	SaveEntity(handle, "m_subTriggers_0", m_subTriggers[0]);
-	SaveEntity(handle, "m_subTriggers_1", m_subTriggers[1]);
-	SaveEntity(handle, "m_subTriggers_2", m_subTriggers[2]);
-	SaveEntity(handle, "m_subTriggers_3", m_subTriggers[3]);
-	SaveEntity(handle, "m_subTriggers_4", m_subTriggers[4]);
-	SaveEntity(handle, "m_subTriggers_5", m_subTriggers[5]);
-	SaveEntity(handle, "m_subTriggers_6", m_subTriggers[6]);
-	SaveEntity(handle, "m_subTriggers_7", m_subTriggers[7]);
-	SaveEntity(handle, "m_subTriggers_8", m_subTriggers[8]);
-	SaveEntity(handle, "m_subTriggers_9", m_subTriggers[9]);
-	SaveEntity(handle, "m_subTriggers_10", m_subTriggers[10]);
-	SaveEntity(handle, "m_subTriggers_11", m_subTriggers[11]);
-	SaveEntity(handle, "m_subTriggers_12", m_subTriggers[12]);
-	SaveEntity(handle, "m_subTriggers_13", m_subTriggers[13]);
-	SaveEntity(handle, "m_subTriggers_14", m_subTriggers[14]);
-	SaveEntity(handle, "m_subTriggers_15", m_subTriggers[15]);
+	SaveInt(handle, "m_subCount", m_subCount);
+
+	for (int i = 0; i < m_subCount; i++) {
+		SaveEntity(handle, sprintf("m_subTriggers_%i", i), m_subTriggers[i]);
+	}
 }
 
 void
@@ -147,55 +141,18 @@ multi_manager::Restore(string strKey, string setValue)
 	case "m_triggerBuffer":
 		m_triggerBuffer = ReadString(setValue);
 		break;
-	case "m_subTriggers_0":
-		m_subTriggers[0] = (multi_manager_sub)ReadEntity(setValue);
-		break;
-	case "m_subTriggers_1":
-		m_subTriggers[1] = (multi_manager_sub)ReadEntity(setValue);
-		break;
-	case "m_subTriggers_2":
-		m_subTriggers[2] = (multi_manager_sub)ReadEntity(setValue);
-		break;
-	case "m_subTriggers_3":
-		m_subTriggers[3] = (multi_manager_sub)ReadEntity(setValue);
-		break;
-	case "m_subTriggers_4":
-		m_subTriggers[4] = (multi_manager_sub)ReadEntity(setValue);
-		break;
-	case "m_subTriggers_5":
-		m_subTriggers[5] = (multi_manager_sub)ReadEntity(setValue);
-		break;
-	case "m_subTriggers_6":
-		m_subTriggers[6] = (multi_manager_sub)ReadEntity(setValue);
-		break;
-	case "m_subTriggers_7":
-		m_subTriggers[7] = (multi_manager_sub)ReadEntity(setValue);
-		break;
-	case "m_subTriggers_8":
-		m_subTriggers[8] = (multi_manager_sub)ReadEntity(setValue);
-		break;
-	case "m_subTriggers_9":
-		m_subTriggers[9] = (multi_manager_sub)ReadEntity(setValue);
-		break;
-	case "m_subTriggers_10":
-		m_subTriggers[10] = (multi_manager_sub)ReadEntity(setValue);
-		break;
-	case "m_subTriggers_11":
-		m_subTriggers[11] = (multi_manager_sub)ReadEntity(setValue);
-		break;
-	case "m_subTriggers_12":
-		m_subTriggers[12] = (multi_manager_sub)ReadEntity(setValue);
-		break;
-	case "m_subTriggers_13":
-		m_subTriggers[13] = (multi_manager_sub)ReadEntity(setValue);
-		break;
-	case "m_subTriggers_14":
-		m_subTriggers[14] = (multi_manager_sub)ReadEntity(setValue);
-		break;
-	case "m_subTriggers_15":
-		m_subTriggers[15] = (multi_manager_sub)ReadEntity(setValue);
+	case "m_subCount":
+		m_subCount = ReadInt(setValue);
 		break;
 	default:
+		if (substring(strKey, 0, 14) == "m_subTriggers_") {
+			int subIndex = stoi(substring(strKey, 14, -1));
+
+			if (subIndex >= 0i && subIndex < MM_MAXTARGETS) {
+				m_subTriggers[subIndex] = (multi_manager_sub)ReadEntity(setValue);
+			}
+			break;
+		}
 		super::Restore(strKey, setValue);
 	}
 }
@@ -243,7 +200,17 @@ multi_manager::Spawned(void)
 
 	super::Spawned();
 
-	for (b = 0; b < 16; b++) {
+	/* one sub-entity for each target. spawning them first, since
+	   spawning can tokenize and clobber argv() below */
+	iFields = tokenizebyseparator(m_triggerBuffer, " ");
+	m_subCount = iFields / 2i;
+
+	if (m_subCount > MM_MAXTARGETS) {
+		EntWarning("%i targets, only the first %i are used", m_subCount, MM_MAXTARGETS);
+		m_subCount = MM_MAXTARGETS;
+	}
+
+	for (b = 0; b < m_subCount; b++) {
 		m_subTriggers[b] = spawn(multi_manager_sub);
 		m_subTriggers[b].Spawn();
 	}
@@ -252,7 +219,7 @@ multi_manager::Spawned(void)
 	b = 0;
 	iFields = tokenizebyseparator(m_triggerBuffer, " ");
 	for (int i = 0; i < iFields; i+=2) {
-		if (b >= 16) {
+		if (b >= m_subCount) {
 			break;
 		}
 
@@ -278,7 +245,7 @@ multi_manager::Respawn(void)
 	SetValue(0i);
 
 	/* Mark them inactive */
-	for (int b = 0; b < 16; b++) {
+	for (int b = 0; b < m_subCount; b++) {
 		m_subTriggers[b].SetValue(0i);
 	}
 }
@@ -293,7 +260,7 @@ multi_manager::Trigger(entity act, triggermode_t state)
 
 	/* If not multi-threaded, we have to watch out 'til all triggers are done. */
 	if (!HasSpawnFlags(MM_MULTITHREADED)) {
-		for (int i = 0; i < 16; i++) {
+		for (int i = 0; i < m_subCount; i++) {
 			if (m_subTriggers[i].IsThinking() == true) {
 				return;
 			}
@@ -301,7 +268,7 @@ multi_manager::Trigger(entity act, triggermode_t state)
 	}
 
 	/* time to trigger our sub triggers */
-	for (int i = 0; i < 16; i++) {
+	for (int i = 0; i < m_subCount; i++) {
 		if (m_subTriggers[i].HasTriggerTarget() == false)
 			continue;
 
