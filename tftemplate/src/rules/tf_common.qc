@@ -207,6 +207,7 @@ TF_SpawnPlayer(entity playerEnt)
 		userinfo.SetString(playerEnt, "bottomcolor", "0x9aff");
 	}
 
+	ents.Input(playerEnt, "SetClassModel", classDef, playerEnt);
 	game.TeleportToSpawn(playerEnt);
 	TFServer_Resupply(playerEnt);
 	TF_Debug(sprintf("spawned %s as %s on %s", playerEnt.netname, classDef, TF_TeamName(playerTeam)));

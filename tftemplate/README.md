@@ -77,6 +77,32 @@ Fortress 1 addon "2men & a fast mofo + techboy" under `progs/dox/` and
 | Wrench | `v_wrench` | |
 | Fire Axe | `v_fireaxe` | two swings, 1 and 3 |
 
+A fourth pack, `tftemplate/zz_qlplayers.pk3` (outside git, private use:
+id Software's Quake Live models), gives each class a Quake Live player as
+a stand-in for its TF2 model, with the Quake Live red and blue team skins:
+
+| Class | Model | | Class | Model |
+|---|---|---|---|---|
+| Scout | Mynx | | Heavy | Tank Jr. |
+| Soldier | Grunt | | Engineer | Razor |
+| Pyro | Visor | | Medic | Janet |
+| Demoman | Bitterman | | Sniper | Orbb |
+| | | | Spy | Bones |
+
+Each Quake Live player is three models (legs, torso, head) joined by tags,
+with separate legs and torso animations. The pack bakes each one into a
+single `progs/ql/<model>_<team>.md2` with a `.framegroups` file: the legs
+and torso animations are paired into whole-body animations (idle, walk,
+run, crouch, jump, attack, melee attack, deaths, ...), and the textures go
+into one atlas per team. The class defs name them in "model_red" and
+"model_blue" and map the activities to those framegroups (see
+`tf_player_base` in `decls/def/tf_classes.def`); `tfPlayer` puts on the
+team's model when it spawns (the rules send it a `SetClassModel` input), and
+a disguised Spy wears the disguise's model. Without the pack, players keep
+`base`'s Quake player. Because the animations are paired, firing while
+running plays the standing attack for a moment.
+
+
 It has more that isn't used yet: nailgun and railgun view models, sentry
 and dispenser gibs, a hand grenade, MIRV, ammo box, armour and backpack, the
 sentry's idle sound and a "Medic!" call.
