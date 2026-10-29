@@ -803,3 +803,31 @@ CheckSpawn(void() spawnfunc)
 	/* count and mark as map spawned */
 	g_mapSpawnEntityCount++;
 }
+
+/** Spawns an entity the way the map would have, from a classname and
+map-style keys ("key" "value" pairs). Classes from QC, entityDefs and
+scripted entities all work. Returns world when the class doesn't exist.
+Meant for scripts, through QC.CallEntity("Script_SpawnEntity", ...). */
+entity
+Script_SpawnEntity(string entityClass, string keyValues)
+{
+	entity oldSelf = self;
+	ncEntity newEntity = (ncEntity)spawn();
+	void() spawnFunction = externvalue(0, strcat("spawnfunc_", entityClass));
+
+	newEntity.classname = entityClass;
+	__fullspawndata = sprintf("{ \"classname\" \"%s\" %s }", entityClass, keyValues);
+	self = newEntity;
+	CheckSpawn(spawnFunction);
+	self = oldSelf;
+	__fullspawndata = "";
+	g_mapSpawnEntityCount--;
+
+	if (wasfreed(newEntity)) {
+		return (world);
+	}
+
+	/* it didn't come from the map, so a map restart shouldn't bring it back */
+	newEntity._mapspawned = false;
+	return (newEntity);
+}

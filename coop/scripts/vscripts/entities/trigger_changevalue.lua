@@ -23,6 +23,8 @@ local function apply(ent, name, value, kind)
 	else
 		ent:SetField(name, value)
 	end
+	Sven.Debug("trigger_changevalue %s: %s %s = %s", tostring(keys.targetname),
+		ent:GetClassname(), name, tostring(ent:GetField(name)))
 end
 
 function InputUse()
