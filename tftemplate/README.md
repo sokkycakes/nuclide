@@ -42,11 +42,30 @@ a licence from id Software. The pack is for private use only.
 | Minigun | M4 (`v_m4`), a stand-in | `g_m4` |
 | Knife | `v_knife` | none |
 
-The other weapons keep their Quake placeholders: AQ2 has nothing like them.
-The pack adds a `.framegroups` file next to each view model that splits its
+The weapons AQ2 has nothing for come from the Quake mod "Worldmodel to
+Viewmodel (angled)" by Schrotflinte12, which turns Quake's world models into
+view models. They ship as `tftemplate/zz_wm2vm.pk3` under `progs/wm2vm/`,
+also outside git. The models are id Software's, Rogue's, Hipnotic's and
+Arcane Dimensions' (SimonOC, dwere): private use only too.
+
+| TF weapons | View model | From |
+|---|---|---|
+| Rocket Launcher | `v_rocket` | Arcane Dimensions rocket launcher |
+| Grenade Launcher | `v_grenade` (world `g_grenade`) | Arcane Dimensions grenade launcher |
+| Stickybomb Launcher | `v_sticky` (world `g_sticky`) | Hipnotic proximity gun |
+| Flamethrower | `v_flame` | Arcane Dimensions thunderbolt |
+| Medi Gun | `v_medigun` | Hipnotic laser cannon |
+| Syringe Gun | `v_syringe` (world `g_syringe`) | Arcane Dimensions nailgun, QTest world model |
+| Fire Axe, Kukri | `v_fireaxe`, `v_kukri` | Arcane Dimensions shadow axes |
+| Wrench | `v_wrench` | Hipnotic Mjolnir |
+| Bat, Bottle, Shovel, Fists, Bonesaw | `v_axe` | Quake's axe world model |
+
+The PDAs keep base's axe.
+Both packs add a `.framegroups` file next to each view model that splits its
 frames into animations, so the defs' `act_*` keys are animation numbers. Every
 model has 0 draw, 1 fire and 2 idle; 4 is the reload (a shell for the M3).
-The knife's 1 is the slash. Draw and reload lengths are scaled to TF2's
+The knife's 1 is the slash; the axes swing with 1 and 3 and up. Draw and
+reload lengths are scaled to TF2's
 times. The sounds are in `decls/sound/tf_aq2.sndshd`, and `player.sndshd`
 and `footsteps.sndshd` here replace base's files of the same name.
 
