@@ -60,6 +60,7 @@ public:
 	void tfPlayer(void);
 
 	virtual void SpawnKey(string, string);
+	virtual void Input(entity, string, string);
 	virtual void Respawn(void);
 	virtual void Damage(entity, entity, ncDict, float, vector, vector);
 	virtual void Death(entity, entity, int, vector, vector, int);
@@ -72,6 +73,9 @@ public:
 	nonvirtual void TFIgnite(entity, float, string);
 	nonvirtual void Extinguish(void);
 	nonvirtual void SetCloaked(bool);
+	/** Puts on a class's model for the player's team, when the class def
+	has "model_red" and "model_blue" and the pack holding them is there. */
+	nonvirtual void SetClassModel(string);
 	/** Makes a Spy look like a player of another team and class. */
 	nonvirtual void Disguise(float, string);
 	nonvirtual void Undisguise(void);
@@ -104,6 +108,7 @@ private:
 	nonvirtual void StartSpectating(void);
 	nonvirtual void UpdateRender(void);
 	nonvirtual void PublishInfo(void);
+	nonvirtual void ApplyClassModel(float, string);
 
 	bool m_tfNoAfterburn;
 	bool m_tfCanCloak;
@@ -117,6 +122,7 @@ private:
 	string m_tfWeaponMeter;
 	float m_tfRenderState;
 	float m_tfSpectateAt;
+	string m_tfClassDef;
 };
 
 void
@@ -154,6 +160,19 @@ tfPlayer::SpawnKey(string keyName, string setValue)
 		break;
 	default:
 		super::SpawnKey(keyName, setValue);
+	}
+}
+
+void
+tfPlayer::Input(entity activator, string inputName, string inputData)
+{
+	switch (inputName) {
+	/* from the rules (TF_SpawnPlayer), which can't call tfPlayer's methods */
+	case "SetClassModel":
+		SetClassModel(inputData);
+		break;
+	default:
+		super::Input(activator, inputName, inputData);
 	}
 }
 
@@ -456,6 +475,44 @@ TF_TeamColorString(float teamID)
 	return (teamID == TF_TEAM_RED) ? "0xff1800" : "0x9aff";
 }
 
+/* whether a model file is installed (the Quake Live models live in a pack
+   outside git) */
+static bool
+TF_ModelInstalled(string modelPath)
+{
+	filestream fileHandle = fopen(modelPath, FILE_READ);
+
+	if (fileHandle < 0) {
+		return (false);
+	}
+
+	fclose(fileHandle);
+	return (true);
+}
+
+void
+tfPlayer::ApplyClassModel(float teamID, string classDef)
+{
+	string modelPath = entityDef.GetString(classDef, (teamID == TF_TEAM_BLU) ? "model_blue" : "model_red");
+
+	if (!STRING_SET(modelPath) || !TF_ModelInstalled(modelPath)) {
+		return;
+	}
+
+	/* the model mustn't change the player's hull */
+	vector hullMins = mins;
+	vector hullMaxs = maxs;
+	SetModel(modelPath);
+	SetSize(hullMins, hullMaxs);
+}
+
+void
+tfPlayer::SetClassModel(string classDef)
+{
+	m_tfClassDef = classDef;
+	ApplyClassModel(team, classDef);
+}
+
 void
 tfPlayer::Disguise(float teamID, string classDef)
 {
@@ -464,6 +521,7 @@ tfPlayer::Disguise(float teamID, string classDef)
 	userinfo.SetString(this, "topcolor", TF_TeamColorString(teamID));
 	userinfo.SetString(this, "bottomcolor", TF_TeamColorString(teamID));
 	userinfo.SetString(this, "*tf_disguise", sprintf("%d %s", teamID, classDef));
+	ApplyClassModel(teamID, classDef);
 }
 
 void
@@ -478,6 +536,10 @@ tfPlayer::Undisguise(void)
 	userinfo.SetString(this, "topcolor", TF_TeamColorString(team));
 	userinfo.SetString(this, "bottomcolor", TF_TeamColorString(team));
 	userinfo.SetString(this, "*tf_disguise", "");
+
+	if (STRING_SET(m_tfClassDef) && GetHealth() > 0) {
+		ApplyClassModel(team, m_tfClassDef);
+	}
 }
 
 void

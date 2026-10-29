@@ -1,9 +1,9 @@
 // Team Fortress template: player classes.
 //
 // Every class is an entityDef named tfclass_<name> that inherits the base
-// game's "player" def (model, animations) and spawns as tfPlayer. The rules
-// register the classes listed in the tf_classes cvar for both teams, in that
-// order, which also fills Nuclide's class menu.
+// game's "player" def and spawns as tfPlayer (models and animations: see
+// tf_player_base). The rules register the classes listed in the tf_classes
+// cvar for both teams, in that order, which also fills Nuclide's class menu.
 //
 // Stats are Team Fortress 2's health and speeds (crouching moves at a third
 // of the class's speed, backing up at 90%), and each class carries its
@@ -40,11 +40,40 @@ entityDef tf_player_base
 	"pm_jumpspeedcap"	"1.2"
 	"tf_capRate"		"1"
 	"tf_regen"			"0"
+
+	// Quake Live player models stand in for TF2's (zz_qlplayers.pk3, see
+	// README). Their framegroups, baked from each model's legs and torso
+	// animations: 0 idle, 1 walk, 2 run, 3 back, 4 crouch idle, 5 crouch
+	// walk, 6 jump, 7 attack, 8 melee attack, 9 gesture, 10-15 deaths and
+	// dead poses, 16 swim, 17 draw, 18 crouched attack, 19 crouched melee.
+	"act_idle"				"0"
+	"act_walk"				"1"
+	"act_run"				"2"
+	"act_idle_crouch"		"4"
+	"act_walk_crouch"		"5"
+	"act_jump"				"6"
+	"act_swim"				"16"
+	"act_treadwater"		"16"
+	"act_draw"				"17"
+	"act_attack"			"7"
+	"act_attack_crouch"		"18"
+	"act_attack_rocket"		"7"
+	"act_attack_nailgun"	"7"
+	"act_attack_lightning"	"7"
+	"act_attack_axe"		"8"
+	"act_attack_crouch_axe"	"19"
+	"act_idle_axe"			"0"
+	"act_walk_axe"			"1"
+	"act_run_axe"			"2"
+	"act_pain"				"0"
+	"act_death"				"10,12,14"
 }
 
 entityDef tfclass_scout
 {
 	"inherit"			"tf_player_base"
+	"model_red"			"progs/ql/mynx_red.md2"
+	"model_blue"		"progs/ql/mynx_blue.md2"
 	"tf_classIndex"		"1"
 	"tf_role"			"offense"
 	"health"			"125"
@@ -68,6 +97,8 @@ entityDef tfclass_scout_bot
 entityDef tfclass_soldier
 {
 	"inherit"			"tf_player_base"
+	"model_red"			"progs/ql/grunt_red.md2"
+	"model_blue"		"progs/ql/grunt_blue.md2"
 	"tf_classIndex"		"2"
 	"tf_role"			"offense"
 	"health"			"200"
@@ -89,6 +120,8 @@ entityDef tfclass_soldier_bot
 entityDef tfclass_pyro
 {
 	"inherit"			"tf_player_base"
+	"model_red"			"progs/ql/visor_red.md2"
+	"model_blue"		"progs/ql/visor_blue.md2"
 	"tf_classIndex"		"3"
 	"tf_role"			"offense"
 	"health"			"175"
@@ -111,6 +144,8 @@ entityDef tfclass_pyro_bot
 entityDef tfclass_demoman
 {
 	"inherit"			"tf_player_base"
+	"model_red"			"progs/ql/bitterman_red.md2"
+	"model_blue"		"progs/ql/bitterman_blue.md2"
 	"tf_classIndex"		"4"
 	"tf_role"			"defense"
 	"health"			"175"
@@ -132,6 +167,8 @@ entityDef tfclass_demoman_bot
 entityDef tfclass_heavy
 {
 	"inherit"			"tf_player_base"
+	"model_red"			"progs/ql/tankjr_red.md2"
+	"model_blue"		"progs/ql/tankjr_blue.md2"
 	"tf_classIndex"		"5"
 	"tf_role"			"defense"
 	"health"			"300"
@@ -153,6 +190,8 @@ entityDef tfclass_heavy_bot
 entityDef tfclass_engineer
 {
 	"inherit"			"tf_player_base"
+	"model_red"			"progs/ql/razor_red.md2"
+	"model_blue"		"progs/ql/razor_blue.md2"
 	"tf_classIndex"		"6"
 	"tf_role"			"defense"
 	"health"			"125"
@@ -174,6 +213,8 @@ entityDef tfclass_engineer_bot
 entityDef tfclass_medic
 {
 	"inherit"			"tf_player_base"
+	"model_red"			"progs/ql/janet_red.md2"
+	"model_blue"		"progs/ql/janet_blue.md2"
 	"tf_classIndex"		"7"
 	"tf_role"			"support"
 	"health"			"150"
@@ -196,6 +237,8 @@ entityDef tfclass_medic_bot
 entityDef tfclass_sniper
 {
 	"inherit"			"tf_player_base"
+	"model_red"			"progs/ql/orbb_red.md2"
+	"model_blue"		"progs/ql/orbb_blue.md2"
 	"tf_classIndex"		"8"
 	"tf_role"			"sniper"
 	"health"			"125"
@@ -217,6 +260,8 @@ entityDef tfclass_sniper_bot
 entityDef tfclass_spy
 {
 	"inherit"			"tf_player_base"
+	"model_red"			"progs/ql/bones_red.md2"
+	"model_blue"		"progs/ql/bones_blue.md2"
 	"tf_classIndex"		"9"
 	"tf_role"			"support"
 	"health"			"125"
