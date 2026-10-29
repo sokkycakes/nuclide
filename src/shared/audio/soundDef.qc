@@ -671,10 +671,7 @@ SoundDef_PlayInternal(entity target, int chan, string shader, float volumeOverri
 		float dist = vlen(pSeat->m_vecPredictedOrigin - target.origin);
 		if (dist < srad) {
 			float dif = 1.0 - (dist/srad);
-			pSeat->m_flShakeFreq = (1.0 * dif) * newSound.shakes;
-			pSeat->m_flShakeAmp = (1.0 * dif) * newSound.shakes;
-			pSeat->m_flShakeDuration = soundlength(sampleName);
-			pSeat->m_flShakeTime = pSeat->m_flShakeDuration;
+			Shake_Start(dif * newSound.shakes, dif * newSound.shakes, soundlength(sampleName));
 		}
 	}
 #endif

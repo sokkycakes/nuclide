@@ -20,7 +20,7 @@ entityDef monster_human_grunt
 	// primary ranged attack
 	"def_attack_ranged"		"ranged_hgrunt_mp5"
 	"snd_ranged_attack"		"HGrunt.9MM"
-	"attack_ranged_range"	"1024"
+	"attack_ranged_range"	"2048"
 	"reload_count"			"30"
 
 	// special attack
@@ -84,10 +84,15 @@ entityDef melee_hgrunt_kick
 	"range"			"64"
 }
 
+// HL's hgrunt.cpp: one 9mmAR bullet per shot in a 10 degree cone, out
+// to 2048 units; the shotgun fires sk_hgrunt_pellets buckshot pellets in
+// a 15 degree cone
 entityDef ranged_hgrunt_mp5
 {
 	"inherit"		"projectile_bullet_base"
-	"damage"		"skill:hgrunt_pellets"
+	"damage"		"skill:9mmAR_bullet"
+	"spread"		"0.08716 0.08716"
+	"range"			"2048"
 	"burst"			"3"
 	"burst_delay"	"0.5"
 	"delay"			"0.1"
@@ -96,7 +101,10 @@ entityDef ranged_hgrunt_mp5
 entityDef ranged_hgrunt_shot
 {
 	"inherit"		"projectile_bullet_base"
-	"damage"		"skill:hgrunt_pellets"
+	"damage"		"skill:plr_buckshot"
+	"hitscans"		"skill:hgrunt_pellets"
+	"spread"		"0.13053 0.13053"
+	"range"			"2048"
 	"delay"			"1.0"
 }
 

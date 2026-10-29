@@ -53,8 +53,12 @@ entityDef projectile_handgrenade
 	"spawnclass"		"ncProjectile"
 	"model"				"models/w_grenade.mdl"
 	"frame"				"1"
-	"fuse"				"4"
+	// HL's handgrenade.cpp: it goes off 3 seconds after the pin is pulled,
+	// thrown at (90 - pitch) * 6.5 units per second, at most 1000
+	"fuse"				"3"
 	"thrown"			"1"
+	"throw_speed"		"6.5"
+	"throw_speed_max"	"1000"
 	"detonate_on_fuse"	"1"
 	"detonate_offset"	"64"
 	"bounce"			"1"

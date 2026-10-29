@@ -73,6 +73,8 @@ ncProjectile::ncProjectile(void)
 	/* ETQW-additions */
 	m_bIsBullet = false;
 	m_iShots = 1i;
+	m_flThrowSpeed = 5.0f;
+	m_flThrowSpeedMax = 1000.0f;
 	m_vecSpread = [0.0, 0.0, 0.0];
 	m_strDecalGroup = __NULL__;
 	m_flRange = 8192.0f;
@@ -292,6 +294,12 @@ ncProjectile::SpawnKey(string keyName, string setValue)
 	case "thrown":
 		m_bThrown = ReadBool(setValue);
 		break;
+	case "throw_speed":
+		m_flThrowSpeed = ReadFloat(setValue);
+		break;
+	case "throw_speed_max":
+		m_flThrowSpeedMax = ReadFloat(setValue);
+		break;
 	case "reflects":
 		m_bReflect = ReadBool(setValue);
 		break;
@@ -385,6 +393,8 @@ ncProjectile::Save(float handle)
 	SaveFloat(handle, "m_flSpawnFrame", m_flSpawnFrame);
 	SaveBool(handle, "m_bInheritVelocity", m_bInheritVelocity);
 	SaveBool(handle, "m_bThrown", m_bThrown);
+	SaveFloat(handle, "m_flThrowSpeed", m_flThrowSpeed);
+	SaveFloat(handle, "m_flThrowSpeedMax", m_flThrowSpeedMax);
 }
 
 void
@@ -543,6 +553,12 @@ ncProjectile::Restore(string keyName, string setValue)
 		break;
 	case "m_bThrown":
 		m_bThrown = ReadBool(setValue);
+		break;
+	case "m_flThrowSpeed":
+		m_flThrowSpeed = ReadFloat(setValue);
+		break;
+	case "m_flThrowSpeedMax":
+		m_flThrowSpeedMax = ReadFloat(setValue);
 		break;
 	default:
 		super::Restore(keyName, setValue);
@@ -933,9 +949,11 @@ ncProjectile::_LaunchHitscan(vector startPos, vector launchDir, float dmgMultipl
 	m_iMultiValue = 0;
 
 	while (m_iShots > 0) {
+		/* the sum of two randoms, as GoldSrc and Source spread bullets:
+		   still up to the full spread, but most land near the middle */
 		vecDir = anglesToForward(launchDir);
-		vecDir += random(-1,1) * m_vecSpread[0] * anglesToRight(launchDir);
-		vecDir += random(-1,1) * m_vecSpread[1] * anglesToUp(launchDir);
+		vecDir += (random(-0.5, 0.5) + random(-0.5, 0.5)) * m_vecSpread[0] * anglesToRight(launchDir);
+		vecDir += (random(-0.5, 0.5) + random(-0.5, 0.5)) * m_vecSpread[1] * anglesToUp(launchDir);
 		_FireSingle(startPos, vecDir, m_flDamage, m_flRange);
 		m_iShots--;
 	}
@@ -1267,6 +1285,12 @@ ncProjectile::_ThrustThink(void)
 void
 ncProjectile::OnRemoveEntity(void)
 {
+	/* a looping flight sound (the rocket's) would keep playing where we
+	   went away */
+	if (STRING_SET(m_sndFly)) {
+		StopSound(CHAN_BODY, true);
+	}
+
 	if (m_thrustHandler) {
 		m_thrustHandler.Destroy(); /* invalidate */
 		m_thrustHandler = 0;
@@ -1330,8 +1354,8 @@ ncProjectile::Launch(vector startPos, vector launchDir, float fuseOffset, float 
 			throwDirection[0] += (launchDir[0] * 1.1f);
 		}
 
-		throwingStrength = bound(0, (90 - throwDirection[0]) * 5.0f, 1000);
-		moveVel = (v_forward * throwingStrength) + owner.velocity;
+		throwingStrength = bound(0, (90 - throwDirection[0]) * m_flThrowSpeed, m_flThrowSpeedMax);
+		moveVel = (anglesToForward(throwDirection) * throwingStrength) + owner.velocity;
 	}
 
 	/* fire slower underwater */
