@@ -234,13 +234,17 @@ and seperate 2D plane operations from 3D ones. This is where the HUD, Chat etc.
 will be drawn. They don't necessarily have to be 2D but this is just a clear
 distinction from 3D world elements and overlays.
 */
+var bool autocvar_cg_scoresWhenDead = true;
+
 void
 CSQC_Update2D(float w, float h, bool focus)
 {
 	ncPlayer cl = (ncPlayer)pSeat->m_ePlayer;
 	self = cl;
 
-	if (Util_GetMaxPlayers() > 1 && !VGUI_Active() && (Client_InIntermission() || (!cl.IsFakeSpectator() && cl.IsDead() && cl.m_spectatingMode != SPECMODE_DEATHCAM))) {
+	/* multiplayer shows the scores while dead; cg_scoresWhenDead 0 keeps
+	   the normal view (co-op, where the player waits to be revived) */
+	if (Util_GetMaxPlayers() > 1 && !VGUI_Active() && (Client_InIntermission() || (autocvar_cg_scoresWhenDead && !cl.IsFakeSpectator() && cl.IsDead() && cl.m_spectatingMode != SPECMODE_DEATHCAM))) {
 		HUD_DrawIntermission();
 		Textmenu_Draw();
 		HUDProgs_DrawScores();

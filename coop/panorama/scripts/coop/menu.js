@@ -404,7 +404,7 @@ var CoopMenu = ( function ()
 		[ "invnext", "Next weapon" ], [ "invprev", "Previous weapon" ], [ "slot1", "Weapon slot 1" ],
 		[ "slot2", "Weapon slot 2" ], [ "slot3", "Weapon slot 3" ], [ "slot4", "Weapon slot 4" ],
 		[ "slot5", "Weapon slot 5" ], [ "+showscores", "Scores" ], [ "messagemode", "Chat" ],
-		[ "messagemode2", "Team chat" ], [ "cmd selectskills", "XP skill menu" ], [ "cmd shop", "Points shop" ], [ "vote yes", "Vote yes" ],
+		[ "messagemode2", "Team chat" ], [ "cmd selectskills", "Skills" ], [ "cmd shop", "Shop and skills" ], [ "vote yes", "Vote yes" ],
 		[ "vote no", "Vote no" ], [ "impulse 201", "Spray" ]
 	];
 	var binds = {};
@@ -593,7 +593,7 @@ var CoopMenu = ( function ()
 		list.RemoveAndDeleteChildren();
 		mainButtons = [];
 		var items = inGame ?
-			[ [ "", "Resume", resume ], [ "", "Points shop", function () { cmd( "cmd shop" ); } ], [ "vote", "Vote", votePage ], [ "options", "Options", function () { optionsPage(); } ],
+			[ [ "", "Resume", resume ], [ "", "Shop and skills", function () { cmd( "cmd shop" ); } ], [ "vote", "Vote", votePage ], [ "options", "Options", function () { optionsPage(); } ],
 			  [ "-" ], [ "", "Disconnect", function () { cmd( "disconnect" ); } ], [ "", "Quit", function () { cmd( "quit" ); } ] ] :
 			[ [ "play", "Play", playPage ], [ "servers", "Find servers", serversPage ], [ "options", "Options", function () { optionsPage(); } ],
 			  [ "-" ], [ "", "Quit", function () { cmd( "quit" ); } ] ];

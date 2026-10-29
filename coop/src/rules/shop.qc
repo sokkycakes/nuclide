@@ -21,6 +21,8 @@
      it, so buying doesn't lower anyone's score.
    - coop_shop 0 turns the shop off, 1 (default) opens it at any time,
      2 only between waves.
+   - Players who are down or waiting to respawn can shop too: what they
+     buy is kept and given to them when they spawn or are revived.
    - The price list is coop_shopFile (scripts/shop.txt), read when a map
      starts.
    - "cmd shop" asks for the list. The server answers with menu_coop
@@ -44,6 +46,18 @@ int g_shopPrice[SHOP_MAXITEMS];
 int g_shopCount;
 
 int g_coopPoints[COOP_MAXPLAYERS];
+string g_shopQueue[COOP_MAXPLAYERS];	/* items bought while down, zoned: " 3 5 5" */
+
+/* is item n in pl's respawn order? */
+bool
+Shop_Queued(int slot, int n)
+{
+	if (slot < 0i || !g_shopQueue[slot]) {
+		return (false);
+	}
+
+	return (strstrofs(strcat(g_shopQueue[slot], " "), sprintf(" %i ", n)) >= 0) ? true : false;
+}
 
 void
 Coop_AddPoints(entity pl, int amount)
@@ -116,10 +130,6 @@ Shop_Closed(entity pl)
 		return ("The shop opens between waves.");
 	}
 
-	if (!is.Alive(pl)) {
-		return ("You can't shop while you're down.");
-	}
-
 	return ("");
 }
 
@@ -128,6 +138,31 @@ string
 Shop_Refuse(entity pl, int n)
 {
 	tokenize(g_shopGive[n]);
+
+	/* down or waiting to respawn: the item is given at spawn */
+	if (!is.Alive(pl)) {
+		int slot = Coop_Slot(pl);
+
+		switch (argv(0)) {
+		case "health":
+			return ("You respawn with full health.");
+		case "armor":
+			if (Shop_Queued(slot, n)) {
+				return ("You'll get it when you respawn.");
+			}
+			break;
+		default:
+			if (substring(argv(0), 0, 7) == "weapon_" && Shop_Queued(slot, n)) {
+				return ("You'll get it when you respawn.");
+			}
+		}
+
+		if (Coop_Points(pl) < g_shopPrice[n]) {
+			return ("Not enough points.");
+		}
+
+		return ("");
+	}
 
 	switch (argv(0)) {
 	case "health":
@@ -163,6 +198,7 @@ Shop_State(entity pl, int n)
 	case "Not enough points.":
 		return (1i);
 	case "You have one.":
+	case "You'll get it when you respawn.":
 		return (2i);
 	default:
 		return (3i);
@@ -186,27 +222,12 @@ Shop_Send(entity pl, string message)
 	stuffcmd(pl, "menu_coop shop_end\n");
 }
 
+/* hands over item n */
 void
-Shop_Buy(entity pl, int n)
+Shop_Give(entity pl, int n)
 {
-	string why;
 	string what;
 	float amount;
-
-	if (n < 0i || n >= g_shopCount) {
-		return;
-	}
-
-	why = Shop_Closed(pl);
-
-	if (why == "") {
-		why = Shop_Refuse(pl, n);
-	}
-
-	if (why != "") {
-		Shop_Send(pl, why);
-		return;
-	}
 
 	tokenize(g_shopGive[n]);
 	what = argv(0);
@@ -226,10 +247,74 @@ Shop_Buy(entity pl, int n)
 			ents.Input(pl, "GiveItem", what, pl);
 		}
 	}
+}
 
-	g_coopPoints[Coop_Slot(pl)] -= g_shopPrice[n];
+void
+Shop_Buy(entity pl, int n)
+{
+	string why;
+	int slot = Coop_Slot(pl);
+
+	if (n < 0i || n >= g_shopCount || slot < 0i) {
+		return;
+	}
+
+	why = Shop_Closed(pl);
+
+	if (why == "") {
+		why = Shop_Refuse(pl, n);
+	}
+
+	if (why != "") {
+		Shop_Send(pl, why);
+		return;
+	}
+
+	g_coopPoints[slot] -= g_shopPrice[n];
 	print(sprintf("coop: %s bought %s for %i\n", pl.netname, g_shopName[n], g_shopPrice[n]));
-	Shop_Send(pl, sprintf("Bought %s.", g_shopName[n]));
+
+	if (is.Alive(pl)) {
+		Shop_Give(pl, n);
+		Shop_Send(pl, sprintf("Bought %s.", g_shopName[n]));
+	} else {
+		string old = g_shopQueue[slot];
+		g_shopQueue[slot] = strzone(sprintf("%s %i", old, n));
+
+		if (old) {
+			strunzone(old);
+		}
+
+		Shop_Send(pl, sprintf("Bought %s. You'll get it when you respawn.", g_shopName[n]));
+	}
+}
+
+/* a player spawned or was revived: hand over what they bought while down */
+void
+Shop_PlayerSpawned(entity pl)
+{
+	int slot = Coop_Slot(pl);
+
+	if (slot < 0i || !g_shopQueue[slot]) {
+		return;
+	}
+
+	string order = g_shopQueue[slot];
+	g_shopQueue[slot] = __NULL__;
+	int c = (int)tokenize(order);
+
+	/* Shop_Give tokenizes too, so take the numbers first */
+	int items[SHOP_MAXITEMS];
+	for (int i = 0i; i < c && i < SHOP_MAXITEMS; i++) {
+		items[i] = stoi(argv(i));
+	}
+
+	for (int i = 0i; i < c && i < SHOP_MAXITEMS; i++) {
+		if (items[i] >= 0i && items[i] < g_shopCount) {
+			Shop_Give(pl, items[i]);
+		}
+	}
+
+	strunzone(order);
 }
 
 bool
@@ -256,5 +341,11 @@ Shop_PlayerConnect(entity pl)
 
 	if (slot >= 0i) {
 		g_coopPoints[slot] = 0i;
+
+		if (g_shopQueue[slot]) {
+			strunzone(g_shopQueue[slot]);
+		}
+
+		g_shopQueue[slot] = __NULL__;
 	}
 }
