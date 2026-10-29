@@ -533,6 +533,21 @@ tfPlayer::PublishInfo(void)
 	userinfo.SetFloat(this, "*hp", rint(max(GetHealth(), 0)));
 	userinfo.SetFloat(this, "*maxhp", max_health);
 
+	/* the class for the HUD's portrait: "tfclass_soldier_bot" is "soldier" */
+	string className = tf_desiredClass;
+
+	if (substring(className, 0, 8) == "tfclass_") {
+		className = substring(className, 8, -1);
+	}
+
+	if (substring(className, -4, 4) == "_bot") {
+		className = substring(className, 0, strlen(className) - 4);
+	}
+
+	if (className != userinfo.GetString(this, "*tf_class")) {
+		userinfo.SetString(this, "*tf_class", className);
+	}
+
 	if (meterText != userinfo.GetString(this, "*tf_meter")) {
 		userinfo.SetString(this, "*tf_meter", meterText);
 	}

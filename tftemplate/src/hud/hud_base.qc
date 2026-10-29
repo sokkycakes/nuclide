@@ -25,6 +25,9 @@ HUD_Init(void)
 	Nameplates_Name = TFHUD_PlateName;
 }
 
+void HUD_DrawPlainStatus(string healthValue, string ammoValue);
+void HUD_DrawKillFeed(void);
+
 void
 HUD_Draw(void)
 {
@@ -33,11 +36,6 @@ HUD_Draw(void)
 	TFHUD_DrawMeter();
 	TFHUD_DrawCrosshair();
 	TFHUD_DrawReload();
-
-	vector hud_mins = screen.HUDMins();
-	vector hudSize = screen.HUDSize();
-	vector iconPos = hud_mins + (hudSize / 2);
-	iconPos[1] = (hudSize[1] - baseIconSize) - baseIconPadding;
 
 	string healthValue = ftos(player.GetHealth());
 	string ammoValue = ftos(weapon.GetAmmo1());
@@ -58,6 +56,26 @@ HUD_Draw(void)
 
 		g_damageAlpha -= clframetime;
 	}
+
+	/* weapon title and kill feed stay below; health and ammo come from the
+	   TF2 HUD when one is installed */
+	if (TFVGui_Active()) {
+		TFVGui_Draw();
+	} else {
+		HUD_DrawPlainStatus(healthValue, ammoValue);
+	}
+
+	HUD_DrawKillFeed();
+}
+
+/** Health and ammo without a TF2 HUD. Team Fortress has no armor. */
+void
+HUD_DrawPlainStatus(string healthValue, string ammoValue)
+{
+	vector hud_mins = screen.HUDMins();
+	vector hudSize = screen.HUDSize();
+	vector iconPos = hud_mins + (hudSize / 2);
+	iconPos[1] = (hudSize[1] - baseIconSize) - baseIconPadding;
 
 	/* health; Team Fortress has no armor */
 	draw.RText(iconPos + [-((baseIconSize/2) + (baseIconPadding/2)) - baseIconPadding, 0], healthValue, FONT_HUD);
@@ -81,6 +99,14 @@ HUD_Draw(void)
 		iconPos[1] += font.GetHeight(FONT_HUD);
 		draw.RText(iconPos, weapon.GetTitle(), FONT_HUD);
 	}
+
+}
+
+void
+HUD_DrawKillFeed(void)
+{
+	vector hud_mins = screen.HUDMins();
+	vector iconPos;
 
 	if (g_killMsgTime < time && g_killMsgCount > 0i) {
 		for (int i = 0i; i < (KILLMESSAGE_LIMIT-1i); i++) {

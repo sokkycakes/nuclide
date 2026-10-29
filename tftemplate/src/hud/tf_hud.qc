@@ -26,6 +26,7 @@ serverinfo keys the rules publish, so the HUD needs no networked entities:
 
 font_s FONT_TF;
 bool g_tfHUDInit;
+bool TFVGui_Active(void);
 
 vector
 TFHUD_TeamColor(float teamID)
@@ -161,7 +162,17 @@ TFHUD_Draw(void)
 		headline = (timeLeft >= 0) ? TFHUD_Clock(timeLeft) : "";
 	}
 
-	if (STRING_SET(headline)) {
+	/* a TF2 HUD draws the clocks itself (tf_vguihud.qc) */
+	bool clocksDrawn = TFVGui_Active();
+
+	if (clocksDrawn) {
+		topCenter[1] += hudSize[1] / 480 * 36;
+
+		/* it has no panel for these */
+		if (roundState == TFROUND_PREROUND || roundState == TFROUND_WIN || roundState == TFROUND_STALEMATE) {
+			TFHUD_CenteredText(topCenter, headline, [1, 1, 1]);
+		}
+	} else if (STRING_SET(headline)) {
 		TFHUD_CenteredText(topCenter, headline, [1, 1, 1]);
 	}
 
@@ -211,7 +222,7 @@ TFHUD_Draw(void)
 	}
 
 	/* KOTH clocks either side of the point */
-	if (modeName == "koth") {
+	if (modeName == "koth" && !clocksDrawn) {
 		tokenize_console(serverinfo.GetString("tf_koth"));
 		string redClock = TFHUD_Clock(stof(argv(0)));
 		string bluClock = TFHUD_Clock(stof(argv(1)));
