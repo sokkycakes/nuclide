@@ -1,0 +1,14 @@
+#pragma target fte_5768
+#pragma progs_dat "../csprogs.dat"
+#pragma forcecrc 54730
+
+#define CSQC
+#define CLIENT
+
+#includelist
+../../src/common/fteextensions.qc
+lay.qc
+text.qc
+pause.qc
+main.qc
+#endlist
