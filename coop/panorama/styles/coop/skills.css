@@ -1,4 +1,4 @@
-/* XP mod skill menu, on top of menu.css and shop.css. */
+/* XP mod skills tab of the shop menu, on top of menu.css and shop.css. */
 
 .skills
 {
@@ -78,4 +78,33 @@
 .skills-list.spent .shop-key
 {
 	color: #555555;
+}
+
+/* the shop menu's two tabs (layout/coop/loadout.xml) */
+.loadout
+{
+	height: 840px;
+}
+.loadout-tabs
+{
+	padding: 8px 28px 0px 28px;
+	height: 56px;
+	margin-bottom: 0px;
+}
+.loadout-page
+{
+	width: 100%;
+	height: fill-parent-flow( 1.0 );
+	flow-children: down;
+	visibility: collapse;
+}
+.loadout-page.open { visibility: visible; }
+.tab.has-points Label { color: #ffd27a; }
+.tab.current.has-points Label { color: #ffa31a; }
+.skills-off
+{
+	width: 100%;
+	margin-top: 40px;
+	font-size: 26px;
+	color: #d0d0d0;
 }

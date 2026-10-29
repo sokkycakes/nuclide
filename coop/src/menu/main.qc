@@ -22,10 +22,12 @@
 
    Views: layout/coop/menu.xml is the title menu and, in a game, the pause
    menu; the script is told which with the "context" event.
-   layout/coop/shop.xml is the points shop and layout/coop/skills.xml the
-   XP mod's skill menu. The server sends them as menu_coop commands
-   (coop/src/rules/shop.qc, coop/src/plugins/xpm.qc), which open the view;
-   buying is "cmd buy <n>" and spending a skill point "cmd menuselect <n>". */
+   layout/coop/loadout.xml is the shop menu: a Shop tab with the points
+   shop and a Skills tab with the XP mod's skills. The server sends both
+   as menu_coop commands (coop/src/rules/shop.qc, coop/src/plugins/xpm.qc).
+   The shop list opens the view, the skills are kept for their tab, and
+   "menu_coop loadout_open <tab>" opens it on a tab. Buying is
+   "cmd buy <n>" and spending a skill point "cmd menuselect <n>". */
 
 /* Bulwark's view builtins, bound by name (docs/spec/ui.md) */
 float(string layout, float flags) ui_open = #0:ui_open;
@@ -39,8 +41,7 @@ typedef float bool;
 
 #define UI_INPUT 1
 #define MENU_LAYOUT "layout/coop/menu.xml"
-#define SHOP_LAYOUT "layout/coop/shop.xml"
-#define SKILLS_LAYOUT "layout/coop/skills.xml"
+#define LOADOUT_LAYOUT "layout/coop/loadout.xml"
 
 float g_view;
 bool g_inGame;		/* the open view was opened in a game (pause menu) */
@@ -49,9 +50,10 @@ bool g_browsing;
 float g_browseNext;
 float g_serverCount;
 vector g_screen;
-float g_panelView;	/* the shop or the skill menu */
-string g_panelKind;
-string g_panelJson;	/* the panel being received, zoned */
+float g_panelView;	/* the shop menu */
+string g_panelJson;	/* the list being received, zoned */
+string g_shopJson;	/* the last lists, zoned, for when the view opens */
+string g_skillsJson;
 
 /* ---- JSON --------------------------------------------------------------- */
 
@@ -206,7 +208,12 @@ Panel_Close(void)
 		setkeydest(0);
 
 	g_panelView = 0;
-	g_panelKind = "";
+}
+
+bool
+Panel_IsOpen(void)
+{
+	return (g_panelView && ui_isopen(g_panelView)) ? true : false;
 }
 
 void
@@ -217,15 +224,6 @@ Panel_Append(string s)
 
 	if (old)
 		strunzone(old);
-}
-
-void
-Panel_Drop(void)
-{
-	if (g_panelJson)
-		strunzone(g_panelJson);
-
-	g_panelJson = __NULL__;
 }
 
 void
@@ -244,40 +242,72 @@ Panel_Comma(void)
 	return (substring(g_panelJson, strlen(g_panelJson) - 1, 1) == "[") ? "" : ",";
 }
 
+/* opens the shop menu if it isn't up, on a tab, with the lists it has */
 void
-Panel_End(string kind, string layout)
+Panel_Open(string tab)
 {
-	if (!g_panelJson || clientstate() != 2)
+	if (clientstate() != 2)
 		return;
-
-	Panel_Append("]}");
 
 	if (Menu_IsOpen())
 		Menu_Close();
 
-	if (g_panelKind != kind)
-		Panel_Close();
-
-	if (!g_panelView || !ui_isopen(g_panelView)) {
-		g_panelView = ui_open(layout, UI_INPUT);
+	if (!Panel_IsOpen()) {
+		g_panelView = ui_open(LOADOUT_LAYOUT, UI_INPUT);
 
 		if (!g_panelView) {
-			print(sprintf("^1menu: can't open %s\n", layout));
+			print(sprintf("^1menu: can't open %s\n", LOADOUT_LAYOUT));
 			return;
 		}
 
-		g_panelKind = kind;
+		if (g_shopJson)
+			ui_post(g_panelView, "shop", g_shopJson);
+		if (g_skillsJson)
+			ui_post(g_panelView, "skills", g_skillsJson);
 	}
 
 	setkeydest(2);
-	ui_post(g_panelView, kind, g_panelJson);
-	Panel_Drop();
+
+	if (tab != "")
+		ui_post(g_panelView, "tab", Json_Str(tab));
+}
+
+/* a list is complete: keep it, and show it if the menu is up */
+void
+Panel_End(string kind)
+{
+	string json;
+
+	if (!g_panelJson)
+		return;
+
+	Panel_Append("]}");
+	json = g_panelJson;
+	g_panelJson = __NULL__;
+
+	if (kind == "shop") {
+		if (g_shopJson)
+			strunzone(g_shopJson);
+		g_shopJson = json;
+	} else {
+		if (g_skillsJson)
+			strunzone(g_skillsJson);
+		g_skillsJson = json;
+	}
+
+	/* the shop list is the answer to "cmd shop", so it opens the menu;
+	   skills also come on level-up and only update it */
+	if (kind == "shop" && !Panel_IsOpen())
+		Panel_Open("shop");
+	else if (Panel_IsOpen())
+		ui_post(g_panelView, kind, json);
 }
 
 /* menu_coop shop_begin <points> "<closed>" "<message>",
    shop_item <n> <category> "<name>" <price> <state>, shop_end;
    menu_coop skills_begin <points> <level> "<rank>",
-   skills_item <n> "<name>" <level> <max>, skills_end */
+   skills_item <n> "<name>" <level> <max>, skills_end;
+   menu_coop loadout_open <shop|skills>, panel_close */
 void
 Panel_Command(void)
 {
@@ -292,16 +322,9 @@ Panel_Command(void)
 				Panel_Comma(), stof(argv(2)), Json_Str(argv(3)), Json_Str(argv(4)), stof(argv(5)), stof(argv(6))));
 		break;
 	case "shop_end":
-		Panel_End("shop", SHOP_LAYOUT);
+		Panel_End("shop");
 		break;
 	case "skills_begin":
-		/* out of points while the menu is up: the last one was just spent */
-		if (stof(argv(2)) <= 0 && g_panelKind == "skills") {
-			Panel_Close();
-			Panel_Drop();	/* and ignore its items */
-			break;
-		}
-
 		Panel_Begin(sprintf("{\"points\":%d,\"level\":%d,\"rank\":%s,\"skills\":[",
 			stof(argv(2)), stof(argv(3)), Json_Str(argv(4))));
 		break;
@@ -311,7 +334,10 @@ Panel_Command(void)
 				Panel_Comma(), stof(argv(2)), Json_Str(argv(3)), stof(argv(4)), stof(argv(5))));
 		break;
 	case "skills_end":
-		Panel_End("skills", SKILLS_LAYOUT);
+		Panel_End("skills");
+		break;
+	case "loadout_open":
+		Panel_Open(argv(2));
 		break;
 	case "panel_close":
 		Panel_Close();

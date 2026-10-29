@@ -43,6 +43,7 @@ void Coop_AddPoints(entity pl, int amount);	/* shop.qc */
 void Shop_Load(void);
 void Shop_PlayerConnect(entity pl);
 bool Shop_ClientCommand(entity pl, string command);
+void Shop_PlayerSpawned(entity pl);
 int Coop_Points(entity pl);
 
 var float autocvar_coop_respawnDelay = 5;
@@ -654,6 +655,8 @@ CodeCallback_PlayerSpawn(entity playerEntity)
 	if (slot >= 0i) {
 		g_coopDown[slot] = false;
 	}
+
+	Shop_PlayerSpawned(playerEntity);
 }
 
 void

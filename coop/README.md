@@ -55,18 +55,24 @@ Headless test with bots (prints the wave and scores every 10 seconds):
   TF2-style target ID panel (name, health) under the crosshair: serverinfo
   `targetid 1`, `cg_targetID 0|1`, `cg_targetIDRange` (2000).
 
+While down or waiting to respawn the view stays on the death camera
+instead of the scoreboard (`cg_scoresWhenDead 0`, set in
+`default_coop.cfg`; Tab still shows the scores).
+
 ## Points shop (`src/rules/shop.qc`)
 
 - Points are earned with the score but kept apart from it, so buying
   doesn't lower anyone's score. They start at 0 on each map.
 - `coop_shop 0` turns the shop off, `1` (default) opens it at any time,
-  `2` only between waves. Players who are down can't buy.
+  `2` only between waves. Players who are down or waiting to respawn can
+  buy too; they get what they bought when they spawn or are revived.
 - The list is `scripts/shop.txt` (`coop_shopFile`): category, what to
   give (a weapon, `ammo_<type> <count>`, `health <n>` or `armor <n>`),
   price and the name shown. It's read when a map starts. Health and
   armour stop at `coop_shopMaxHealth` and `coop_shopMaxArmor` (100).
-- `cmd shop` opens it (B, when B is free, or Points shop in the pause
-  menu). The server sends its own list, so clients always see the
+- `cmd shop` opens the shop menu (B, when B is free, or Shop and skills
+  in the pause menu). It has a Shop tab and, with the XP mod, a Skills
+  tab; Tab switches between them. The server sends its own list, so clients always see the
   server's prices. Keys work like Counter-Strike's buy menu: a number picks
   a category, a number buys, 8 and 9 turn the page, 0 goes back.
 - `cmd buy <n>` buys item n. `sv coop_givepoints <n>` gives every player
@@ -75,7 +81,7 @@ Headless test with bots (prints the wave and scores every 10 seconds):
 ## Menus (`src/menu/`, `panorama/`)
 
 The menus carry the name Justice Task Force. The title menu, the pause
-menu, the shop and the XP skill menu are Panorama views drawn by
+menu and the shop menu (shop and XP skills) are Panorama views drawn by
 Bulwark (`panorama/layout/coop/`, `styles/coop/`, `scripts/coop/`). The
 menu progs (`menu.dat`) only opens and closes them and answers what a
 script can't find out itself: the map list, LAN servers and key bindings
@@ -109,11 +115,12 @@ also works.
   Team Power (heals and armours teammates within 650 units) and Block
   Attack (a chance each half second to take no damage).
 - Medals (0 to 15, three to start) add a little to most skills.
-- The skill menu opens on level-up and with `selectskills`: keys 1 to 9
-  (or a click) spend a point, 0 closes it. The plugin sends it to the
-  co-op menu progs as `menu_coop skills_*` lines and it's drawn with
-  Panorama (`panorama/layout/coop/skills.xml`); choices come back as
-  `menuselect`. `xpm_textmenu 1` uses the plain text menu (`svmenu`)
+- A level-up shows a short notice on the HUD. Points are spent in the
+  Skills tab of the shop menu (B, or `selectskills` to open it on that
+  tab): keys 1 to 9 (or a click) spend a point, 0 closes it. The plugin
+  sends the skills to the co-op menu progs as `menu_coop skills_*` lines
+  and they're drawn with Panorama (`panorama/layout/coop/loadout.xml`);
+  choices come back as `menuselect`. `xpm_textmenu 1` uses the plain text menu (`svmenu`)
   instead, for clients without the co-op menu.
 - Commands, in the console or in chat with or without `/`: `selectskills`,
   `resetskills`, `playerskills`, `skillsinfo`, `xpminfo`. Admin: `setlvl

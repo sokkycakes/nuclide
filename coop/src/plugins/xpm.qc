@@ -325,19 +325,33 @@ XPM_Load(entity pl, int s)
 
 /* ---- menu --------------------------------------------------------------- */
 
+/* tells co-op's menu progs the skills (coop/src/menu/main.qc,
+   panorama/scripts/coop/loadout.js). It keeps them for the Skills tab of
+   the shop menu and doesn't open anything by itself. */
+static void
+XPM_SendSkills(entity pl, int s)
+{
+	if (autocvar_xpm_textmenu) {
+		return;
+	}
+
+	stuffcmd(pl, sprintf("menu_coop skills_begin %i %i \"%s\"\n", g_xpm[s].points, g_xpm[s].level, XPM_Rank(g_xpm[s].level)));
+
+	for (int i = 0i; i < SK_COUNT; i++) {
+		stuffcmd(pl, sprintf("menu_coop skills_item %i \"%s\" %i %i\n", i + 1i, g_xpmSkillNames[i], g_xpm[s].skill[i], g_xpmSkillCaps[i]));
+	}
+
+	stuffcmd(pl, "menu_coop skills_end\n");
+	g_xpm[s].menuOpen = true;
+}
+
+/* opens the skill menu: the Skills tab, or the text menu */
 static void
 XPM_ShowMenu(entity pl, int s)
 {
-	/* co-op's menu progs draws it (coop/src/menu/main.qc, panorama/scripts/coop/skills.js) */
 	if (!autocvar_xpm_textmenu) {
-		stuffcmd(pl, sprintf("menu_coop skills_begin %i %i \"%s\"\n", g_xpm[s].points, g_xpm[s].level, XPM_Rank(g_xpm[s].level)));
-
-		for (int i = 0i; i < SK_COUNT; i++) {
-			stuffcmd(pl, sprintf("menu_coop skills_item %i \"%s\" %i %i\n", i + 1i, g_xpmSkillNames[i], g_xpm[s].skill[i], g_xpmSkillCaps[i]));
-		}
-
-		stuffcmd(pl, "menu_coop skills_end\n");
-		g_xpm[s].menuOpen = true;
+		XPM_SendSkills(pl, s);
+		stuffcmd(pl, "menu_coop loadout_open skills\n");
 		return;
 	}
 
@@ -375,8 +389,9 @@ XPM_Spend(entity pl, int s, int skillNum)
 		}
 	}
 
-	/* the Panorama menu is told too, so it can close when the points run out */
-	if (g_xpm[s].points > 0i || !autocvar_xpm_textmenu) {
+	if (!autocvar_xpm_textmenu) {
+		XPM_SendSkills(pl, s);
+	} else if (g_xpm[s].points > 0i) {
 		XPM_ShowMenu(pl, s);
 	}
 }
@@ -448,6 +463,24 @@ XPM_PrintSkillsInfo(entity pl)
 
 /* ---- leveling ----------------------------------------------------------- */
 
+/* a level up is a short notice on the HUD, not a menu in the way of the
+   fight; the points wait in the shop menu's Skills tab */
+static void
+XPM_LevelNotice(entity pl, int s)
+{
+	string text = sprintf("LEVEL UP!  Level %i, %s\n", g_xpm[s].level, XPM_Rank(g_xpm[s].level));
+
+	if (g_xpm[s].points == 1i) {
+		text = strcat(text, "1 skill point to spend in the shop menu");
+	} else {
+		text = strcat(text, sprintf("%i skill points to spend in the shop menu", g_xpm[s].points));
+	}
+
+	XPM_HudText(pl, 3i, text, -1, 0.22, [255, 190, 60], 3.5f);	/* channel 5 is the text menu's */
+	stuffcmd(pl, "play buttons/bell1.wav\n");
+	XPM_SendSkills(pl, s);
+}
+
 static void
 XPM_GainXP(entity pl, int s)
 {
@@ -472,7 +505,7 @@ XPM_GainXP(entity pl, int s)
 			XPM_Tell(pl, sprintf("You are now level %i (%s). Next level at %i XP.", g_xpm[s].level, XPM_Rank(g_xpm[s].level), XPM_NeededXP(g_xpm[s].level)));
 		}
 
-		XPM_ShowMenu(pl, s);
+		XPM_LevelNotice(pl, s);
 		XPM_Save(s);
 	}
 }
@@ -794,7 +827,7 @@ XPM_SetLevel(entity admin, entity target, int newLevel)
 		g_xpm[s].points = 0i;
 	} else {
 		g_xpm[s].points += newLevel - oldLevel;
-		XPM_ShowMenu(target, s);
+		XPM_LevelNotice(target, s);
 	}
 
 	XPM_Tell(admin, sprintf("%s is now level %i.", target.netname, newLevel));
@@ -953,8 +986,13 @@ Plug_ClientCommand(entity pl, string commandString)
 	}
 
 	switch (cmd) {
+	case "shop":
+		/* co-op's shop menu has a Skills tab: send them before the shop
+		   list opens it (addons see commands before the rules) */
+		XPM_SendSkills(pl, s);
+		break;
 	case "selectskills":
-		if (g_xpm[s].points > 0i) {
+		if (g_xpm[s].points > 0i || !autocvar_xpm_textmenu) {
 			XPM_ShowMenu(pl, s);
 		} else {
 			XPM_Tell(pl, "You have no skill points to spend.");
