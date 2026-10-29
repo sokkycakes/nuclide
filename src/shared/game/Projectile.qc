@@ -73,6 +73,9 @@ ncProjectile::ncProjectile(void)
 	/* ETQW-additions */
 	m_bIsBullet = false;
 	m_iShots = 1i;
+	m_trackRadius = 1024.0f;
+	m_trackFOV = -1.0f;
+	m_trackTurn = false;
 	m_flThrowSpeed = 5.0f;
 	m_flThrowSpeedMax = 1000.0f;
 	m_vecSpread = [0.0, 0.0, 0.0];
@@ -311,6 +314,15 @@ ncProjectile::SpawnKey(string keyName, string setValue)
 		break;
 	case "trackDelay":
 		m_trackDelay = ReadFloat(setValue);
+		break;
+	case "trackRadius":
+		m_trackRadius = ReadFloat(setValue);
+		break;
+	case "trackFOV":
+		m_trackFOV = ReadFloat(setValue);
+		break;
+	case "trackTurn":
+		m_trackTurn = ReadBool(setValue);
 		break;
 	case "def_planeImpact":
 		m_defPlaneImpact = ReadString(setValue);
@@ -1159,7 +1171,8 @@ entity
 ncProjectile::_TrackTarget(void)
 {
 	entity best = world;
-	float bestDist = 1024.0f;
+	float bestDist = m_trackRadius;
+	vector flightDir = vectorNormalize(GetVelocity());
 
 	if (owner.flags & FL_MONSTER) {
 		ncMonster monOwner = (ncMonster)owner;
@@ -1197,6 +1210,17 @@ ncProjectile::_TrackTarget(void)
 
 		if (dist >= bestDist) {
 			continue;
+		}
+
+		/* only what's ahead, measured flat as HL's view cones are */
+		if (m_trackFOV > -1.0f) {
+			vector flatTo = e.origin - GetOrigin();
+			vector flatFwd = flightDir;
+			flatTo[2] = flatFwd[2] = 0.0f;
+
+			if (dotproduct(vectorNormalize(flatTo), vectorNormalize(flatFwd)) <= m_trackFOV) {
+				continue;
+			}
 		}
 
 		traceline(GetOrigin(), (e.absmin + e.absmax) * 0.5f, MOVE_NOMONSTERS, this);
@@ -1246,10 +1270,30 @@ ncProjectile::_ThrustThink(void)
 
 			if (trackTarget) {
 				vector targetPos = (trackTarget.absmin + trackTarget.absmax) * 0.5f;
-				vector angleToTarget = vectoangles(targetPos - GetOrigin());
-				angleToTarget[0] += random(-m_trackJitter[0],m_trackJitter[0]);
-				angleToTarget[1] += random(-m_trackJitter[1],m_trackJitter[1]);
-				angleToTarget[2] += random(-m_trackJitter[2],m_trackJitter[2]);
+				vector angleToTarget;
+				bool jitter = true;
+
+				if (m_trackTurn) {
+					/* half-way between where we fly and where it is */
+					vector dirToTarget = vectorNormalize(targetPos - GetOrigin());
+					vector flightDir = vectorNormalize(currentVelocity);
+
+					if (currentSpeed < 0.1f) {
+						flightDir = dirToTarget;
+					}
+
+					angleToTarget = vectoangles(flightDir + dirToTarget);
+					jitter = (owner.flags & FL_MONSTER) ? true : false;
+				} else {
+					angleToTarget = vectoangles(targetPos - GetOrigin());
+				}
+
+				if (jitter) {
+					angleToTarget[0] += random(-m_trackJitter[0],m_trackJitter[0]);
+					angleToTarget[1] += random(-m_trackJitter[1],m_trackJitter[1]);
+					angleToTarget[2] += random(-m_trackJitter[2],m_trackJitter[2]);
+				}
+
 				SetAngles(angleToTarget);
 			}
 
