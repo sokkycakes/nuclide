@@ -12,6 +12,10 @@
 // jump speed (289 units/s, a 52 unit jump at 800 gravity): Source maps are
 // built around it (pl_circle_a9a's RED spawn exit is a 52 unit ledge,
 // a crouch jump).
+// "pm_groundspeedcap" and "pm_jumpspeedcap" are TF2's speed limits: walking
+// never runs faster than the class speed (not even sliding along a wall),
+// and each jump from the ground starts no faster than 1.2 times it, which
+// stops bunny hopping (CTFGameMovement::PreventBunnyJumping).
 //
 // Template keys, read by tfPlayer and by bots:
 //   tf_classIndex  1-9, class menu slot
@@ -32,6 +36,8 @@ entityDef tf_player_base
 	"pm_runfiring"		"1"
 	"pm_jumpheight"		"289"
 	"pm_backspeed"		"0.9"
+	"pm_groundspeedcap"	"1"
+	"pm_jumpspeedcap"	"1.2"
 	"tf_capRate"		"1"
 	"tf_regen"			"0"
 }

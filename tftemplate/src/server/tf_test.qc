@@ -31,6 +31,8 @@ rules progs pass any tf_test_* command they don't know to TF_TestCommand.
   "-" for none). With forward,side move values the player walks instead of
   staying put, for as long as the buttons are held.
 - tf_test_speed: every player's class, ground speed and top speed
+- tf_test_push <player> <x> <y> <z>: sets the player's velocity
+- tf_test_autojump <player> 1|0: jumps again on landing while jump is held
 - tf_test_disguise <player> <team> <class def> | off: disguises a Spy
 - tf_test_projectiles [clear]: every projectile's position and velocity,
   or removes them all Bot AI is off while pinned.
@@ -197,6 +199,20 @@ TF_TestCommand(string commandLine)
 		for (entity e = world; (e = next.Player(e));) {
 			tfPlayer speedPlayer = (tfPlayer)e;
 			print(sprintf("%s (%s): ground speed %d, top speed %d%s at %v\n", speedPlayer.netname, speedPlayer.tf_desiredClass, vlen([speedPlayer.velocity[0], speedPlayer.velocity[1], 0]), speedPlayer.maxspeed, speedPlayer.IsCrouching() ? ", crouching" : "", speedPlayer.origin));
+		}
+		break;
+	case "tf_test_push":
+		thePlayer = TF_TestFindPlayer(argv(1));
+
+		if (thePlayer) {
+			thePlayer.SetVelocity([stof(argv(2)), stof(argv(3)), stof(argv(4))]);
+		}
+		break;
+	case "tf_test_autojump":
+		thePlayer = TF_TestFindPlayer(argv(1));
+
+		if (thePlayer) {
+			forceinfokey(thePlayer, "autojump", argv(2));
 		}
 		break;
 	case "tf_test_release":
