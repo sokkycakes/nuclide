@@ -5,15 +5,19 @@ entityDef monster_bullchicken
 	"netname"				"Bullsquid"
 	"health"				"skill:bullsquid_health"
 	"mins"					"-16 -16 0"
-	"maxs"					"16 16 72"
+	"maxs"					"16 16 64"
 	"eye_height"			"32"
 	"team"					"2"
 	"propdata"				"actor_alien"
 	"speed_walk"			"32"
 	"speed_run"				"72"
 
-	"attack_ranged_range"	"512"
-	"attack_melee_range"	"86"	// tailwhip
+	// HL bullsquid.cpp CheckRangeAttack1 / CheckMeleeAttack2
+	"attack_ranged_range"	"784"
+	"attack_ranged_min"		"64"
+	"attack_ranged_dot"		"0.5"
+	"attack_melee_dot"		"0.7"
+	"attack_melee_range"	"85"	// tailwhip
 	"attack_melee2_range"	"86"	// bite
 	"def_attack_melee"		"melee_bullchicken_tailwhip"
 	"def_attack_melee2"		"melee_bullchicken_bite"
@@ -23,6 +27,10 @@ entityDef monster_bullchicken
 	"snd_pain"				"Bullsquid.Pain"
 	"snd_death"				"Bullsquid.Die"
 
+	"mindset_idle"			"bullsquid_idle"
+	"mindset_combat"		"bullsquid_combatFace"
+	"mindset_hunt"			"bullsquid_searchPlayer"
+
 	events {
 		1 "SpawnProjectileDef" "ranged_bullchicken_spit"
 		1 "StartSoundDef" "Bullsquid.Attack"
@@ -31,9 +39,9 @@ entityDef monster_bullchicken
 
 		3 "SetSkin" "1"
 
-		4 "StartSoundDef" "Bullsquid.Growl"
+		4 "StartSoundDef" "Bullsquid.Bite"
 
-		5 "SetVelocity" "0 0 256"
+		5 "AddVelocity" "0 0 250"
 
 		6 "StartSoundDef" "Bullsquid.Bite"
 	}

@@ -7,5 +7,5 @@ typeInfo hgrunt_grenadeCover
 	"task_5"		"CLEAR MOVE WAIT ?"
 	"task_6"		"RunToTarget"
 	"task_7"		"WaitForMovement"
-	"task_8"		"PerformSchedule hgrunt_WaitInCover"
+	"task_8"		"PerformSchedule hgrunt_waitInCover"
 }

@@ -1,6 +1,6 @@
 typeInfo agrunt_takeCover
 {
-	"task_1"		"SetFailSchedule agrunt_rangedAttack1A"
+	"task_1"		"SetFailSchedule agrunt_rangedAttack"
 	"task_2"		"StopMovement"
 	"task_3"		"Wait 0.2"
 	"task_4"		"FindCoverFromEnemy"

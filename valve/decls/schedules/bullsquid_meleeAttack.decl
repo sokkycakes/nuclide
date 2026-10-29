@@ -1,0 +1,8 @@
+typeInfo bullsquid_meleeAttack
+{
+	"task_1"					"StopMovement"
+	"task_2"					"TurnToEnemy"
+	"task_3"					"AttackMelee2"
+	"fail_onDeadEnemy"			"1"
+	"DeadEnemy"					"PerformSchedule bullsquid_idle"
+}
