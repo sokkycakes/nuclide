@@ -180,3 +180,32 @@ function OnGameEvent_player_spawn(params)
 		Sven.GiveLoadout(player)
 	end
 end
+
+-- Monster sides --------------------------------------------------------
+--
+-- Sven's "classify" key uses Half-Life's class numbers (1 machine,
+-- 2 player, 3 human passive, 4 human military, 5-10 aliens, 11 player
+-- ally), and respawn_as_playerally 1 makes a monster fight for the
+-- players. Nuclide's "team" key: 0 friend, 1 enemy, 2 alien.
+-- Returns nil to keep the monster's own side.
+function Sven.TeamFor(keys)
+	if Sven.Number(keys, "respawn_as_playerally", 0) == 1 then
+		return "0"
+	end
+	local class = Sven.Number(keys, "classify", 0)
+	if class == 2 or class == 3 or class == 11 then
+		return "0"
+	elseif class == 1 or class == 4 then
+		return "1"
+	elseif class >= 5 and class <= 10 then
+		return "2"
+	end
+	return nil
+end
+
+-- Prints what the Sven entities do, with developer 1.
+function Sven.Debug(fmt, ...)
+	if Convars.GetFloat("developer") > 0 then
+		printl("[sven] " .. string.format(fmt, ...))
+	end
+end

@@ -1,0 +1,70 @@
+// Stand-ins for Opposing Force and Sven Co-op monsters that Sven Co-op maps
+// spawn, built from the Half-Life monsters we have. They let such maps play;
+// they don't behave like the real ones. Maps that give a monster its own
+// model (squadmaker new_model) still show that model.
+
+entityDef monster_human_grunt_ally
+{
+	"inherit"	"monster_human_grunt"
+	"netname"	"Grunt"
+	"team"		"0"
+}
+
+entityDef monster_human_medic_ally
+{
+	"inherit"	"monster_human_grunt"
+	"netname"	"Medic"
+	"team"		"0"
+	"weapons"	"1"
+}
+
+entityDef monster_human_torch_ally
+{
+	"inherit"	"monster_human_grunt"
+	"netname"	"Engineer"
+	"team"		"0"
+	"weapons"	"1"
+}
+
+entityDef monster_male_assassin
+{
+	"inherit"	"monster_human_grunt"
+	"netname"	"Black Ops"
+}
+
+entityDef monster_robogrunt
+{
+	"inherit"	"monster_human_grunt"
+	"netname"	"Robo Grunt"
+}
+
+entityDef monster_shocktrooper
+{
+	"inherit"	"monster_alien_grunt"
+	"netname"	"Shock Trooper"
+}
+
+entityDef monster_alien_voltigore
+{
+	"inherit"	"monster_alien_grunt"
+	"netname"	"Voltigore"
+}
+
+entityDef monster_alien_babyvoltigore
+{
+	"inherit"	"monster_houndeye"
+	"netname"	"Baby Voltigore"
+}
+
+entityDef monster_babygarg
+{
+	"inherit"	"monster_gargantua"
+	"netname"	"Baby Gargantua"
+	"health"	"500"
+}
+
+entityDef monster_gonome
+{
+	"inherit"	"monster_zombie"
+	"netname"	"Gonome"
+}

@@ -13,6 +13,7 @@ function InputUse()
 	local dmg = Sven.Number(keys, "dmg", 10)
 	local e = Entities.FindByName(nil, target)
 	while e ~= nil do
+		Sven.Debug("trigger_hurt_remote %s: %d damage to %s", tostring(keys.targetname), dmg, e:GetClassname())
 		if dmg >= 0 then
 			e:FireInput("Damage", string.format("%d", math.min(dmg, 1e9)), 0, activator)
 		else

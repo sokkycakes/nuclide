@@ -40,7 +40,9 @@ function Tick()
 	if Time() >= nextFire then
 		local list = targets()
 		if #list > 0 then
-			Sven.Fire(list[RandomInt(1, #list)], self)
+			local pick = list[RandomInt(1, #list)]
+			Sven.Debug("trigger_random_time %s: fires %s", tostring(keys.targetname), pick)
+			Sven.Fire(pick, self)
 		end
 		nextFire = Time() + nextDelay()
 	end
