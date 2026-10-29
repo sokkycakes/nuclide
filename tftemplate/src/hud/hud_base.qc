@@ -65,7 +65,9 @@ HUD_Draw(void)
 		HUD_DrawPlainStatus(healthValue, ammoValue);
 	}
 
-	HUD_DrawKillFeed();
+	if (!TFVGui_Active()) {
+		HUD_DrawKillFeed();
+	}
 }
 
 /** Health and ammo without a TF2 HUD. Team Fortress has no armor. */
@@ -143,10 +145,23 @@ HUD_DamageReceived(vector damageLocation, int damagePoints, int damageFlags)
 
 }
 
+/* how far above the bottom the spectator lines go: a TF2 HUD's objective
+   panels take the bottom of the screen */
+static float
+HUD_SpectatorTextRaise(vector hudSize)
+{
+	return TFVGui_Active() ? hudSize[1] / 480 * 110 : 60;
+}
+
 void
 HUD_DrawSpectator(void)
 {
 	TFHUD_Draw();
+
+	if (TFVGui_Active()) {
+		TFVGui_DrawShared();
+	}
+
 	TFHUD_DrawMeter();
 	float palpha = 1.0f;
 	string strText;
@@ -160,7 +175,7 @@ HUD_DrawSpectator(void)
 		string killerName = spectating.Name();
 		strText = STRING_SET(killerName) ? sprintf("Killed by %s", killerName) : "You died";
 		vecPos[0] = hud_mins[0] + (hud_size[0] / 2) - (font.StringWidth(strText, true, FONT_HUD) / 2);
-		vecPos[1] = hud_mins[1] + hud_size[1] - 60;
+		vecPos[1] = hud_mins[1] + hud_size[1] - HUD_SpectatorTextRaise(hud_size);
 		draw.Text_A(vecPos, strText, 1.0f, FONT_HUD);
 		return;
 	}
@@ -171,12 +186,12 @@ HUD_DrawSpectator(void)
 
 	strText = sprintf("Spectating: %s", spectating.Name());
 	vecPos[0] = hud_mins[0] + (hud_size[0] / 2) - (font.StringWidth(strText, true, FONT_HUD) / 2);
-	vecPos[1] = hud_mins[1] + hud_size[1] - 60;
+	vecPos[1] = hud_mins[1] + hud_size[1] - HUD_SpectatorTextRaise(hud_size);
 	draw.Text_A(vecPos, strText, palpha, FONT_HUD);
 
 	strText = sprintf("Mode: %s", spectating.LocalizedMode());
 	vecPos[0] = hud_mins[0] + (hud_size[0] / 2) - (font.StringWidth(strText, true, FONT_HUD) / 2);
-	vecPos[1] = hud_mins[1] + hud_size[1] - 40;
+	vecPos[1] = hud_mins[1] + hud_size[1] - HUD_SpectatorTextRaise(hud_size) + 20;
 	draw.Text_A(vecPos, strText, palpha, FONT_HUD);
 }
 
@@ -216,6 +231,8 @@ HUD_Obituary(string targetName, string attackerName, string weaponDef, string me
 			}
 		}
 	}
+
+	TFVGui_AddDeathNotice(targetName, attackerName, weaponDef, meansOfDeath);
 
 	if (g_killMsgCount < KILLMESSAGE_LIMIT) {
 		HUD_Obituary_Add(g_killMsgCount, targetName, attackerName, weaponDef, meansOfDeath);

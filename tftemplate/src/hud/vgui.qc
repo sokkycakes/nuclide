@@ -779,7 +779,7 @@ VGui_ImagePath(string imageName)
 	return strtolower(VGui_CleanPath(strcat("gfx/vgui/", imageName)));
 }
 
-static void
+void
 VGui_DrawImage(string imageName, vector imagePos, vector imageSize, vector imageColor, float imageAlpha)
 {
 	if (!STRING_SET(imageName) || imageAlpha <= 0) {
@@ -915,6 +915,49 @@ VGui_DrawLabel(string elementName, string panelName, vector labelPos, vector lab
 	draw.Text_RGBA(textPos, labelText, textColor, textAlpha * panelAlpha, labelFont);
 }
 
+/* a scheme font as the client's font API wants it, in g_vgTextFont */
+font_s g_vgTextFont;
+
+static void
+VGui_SetTextFont(string fontName)
+{
+	float fontSize;
+	float fontSlot = VGui_Font(fontName, fontSize);
+
+	if (fontSize <= 0) {
+		fontSize = 12 * g_vgScale;
+	}
+
+	g_vgTextFont.iID = (int)fontSlot;
+	g_vgTextFont.iScaleX = g_vgTextFont.iScaleY = (int)fontSize;
+	g_vgTextFont.vecColor = [1, 1, 1];
+	g_vgTextFont.flAlpha = 1.0f;
+	g_vgTextFont.iFlags = 0i;
+}
+
+/** Text in a scheme font, for panels the HUD code draws itself. */
+void
+VGui_DrawText(string fontName, vector textPos, string textValue, vector textColor, float textAlpha)
+{
+	VGui_SetTextFont(fontName);
+	draw.Text_RGBA(textPos, textValue, textColor, textAlpha, g_vgTextFont);
+}
+
+float
+VGui_TextWidth(string fontName, string textValue)
+{
+	VGui_SetTextFont(fontName);
+	return font.StringWidth(textValue, TRUE, g_vgTextFont);
+}
+
+float
+VGui_FontHeight(string fontName)
+{
+	float fontSize;
+	VGui_Font(fontName, fontSize);
+	return (fontSize > 0) ? fontSize : 12 * g_vgScale;
+}
+
 /** Draws the visible child panels of a panel path, lowest zpos first,
 then each one's own children inside it. */
 void
@@ -940,6 +983,12 @@ VGui_DrawChildren(string parentPath, vector parentPos, vector parentSize, float 
 
 		panelNames[drawCount] = panelName;
 		panelOrder[drawCount] = stof(VGui_Key(parentPath, panelName, "zpos"));
+
+		/* a "...Shadow" label goes behind the label it shadows when they
+		   share a zpos (REDUX's CTF scores do), as they do in TF2 */
+		if (strstrofs(strtolower(panelName), "shadow") >= 0) {
+			panelOrder[drawCount] -= 0.5f;
+		}
 		drawCount++;
 	}
 
@@ -1005,6 +1054,14 @@ VGui_DrawChildren(string parentPath, vector parentPos, vector parentSize, float 
 
 			/* ImagePanel, CTFImagePanel, CTFClassImage, ... */
 			if (strstrofs(controlName, "image") >= 0) {
+				string fillText = VGui_Key(parentPath, panelName, "fillcolor");
+
+				if (STRING_SET(fillText)) {
+					float fillAlpha;
+					vector fillColor = VGui_Color(fillText, fillAlpha);
+					drawfill(panelPos, panelSize, fillColor, fillAlpha * panelAlpha, DRAWFLAG_NORMAL);
+				}
+
 				float imageAlpha;
 				vector imageColor = VGui_Color(VGui_Key(parentPath, panelName, "drawcolor"), imageAlpha);
 				string imageName = VGui_Key(parentPath, panelName, "image");
