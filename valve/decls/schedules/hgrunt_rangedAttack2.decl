@@ -16,5 +16,5 @@ typeInfo hgrunt_rangedAttack2
 	"task_14"		"AttackRanged1"
 	"DeadEnemy"	"PerformSchedule hgrunt_victoryDance"
 	"OccludedEnemy"			"AlertSquadWithMindset hunt"
-	"fal_onOccludedEnemy"		"1"
+	"fail_onOccludedEnemy"		"1"
 }

@@ -21,6 +21,7 @@ entityDef monster_human_grunt
 	"def_attack_ranged"		"ranged_hgrunt_mp5"
 	"snd_ranged_attack"		"HGrunt.9MM"
 	"attack_ranged_range"	"2048"
+	"attack_ranged_dot"		"0.5"	// HL hgrunt.cpp CheckRangeAttack1
 	"reload_count"			"30"
 
 	// special attack

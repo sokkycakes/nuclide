@@ -12,6 +12,7 @@ entityDef monster_barney
 
 	"def_attack_ranged"		"ranged_barney_shot"
 	"attack_ranged_range"	"1024"
+	"attack_ranged_dot"		"0.5"	// HL barney.cpp CheckRangeAttack1
 	"reload_count"			"18"
 	"follow_on_use"			"1"
 	"weapon_drawn"			"0"
@@ -49,6 +50,15 @@ entityDef monster_barney
 	"mindset_defense"		"barney_takeCover"
 	"mindset_combat"		"barney_combatFace"
 	"mindset_hunt"			"barney_searchEnemy"
+
+	// HL barney.cpp: BARNEY_AE_DRAW, BARNEY_AE_SHOOT, BARNEY_AE_HOLSTER.
+	// Body groups count from 1 here: gun group 1, 1 holstered, 2 drawn.
+	events {
+		2 "SetBodyInGroup" "1 2"
+		3 "SpawnProjectileDef" "ranged_barney_shot"
+		3 "StartSoundDef" "Barney.FirePistol"
+		4 "SetBodyInGroup" "1 1"
+	}
 
 	// pre-disaster
 	when "spawnflags" equals "256" {

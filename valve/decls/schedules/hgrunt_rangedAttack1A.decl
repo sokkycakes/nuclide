@@ -18,7 +18,7 @@ typeInfo hgrunt_rangedAttack1A
 	"fail_onHeavyDamage"		"1"
 	"fail_onAlertSound"		"1"
 	"fail_onNoAmmo"			"1"
-	"fal_onOccludedEnemy"		"1"
+	"fail_onOccludedEnemy"		"1"
 	"DeadEnemy"				"PerformSchedule hgrunt_victoryDance"
 	"HeavyDamage"				"AlertSquadWithMindset defense"
 	"OccludedEnemy"			"AlertSquadWithMindset hunt"
