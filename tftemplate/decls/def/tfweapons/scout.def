@@ -8,7 +8,7 @@ entityDef tf_weapon_scattergun
 	"tf_rampUpScale"		"1.5"
 	"inv_name"					"Scattergun"
 	"model"						"models/weapons/g_shotg/tris.md2"
-	"model_view"				"models/weapons/v_shotg/tris.md2"
+	"model_view"				"progs/dox/v_scattergun.mdl"
 	"def_fireInfo"				"fireInfo_tf_scattergun"
 	"hudSlot"					"0"
 	"hudSlotPos"				"0"

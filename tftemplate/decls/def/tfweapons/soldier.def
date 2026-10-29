@@ -9,7 +9,7 @@ entityDef tf_weapon_rocketlauncher
 	"tf_rampUpScale"		"0.5"
 	"inv_name"				"Rocket Launcher"
 	"model"					"progs/g_rock2.mdl"
-	"model_view"			"progs/wm2vm/v_rocket.mdl"
+	"model_view"			"progs/dox/v_rocket.mdl"
 	"def_fireInfo"			"fireInfo_tf_rocketlauncher"
 	"hudSlot"				"0"
 	"hudSlotPos"			"0"
