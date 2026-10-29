@@ -882,6 +882,13 @@ ncPlayer::UpdateAliveCam(void)
 {
 	vector cam_pos = GetEyePos();
 
+	/* Quake-style bob replaces the game's camera bob */
+	if (ViewBob_QuakeCameraEnabled()) {
+		ViewBob_QuakeCalc(view_angles);
+		cam_pos += CalculateLean(view_angles);
+		g_view.SetCameraAngle(ViewBob_QuakeCameraAngles(view_angles));
+		g_view.SetCameraOrigin(cam_pos + ViewBob_QuakeCameraOffset());
+	} else {
 #if defined(VALVE) || defined(CSTRIKE) || defined(GEARBOX) || defined(TFC) || defined(REWOLF)
 	//view_angles = Camera_RunBob(view_angles);
 	//view_angles = Camera_StrafeRoll(view_angles);
@@ -895,6 +902,7 @@ ncPlayer::UpdateAliveCam(void)
 	g_view.SetCameraAngle(view_angles);
 	g_view.SetCameraOrigin(cam_pos + Camera_AddCamBob(view_angles));
 #endif
+	}
 
 	if (vehicle) {
 		ncVehicle veh = (ncVehicle)vehicle;
