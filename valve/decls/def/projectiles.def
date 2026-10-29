@@ -52,4 +52,9 @@ entityDef ranged_agrunt_shot_orange
 	"trackEnemy"			"1"
 	"trackJitter"			"8 16 16"
 	"trackDelay"			"0.1"
+	// HL's hornet.cpp: looks 512 units ahead in a 25 degree cone and
+	// turns half-way towards its target every 0.1 seconds
+	"trackRadius"			"512"
+	"trackFOV"			"0.9"
+	"trackTurn"			"1"
 }

@@ -108,6 +108,9 @@ in the game to spawn a projectile. Refer to ncEntity its own documentation for d
 - "trackEnemy" : When 1, will track the nearest enemy.
 - "trackJitter" : Will jitter movement when tracking by this many units per second.
 - "trackDelay" : Delay between tracking position updates.
+- "trackRadius" : How far a player's projectile looks for something to track (default 1024).
+- "trackFOV" : A player's projectile only picks targets within this cone ahead of it, as a dot product (default -1, any direction).
+- "trackTurn" : Turn half-way towards the target on each update instead of straight at it, as HL's hornets do. Jitter then only applies to a monster's projectiles.
 - "def_planeImpact" : When set, will spawn an entity at the position of impact aligned towards the impact surface's normal.
 - "noFX" : Disable impact effects.
 
@@ -355,6 +358,9 @@ private:
 	bool m_bTrackEnemy;
 	vector m_trackJitter;
 	float m_trackDelay;
+	float m_trackRadius;
+	float m_trackFOV;
+	bool m_trackTurn;
 	string m_defPlaneImpact;
 	string m_sndHitActor;
 	string m_sndHitWorld;
