@@ -118,6 +118,10 @@ var float autocvar_pm_jumpheight = PMOVE_JUMP_HEIGHT;
 var float autocvar_pm_airjumps = 0;
 /** fraction of the top speed when moving backwards (Team Fortress 2: 0.9) */
 var float autocvar_pm_backspeed = 1.0f;
+/** fraction of the top speed that walking on the ground can't exceed, 0 for no limit (Source: 1) */
+var float autocvar_pm_groundspeedcap = 0.0f;
+/** fraction of the top speed a jump from the ground starts at most, 0 for no limit (Team Fortress 2: 1.2) */
+var float autocvar_pm_jumpspeedcap = 0.0f;
 
 #ifndef PMOVE_WATERJUMP_HEIGHT
 	#define PMOVE_WATERJUMP_HEIGHT 350.0f
@@ -320,6 +324,16 @@ ncPMoveVars::Refresh(void)
 	else
 		pm_backspeed = g_pmoveVars.pm_backspeed;
 
+	if (STRING_SET(EntityDef_GetKeyValue(m_defLink, "pm_groundspeedcap")))
+		pm_groundspeedcap = stof(EntityDef_GetKeyValue(m_defLink, "pm_groundspeedcap"));
+	else
+		pm_groundspeedcap = g_pmoveVars.pm_groundspeedcap;
+
+	if (STRING_SET(EntityDef_GetKeyValue(m_defLink, "pm_jumpspeedcap")))
+		pm_jumpspeedcap = stof(EntityDef_GetKeyValue(m_defLink, "pm_jumpspeedcap"));
+	else
+		pm_jumpspeedcap = g_pmoveVars.pm_jumpspeedcap;
+
 	if (STRING_SET(EntityDef_GetKeyValue(m_defLink, "pm_maxviewpitch")))
 		pm_maxviewpitch = stof(EntityDef_GetKeyValue(m_defLink, "pm_maxviewpitch"));
 	else
@@ -456,6 +470,8 @@ ncPMoveVars::EvaluateEntity(void)
 	pm_jumpheight = autocvar_pm_jumpheight;
 	pm_airjumps = autocvar_pm_airjumps;
 	pm_backspeed = autocvar_pm_backspeed;
+	pm_groundspeedcap = autocvar_pm_groundspeedcap;
+	pm_jumpspeedcap = autocvar_pm_jumpspeedcap;
 	pm_maxviewpitch = autocvar_pm_maxviewpitch;
 	pm_minviewpitch = autocvar_pm_minviewpitch;
 	pm_noclipaccelerate = autocvar_pm_noclipaccelerate;
@@ -492,6 +508,8 @@ ncPMoveVars::EvaluateEntity(void)
 	EVALUATE_FIELD(pm_jumpheight, PMOVEVARS_UPDATE)
 	EVALUATE_FIELD(pm_airjumps, PMOVEVARS_UPDATE)
 	EVALUATE_FIELD(pm_backspeed, PMOVEVARS_UPDATE)
+	EVALUATE_FIELD(pm_groundspeedcap, PMOVEVARS_UPDATE)
+	EVALUATE_FIELD(pm_jumpspeedcap, PMOVEVARS_UPDATE)
 	EVALUATE_FIELD(pm_maxviewpitch, PMOVEVARS_UPDATE)
 	EVALUATE_FIELD(pm_minviewpitch, PMOVEVARS_UPDATE)
 	EVALUATE_FIELD(pm_noclipaccelerate, PMOVEVARS_UPDATE)
@@ -541,6 +559,8 @@ ncPMoveVars::SendEntity(entity pvsEnt, float flChanged)
 	SENDENTITY_FLOAT(pm_jumpheight, PMOVEVARS_UPDATE)
 	SENDENTITY_BYTE(pm_airjumps, PMOVEVARS_UPDATE)
 	SENDENTITY_FLOAT(pm_backspeed, PMOVEVARS_UPDATE)
+	SENDENTITY_FLOAT(pm_groundspeedcap, PMOVEVARS_UPDATE)
+	SENDENTITY_FLOAT(pm_jumpspeedcap, PMOVEVARS_UPDATE)
 	SENDENTITY_FLOAT(pm_maxviewpitch, PMOVEVARS_UPDATE)
 	SENDENTITY_FLOAT(pm_minviewpitch, PMOVEVARS_UPDATE)
 	SENDENTITY_FLOAT(pm_noclipaccelerate, PMOVEVARS_UPDATE)
@@ -584,6 +604,8 @@ ncPMoveVars::ReceiveEntity(float flNew, float flChanged)
 	READENTITY_FLOAT(pm_jumpheight, PMOVEVARS_UPDATE)
 	READENTITY_BYTE(pm_airjumps, PMOVEVARS_UPDATE)
 	READENTITY_FLOAT(pm_backspeed, PMOVEVARS_UPDATE)
+	READENTITY_FLOAT(pm_groundspeedcap, PMOVEVARS_UPDATE)
+	READENTITY_FLOAT(pm_jumpspeedcap, PMOVEVARS_UPDATE)
 	READENTITY_FLOAT(pm_maxviewpitch, PMOVEVARS_UPDATE)
 	READENTITY_FLOAT(pm_minviewpitch, PMOVEVARS_UPDATE)
 	READENTITY_FLOAT(pm_noclipaccelerate, PMOVEVARS_UPDATE)
@@ -693,6 +715,8 @@ ncPMoveVars::Save(float handle)
 	SaveFloat(handle, "pm_jumpheight", pm_jumpheight);
 	SaveFloat(handle, "pm_airjumps", pm_airjumps);
 	SaveFloat(handle, "pm_backspeed", pm_backspeed);
+	SaveFloat(handle, "pm_groundspeedcap", pm_groundspeedcap);
+	SaveFloat(handle, "pm_jumpspeedcap", pm_jumpspeedcap);
 	SaveFloat(handle, "pm_maxviewpitch", pm_maxviewpitch);
 	SaveFloat(handle, "pm_minviewpitch", pm_minviewpitch);
 	SaveFloat(handle, "pm_noclipaccelerate", pm_noclipaccelerate);
@@ -763,6 +787,12 @@ ncPMoveVars::Restore(string keyName, string setValue)
 		break;
 	case "pm_backspeed":
 		pm_backspeed = ReadFloat(setValue);
+		break;
+	case "pm_groundspeedcap":
+		pm_groundspeedcap = ReadFloat(setValue);
+		break;
+	case "pm_jumpspeedcap":
+		pm_jumpspeedcap = ReadFloat(setValue);
 		break;
 	case "pm_maxviewpitch":
 		pm_maxviewpitch = ReadFloat(setValue);
