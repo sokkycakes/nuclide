@@ -27,7 +27,6 @@
 
 
 /* the player's armour, a field of Nuclide's ncSurfacePropEntity */
-.float armor;
 
 #define XPM_VERSION "1.0"
 #define XPM_MAXLEVEL 1800i
@@ -215,9 +214,10 @@ XPM_AddHealth(entity pl, float amount, float cap)
 static void
 XPM_AddArmor(entity pl, float amount, float cap)
 {
-	float newArmor = min(pl.armor + amount, cap);
+	float oldArmor = actor.GetArmor(pl);
+	float newArmor = min(oldArmor + amount, cap);
 
-	if (newArmor <= pl.armor) {
+	if (newArmor <= oldArmor) {
 		return;
 	}
 
@@ -411,7 +411,7 @@ XPM_ResetSkills(entity pl, int s)
 			ents.Input(pl, "SetHealth", ftos(XPM_HealthCap(s, false)), world);
 		}
 
-		if (pl.armor > XPM_HealthCap(s, true)) {
+		if (actor.GetArmor(pl) > XPM_HealthCap(s, true)) {
 			ents.Input(pl, "SetArmor", ftos(XPM_HealthCap(s, true)), world);
 		}
 	}
@@ -678,11 +678,11 @@ static void
 XPM_Spawned(entity pl, int s)
 {
 	g_xpm[s].baseHealth = pl.health;
-	g_xpm[s].baseArmor = pl.armor;
+	g_xpm[s].baseArmor = actor.GetArmor(pl);
 	g_xpm[s].blocking = false;
 
 	float newHealth = pl.health + g_xpm[s].skill[SK_STRENGTH] + g_xpm[s].medals;
-	float newArmor = pl.armor + g_xpm[s].skill[SK_ARMOR] + g_xpm[s].medals;
+	float newArmor = g_xpm[s].baseArmor + g_xpm[s].skill[SK_ARMOR] + g_xpm[s].medals;
 
 	ents.Input(pl, "SetMaxHealth", ftos(max(pl.max_health, newHealth)), world);
 	ents.Input(pl, "SetHealth", ftos(newHealth), world);

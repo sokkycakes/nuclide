@@ -137,6 +137,17 @@ SVPF_actor_HasItem(ncActor targetActor, string itemName)
 	return (targetActor.HasItem(itemName));
 }
 
+float
+SVPF_actor_GetArmor(entity targetActor)
+{
+	if (!(targetActor.flags & (FL_CLIENT | FL_MONSTER))) {
+		return (0.0f);
+	}
+
+	ncSurfacePropEntity target = (ncSurfacePropEntity)targetActor;
+	return (target.GetArmor());
+}
+
 int
 SVPF_actor_TotalActors(void)
 {

@@ -161,6 +161,11 @@ typedef struct
 	@param teamID is the id of a team set up with the [teams API](@ref teamAPI_t)
 	@return integer value of the total amount of actors in a team. */
 	int TotalActorsOnTeam(int teamID);
+	/** Returns the current armor of an actor (this includes players). Other progs, such as
+	game rules and plugins, can't read class fields like `armor` themselves.
+	@param targetActor is the actor to query.
+	@return the armor value, 0 for entities without one. */
+	float GetArmor(entity targetActor);
 
 	float AimAtPos(entity, vector);
 	float MoveToPos(entity, vector);
@@ -335,6 +340,7 @@ _server_main(void)
 	actor.TotalActorsOnTeam = linkToServerProgs("SVPF_actor_TotalActorsOnTeam");
 	actor.MoveToPos = linkToServerProgs("SVPF_actor_MoveToPos");
 	actor.HasItem = linkToServerProgs("SVPF_actor_HasItem");
+	actor.GetArmor = linkToServerProgs("SVPF_actor_GetArmor");
 
 	music.Stop = linkToServerProgs("SVPF_music_Stop");
 	music.StopOnClient = linkToServerProgs("SVPF_music_StopOnClient");
