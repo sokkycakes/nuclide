@@ -4,6 +4,8 @@ entityDef tf_weapon_scattergun
 {
 	"inherit"					"tf_weapon_base"
 	"spawnclass"				"ncWeapon"
+	"tf_distanceMod"		"1"
+	"tf_rampUpScale"		"1.5"
 	"inv_name"					"Scattergun"
 	"model"						"models/weapons/g_shotg/tris.md2"
 	"model_view"				"models/weapons/v_shotg/tris.md2"
@@ -50,6 +52,7 @@ entityDef tf_weapon_pistol_scout
 {
 	"inherit"				"tf_weapon_base"
 	"spawnclass"			"ncWeapon"
+	"tf_distanceMod"		"1"
 	"inv_name"				"Pistol"
 	"model"					"progs/g_shot1.mdl"
 	"model_view"			"models/weapons/v_blast/tris.md2"

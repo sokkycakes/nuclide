@@ -36,6 +36,9 @@ rules progs pass any tf_test_* command they don't know to TF_TestCommand.
   or removes them all Bot AI is off while pinned.
 - tf_test_release <player>: unpins, giving control back
 - tf_test_report: health and state of every player and building
+- tf_test_falloff <damage def or weapon def> <damage> <distance> ...: the
+  damage after range falloff and ramp-up (TF_DistanceDamage) at each
+  distance, between two player-sized boxes
 */
 
 static tfPlayer
@@ -95,7 +98,7 @@ TF_TestButtons(string buttonNames)
 bool
 TF_TestCommand(string commandLine)
 {
-	tokenize_console(commandLine);
+	int argCount = tokenize_console(commandLine);
 	string commandName = argv(0);
 	tfPlayer thePlayer;
 
@@ -214,6 +217,43 @@ TF_TestCommand(string commandLine)
 				print(sprintf("%s of %s: origin %v velocity %v\n", proj.classname, proj.owner.netname, proj.origin, proj.velocity));
 			}
 		}
+		break;
+	case "tf_test_falloff":
+		/* reading defs tokenizes, so copy our arguments first */
+		string declName = argv(1);
+		string baseDamage = argv(2);
+		string distanceList = "";
+		entity fromBox = spawn();
+		entity toBox = spawn();
+		ncDict testDecl;
+
+		for (int i = 3; i < argCount; i++) {
+			distanceList = strcat(distanceList, " ", argv(i));
+		}
+
+		/* a damage def has its "weapon" key; a weapon def becomes one */
+		if (STRING_SET(EntityDef_GetKeyValue(declName, "weapon"))) {
+			testDecl = ncDict::InitWithSpawnData(EntityDef_GetSpawnData(EntityDef_IDFromName(declName)));
+		} else {
+			testDecl = spawn(ncDict);
+			testDecl.AddKey("weapon", declName);
+		}
+
+		setsize(fromBox, [-16, -16, 0], [16, 16, 72]);
+		setsize(toBox, [-16, -16, 0], [16, 16, 72]);
+		setorigin(fromBox, [0, 0, 0]);
+
+		for (int d = 0; d < argCount - 3; d++) {
+			tokenize_console(distanceList);
+			string testDistance = argv(d);
+			setorigin(toBox, [stof(testDistance), 0, 0]);
+			print(sprintf("falloff %s %s at %s: %.2f\n", declName, baseDamage, testDistance,
+				TF_DistanceDamage(toBox, fromBox, fromBox, testDecl, stof(baseDamage))));
+		}
+
+		remove(testDecl);
+		remove(fromBox);
+		remove(toBox);
 		break;
 	case "tf_test_report":
 		for (entity e = world; (e = next.Player(e));) {

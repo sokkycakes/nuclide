@@ -1,6 +1,7 @@
 // Team Fortress template: shared weapon bases. The weapons themselves are in
 // the per-class files next to this one. Stats are TF2's stock weapons
-// (damage at base, without falloff or random crits). The guns, the knife and
+// (damage at base; tf_player.qc adds TF2's range falloff and ramp-up from the
+// "tf_distanceMod" keys, there are no random crits). The guns, the knife and
 // their sounds are Action Quake 2's (zz_aq2.pk3); the other view models are
 // from "Worldmodel to Viewmodel" (zz_wm2vm.pk3). Both packs are kept outside
 // git, see the README. The act numbers are framegroups in those packs: 0 draw,

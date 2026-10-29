@@ -38,6 +38,7 @@ entityDef tf_weapon_smg
 {
 	"inherit"			"tf_weapon_base"
 	"spawnclass"		"ncWeapon"
+	"tf_distanceMod"		"1"
 	"inv_name"			"SMG"
 	"model"				"models/weapons/g_machn/tris.md2"
 	"model_view"		"models/weapons/v_machn/tris.md2"

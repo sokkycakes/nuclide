@@ -5,6 +5,7 @@ entityDef tf_weapon_minigun
 {
 	"inherit"				"tf_weapon_base"
 	"spawnclass"			"tfMinigun"
+	"tf_distanceMod"		"1"
 	"inv_name"				"Minigun"
 	"model"					"progs/g_nail2.mdl"
 	"model_view"			"progs/wm2vm/v_minigun.mdl"
