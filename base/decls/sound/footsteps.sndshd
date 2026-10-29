@@ -26,8 +26,3 @@ step_ladder.right
 {
 	sample common/null.wav
 }
-
-sfx_impact.default
-{
-	sample common/null.wav
-}
