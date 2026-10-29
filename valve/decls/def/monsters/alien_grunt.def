@@ -13,10 +13,14 @@ entityDef monster_alien_grunt
 	"speed_run"		"292"
 
 	"def_attack_melee"		"melee_agrunt_punch"
-	"attack_melee_range"	"96"
-	"attack_ranged_range"	"512"
+	// HL agrunt.cpp CheckMeleeAttack1 / CheckRangeAttack1
+	"attack_melee_range"	"100"
+	"attack_melee_dot"		"0.6"
+	"attack_ranged_range"	"1024"
+	"attack_ranged_min"		"100"
+	"attack_ranged_dot"		"0.5"
 
-	"snd_alert"				"AlienGrunt.Alert
+	"snd_alert"				"AlienGrunt.Alert"
 	"snd_idle"				"AlienGrunt.Idle"
 	"snd_pain"				"AlienGrunt.Pain"
 	"snd_death"				"AlienGrunt.Pain"

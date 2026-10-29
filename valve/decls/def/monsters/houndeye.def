@@ -5,14 +5,16 @@ entityDef monster_houndeye
 	"netname"				"Houndeye"
 	"health"				"skill:houndeye_health"
 	"mins"					"-16 -16 0"
-	"maxs"					"16 16 72"
-	"eye_height"			"32"
+	"maxs"					"16 16 36"
+	"eye_height"			"6"
 	"team"					"2"
 	"propdata"				"actor_alien"
 	"speed_walk"			"32"
 	"speed_run"				"192"
 
+	// HL houndeye.cpp CheckRangeAttack1
 	"attack_ranged_range"	"192"
+	"attack_ranged_dot"		"0.3"
 
 	"snd_idle"				"HoundEye.Idle"
 	"snd_pain"				"HoundEye.Pain"

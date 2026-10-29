@@ -914,6 +914,9 @@ void
 ncRenderableEntity::SetBodyInGroup(int groupID, int bodyValue)
 {
 	/* pack our half bytes */
+	/* replace the group's half byte: OR-ing it in could never switch a
+	   group back (Barney's holstered gun) */
+	m_geomsetField &= ~(15i << (4i * groupID));
 	m_geomsetField |= (bodyValue << (4 * groupID));
 	m_geomsetField_net = 0;
 	//print(sprintf("NEW BODY: %i %i %i\n", m_geomsetField, groupID, bodyValue));

@@ -10,6 +10,5 @@ typeInfo agrunt_waitInCover
 	"fail_onCanRangedAttack2"	"1"
 	"fail_onCanMeleeAttack1"	"1"
 	"fail_onCanMeleeAttack2"	"1"
-	"CanRangedAttack1"	"PerformSchedule agrunt_rangedAttack1A"
-	"CanRangedAttack2"	"PerformSchedule agrunt_rangedAttack2"
+	"CanRangedAttack1"	"PerformSchedule agrunt_rangedAttack"
 }

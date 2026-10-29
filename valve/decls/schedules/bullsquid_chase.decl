@@ -1,0 +1,12 @@
+typeInfo bullsquid_chase
+{
+	"task_1"					"SetFailSchedule bullsquid_idle"
+	"task_2"					"TargetEnemy"
+	"task_3"					"RunToTarget"
+	"task_4"					"WaitForMovement"
+	"fail_onDeadEnemy"			"1"
+	"fail_onCanMeleeAttack1"	"1"
+	"fail_onCanRangedAttack1"	"1"
+	"CanMeleeAttack1"			"PerformSchedule bullsquid_meleeAttack"
+	"CanRangedAttack1"			"PerformSchedule bullsquid_rangedAttack"
+}
