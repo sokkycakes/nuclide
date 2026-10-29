@@ -1302,6 +1302,13 @@ ncWeapon::Attack(string fireInfo)
 		return;
 	}
 
+#ifdef CLIENT
+	/* the server's game code decides when this one fires */
+	if (GetSubDefBool(fireInfo, "serverFire") == true) {
+		return;
+	}
+#endif
+
 	SwitchFireInfo(fireInfo);
 	ourOwner.sndindex_idle = 0;
 

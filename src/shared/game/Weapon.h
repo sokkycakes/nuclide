@@ -177,6 +177,7 @@ activity override format for existing models.
 - "punchAngle" : Weapon punchangle to be applied to the camera when shooting "def_onFire".
 - "fireRate" : Firing rate between shots.
 - "semiAuto" : If not set to "1", the weapon will be fully automatic.
+- "serverFire" : If set to "1", the client doesn't predict this fireInfo's shots. For weapons whose game code decides on the server when to fire (e.g. hold to charge, fire on release), where a predicted shot would be wrong.
 
 # EXAMPLES
 
