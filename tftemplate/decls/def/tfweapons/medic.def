@@ -6,8 +6,8 @@ entityDef tf_weapon_syringegun_medic
 	"inherit"				"tf_weapon_base"
 	"spawnclass"			"ncWeapon"
 	"inv_name"				"Syringe Gun"
-	"model"					"progs/g_nail.mdl"
-	"model_view"			"progs/v_nail.mdl"
+	"model"					"progs/wm2vm/g_syringe.mdl"
+	"model_view"			"progs/wm2vm/v_syringe.mdl"
 	"def_fireInfo"			"fireInfo_tf_syringegun"
 	"hudSlot"				"0"
 	"hudSlotPos"			"0"
@@ -23,6 +23,9 @@ entityDef tf_weapon_syringegun_medic
 	"msg_obituary"			"%s was pricked by %s's syringes."
 	"snd_fire"				"weapon_nailgun.shoot"
 	"animPrefix"			"nailgun"
+	"act_draw"				"0"
+	"act_fire"				"1"
+	"act_idle"				"2"
 }
 
 entityDef fireInfo_tf_syringegun
@@ -62,20 +65,21 @@ entityDef tf_weapon_medigun
 	"spawnclass"		"tfMedigun"
 	"inv_name"			"Medi Gun"
 	"model"				"progs/g_light.mdl"
-	"model_view"		"progs/v_light.mdl"
-	"act_draw"			"-1"	// v_light.mdl's frame 0 reports an endless duration
+	"model_view"		"progs/wm2vm/v_medigun.mdl"
+	"act_draw"			"0"
 	"def_fireInfo"		"fireInfo_tf_medigun"
 	"hudSlot"			"1"
 	"hudSlotPos"		"0"
 	"ammoRequired"		"0"
 	"animPrefix"		"lightning"
-	"act_fire"			"0"
+	"act_fire"			"2"
 	"tf_healRate"		"24"
 	"tf_healRateMax"	"72"
 	"tf_healRange"		"450"
 	"tf_overheal"		"1.5"
 	"tf_uberRate"		"2.5"
 	"tf_uberTime"		"8"
+	"act_idle"			"2"
 }
 
 entityDef fireInfo_tf_medigun
@@ -89,16 +93,18 @@ entityDef tf_weapon_bonesaw
 	"spawnclass"		"ncWeapon"
 	"inv_name"			"Bonesaw"
 	"model"				""
-	"model_view"		"progs/v_axe.mdl"
+	"model_view"		"progs/wm2vm/v_axe.mdl"
 	"def_fireInfo"		"fireInfo_tf_weapon_bonesaw"
 	"hudSlot"			"2"
 	"hudSlotPos"		"0"
 	"ammoRequired"		"0"
 	"msg_obituary"		"%s was sawed by %s's bonesaw."
 	"animPrefix"		"axe"
-	"act_fire"			"1,2"
-	"act_fireFailed"	"1,2"
+	"act_fire"			"1,3"
+	"act_fireFailed"	"1,3"
 	"silent_fire"		"1"
+	"act_draw"			"0"
+	"act_idle"			"2"
 }
 
 entityDef fireInfo_tf_weapon_bonesaw

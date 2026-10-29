@@ -42,18 +42,20 @@ entityDef tf_weapon_wrench
 	"spawnclass"		"tfWrench"
 	"inv_name"			"Wrench"
 	"model"				""
-	"model_view"		"progs/v_axe.mdl"
+	"model_view"		"progs/wm2vm/v_wrench.mdl"
 	"def_fireInfo"		"fireInfo_tf_weapon_wrench"
 	"hudSlot"			"2"
 	"hudSlotPos"		"0"
 	"ammoRequired"		"0"
 	"msg_obituary"		"%s was wrenched by %s."
 	"animPrefix"		"axe"
-	"act_fire"			"1,2"
-	"act_fireFailed"	"1,2"
+	"act_fire"			"1"
+	"act_fireFailed"	"1"
 	"silent_fire"		"1"
 	"tf_metalPerHit"	"25"
 	"tf_repairPerMetal"	"3"
+	"act_draw"			"0"
+	"act_idle"			"2"
 }
 
 entityDef fireInfo_tf_weapon_wrench
