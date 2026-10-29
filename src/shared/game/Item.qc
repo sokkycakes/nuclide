@@ -891,5 +891,9 @@ ncItem::_RemovedCallback(void)
 	owner = __NULL__;
 	chain = __NULL__;
 	m_nextItem = __NULL__;
+	/* it lingers until Destroy runs, so nobody may pick it up again:
+	   the old owner standing on it would get a freed item back */
+	m_itemNoTouch = true;
+	Disappear();
 	ScheduleThink(Destroy, 0.0f);
 }
