@@ -61,12 +61,12 @@ Arcane Dimensions' (SimonOC, dwere): private use only too.
 | Bat, Bottle, Shovel, Fists, Bonesaw | `v_axe` | Quake's axe world model |
 
 The PDAs keep base's axe.
+
 Both packs add a `.framegroups` file next to each view model that splits its
 frames into animations, so the defs' `act_*` keys are animation numbers. Every
-model has 0 draw, 1 fire and 2 idle; 4 is the reload (a shell for the M3).
-The knife's 1 is the slash; the axes swing with 1 and 3 and up. Draw and
-reload lengths are scaled to TF2's
-times. The sounds are in `decls/sound/tf_aq2.sndshd`, and `player.sndshd`
+model has 0 draw, 1 fire and 2 idle. On the AQ2 guns 4 is the reload (a
+shell for the M3), the knife's 1 is the slash, and the axes swing with 1 and
+3 and up. Draw and reload lengths are scaled to TF2's times. The sounds are in `decls/sound/tf_aq2.sndshd`, and `player.sndshd`
 and `footsteps.sndshd` here replace base's files of the same name.
 
 ## Running it
