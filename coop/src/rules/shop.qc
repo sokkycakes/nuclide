@@ -37,7 +37,6 @@ var string autocvar_coop_shopFile = "scripts/shop.txt";
 var float autocvar_coop_shopMaxHealth = 100;
 var float autocvar_coop_shopMaxArmor = 100;
 
-.float armor;
 
 string g_shopCategory[SHOP_MAXITEMS];
 string g_shopGive[SHOP_MAXITEMS];
@@ -171,7 +170,7 @@ Shop_Refuse(entity pl, int n)
 		}
 		break;
 	case "armor":
-		if (pl.armor >= autocvar_coop_shopMaxArmor) {
+		if (actor.GetArmor(pl) >= autocvar_coop_shopMaxArmor) {
 			return ("Your armour is full.");
 		}
 		break;
@@ -238,7 +237,7 @@ Shop_Give(entity pl, int n)
 		ents.Input(pl, "SetHealth", ftos(min(autocvar_coop_shopMaxHealth, pl.health + amount)), pl);
 		break;
 	case "armor":
-		ents.Input(pl, "SetArmor", ftos(min(autocvar_coop_shopMaxArmor, pl.armor + amount)), pl);
+		ents.Input(pl, "SetArmor", ftos(min(autocvar_coop_shopMaxArmor, actor.GetArmor(pl) + amount)), pl);
 		break;
 	default:
 		if (substring(what, 0, 5) == "ammo_") {
