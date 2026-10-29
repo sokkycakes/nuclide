@@ -95,3 +95,56 @@ ScriptedEntity_FileFor(string className)
 
 	return ("");
 }
+
+/** For scripts: how much of an ammo type ("ammo_9mm") an actor carries. */
+float
+Script_GetAmmo(entity actorEntity, string ammoName)
+{
+	ncActor theActor = (ncActor)actorEntity;
+	int ammoNum = ammoNumForName(ammoName);
+
+	if (!theActor || ammoNum == -1i) {
+		return (0);
+	}
+
+	return ((float)theActor.GetReserveAmmo(ammoNum));
+}
+
+/** For scripts: takes ammo from an actor. Returns 1 when it had enough. */
+float
+Script_UseAmmo(entity actorEntity, string ammoName, float ammoAmount)
+{
+	ncActor theActor = (ncActor)actorEntity;
+	int ammoNum = ammoNumForName(ammoName);
+
+	if (!theActor || ammoNum == -1i) {
+		return (0);
+	}
+
+	return (theActor.UseAmmo(ammoNum, (int)ammoAmount) ? 1 : 0);
+}
+
+/** For scripts: launches a projectile entityDef from a spot, owned by an actor. */
+entity
+Script_LaunchProjectile(string projectileDef, entity ownerEntity, vector launchOrigin, vector launchAngles)
+{
+	return (ncProjectile_SpawnDefAtPosition(projectileDef, (ncActor)ownerEntity, launchOrigin, launchAngles));
+}
+
+/** For scripts: precaches an entityDef's models and sounds. Only works
+while the map loads, like any precache. Returns 1 when the def exists. */
+float
+Script_PrecacheEntity(string defName)
+{
+	bool wasInitialized = g_ents_initialized;
+	bool foundDef;
+
+	if (EntityDef_IDFromName(defName) == -1i) {
+		return (0);
+	}
+
+	g_ents_initialized = false;
+	foundDef = EntityDef_Precache(defName);
+	g_ents_initialized = wasInitialized;
+	return (foundDef ? 1 : 0);
+}

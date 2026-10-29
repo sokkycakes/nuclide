@@ -1,0 +1,298 @@
+// Weapons and pickups that Sven Co-op maps hand out, for the co-op game.
+// Stats follow Sven Co-op's published weapon numbers where we have them,
+// and the maps' own scripts for their custom weapons. Models are the
+// stock names, so a map's model list (or its own models) can replace them.
+
+// 5.56mm ammo, for the M16
+entityDef ammo_556
+{
+	"inherit"		"ammo_base"
+	"model"			"models/w_9mmarclip.mdl"
+	"inv_ammo_556"	"100"
+}
+
+// Sven Co-op's weaponbox, as a pickup: bullet9mm, buckshot, bullet556,
+// uranium and the rest become inv_ammo_* keys (see weaponbox.lua)
+entityDef item_sven_weaponbox
+{
+	"inherit"		"ammo_base"
+	"model"			"models/w_weaponbox.mdl"
+	"mins"			"-16 -16 0"
+	"maxs"			"16 16 16"
+}
+
+// M16 with an M203: three-round bursts, grenades on the alt fire
+entityDef weapon_m16
+{
+	"inherit"			"weapon_9mmAR"
+	"model"				"models/w_m16.mdl"
+	"model_player"		"models/p_m16.mdl"
+	"model_view"		"models/v_m16a2.mdl"
+	"animPrefix"		"mp5"
+
+	"def_fireInfo"		"fireInfo_m16"
+	"def_altFireInfo"	"fireInfo_m16_grenade"
+	"inv_name"			"M16"
+	"clipSize"			"30"
+	"clipSizeDefault"	"30"
+	"ammoType"			"ammo_556"
+
+	"act_fire"			"4,5"
+	"act_reload"		"6"
+	"act_draw"			"0"
+	"act_holster"		"1"
+	"act_idle"			"2,3"
+
+	"hudSlot"			"2"
+	"hudSlotPos"		"2"
+}
+
+entityDef projectile_m16
+{
+	"inherit"		"projectile_bullet_base"
+	"damage"		"skill:plr_9mmAR_bullet"
+	"spread"		"0.02 0.02"
+}
+
+entityDef fireInfo_m16
+{
+	"def_onFire"		"projectile_m16"
+	"ammoType"			"ammo_556"
+	"ammoRequired"		"1"
+	"ammoPerShot"		"1"
+	"burstCount"		"3"
+	"burstTime"			"0.075"
+	"fireRate"			"0.35"
+	"semiAuto"			"1"
+	"punchAngle"		"-2 0 0"
+	"model_flash"		"sprites/muzzleflash1.spr"
+}
+
+entityDef fireInfo_m16_grenade
+{
+	"inherit"			"fireInfo_ARGrenade"
+	"act_fire"			"7"
+}
+
+// pizza_ya_san's sawn-off shotgun (its weapon_as_shotgun): 4 shells,
+// 9 pellets in a 15 degree cone, no double shot
+entityDef weapon_as_shotgun
+{
+	"inherit"			"weapon_shotgun"
+	"model"				"models/pizza_ya_san/w_shotgun_shorty.mdl"
+	"model_player"		"models/pizza_ya_san/p_shotgun_shorty.mdl"
+	"model_view"		"models/pizza_ya_san/v_shotgun_shorty.mdl"
+	"def_fireInfo"		"fireInfo_as_shotgun"
+	"def_altFireInfo"	"fireInfo_as_shotgun"
+	"inv_name"			"Shotgun"
+	"clipSize"			"4"
+	"hudSlot"			"2"
+	"hudSlotPos"		"5"
+}
+
+entityDef projectile_as_shotgun
+{
+	"inherit"		"projectile_bullet_base"
+	"damage"		"skill:plr_buckshot"
+	"hitscans"		"9"
+	"spread"		"0.13074 0.13074"
+}
+
+entityDef fireInfo_as_shotgun
+{
+	"inherit"		"fireInfo_shotgun"
+	"def_onFire"	"projectile_as_shotgun"
+}
+
+// medkit: heals whoever is in front of you, refills over time
+entityDef weapon_medkit
+{
+	"inherit"			"weapon_base"
+	"model"				"models/w_pmedkit.mdl"
+	"model_player"		"models/p_medkit.mdl"
+	"model_view"		"models/v_medkit.mdl"
+	"animPrefix"		"trip"
+	"script"			"weapons/weapon_medkit.lua"
+
+	"def_fireInfo"		"fireInfo_medkit"
+	"inv_name"			"Medkit"
+	"inv_ammo_medkit"	"50"
+	"ammoType"			"ammo_medkit"
+
+	"act_fire"			"3"
+	"act_draw"			"5"
+	"act_holster"		"4"
+	"act_idle"			"0,1"
+
+	"hudSlot"			"0"
+	"hudSlotPos"		"2"
+	"weight"			"0"
+	"crosshair"			"none"
+}
+
+entityDef fireInfo_medkit
+{
+	"ammoType"		"ammo_medkit"
+	"ammoRequired"	"1"
+	"ammoPerShot"	"10"
+	"fireRate"		"0.5"
+	"testDistance"	"-64"
+	"regenAmmo"		"1"
+	"regenRate"		"1"
+}
+
+// barnacle grapple: hold to pull yourself to what the tongue hits
+entityDef weapon_grapple
+{
+	"inherit"			"weapon_base"
+	"model"				"models/w_bgrap.mdl"
+	"model_player"		"models/p_bgrap.mdl"
+	"model_view"		"models/v_bgrap.mdl"
+	"animPrefix"		"crowbar"
+	"script"			"weapons/weapon_grapple.lua"
+
+	"def_fireInfo"		"fireInfo_grapple"
+	"inv_name"			"Barnacle"
+	"ammoRequired"		"0"
+
+	"act_fire"			"9"
+	"act_draw"			"5"
+	"act_holster"		"4"
+	"act_idle"			"0,2"
+
+	"hudSlot"			"0"
+	"hudSlotPos"		"3"
+	"weight"			"0"
+}
+
+entityDef fireInfo_grapple
+{
+	"ammoRequired"	"0"
+	"fireRate"		"0.05"
+}
+
+// pizza_ya_san's laser designator (its weapon_as_soflam): calls in a
+// mortar strike where you point, 5 seconds later
+entityDef weapon_as_soflam
+{
+	"inherit"			"weapon_base"
+	"model"				"models/pizza_ya_san/w_soflam.mdl"
+	"model_player"		"models/pizza_ya_san/p_soflam.mdl"
+	"model_view"		"models/pizza_ya_san/v_soflam.mdl"
+	"animPrefix"		"trip"
+	"script"			"weapons/weapon_as_soflam.lua"
+
+	"def_fireInfo"		"fireInfo_soflam"
+	"def_altFireInfo"	"fireInfo_soflam_wide"
+	"inv_name"			"Laser Designator"
+	"inv_ammo_rocket"	"5"
+	"ammoType"			"ammo_rocket"
+
+	"act_fire"			"2"
+	"act_draw"			"1"
+	"act_idle"			"0"
+
+	"hudSlot"			"3"
+	"hudSlotPos"		"5"
+	"weight"			"5"
+}
+
+// ammo is taken when the strike comes in, by the script
+entityDef fireInfo_soflam
+{
+	"ammoType"		"ammo_rocket"
+	"ammoRequired"	"1"
+	"ammoPerShot"	"0"
+	"fireRate"		"1"
+	"semiAuto"		"1"
+}
+
+entityDef fireInfo_soflam_wide
+{
+	"inherit"		"fireInfo_soflam"
+	"act_fire"		"3"
+}
+
+entityDef projectile_sven_mortar
+{
+	"spawnclass"		"ncProjectile"
+	"model"				"models/grenade.mdl"
+	"velocity"			"300 0 0"
+	"gravity"			"1"
+	"mins"				"0 0 0"
+	"maxs"				"0 0 0"
+	"detonate_on_fuse"	"0"
+	"detonate_on_death"	"1"
+	"detonate_on_world"	"1"
+	"detonate_on_actor"	"1"
+	"snd_explode"		"fx.explosion"
+	"model_detonate"	"fx_explosion.main"
+	"decal_detonate"	"ExplosionScorch"
+	"def_splash_damage"	"damage_sven_mortar"
+	"explode_light_color"		"1 0.5 0"
+	"explode_light_radius"		"1024"
+	"explode_light_fadetime"	"2"
+}
+
+entityDef damage_sven_mortar
+{
+	"damage"	"200"
+	"radius"	"300"
+	"push"		"10000"
+}
+
+// pizza_ya_san's jetpack pistol (its weapon_as_jetpack): an automatic
+// pistol; hold alt fire to fly on uranium. Reload changes the boost level.
+entityDef weapon_as_jetpack
+{
+	"inherit"			"weapon_base"
+	"model"				"models/pizza_ya_san/w_glock18jet.mdl"
+	"model_player"		"models/pizza_ya_san/p_glock18jet.mdl"
+	"model_view"		"models/pizza_ya_san/v_glock18jet.mdl"
+	"animPrefix"		"onehanded"
+	"script"			"weapons/weapon_as_jetpack.lua"
+
+	"def_fireInfo"		"fireInfo_jetpack"
+	"def_altFireInfo"	"fireInfo_jetpack_boost"
+	"inv_name"			"Jetpack"
+	"inv_ammo_9mm"		"100"
+	"ammoType"			"ammo_9mm"
+
+	"act_fire"			"3"
+	"act_draw"			"7"
+	"act_holster"		"8"
+	"act_idle"			"0,1,2"
+
+	"hudSlot"			"2"
+	"hudSlotPos"		"4"
+	"weight"			"5"
+}
+
+entityDef projectile_jetpack
+{
+	"inherit"		"projectile_bullet_base"
+	"damage"		"skill:plr_9mm_bullet"
+	"spread"		"0.05234 0.05234"
+}
+
+entityDef fireInfo_jetpack
+{
+	"def_onFire"	"projectile_jetpack"
+	"ammoType"		"ammo_9mm"
+	"ammoRequired"	"1"
+	"ammoPerShot"	"1"
+	"fireRate"		"0.05"
+	"punchAngle"	"-1 0 0"
+	"snd_fire"		"Weapon_Glock.Single"
+	"model_flash"	"sprites/muzzleflash1.spr"
+}
+
+// fuel is taken by the script, about one uranium every 0.6 seconds
+entityDef fireInfo_jetpack_boost
+{
+	"ammoType"		"ammo_uranium"
+	"ammoRequired"	"1"
+	"ammoPerShot"	"0"
+	"fireRate"		"0.05"
+	"act_fire"		"0"
+}

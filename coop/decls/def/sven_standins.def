@@ -68,3 +68,10 @@ entityDef monster_gonome
 	"inherit"	"monster_zombie"
 	"netname"	"Gonome"
 }
+
+entityDef monster_bodyguard
+{
+	"inherit"	"monster_human_grunt"
+	"netname"	"Bodyguard"
+	"team"		"0"
+}
