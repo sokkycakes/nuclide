@@ -35,7 +35,7 @@ a licence from id Software. The pack is for private use only.
 
 | TF weapons | AQ2 view model | AQ2 world model |
 |---|---|---|
-| Scattergun, every Shotgun | M3 (`v_shotg`), a shell at a time | `g_shotg` |
+| Scattergun, every Shotgun | M3 sounds only (DOX view models, below) | `g_shotg` |
 | Pistols, Revolver | Mk23 (`v_blast`) | Quake's |
 | SMG | MP5 (`v_machn`) | `g_machn` |
 | Sniper Rifle | SSG 3000 (`v_sniper`) | `g_sniper` |
@@ -49,14 +49,12 @@ Arcane Dimensions' (SimonOC, dwere): private use only too.
 
 | TF weapons | View model | From |
 |---|---|---|
-| Rocket Launcher | `v_rocket` | Arcane Dimensions rocket launcher |
 | Grenade Launcher | `v_grenade` (world `g_grenade`) | Arcane Dimensions grenade launcher |
 | Stickybomb Launcher | `v_sticky` (world `g_sticky`) | Hipnotic proximity gun |
 | Flamethrower | `v_flame` | Arcane Dimensions thunderbolt |
 | Medi Gun | `v_medigun` | Rogue plasma gun |
 | Syringe Gun | `v_syringe` (world `g_syringe`) | Arcane Dimensions nailgun, QTest world model |
-| Fire Axe, Kukri | `v_fireaxe`, `v_kukri` | Arcane Dimensions shadow axes |
-| Wrench | `v_wrench` | Hipnotic Mjolnir |
+| Kukri | `v_kukri` | Arcane Dimensions shadow axe |
 | Bat, Bottle, Shovel, Fists, Bonesaw | `v_axe` | Quake's axe world model |
 
 The PDAs keep base's axe.
@@ -73,11 +71,15 @@ Fortress 1 addon "2men & a fast mofo + techboy" under `progs/dox/` and
 | Dispenser | `dispenser` | |
 | Rocket | `rocket` | |
 | Pipe and sticky bombs | `pipe` | |
+| Rocket Launcher | `v_rocket` | |
+| Every Shotgun | `v_shotgun` (pump) | no reload animation; AQ2's M3 sounds |
+| Scattergun | `v_scattergun` (double barrel) | same |
+| Wrench | `v_wrench` | |
+| Fire Axe | `v_fireaxe` | two swings, 1 and 3 |
 
-It has more that isn't used yet: rocket launcher, pump and double-barrel
-shotgun, nailgun, railgun, wrench and fire axe view models, sentry and
-dispenser gibs, a hand grenade, MIRV, ammo box, armour and backpack, and the
-sentry's build and spot sounds (used), its idle sound and a "Medic!" call.
+It has more that isn't used yet: nailgun and railgun view models, sentry
+and dispenser gibs, a hand grenade, MIRV, ammo box, armour and backpack, the
+sentry's idle sound and a "Medic!" call.
 
 Both packs add a `.framegroups` file next to each view model that splits its
 frames into animations, so the defs' `act_*` keys are animation numbers. Every

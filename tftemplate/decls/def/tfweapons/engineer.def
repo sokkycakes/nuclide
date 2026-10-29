@@ -43,7 +43,7 @@ entityDef tf_weapon_wrench
 	"spawnclass"		"tfWrench"
 	"inv_name"			"Wrench"
 	"model"				""
-	"model_view"		"progs/wm2vm/v_wrench.mdl"
+	"model_view"		"progs/dox/v_wrench.mdl"
 	"def_fireInfo"		"fireInfo_tf_weapon_wrench"
 	"hudSlot"			"2"
 	"hudSlotPos"		"0"
