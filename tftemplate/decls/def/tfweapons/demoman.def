@@ -110,6 +110,7 @@ entityDef fireInfo_tf_pipebomblauncher
 {
 	"def_onFire"	"projectile_tf_sticky"
 	"fireRate"		"0.6"
+	"serverFire"	"1"		// tfStickybombLauncher fires on release or full charge
 }
 
 entityDef projectile_tf_sticky
