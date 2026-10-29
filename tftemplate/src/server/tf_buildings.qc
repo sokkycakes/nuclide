@@ -189,7 +189,7 @@ tfBuilding::Damage(entity inflictor, entity attacker, ncDict damageDecl, float d
 		return;
 	}
 
-	float damagePoints = rint(stof(ReadString(damageDecl.GetString("damage"))) * damageScale);
+	float damagePoints = rint(TF_DistanceDamage(this, inflictor, attacker, damageDecl, stof(ReadString(damageDecl.GetString("damage"))) * damageScale));
 
 	if (damagePoints <= 0) {
 		return;

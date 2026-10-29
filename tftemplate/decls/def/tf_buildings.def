@@ -12,6 +12,10 @@ entityDef tf_building_sentry
 {
 	"inherit"			"tf_building_base"
 	"spawnclass"		"tfSentryGun"
+	"tf_distanceMod"		"1"
+	"tf_noCloseMod"			"1"
+	"tf_optimalDistance"	"1100"
+	"tf_fromInflictor"		"1"
 	"inv_name"			"Sentry Gun"
 	"model"				"progs/g_nail2.mdl"
 	"mins"				"-20 -20 0"

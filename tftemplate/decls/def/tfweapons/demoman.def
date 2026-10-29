@@ -5,6 +5,8 @@ entityDef tf_weapon_grenadelauncher
 {
 	"inherit"			"tf_weapon_base"
 	"spawnclass"		"ncWeapon"
+	"tf_distanceMod"		"1"
+	"tf_varianceScale"		"0.2"
 	"inv_name"			"Grenade Launcher"
 	"model"				"progs/wm2vm/g_grenade.mdl"
 	"model_view"		"progs/wm2vm/v_grenade.mdl"
@@ -75,6 +77,7 @@ entityDef tf_weapon_pipebomblauncher
 {
 	"inherit"				"tf_weapon_base"
 	"spawnclass"			"tfStickybombLauncher"
+	"tf_noCloseMod"			"1"
 	"inv_name"				"Stickybomb Launcher"
 	"model"					"progs/wm2vm/g_sticky.mdl"
 	"model_view"			"progs/wm2vm/v_sticky.mdl"
@@ -100,6 +103,8 @@ entityDef tf_weapon_pipebomblauncher
 	"tf_maxStickies"		"8"
 	"tf_armTime"			"0.7"
 	"tf_stickyDef"			"projectile_tf_sticky"
+	"tf_lateSplashTime"		"5"
+	"tf_lateSplashDef"		"damage_tf_sticky_late"
 	"punchKick"			"3"
 	"act_draw"				"0"
 	"act_fire"				"1"
@@ -133,13 +138,27 @@ entityDef projectile_tf_sticky
 	"def_splash_damage"	"damage_tf_sticky"
 }
 
+// TF2: stickies get range falloff only in their first 5 seconds
+// ("tf_lateSplashTime"), then tfStickybombLauncher switches them to
+// damage_tf_sticky_late when they're detonated.
 entityDef damage_tf_sticky
 {
-	"damage"		"120"
-	"damage_min"	"60"
-	"radius"		"146"
-	"knockback"		"0"
-	"weapon"		"tf_weapon_pipebomblauncher"
+	"damage"			"120"
+	"damage_min"		"60"
+	"radius"			"146"
+	"knockback"			"0"
+	"weapon"			"tf_weapon_pipebomblauncher"
+	"tf_distanceMod"	"1"
+}
+
+entityDef damage_tf_sticky_late
+{
+	"damage"			"120"
+	"damage_min"		"60"
+	"radius"			"146"
+	"knockback"			"0"
+	"weapon"			"tf_weapon_pipebomblauncher"
+	"tf_distanceMod"	"0"
 }
 
 entityDef tf_weapon_bottle

@@ -7,6 +7,7 @@ entityDef tf_weapon_revolver
 {
 	"inherit"				"tf_weapon_base"
 	"spawnclass"			"ncWeapon"
+	"tf_distanceMod"		"1"
 	"inv_name"				"Revolver"
 	"model"					"progs/g_shot1.mdl"
 	"model_view"			"models/weapons/v_blast/tris.md2"

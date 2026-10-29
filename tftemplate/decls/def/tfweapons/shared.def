@@ -4,6 +4,7 @@ entityDef tf_weapon_shotgun_soldier
 {
 	"inherit"				"tf_weapon_base"
 	"spawnclass"			"ncWeapon"
+	"tf_distanceMod"		"1"
 	"inv_name"				"Shotgun"
 	"model"					"models/weapons/g_shotg/tris.md2"
 	"model_view"			"models/weapons/v_shotg/tris.md2"
@@ -36,6 +37,7 @@ entityDef tf_weapon_shotgun_pyro
 {
 	"inherit"				"tf_weapon_base"
 	"spawnclass"			"ncWeapon"
+	"tf_distanceMod"		"1"
 	"inv_name"				"Shotgun"
 	"model"					"models/weapons/g_shotg/tris.md2"
 	"model_view"			"models/weapons/v_shotg/tris.md2"
@@ -68,6 +70,7 @@ entityDef tf_weapon_shotgun_hwg
 {
 	"inherit"				"tf_weapon_base"
 	"spawnclass"			"ncWeapon"
+	"tf_distanceMod"		"1"
 	"inv_name"				"Shotgun"
 	"model"					"models/weapons/g_shotg/tris.md2"
 	"model_view"			"models/weapons/v_shotg/tris.md2"
@@ -100,6 +103,7 @@ entityDef tf_weapon_shotgun_primary
 {
 	"inherit"				"tf_weapon_base"
 	"spawnclass"			"ncWeapon"
+	"tf_distanceMod"		"1"
 	"inv_name"				"Shotgun"
 	"model"					"models/weapons/g_shotg/tris.md2"
 	"model_view"			"models/weapons/v_shotg/tris.md2"

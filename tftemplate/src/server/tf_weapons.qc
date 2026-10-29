@@ -190,9 +190,19 @@ tfStickybombLauncher::SecondaryAttack(void)
 	ncPlayer ourOwner = (ncPlayer)GetOwner();
 	string stickyDef = GetDefString("tf_stickyDef");
 
+	float lateTime = GetDefFloat("tf_lateSplashTime");
+	string lateDef = GetDefString("tf_lateSplashDef");
+
 	for (entity e = world; (e = find(e, ::classname, stickyDef));) {
 		if (e.owner == ourOwner && e.tf_charge <= time) {
 			ncProjectile toDetonate = (ncProjectile)e;
+
+			/* tf_charge is when it armed; past "tf_lateSplashTime" seconds
+			   old, it loses range falloff (TF2) */
+			if (STRING_SET(lateDef) && lateTime > 0.0f && time - (e.tf_charge - GetDefFloat("tf_armTime")) >= lateTime) {
+				toDetonate.SpawnKey("def_splash_damage", lateDef);
+			}
+
 			toDetonate.Trigger(ourOwner, TRIG_TOGGLE);
 		}
 	}
