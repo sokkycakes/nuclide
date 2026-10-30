@@ -1,0 +1,37 @@
+// Justice Task Force: the heroes' static weapons (decls/def/hero_weapons.def).
+// The samples come in zz_coopweapons.pk3.
+
+Weapon_Balrog7.Single
+{
+	alerts
+	sample weapons/balrog7-1.wav
+}
+
+Weapon_Cyclone.Start
+{
+	alerts
+	sample weapons/sfpistol_shoot_start.wav
+}
+
+Weapon_Cyclone.Loop
+{
+	looping
+	sample weapons/sfpistol_shoot1.wav
+}
+
+Weapon_Cyclone.Stop
+{
+	sample weapons/sfpistol_shoot_end.wav
+}
+
+Weapon_Skull1.Single
+{
+	alerts
+	sample weapons/skull1-1.wav
+}
+
+Weapon_Skull1.Barrage
+{
+	alerts
+	sample weapons/skull1-2.wav
+}

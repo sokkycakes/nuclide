@@ -709,6 +709,9 @@ ncActor::Input(entity eAct, string strInput, string strData)
 	case "RemoveAllItems":
 		RemoveAllItems(false);
 		break;
+	case "RemoveItem":
+		RemoveItem(strData);
+		break;
 	case "SwitchToWeapon":
 		SwitchToWeapon(strData);
 		break;

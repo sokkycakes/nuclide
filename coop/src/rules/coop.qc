@@ -50,6 +50,8 @@ string Hero_SpawnClass(entity pl);
 void Hero_PlayerSpawned(entity pl);
 void Hero_PlayerConnect(entity pl);
 bool Hero_ClientCommand(entity pl, string command);
+void Hero_GiveWeapons(entity pl);
+void Hero_SlotThink(entity pl);
 var bool g_coopHeroes;
 
 var float autocvar_coop_respawnDelay = 5;
@@ -716,6 +718,11 @@ CodeCallback_PlayerSpawn(entity playerEntity)
 	}
 
 	Shop_PlayerSpawned(playerEntity);
+
+	if (g_coopHeroes) {
+		Hero_GiveWeapons(playerEntity);
+	}
+
 	Hero_PlayerSpawned(playerEntity);
 
 	/* map scripts hand out the map's loadout from here */
@@ -1020,6 +1027,10 @@ CodeCallback_FrameStart(void)
 
 	Coop_WaveThink();
 	Coop_BotThink();
+
+	for (entity p = world; (p = next.Player(p));) {
+		Hero_SlotThink(p);
+	}
 
 	if (autocvar_coop_weapontest) {
 		Coop_WeaponTestThink();

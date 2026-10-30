@@ -496,6 +496,16 @@ Cmd_Parse(string sCMD)
 	case "weaplast":
 		ncWeapon_SelectWeapon(localPlayer.GetLastWeapon());
 		break;
+	case "selectItem":
+		/* switches through the predicted input path, so the view model
+		   follows. Server-side code sends it with stuffcmd when it wants a
+		   player on a given weapon. */
+		ncItem itemToSelect = localPlayer.GetItem(argv(1));
+
+		if (itemToSelect && itemToSelect._isWeapon == true) {
+			ncWeapon_SelectWeapon((ncWeapon)itemToSelect);
+		}
+		break;
 	case "+showscores":
 		pSeat->m_iScoresVisible = TRUE;
 		break;
@@ -797,6 +807,7 @@ Cmd_Init(void)
 	registercommand("+leanright");
 	registercommand("-leanright");
 	registercommand("weapnext");
+	registercommand("selectItem");
 	registercommand("weapprev");
 
 	registercommand("giveInventoryItem");
