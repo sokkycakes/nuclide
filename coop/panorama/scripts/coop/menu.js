@@ -1,7 +1,9 @@
 // Co-op menu: the title menu and, in a game, the pause menu. Pages are
 // built here from plain Panels, Buttons and Labels. The menu progs
-// (coop/src/menu/main.qc) answers "maps", "binds" and "servers"; cvars are
-// read through the bridge and commands go out with Bulwark.Cmd.
+// (coop/src/menu/main.qc) answers "maps", "binds", "servers" and "roster";
+// cvars are read through the bridge and commands go out with Bulwark.Cmd.
+// The Hero page asks the progs for a 3D preview ("preview"), drawn under
+// this view in the see-through #HeroWindow.
 var CoopMenu = ( function ()
 {
 	var stage = $( "#Stage" );
@@ -225,6 +227,7 @@ var CoopMenu = ( function ()
 
 	function openPage( name, title )
 	{
+		heroPageOff();
 		current = name;
 		keyHandler = null;
 		wheelHandler = null;
@@ -237,6 +240,7 @@ var CoopMenu = ( function ()
 	}
 	function closePage()
 	{
+		heroPageOff();
 		current = "";
 		keyHandler = null;
 		wheelHandler = null;
@@ -320,6 +324,74 @@ var CoopMenu = ( function ()
 				mapList.Refresh();
 			} );
 		} );
+	}
+
+	// Hero: the hero and kit to play, saved for every server with heroes on
+	var roster = null;
+
+	// #HeroWindow, as fractions of the screen (menu.css .hero-window)
+	var HERO_WINDOW = "0.69 0.12 0.25 0.76";
+
+	function heroPageOff()
+	{
+		if ( current !== "hero" )
+			return;
+		stage.SetHasClass( "hero-open", false );
+		Bulwark.Send( "preview", "" );
+	}
+
+	function heroPage()
+	{
+		openPage( "hero", "Hero" );
+		stage.SetHasClass( "hero-open", true );
+		var list = make( "Panel", body, "heroes-list title-heroes", { hittest: "false" } );
+		var status = label( body, "status", "" );
+		body.heroList = list;
+		body.heroStatus = status;
+		button( footer, "btn", "Back", closePage );
+		Bulwark.Send( "roster", "" );
+	}
+
+	function showRoster( r )
+	{
+		roster = r;
+		if ( current !== "hero" || !body.heroList )
+			return;
+		var list = body.heroList;
+		var kits = r.items.filter( function ( it ) { return it.type === "kit"; } );
+		var shown = kits.filter( function ( k ) { return k.def === r.picked; } )[ 0 ] || kits[ 0 ];
+		list.RemoveAndDeleteChildren();
+
+		r.items.filter( function ( it ) { return it.type === "hero"; } ).forEach( function ( h )
+		{
+			var card = make( "Panel", list, "hero", { hittest: "false" } );
+			var head = make( "Panel", card, "hero-head", { hittest: "false" } );
+			label( head, "hero-name", h.name );
+			label( head, "hero-stats", ( h.role && h.role !== h.name ? h.role + "  ·  " : "" ) +
+				h.health + " health  ·  speed " + h.speed );
+			if ( h.desc )
+				label( card, "hero-desc", h.desc );
+			kits.filter( function ( k ) { return k.hero === h.id; } ).forEach( function ( k )
+			{
+				var picked = k.def === r.picked;
+				var row = make( "Button", card, "skill kit" + ( picked ? " current" : "" ), { hittest: "true" } );
+				var text = make( "Panel", row, "skill-text", { hittest: "false" } );
+				label( text, "skill-name", k.name );
+				label( text, "skill-desc", k.desc || "" );
+				label( row, "kit-state", picked ? "Picked" : "" );
+				row.SetPanelEvent( "onactivate", function ()
+				{
+					$.GetContextPanel().SetFocus();
+					Bulwark.Send( "hero", k.def );
+				} );
+			} );
+		} );
+
+		body.heroStatus.text = r.picked && kits.some( function ( k ) { return k.def === r.picked; } ) ?
+			"Saved for every server with heroes on." :
+			"No hero picked: servers will ask.";
+		if ( shown )
+			Bulwark.Send( "preview", shown.def + " screen " + HERO_WINDOW + " backdrop" );
 	}
 
 	// Find servers: the LAN servers for this game, or an address
@@ -595,7 +667,7 @@ var CoopMenu = ( function ()
 		var items = inGame ?
 			[ [ "", "Resume", resume ], [ "", "Shop and skills", function () { cmd( "cmd shop" ); } ], [ "vote", "Vote", votePage ], [ "options", "Options", function () { optionsPage(); } ],
 			  [ "-" ], [ "", "Disconnect", function () { cmd( "disconnect" ); } ], [ "", "Quit", function () { cmd( "quit" ); } ] ] :
-			[ [ "play", "Play", playPage ], [ "servers", "Find servers", serversPage ], [ "options", "Options", function () { optionsPage(); } ],
+			[ [ "play", "Play", playPage ], [ "hero", "Hero", heroPage ], [ "servers", "Find servers", serversPage ], [ "options", "Options", function () { optionsPage(); } ],
 			  [ "-" ], [ "", "Quit", function () { cmd( "quit" ); } ] ];
 		items.forEach( function ( it )
 		{
@@ -627,6 +699,7 @@ var CoopMenu = ( function ()
 	} );
 	Bulwark.On( "maps", showMaps );
 	Bulwark.On( "servers", showServers );
+	Bulwark.On( "roster", showRoster );
 	Bulwark.On( "binds", function ( b )
 	{
 		binds = b || {};

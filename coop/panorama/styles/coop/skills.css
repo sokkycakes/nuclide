@@ -157,7 +157,7 @@
 .kit.picked { border: 1px solid #ffa31a80; }
 .kit-state
 {
-	width: 200px;
+	width: 120px;
 	margin-top: 16px;
 	margin-right: 10px;
 	text-align: right;
@@ -166,3 +166,34 @@
 }
 .kit.current .kit-state { color: #ffa31a; }
 .tab.hidden { visibility: collapse; }
+
+/* With the Hero tab open the menu progs draws the hero in 3D under the view
+   (coop/src/menu/main.qc), in #HeroPreview's place: nothing may cover it,
+   so the panel's background moves onto the parts around it, and the
+   progs darkens the screen instead of the stage. The preview's rect is in
+   loadout.js (HERO_PREVIEW). */
+.shop-stage.hero-tab { background-color: #00000000; }
+.loadout.hero-tab { background-color: #00000000; }
+.loadout.hero-tab .page-header
+{
+	background-color: gradient( linear, 0% 0%, 100% 0%, from( #33270ff2 ), to( #121212f2 ) );
+}
+.loadout.hero-tab .loadout-tabs,
+.loadout.hero-tab .page-footer,
+.loadout.hero-tab .hero-side
+{
+	background-color: #121212f2;
+}
+.hero-page { flow-children: right; }
+.hero-side
+{
+	width: 640px;
+	height: 100%;
+	flow-children: down;
+}
+.hero-preview
+{
+	width: fill-parent-flow( 1.0 );
+	height: 100%;
+	border: 1px solid #ffa31a33;
+}

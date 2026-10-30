@@ -173,7 +173,7 @@ entityDef kit_support_medic
 {
 	"inherit"			"hero_support"
 	"kit_name"			"Medic"
-	"kit_desc"			"The Hivehand never runs dry, so your hands stay free for revives."
+	"kit_desc"			"The Hivehand never runs dry."
 	"weapon"			"weapon_crowbar,weapon_9mmhandgun,weapon_hornetgun"
 	"current_weapon"	"2"
 	"ammo_9mm"			"68"

@@ -249,6 +249,24 @@ var CoopLoadout = ( function ()
 	}
 	function pickKit( kit ) { Bulwark.Send( "hero", kit.def ); }
 
+	// #HeroPreview in design units from the screen's centre: the panel is
+	// 1100 x 840 and centred, the header and tabs take 120 at the top, the
+	// footer 76 at the bottom and the list 640 on the left (skills.css)
+	var HERO_PREVIEW = "90 -300 460 644";
+
+	function preview()
+	{
+		if ( tab !== "hero" || !heroesOn() )
+		{
+			Bulwark.Send( "preview", "" );
+			return;
+		}
+		var all = kits();
+		var shown = all.filter( function ( k ) { return k.def === heroes.picked; } )[ 0 ] ||
+			all.filter( function ( k ) { return k.def === heroes.current; } )[ 0 ] || all[ 0 ];
+		Bulwark.Send( "preview", shown ? shown.def + " center " + HERO_PREVIEW + " dim" : "" );
+	}
+
 	function renderHeroes()
 	{
 		var list = $( "#Heroes" );
@@ -299,6 +317,8 @@ var CoopLoadout = ( function ()
 		$( "#TabHero" ).SetHasClass( "hidden", !heroesOn() );
 		$( "#TabHero" ).SetHasClass( "current", tab === "hero" );
 		$( "#HeroPage" ).SetHasClass( "open", tab === "hero" );
+		$( "#Loadout" ).SetHasClass( "hero-tab", tab === "hero" );
+		$( "#Stage" ).SetHasClass( "hero-tab", tab === "hero" );
 		$( "#TabShop" ).SetHasClass( "current", tab === "shop" );
 		$( "#TabSkills" ).SetHasClass( "current", tab === "skills" );
 		$( "#ShopPage" ).SetHasClass( "open", tab === "shop" );
@@ -324,6 +344,7 @@ var CoopLoadout = ( function ()
 			$( "#Points" ).text = skills ? plural( skills.points, "skill point" ) : "";
 			renderSkills();
 		}
+		preview();
 	}
 
 	function setTab( t )

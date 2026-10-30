@@ -41,6 +41,22 @@
 }
 .ingame .backdrop-glow { visibility: collapse; }
 
+/* the Hero page: the menu progs draws the backdrop and the hero under the
+   view (coop/src/menu/main.qc), so nothing here may cover #HeroWindow */
+.hero-open .backdrop { background-color: #00000000; }
+.hero-open .page { width: 36%; }
+.hero-window
+{
+	x: 69%;
+	y: 12%;
+	width: 25%;
+	height: 76%;
+	border: 1px solid #ffa31a55;
+	visibility: collapse;
+}
+.hero-open .hero-window { visibility: visible; }
+.page-body .title-heroes { padding: 0px; height: fill-parent-flow( 1.0 ); }
+
 /* ---- brand and main buttons --------------------------------------------- */
 
 .brand

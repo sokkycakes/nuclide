@@ -24,7 +24,9 @@
      the heroes on offer, in menu order.
    - The pick is the "*hero" userinfo key (a kit), so it lasts through
      deaths. It takes effect at the next spawn: picking while alive doesn't
-     respawn anyone or take away what they bought.
+     respawn anyone or take away what they bought. Until they pick on this
+     server, the client's own "hero" key is used: the hero picked on the
+     title menu, saved with the player's config.
    - coop_heroLimit is how many players may play one hero, 0 for any
      number. Someone over the limit gets the first hero with room.
    - "cmd heroes" asks for the list and "cmd hero <kit>" picks. The server
@@ -133,11 +135,25 @@ Hero_OfKit(string kit)
 	return (k >= 0i) ? g_heroKitHero[k] : -1i;
 }
 
+/* the kit pl picked here, or else the one their client saved; "" for none */
+string
+Hero_Wanted(entity pl)
+{
+	string kit = userinfo.GetString(pl, "*hero");
+
+	if (Hero_KitIndex(kit) >= 0i) {
+		return (kit);
+	}
+
+	kit = userinfo.GetString(pl, "hero");
+	return (Hero_KitIndex(kit) >= 0i) ? kit : "";
+}
+
 /* the hero pl plays now, or picked for the next spawn */
 int
 Hero_Claimed(entity pl)
 {
-	int h = Hero_OfKit(userinfo.GetString(pl, "*hero"));
+	int h = Hero_OfKit(Hero_Wanted(pl));
 	return (h >= 0i) ? h : Hero_OfKit(pl.classname);
 }
 
@@ -173,7 +189,7 @@ Hero_SpawnClass(entity pl)
 		return ("player_mp");
 	}
 
-	want = userinfo.GetString(pl, "*hero");
+	want = Hero_Wanted(pl);
 	h = Hero_OfKit(want);
 
 	if (h >= 0i && Hero_HasRoom(h, pl)) {
@@ -208,11 +224,7 @@ Hero_Name(string def, string key)
 void
 Hero_Send(entity pl, string message)
 {
-	string picked = userinfo.GetString(pl, "*hero");
-
-	if (Hero_KitIndex(picked) < 0i) {
-		picked = "";
-	}
+	string picked = Hero_Wanted(pl);
 
 	stuffcmd(pl, sprintf("menu_coop heroes_begin %i \"%s\" \"%s\" \"%s\"\n", g_coopHeroes ? 1i : 0i,
 		(Hero_KitIndex(pl.classname) >= 0i) ? pl.classname : "", picked, message));
@@ -316,14 +328,15 @@ Hero_AskThink(void)
 	remove(self);
 }
 
-/* the first spawn on a map with heroes on opens the Hero tab */
+/* the first spawn on a map with heroes on opens the Hero tab, unless they
+   came with a hero picked on the title menu */
 void
 Hero_PlayerSpawned(entity pl)
 {
 	int slot = Coop_Slot(pl);
 	entity asker;
 
-	if (!g_coopHeroes || slot < 0i || g_heroAsked[slot] || is.Bot(pl)) {
+	if (!g_coopHeroes || slot < 0i || g_heroAsked[slot] || is.Bot(pl) || Hero_Wanted(pl) != "") {
 		return;
 	}
 
