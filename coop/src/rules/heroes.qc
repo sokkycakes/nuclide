@@ -336,7 +336,7 @@ Hero_AskThink(void)
 			return;
 		}
 
-		Hero_Send(pl, "Pick a hero. You can change it any time, it takes effect when you respawn.");
+		Hero_Send(pl, "Pick a hero. A change applies when you respawn.");
 		stuffcmd(pl, "menu_coop loadout_open hero\n");
 	}
 
