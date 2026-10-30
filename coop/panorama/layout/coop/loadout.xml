@@ -1,0 +1,67 @@
+<!--
+	Co-op shop menu: heroes (when the server has them on), the points shop
+	and the XP mod's skills, on tabs.
+	coop/src/menu/main.qc opens it when the server sends the shop list
+	(coop/src/rules/shop.qc) or "menu_coop loadout_open <tab>", and posts
+	the lists as "heroes" (coop/src/rules/heroes.qc), "shop" and "skills"
+	(coop/src/plugins/xpm.qc). It works
+	while the player is down or waiting to respawn too.
+	scripts/coop/loadout.js fills it in. Sizes are at the 1080-line design
+	height.
+-->
+<root>
+	<styles>
+		<include src="file://{resources}/styles/coop/menu.css" />
+		<include src="file://{resources}/styles/coop/shop.css" />
+		<include src="file://{resources}/styles/coop/skills.css" />
+	</styles>
+	<scripts>
+		<include src="file://{resources}/scripts/coop/loadout.js" />
+	</scripts>
+
+	<Panel id="Stage" class="stage shop-stage">
+		<Panel id="Loadout" class="shop loadout">
+			<Panel class="page-header" hittest="false">
+				<Label class="page-title" text="Shop and skills" hittest="false" />
+				<Label id="Points" class="shop-points" text="" hittest="false" />
+			</Panel>
+			<Panel class="tabs loadout-tabs" hittest="false">
+				<Button id="TabHero" class="tab" hittest="true">
+					<Label text="Hero" hittest="false" />
+				</Button>
+				<Button id="TabShop" class="tab current" hittest="true">
+					<Label text="Shop" hittest="false" />
+				</Button>
+				<Button id="TabSkills" class="tab" hittest="true">
+					<Label id="TabSkillsLabel" text="Skills" hittest="false" />
+				</Button>
+			</Panel>
+			<Panel id="HeroPage" class="loadout-page hero-page" hittest="false">
+				<Panel class="hero-side" hittest="false">
+					<Panel id="Heroes" class="heroes-list" hittest="false" />
+					<Label id="HeroMessage" class="shop-message" text="" hittest="false" />
+				</Panel>
+				<!-- the menu progs draws the hero in 3D under the view here -->
+				<Panel id="HeroPreview" class="hero-preview" hittest="false" />
+			</Panel>
+			<Panel id="ShopPage" class="loadout-page open" hittest="false">
+				<Panel class="shop-body" hittest="false">
+					<Panel id="Categories" class="shop-categories" hittest="false" />
+					<Panel id="Items" class="shop-items" hittest="false" />
+				</Panel>
+				<Label id="Message" class="shop-message" text="" hittest="false" />
+			</Panel>
+			<Panel id="SkillsPage" class="loadout-page" hittest="false">
+				<Label id="Rank" class="skills-rank" text="" hittest="false" />
+				<Panel id="Skills" class="skills-list" hittest="false" />
+			</Panel>
+			<Panel class="page-footer" hittest="false">
+				<Label id="Keys" class="shop-keys" text="" hittest="false" />
+				<Panel class="shop-footer-fill" hittest="false" />
+				<Button id="Close" class="btn" hittest="true">
+					<Label text="Close" hittest="false" />
+				</Button>
+			</Panel>
+		</Panel>
+	</Panel>
+</root>

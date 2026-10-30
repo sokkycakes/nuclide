@@ -1,0 +1,11 @@
+typeInfo barney_combatFace
+{
+	"task_1"					"StopMovement"
+	"task_2"					"DrawWeapon"
+	"task_3"					"TurnToEnemy"
+	"task_4"					"PlayActivity idleAngry"
+	"fail_onDeadEnemy"			"1"
+	"fail_onDamage"				"1"
+	"CanRangedAttack1"			"PerformSchedule barney_rangedAttack"
+	"Damage"					"AlertSquadWithMindset defense"
+}

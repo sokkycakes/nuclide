@@ -61,6 +61,21 @@ ncPlayer::Physics_Fall(float flDownforce)
 
 	/* basic server-side falldamage */
 #ifdef SERVER
+	/* Source's landing step: 0.85 volume from 350 u/s, full volume once it
+	   hurts, or 0.5 landing in water. The next step waits 400 ms. */
+	if (flDownforce >= 350.0f) {
+		float landVolume = 0.85f;
+
+		if (WaterLevel() > 0) {
+			landVolume = 0.5f;
+		} else if (flDownforce >= minFallDistance) {
+			landVolume = 1.0f;
+		}
+
+		Footsteps_Play(landVolume, CHAN_AUTO);
+		m_timeUntilNextFootstep = time + 0.4f;
+	}
+
 	/* if we've reached a fallheight of minFallDistance qu, start applying damage */
 	if (flDownforce >= minFallDistance) {
 		float finalDamage;
@@ -271,12 +286,46 @@ ncPlayer::Physics_Jump(void)
 		if (GetFlags() & FL_ONGROUND) {
 			velocity[2] += m_pmoveVars.pm_jumpheight;
 #ifdef SERVER
+			/* Source pushes off with a full-volume step (CHAN_AUTO so a
+			   jump sound on CHAN_BODY doesn't cut it) */
+			Footsteps_Play(1.0f, CHAN_AUTO);
+
 			if (STRING_SET(m_sndJump)) {
 				StartSoundDef(m_sndJump, CHAN_BODY, true);
 			}
 #endif
 		}
 	}
+}
+
+/* a mid-air jump: TF2's double jump. the new horizontal speed follows the
+   movement keys, so the player can change direction in the air. */
+void
+ncPlayer::Physics_AirJump(void)
+{
+	vector wishMove = input_movevalues;
+	vector moveAngles = [0, input_angles[1], 0];
+	vector wishDir = (anglesToForward(moveAngles) * wishMove[0]) + (anglesToRight(moveAngles) * wishMove[1]);
+	float horizontalSpeed = Physics_MaxSpeed();
+
+	wishDir[2] = 0;
+
+	if (vlen(wishDir) > 0) {
+		wishDir = normalize(wishDir);
+		velocity[0] = wishDir[0] * horizontalSpeed;
+		velocity[1] = wishDir[1] * horizontalSpeed;
+	} else {
+		velocity[0] = 0;
+		velocity[1] = 0;
+	}
+
+	velocity[2] = m_pmoveVars.pm_jumpheight;
+
+#ifdef SERVER
+	if (STRING_SET(m_sndJump)) {
+		StartSoundDef(m_sndJump, CHAN_BODY, true);
+	}
+#endif
 }
 
 /* check if we're elligible to jump */
@@ -291,8 +340,23 @@ ncPlayer::Physics_CheckJump(float premove)
 
 	if (GetFlags() & FL_WATERJUMP)
 		return;
-	if (!(GetFlags() & FL_ONGROUND))
+
+	if (GetFlags() & FL_ONGROUND) {
+		m_nuclideFlags &= ~VFL_AIRJUMPS;
+	} else {
+		/* air jumps need a fresh press of the jump key */
+		if (premove && HasFlags(FL_JUMPRELEASED) && m_pmoveVars.pm_airjumps > 0) {
+			float airJumpsUsed = (m_nuclideFlags & VFL_AIRJUMPS) / VFL_AIRJUMP_ONE;
+
+			if (airJumpsUsed < m_pmoveVars.pm_airjumps && GetMovetype() == MOVETYPE_WALK && WaterLevel() < 2) {
+				Physics_AirJump();
+				m_nuclideFlags = (m_nuclideFlags & ~VFL_AIRJUMPS) | ((airJumpsUsed + 1) * VFL_AIRJUMP_ONE);
+				RemoveFlags(FL_JUMPRELEASED);
+			}
+		}
+
 		return;
+	}
 
 	/* if a player wants to be able to hold jump, let them */
 	if (!(infokey(this, "autojump") == "1"))
@@ -379,14 +443,19 @@ ncPlayer::Physics_WaterMove(void)
 		}
 	}
 
-	/* we've just exited water */
+	/* m_timeUnderwater is when our air runs out, or 0 while our head is
+	   above water, so we only gasp on the frame we surface (not on spawn) */
 	if (WaterLevel() != 3) {
-		if (m_timeUnderwater < time) {
+		if (m_timeUnderwater > 0.0f) {
+			if (m_timeUnderwater < time) {
 #warning Read sound from player decl
-			StartSoundDef(m_sndAirGaspHeavy, CHAN_BODY, true);
-		} else if (m_timeUnderwater < time + 9) {
-			StartSoundDef(m_sndAirGaspLight, CHAN_BODY, true);
+				StartSoundDef(m_sndAirGaspHeavy, CHAN_BODY, true);
+			} else if (m_timeUnderwater < time + 9) {
+				StartSoundDef(m_sndAirGaspLight, CHAN_BODY, true);
+			}
 		}
+		m_timeUnderwater = 0.0f;
+	} else if (m_timeUnderwater <= 0.0f) {
 #warning Read lung capacity for water from typeInfo water
 		m_timeUnderwater = time + 12;
 	} else if (m_timeUnderwater < time) {
@@ -457,6 +526,16 @@ ncPlayer::Physics_MaxSpeed(void)
 		wishSpeed = proneSpeed;
 	} else {
 		wishSpeed = walkSpeed;
+	}
+
+	/* moving at another speed than our own, as the server says */
+	if (m_pmoveSpeedTarget > 0.0f && walkSpeed > 0.0f) {
+		wishSpeed *= m_pmoveSpeedTarget / walkSpeed;
+	}
+
+	/* slower when backing up, in games that want it */
+	if (input_movevalues[0] < 0 && m_pmoveVars.pm_backspeed > 0.0f) {
+		wishSpeed *= m_pmoveVars.pm_backspeed;
 	}
 
 	return wishSpeed * speedMod;

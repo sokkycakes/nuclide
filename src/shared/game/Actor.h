@@ -72,6 +72,7 @@ types of pathfinding in the future.
 
 - "UseItem" : Uses a named item in the actor their inventory.
 - "GiveItem" : Gives a named item to the actor.
+- "RemoveItem" : Takes a named item (e.g. a weapon) out of the actor their inventory.
 - "GiveAmmo" : Gives a named ammo type with a specific amount. Two arguments: "ammoTypeName" "count"
 - "ChangeMindset" : Tells the actor to choose a different type of schedule.
 - "PerformSchedule" : Performs a named schedule, defined in `<gamedir>/decls/schedules/`.
@@ -84,6 +85,7 @@ types of pathfinding in the future.
 - "GoToSpotInRadius" : Plot a route to an empty spot within a certain radius of the current position.
 - "AvoidSpotInRadius" : Plot a route to a spot outside of a specified radius from the current position.
 - "TurnToRandomYaw" : Turns the actor to a random direction.
+- "GoToPosition" : Route to the position given as "x y z".
 - "GoForward" : Instruct to keep going forward.
 
 @ingroup baseclass

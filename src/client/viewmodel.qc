@@ -283,9 +283,18 @@ View_DrawViewModel(void)
 
 		/* we only calculate bob on the right model, to avoid double speed bobbing */
 		Viewmodel_CalcBob();
-		makevectors(currentAngle);
-		Viewmodel_ApplyBob(m_eViewModel);
-		Viewmodel_ApplyBob(m_eViewModelL);
+
+		/* the game's bob still runs above, its camera bob reads from it */
+		if (ViewBob_QuakeEnabled()) {
+			ViewBob_QuakeCalc(currentAngle);
+			makevectors(currentAngle);
+			ViewBob_QuakeApply(m_eViewModel);
+			ViewBob_QuakeApply(m_eViewModelL);
+		} else {
+			makevectors(currentAngle);
+			Viewmodel_ApplyBob(m_eViewModel);
+			Viewmodel_ApplyBob(m_eViewModelL);
+		}
 	} else {
 		m_eViewModelL.origin = pl.m_xrInputLeft.GetOrigin();
 		m_eViewModel.origin = pl.m_xrInputRight.GetOrigin();
@@ -333,6 +342,12 @@ View_DrawViewModel(void)
 
 		m_eViewModelL.renderflags = RF_DEPTHHACK | RF_FIRSTPERSON;
 		m_eViewModel.renderflags = RF_DEPTHHACK | RF_FIRSTPERSON;
+
+		/* view models built for the other hand */
+		if (pl.m_activeWeapon && stof(EntityDef_GetKeyValue(pl.m_activeWeapon.declclass, "model_viewMirror")) != 0) {
+			m_eViewModel.renderflags |= RF_MIRROR;
+			m_eViewModelL.renderflags |= RF_MIRROR;
+		}
 
 
 		m_eViewModel.bonecontrol1 = m_eViewModel.m_studioBoneController1;

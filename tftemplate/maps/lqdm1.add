@@ -1,0 +1,55 @@
+// Team Fortress template test layout for the base game's lqdm1, shared by every mode.
+// Nuclide appends maps/<map>.add to any map; the mode-specific objectives
+// are in lqdm1_tf_<mode>.add. RED holds the west end, BLU the east end.
+{
+"classname" "info_player_teamspawn"
+"origin" "-336 -192 24"
+"angles" "0 0 0"
+"TeamNum" "2"
+}
+{
+"classname" "info_player_teamspawn"
+"origin" "176 -752 24"
+"angles" "0 90 0"
+"TeamNum" "2"
+}
+{
+"classname" "info_player_teamspawn"
+"origin" "1568 0 24"
+"angles" "0 180 0"
+"TeamNum" "3"
+}
+{
+"classname" "info_player_teamspawn"
+"origin" "928 -896 24"
+"angles" "0 90 0"
+"TeamNum" "3"
+}
+{
+"classname" "func_respawnroom"
+"origin" "-336 -192 24"
+"mins" "-96 -96 -32"
+"maxs" "96 96 96"
+"TeamNum" "2"
+}
+{
+"classname" "func_respawnroom"
+"origin" "1568 0 24"
+"mins" "-96 -96 -32"
+"maxs" "96 96 96"
+"TeamNum" "3"
+}
+{
+"classname" "func_regenerate"
+"origin" "-336 -192 24"
+"mins" "-48 -48 -32"
+"maxs" "48 48 64"
+"TeamNum" "2"
+}
+{
+"classname" "func_regenerate"
+"origin" "1568 0 24"
+"mins" "-48 -48 -32"
+"maxs" "48 48 64"
+"TeamNum" "3"
+}

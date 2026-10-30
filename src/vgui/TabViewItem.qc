@@ -111,7 +111,7 @@ vguiTabViewItem::SetTitle(string strName)
 	drawfont = g_fntDefault.iID;
 
 	if (GetSize() == [0,0]) {
-		newsize[0] = stringwidth(m_strTitle, TRUE, [g_fntDefault.iScaleX, g_fntDefault.iScaleY]) + 16;
+		newsize[0] = Font_StringWidth(m_strTitle, TRUE, g_fntDefault) + 16;
 		newsize[1] = 24;
 		SetSize(newsize);
 	}

@@ -1,0 +1,119 @@
+// Spy: Revolver, Knife (instant kill from behind), Sapper (disables and
+// destroys enemy buildings), Disguise Kit (primary disguises as the next
+// class, reload drops the disguise). Secondary fire with any Spy weapon
+// cloaks; that is handled by tfPlayer.
+
+entityDef tf_weapon_revolver
+{
+	"inherit"				"tf_weapon_base"
+	"spawnclass"			"ncWeapon"
+	"inv_name"				"Revolver"
+	"model"					"progs/g_shot1.mdl"
+	"model_view"			"progs/v_shot.mdl"
+	"def_fireInfo"			"fireInfo_tf_revolver"
+	"hudSlot"				"0"
+	"hudSlotPos"			"0"
+	"ammoType"				"ammo_tf_revolver"
+	"ammoRequired"			"1"
+	"ammoPerShot"			"1"
+	"inv_ammo_tf_revolver"	"24"
+	"clipSize"				"6"
+	"clipSizeDefault"		"6"
+	"reloadTime"			"1.133"
+	"reloadTimed"			"1"
+	"act_reload"			"0"
+	"msg_obituary"			"%s was shot by %s's revolver."
+	"snd_fire"				"weapon_shotgun.shoot"
+}
+
+entityDef fireInfo_tf_revolver
+{
+	"def_onFire"	"projectile_tf_revolver"
+	"fireRate"		"0.5"
+}
+
+entityDef projectile_tf_revolver
+{
+	"inherit"	"tf_bullet_base"
+	"damage"	"40"
+	"hitscans"	"1"
+	"spread"	"0.01 0.01"
+}
+
+entityDef tf_weapon_knife
+{
+	"inherit"			"tf_weapon_base"
+	"spawnclass"		"tfKnife"
+	"inv_name"			"Knife"
+	"model"				""
+	"model_view"		"progs/v_axe.mdl"
+	"def_fireInfo"		"fireInfo_tf_weapon_knife"
+	"hudSlot"			"2"
+	"hudSlotPos"		"0"
+	"ammoRequired"		"0"
+	"msg_obituary"		"%s was stabbed by %s."
+	"animPrefix"		"axe"
+	"act_fire"			"1,2"
+	"act_fireFailed"	"1,2"
+	"silent_fire"		"1"
+	"tf_backstabMult"	"6"
+}
+
+entityDef fireInfo_tf_weapon_knife
+{
+	"def_onFire"	"projectile_tf_weapon_knife"
+	"testDistance"	"-72"
+	"fireRate"		"0.8"
+	"failRate"		"0.8"
+	"snd_hit"		"Weapon_Axe.Melee_Hit"
+	"snd_failed"	"Weapon_Axe.Miss"
+}
+
+entityDef projectile_tf_weapon_knife
+{
+	"inherit"	"tf_melee_base"
+	"damage"	"40"
+}
+
+entityDef tf_weapon_builder
+{
+	"inherit"			"tf_weapon_base"
+	"spawnclass"		"tfSapper"
+	"inv_name"			"Sapper"
+	"model"				""
+	"model_view"		"progs/v_axe.mdl"
+	"def_fireInfo"		"fireInfo_tf_sapper"
+	"hudSlot"			"3"
+	"hudSlotPos"		"0"
+	"ammoRequired"		"0"
+	"animPrefix"		"axe"
+	"act_fire"			"1"
+	"tf_sapperRange"	"96"
+	"tf_sapperDamage"	"25"
+}
+
+entityDef fireInfo_tf_sapper
+{
+	"fireRate"	"0.5"
+}
+
+entityDef tf_weapon_pda_spy
+{
+	"inherit"		"tf_weapon_base"
+	"spawnclass"	"tfDisguiseKit"
+	"inv_name"		"Disguise Kit"
+	"model"			""
+	"model_view"	"progs/v_axe.mdl"
+	"def_fireInfo"	"fireInfo_tf_pda_spy"
+	"hudSlot"		"4"
+	"hudSlotPos"	"0"
+	"ammoRequired"	"0"
+	"animPrefix"	"axe"
+	"act_fire"		"0"
+}
+
+entityDef fireInfo_tf_pda_spy
+{
+	"fireRate"	"0.5"
+}
+

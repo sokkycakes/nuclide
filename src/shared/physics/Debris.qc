@@ -47,6 +47,35 @@ ncDebris::Touch(entity touchingEnt)
 	}
 }
 
+/* GoldSrc's SUB_StartFadeOut: solid models turn translucent, then lose
+   7 of 255 alpha every 0.1 seconds, about 3.6 seconds in all */
+void
+ncDebris::StartFadeOut(void)
+{
+	if (GetRenderMode() == RM_NORMAL || GetRenderAmt() <= 1.0f) {
+		if (GetRenderMode() == RM_NORMAL) {
+			SetRenderMode(RM_TEXTURE);
+		}
+		SetRenderAmt(255);
+	}
+
+	SetSolid(SOLID_NOT);
+	SetAngularVelocity([0,0,0]);
+	ScheduleThink(FadeOut, 0.1f);
+}
+
+void
+ncDebris::FadeOut(void)
+{
+	if (GetRenderAmt() > 7) {
+		SetRenderAmt(GetRenderAmt() - 7);
+		ScheduleThink(FadeOut, 0.1f);
+	} else {
+		SetRenderAmt(0);
+		Disappear();
+	}
+}
+
 void
 ncDebris::SetImpactDecal(string impactDecal)
 {

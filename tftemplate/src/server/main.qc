@@ -1,0 +1,56 @@
+/*
+ * Copyright (c) 2026 sokkycakes
+ *
+ * Permission to use, copy, modify, and distribute this software for any
+ * purpose with or without fee is hereby granted, provided that the above
+ * copyright notice and this permission notice appear in all copies.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+ * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+ * MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+ * ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+ * WHATSOEVER RESULTING FROM LOSS OF MIND, USE, DATA OR PROFITS, WHETHER
+ * IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING
+ * OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+ */
+
+void
+Game_Worldspawn(void)
+{
+#ifdef BW_BOTS
+	bw_init();
+#endif
+	/* Team Fortress 2's ground movement: it speeds up and stops a little
+	   quicker than Nuclide's defaults (sv_accelerate 10, sv_stopspeed 100) */
+	cvars.SetString("pm_accelerate", "10");
+	cvars.SetString("pm_stopspeed", "100");
+	cvars.SetString("pm_friction", "4");
+	cvars.SetString("pm_airaccelerate", "10");
+}
+
+/** Picks the game mode from the map name's prefix like Team Fortress 2
+does: ctf_ maps run tf_ctf, cp_ maps tf_cp, koth_ maps tf_koth and pl_ maps
+tf_pl. The prefix wins over g_gametype, which is left over from the last
+map after a `map` or `changelevel` (run-tf.sh sets tf_koth for lqdm1).
+Maps without one of these prefixes use g_gametype, or tf_ctf. */
+string
+Game_DefaultRules(void)
+{
+	string gameType = cvars.GetString("g_gametype");
+
+	if (substring(mapname, 0, 4) == "ctf_") {
+		gameType = "tf_ctf";
+	} else if (substring(mapname, 0, 3) == "cp_") {
+		gameType = "tf_cp";
+	} else if (substring(mapname, 0, 5) == "koth_") {
+		gameType = "tf_koth";
+	} else if (substring(mapname, 0, 3) == "pl_") {
+		gameType = "tf_pl";
+	} else if (!STRING_SET(gameType)) {
+		gameType = "tf_ctf";
+	}
+
+	/* the overlay loader and entity filters read it back */
+	cvars.SetString("g_gametype", gameType);
+	return (gameType);
+}

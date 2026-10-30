@@ -75,6 +75,11 @@ var bool autocvar_net_showArrivals = false;
 #define MAX_AMMO_TYPES 16i
 #endif
 
+/** Render flag: draw the entity mirrored left to right. Bulwark's own;
+other engines ignore it. A weapon def's "model_viewMirror" "1" sets it on
+the view model, for models built for the other hand. */
+#define RF_MIRROR 65536
+
 noref const float   SVC_TEMPENTITY          = 23;
 
 #ifdef CLIENT
@@ -186,6 +191,12 @@ enumflags
 .float vw_index;
 .float identity;
 .bool _isWeapon;
+
+/* filled in by the engine-side damage and hitscan code so game rules
+   (including add-on rules progs, which link fields by name) can read them */
+.float dmg_lastHitBody;	/**< bodyType_t of the last damage this entity took */
+.float stat_shotsFired;	/**< hitscan attacks this entity has fired */
+.float stat_shotsHit;		/**< of those, ones that hit a player or monster */
 .bool _isItem;
 
 void

@@ -233,20 +233,44 @@ Client_ShakeOnce
 
 Single unreliable request to shake the screen of all
 players within a specified radius by the desired parameters.
+A radius of 0 or less reaches everyone. As in both GoldSrc and Source,
+only players standing on the ground feel it.
+
+sv_shakeStyle 0 fades the shake out towards the edge of the radius
+(Source). 1 shakes everyone inside it fully, with the amplitude and
+duration capped below 16 and the frequency below 256, as GoldSrc's
+fixed-point shake message does.
 =================
 */
+var int autocvar_sv_shakeStyle = 0;
+
 void
 Client_ShakeOnce(vector pos, float radius, float duration, float frequency, float amplitude)
 {
+	if (autocvar_sv_shakeStyle == 1i) {
+		amplitude = bound(0, amplitude, 15.999f);
+		duration = bound(0, duration, 15.999f);
+		frequency = bound(0, frequency, 255.99f);
+	}
+
 	for (entity pl = world; (pl = next.Player(pl));) {
-		float amp;
+		float amp = 1.0f;
 		float distanceCheck = distance(pos, pl.origin);
 
-		if (distanceCheck > radius) {
+		if (!(pl.flags & FL_ONGROUND)) {
 			continue;
 		}
 
-		amp = 1.0 - (distanceCheck / radius);
+		if (radius > 0.0f) {
+			if (distanceCheck > radius) {
+				continue;
+			}
+
+			if (autocvar_sv_shakeStyle != 1i) {
+				amp = 1.0 - (distanceCheck / radius);
+			}
+		}
+
 		WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
 		WriteByte(MSG_MULTICAST, EV_SHAKE);
 		WriteFloat(MSG_MULTICAST, duration);

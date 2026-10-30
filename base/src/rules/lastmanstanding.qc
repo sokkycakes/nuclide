@@ -37,7 +37,7 @@ LMS_SpawnPlayer(entity playerTarget)
 }
 
 void
-CodeCallback_Precaches(void)
+CodeCallback_Precache(void)
 {
 	Util_SharedPrecaches();
 }
@@ -105,8 +105,16 @@ CodeCallback_PlayerRequestRespawn(entity playerTarget)
 }
 
 void
+CodeCallback_PlayerDamage(entity playerTarget, entity attacker, entity damageDecl)
+{
+	Util_PlayerPainSound(playerTarget);
+}
+
+void
 CodeCallback_PlayerKilled(entity playerTarget, entity inflictor, entity attacker, string weapon)
 {
+	Util_PlayerDeathSound(playerTarget);
+
 	int alivePlayers = 0;
 	entity lastPlayer = world;
 

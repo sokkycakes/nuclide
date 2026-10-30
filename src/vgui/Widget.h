@@ -100,3 +100,8 @@ private:
 	bool m_bEnabled;
 	vguiTheme m_theme;
 };
+
+/** The open drop-down (such as a combo box list), if any. It is drawn after
+    its siblings and gets the first look at input, so a list that hangs over
+    the buttons below it is the one clicked. */
+vguiWidget g_vguiPopup;

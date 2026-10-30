@@ -1,0 +1,71 @@
+#define SNARK_IDLE 0
+#define SNARK_FIDGET1 1
+#define SNARK_FIDGET2 2
+#define SNARK_HOLSTER 3
+#define SNARK_DRAW 4
+#define SNARK_FIRE 5
+
+entityDef weapon_snark
+{
+	"editor_color"		".3 .3 1"
+	"editor_mins"		"-16 -16 -16"
+	"editor_maxs"		"16 16 16"
+	"editor_usage"		"Snark"
+	"editor_rotatable"	"1"
+
+	"inherit"			"weapon_base"
+	"model"				"models/w_sqknest.mdl"
+	"model_player"		"models/p_squeak.mdl"
+	"model_view"		"models/v_squeak.mdl"
+	"frame"				"1" // World Model has no static idle, so we set frame instead
+	"animPrefix"		"squeak"
+
+	"inv_name"			"Snark"
+	"inv_weapon"		"weapon_snark"
+	"inv_ammo_snark"	"5"
+	"def_fireInfo"		"fireInfo_snark"
+
+	"act_idle"			"$SNARK_IDLE,$SNARK_FIDGET1,$SNARK_FIDGET2"
+	"act_draw"			"$SNARK_DRAW"
+	"act_holster"		"$SNARK_HOLSTER"
+	"act_fire"			"$SNARK_FIRE"
+	"removeOnEmpty" 	"1"
+
+	// hlWeapon specific
+	"hudSlot"			"4"
+	"hudSlotPos"		"3"
+	"weight"			"5"
+	"crosshair"			"none"
+}
+
+entityDef fireInfo_snark
+{
+	"def_onFire"		"projectile_snark"
+	"fireRate"			"1.0"
+	"ammoType"			"ammo_snark"
+	"ammoRequired"		"1"
+	"silent_fire"		"1"
+	"removeOnEmpty" 	"1"
+}
+
+// a thrown snark is on the thrower's side: it hunts monsters, not players
+entityDef projectile_snark
+{
+	"spawnclass"		"ncAttack"
+	"def_drop"			"monster_snark_thrown"
+	"dropDistance"		"32"
+	"dropVelocity"		"250 0 120"
+	"drop"				"1"
+}
+
+entityDef monster_snark_thrown
+{
+	"inherit"			"monster_snark"
+	"team"				"0"
+
+	// event blocks aren't inherited
+	events {
+		jump "AddVelocity" "512 0 250"
+		jump "StartSoundDef" "Snark.Squeak"
+	}
+}

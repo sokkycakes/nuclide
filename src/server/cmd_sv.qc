@@ -115,7 +115,8 @@ CMD_Input(void)
 	ncEntity inputTarget = (ncEntity)edict_num(entNum);
 
 	if (inputTarget) {
-		inputTarget.Input(self, inputName, inputData);
+		if (!scriptInput(inputTarget, self, inputName, inputData, self))
+			inputTarget.Input(self, inputName, inputData);
 		printf("Sending input to %d, %S: %S\n", entNum, inputName, inputData);
 	}
 }

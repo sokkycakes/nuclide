@@ -374,8 +374,12 @@ PMoveCustom_Acceleration(float move_time, float premove)
 	float wish_speed;
 	ncPlayer pl = (ncPlayer)self;
 
-	pl.m_timeSinceJump -= move_time;
-	pl.m_timeSinceTeleport -= move_time;
+	/* monsters run this too, and these fields only exist on players:
+	   on a monster the same slots hold m_bLeapAttacked and m_flSkin */
+	if (pl.flags & FL_CLIENT) {
+		pl.m_timeSinceJump -= move_time;
+		pl.m_timeSinceTeleport -= move_time;
+	}
 
 	makevectors(input_angles);
 

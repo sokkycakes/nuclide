@@ -41,7 +41,7 @@ AllowFlashlight(void)
 }
 
 void
-CodeCallback_Precaches(void)
+CodeCallback_Precache(void)
 {
 	precache.Entity(autocvar_invasion_monsterClass);
 	Util_SharedPrecaches();
@@ -86,14 +86,16 @@ CodeCallback_PlayerRequestRespawn(entity playerEntity)
 }
 
 void
-CodeCallback_PlayerDamage(entity playerEntity, entity inflictor, entity attacker)
+CodeCallback_PlayerDamage(entity playerEntity, entity attacker, entity damageDecl)
 {
-
+	Util_PlayerPainSound(playerEntity);
 }
 
 void
 CodeCallback_PlayerKilled(entity playerEntity, entity inflictor, entity attacker, string weapon)
 {
+	Util_PlayerDeathSound(playerEntity);
+
 	if (playerEntity == attacker)
 		combat.Obituary(playerEntity.netname, attacker.netname, weapon, "self");
 	else

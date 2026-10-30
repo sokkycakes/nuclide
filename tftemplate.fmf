@@ -1,0 +1,4 @@
+FTEMANIFEST 1	// version identifier
+GAME quake	// QuakeWorld-style game
+BASEGAME base	// mount the Nuclide base game first
+GAMEDIR tftemplate	// then the Team Fortress template on top

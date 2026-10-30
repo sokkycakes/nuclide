@@ -211,8 +211,18 @@ vguiButton::Draw(void)
 	}
 
 	if (STRING_SET(m_strTitle)) {
-		if (m_iFlags & BUTTON_HOVER) {
-			theme.DrawText(m_parent.m_vecOrigin + m_vecOrigin + [textPadding, 8], m_strTitle, m_vecSize, g_fntDefault);
+		if (textPadding == 8) {
+			/* title only: the theme places it */
+			VGUIDrawState_t state = VGUI_STATE_NORMAL;
+
+			if (IsEnabled() == false)
+				state = VGUI_STATE_DISABLED;
+			else if (m_iFlags & BUTTON_DOWN)
+				state = VGUI_STATE_ACTIVE;
+			else if (m_iFlags & BUTTON_HOVER)
+				state = VGUI_STATE_HOVER;
+
+			theme.DrawButtonTitle(m_parent.m_vecOrigin + m_vecOrigin, m_vecSize, m_strTitle, g_fntDefault, state);
 		} else {
 			theme.DrawText(m_parent.m_vecOrigin + m_vecOrigin + [textPadding, 8], m_strTitle, m_vecSize, g_fntDefault);
 		}

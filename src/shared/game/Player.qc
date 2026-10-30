@@ -42,6 +42,7 @@ ncPlayer::ncPlayer(void)
 	m_weaponCookingTime = 0;
 	step = 0i;
 	m_timeUntilNextFootstep = 0.0f;
+	m_stepWadeSkip = 0i;
 	m_underwaterDamageDealt = 0i;
 	m_timeUnderwater = 0.0f;
 	m_timeUntilNextPainSFX = 0.0f;
@@ -145,8 +146,10 @@ ncPlayer::SharedInputFrame(void)
 				return;
 			}
 
-			/* item isn't a weapon */
-			if (nextWeapon.IsWeapon() == false) {
+			/* item isn't a weapon. checks the field, not the IsWeapon()
+			   method: a stale number can point at an entity that isn't an
+			   ncItem (ncXRInput), and calling it would be a NULL call */
+			if (nextWeapon._isWeapon != true) {
 				return;
 			}
 		}
@@ -1074,10 +1077,11 @@ ncPlayer::ReceiveEntity(float isNew, float flChanged)
 	READENTITY_FLOAT(gflags, PLAYER_FLAGS)
 	READENTITY_FLOAT(gravity, PLAYER_FLAGS)
 	READENTITY_FLOAT(friction, PLAYER_FLAGS)
+	READENTITY_FLOAT(m_pmoveSpeedTarget, PLAYER_FLAGS)
 	READENTITY_FLOAT(m_timeSinceJump, PLAYER_TIMINGS)
 	READENTITY_FLOAT(m_timeSinceTeleport, PLAYER_TIMINGS)
 	READENTITY_BYTE(m_weaponAnimSequence, PLAYER_WEAPONFRAME)
-	READENTITY_BYTE(health, PLAYER_HEALTH)
+	READENTITY_SHORT(health, PLAYER_HEALTH)
 	READENTITY_BYTE(armor, PLAYER_HEALTH)
 	READENTITY_COORD(mins[0], PLAYER_SIZE)
 	READENTITY_COORD(mins[1], PLAYER_SIZE)
@@ -1331,6 +1335,7 @@ ncPlayer::Save(float handle)
 	SaveFloat(handle, "activeweapon", activeweapon);
 	SaveFloat(handle, "colormap", colormap);
 	SaveFloat(handle, "friction", friction);
+	SaveFloat(handle, "m_pmoveSpeedTarget", m_pmoveSpeedTarget);
 	SaveFloat(handle, "gflags", gflags);
 	SaveFloat(handle, "gravity", gravity);
 	SaveFloat(handle, "health", health);
@@ -1389,6 +1394,9 @@ ncPlayer::Restore(string keyName, string setValue)
 		break;
 	case "friction":
 		friction = ReadFloat(setValue);
+		break;
+	case "m_pmoveSpeedTarget":
+		m_pmoveSpeedTarget = ReadFloat(setValue);
 		break;
 	case "gflags":
 		gflags = ReadFloat(setValue);
@@ -1564,8 +1572,7 @@ ncPlayer::Death(entity inflictor, entity attacker, int damagePoints, vector dir,
 {
 	/* either gib, or make a corpse */
 	if (GetHealth()< -50) {
-		float gibStrength = damagePoints * 2.0f;
-		BreakModel_Entity(this, dir, gibStrength);
+		BreakModel_GibEntity(this);
 		SetHealth(0);
 	}
 
@@ -1676,6 +1683,7 @@ ncPlayer::EvaluateEntity(void)
 	EVALUATE_FIELD(gflags, PLAYER_FLAGS)
 	EVALUATE_FIELD(gravity, PLAYER_FLAGS)
 	EVALUATE_FIELD(friction, PLAYER_FLAGS)
+	EVALUATE_FIELD(m_pmoveSpeedTarget, PLAYER_FLAGS)
 	EVALUATE_FIELD(m_timeSinceJump, PLAYER_TIMINGS)
 	EVALUATE_FIELD(m_timeSinceTeleport, PLAYER_TIMINGS)
 	EVALUATE_FIELD(m_weaponAnimSequence, PLAYER_WEAPONFRAME)
@@ -1789,10 +1797,11 @@ ncPlayer::SendEntity(entity ePEnt, float flChanged)
 	SENDENTITY_FLOAT(gflags, PLAYER_FLAGS)
 	SENDENTITY_FLOAT(gravity, PLAYER_FLAGS)
 	SENDENTITY_FLOAT(friction, PLAYER_FLAGS)
+	SENDENTITY_FLOAT(m_pmoveSpeedTarget, PLAYER_FLAGS)
 	SENDENTITY_FLOAT(m_timeSinceJump, PLAYER_TIMINGS)
 	SENDENTITY_FLOAT(m_timeSinceTeleport, PLAYER_TIMINGS)
 	SENDENTITY_BYTE(m_weaponAnimSequence, PLAYER_WEAPONFRAME)
-	SENDENTITY_BYTE(health, PLAYER_HEALTH)
+	SENDENTITY_SHORT(health, PLAYER_HEALTH)
 	SENDENTITY_BYTE(armor, PLAYER_HEALTH)
 	SENDENTITY_COORD(mins[0], PLAYER_SIZE)
 	SENDENTITY_COORD(mins[1], PLAYER_SIZE)
@@ -2050,14 +2059,39 @@ ncPlayer::WeaponAnimTime(void)
 	return (m_weaponAnimTime);
 }
 
+/* Footsteps follow Source's CBasePlayer::UpdateStepSound: a step every
+   400 ms walking or 300 ms running (+100 crouched or on a ladder), only
+   above 90 u/s (60 crouched), at 0.2 volume walking and 0.5 running. */
+void
+ncPlayer::Footsteps_Play(float stepVolume, float stepChannel)
+{
+#ifdef SERVER
+	string stepSound;
+
+	if (stepVolume <= 0.0f) {
+		return;
+	}
+
+	if ((waterlevel == 1 || waterlevel == 2) && STRING_SET(m_sndWaterWade)) {
+		stepSound = m_sndWaterWade;
+	} else if (HasVFlags(VFL_ONLADDER) && HasFlags(FL_ONGROUND) == false) {
+		stepSound = (step) ? m_sndStepLadderLeft : m_sndStepLadderRight;
+	} else {
+		traceline(origin + view_ofs, origin + [0,0,-48], MOVE_NORMAL, this);
+		int surfID = SurfData_TexToSurfData(getsurfacetexture(trace_ent, getsurfacenearpoint(trace_ent, trace_endpos)));
+		stepSound = SurfData_GetInfo(surfID, (step) ? SURFDATA_SND_STEPLEFT : SURFDATA_SND_STEPRIGHT);
+	}
+
+	/* switch between feet */
+	step = 1 - step;
+	SoundDef_PlayVolume(this, stepChannel, stepSound, stepVolume);
+#endif
+}
+
 void
 ncPlayer::Footsteps_Update(void)
 {
 #ifdef SERVER
-	string mat_name = "";
-	string tex_name = "";
-	string sound = "";
-
 	/* mp_footsteps is only available in MP matches */
 	if (Util_IsSingleplayer() == false) {
 		if (autocvar(mp_footsteps, 1) == 0) {
@@ -2065,70 +2099,88 @@ ncPlayer::Footsteps_Update(void)
 		}
 	}
 
+	if (m_timeUntilNextFootstep > time) {
+		return;
+	}
+
 	if (GetMovetype() != MOVETYPE_WALK) {
 		return;
 	}
 
-	if ((velocity[0] == 0 && velocity[1] == 0) || m_timeUntilNextFootstep > time)
+	/* Source has no swim sounds; keep Nuclide's for games that define one.
+	   Walking along the bottom still gets normal steps, as in Source. */
+	if (waterlevel == 3 && HasFlags(FL_ONGROUND) == false) {
+		if (STRING_SET(m_sndWaterSwim) && (velocity[0] != 0 || velocity[1] != 0)) {
+			StartSoundDef(m_sndWaterSwim, CHAN_BODY, true);
+			m_timeUntilNextFootstep = time + 2.0f;
+		}
 		return;
+	}
 
-	if (waterlevel == 1) {
-		StartSoundDef(m_sndWaterWade, CHAN_BODY, true);
-		m_timeUntilNextFootstep = time + 2.0f;
+	bool onLadder = (HasVFlags(VFL_ONLADDER) && HasFlags(FL_ONGROUND) == false) ? true : false;
+	bool crouched = IsCrouching();
+	float speed = vlen(velocity);
+	float groundSpeed = vlen([velocity[0], velocity[1], 0]);
+	float walkSpeed = (crouched || onLadder) ? 60.0f : 90.0f;
+	float runSpeed = (crouched || onLadder) ? 80.0f : 220.0f;
+	bool walking = (speed < runSpeed) ? true : false;
+	float stepVolume;
+	float stepTime;
+
+	/* on a ladder, or moving along the ground, and fast enough */
+	if (speed < walkSpeed) {
 		return;
+	}
+
+	if (onLadder == false && (HasFlags(FL_ONGROUND) == false || groundSpeed <= 0.0001f)) {
+		return;
+	}
+
+	if (onLadder) {
+		stepVolume = 0.5f;
+		stepTime = 0.35f;
 	} else if (waterlevel == 2) {
-		StartSoundDef(m_sndWaterWade, CHAN_BODY, true);
-		m_timeUntilNextFootstep = time + 2.0f;
-		return;
-	} else if (waterlevel == 3) {
-		StartSoundDef(m_sndWaterSwim, CHAN_BODY, true);
-		m_timeUntilNextFootstep = time + 2.0f;
-		return;
-	} else {
-		/* make it so we step once we land */
-		if (HasFlags(FL_ONGROUND) == false && HasVFlags(VFL_ONLADDER) == false) {
-			m_timeUntilNextFootstep = 0.0f;
+		/* wading: skip every fourth step */
+		m_stepWadeSkip++;
+
+		if (m_stepWadeSkip == 1) {
 			return;
+		} else if (m_stepWadeSkip >= 4) {
+			m_stepWadeSkip = 0;
+		}
+
+		stepVolume = 0.65f;
+		stepTime = 0.6f;
+	} else {
+		stepVolume = (walking) ? 0.2f : 0.5f;
+		stepTime = (walking) ? 0.4f : 0.3f;
+
+		/* water up to the feet sounds the same; a few surfaces are louder */
+		if (waterlevel != 1) {
+			traceline(origin + view_ofs, origin + [0,0,-48], MOVE_NORMAL, this);
+			int surfID = SurfData_TexToSurfData(getsurfacetexture(trace_ent, getsurfacenearpoint(trace_ent, trace_endpos)));
+			float surfMaterial = SurfData_GetInfo(surfID, SURFDATA_MATERIAL);
+
+			if (surfMaterial == 'D') {
+				stepVolume = (walking) ? 0.25f : 0.55f;
+			} else if (surfMaterial == 'V') {
+				stepVolume = (walking) ? 0.4f : 0.7f;
+			}
 		}
 	}
 
-	/* the footsteps call might overwrite this later */
-	m_timeUntilNextFootstep = time + 0.35;
-
-	//tracebox(origin, PHY_HULL_MIN, PHY_HULL_MAX, origin + [0,0,-48], MOVE_NORMAL, target);
-	traceline(origin + view_ofs, origin + [0,0,-48], MOVE_NORMAL, this);
-	tex_name = getsurfacetexture(trace_ent, getsurfacenearpoint(trace_ent, trace_endpos));
-
-	/* don't step in air */
-	if (HasFlags(FL_ONGROUND) == false && HasVFlags(VFL_ONLADDER) == false) {
-		return;
-	} else if (HasVFlags(VFL_ONLADDER) && HasFlags(FL_ONGROUND) == false) { /* play ladder sounds */
-		if (step)
-			StartSoundDef(m_sndStepLadderLeft, CHAN_BODY, true);
-		else
-			StartSoundDef(m_sndStepLadderRight, CHAN_BODY, true);
-
-		/* switch between feet */
-		step = 1 - step;
-		return;
-	} else if (HasVFlags(VFL_ONLADDER) && HasFlags(FL_ONGROUND)) { /* at a ladder, but not moving */
-		return;
+	if (crouched || onLadder) {
+		stepTime += 0.1f;
 	}
 
-	if (step) {
-		StartSoundDef(
-			SurfData_GetInfo(SurfData_TexToSurfData(tex_name), SURFDATA_SND_STEPLEFT),
-			CHAN_BODY,
-			true);
-	} else {
-		StartSoundDef(
-			SurfData_GetInfo(SurfData_TexToSurfData(tex_name), SURFDATA_SND_STEPRIGHT),
-			CHAN_BODY,
-			true);
+	m_timeUntilNextFootstep = time + stepTime;
+
+	/* 65% volume when crouched */
+	if (crouched) {
+		stepVolume *= 0.65f;
 	}
 
-	/* switch between feet */
-	step = 1 - step;
+	Footsteps_Play(stepVolume, CHAN_BODY);
 #endif
 }
 
@@ -2148,6 +2200,8 @@ ncPlayer::Damage(entity inflictor, entity attacker, ncDict damageDecl, float dam
 	if (is.Alive(this) == false) {
 		return;
 	}
+
+	dmg_lastHitBody = (float)damageDecl.GetInteger("hitbody");
 
 	/* friendly fire check */
 	if (this != attacker && attacker != world) {

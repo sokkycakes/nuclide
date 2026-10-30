@@ -1,2 +1,2 @@
-path fonts/IBMPlexMono-Text.otf
-size 12
+path "Verdana,fonts/IBMPlexMono-Text.otf?size=12"
+size 16
