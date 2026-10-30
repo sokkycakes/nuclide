@@ -94,8 +94,8 @@ instead of the scoreboard (`cg_scoresWhenDead 0`, set in
   That pick is the `hero` cvar, saved in the config and sent to servers as
   the `hero` userinfo key, so a player spawns as it on any server with
   heroes on and isn't asked. A pick in a game saves it too. A game
-  started with `+map` on the command line connects before the menu sends
-  it, so the first spawn there is the default.
+  started with `+map` on the command line spawns the player before the
+  menu sends it; the rules respawn them as it a second later.
 - Both menus show the picked kit's hero in 3D, turning. Panorama can't
   draw models, so the menu progs renders it under the view
   (`Preview_Draw` in `src/menu/main.qc`) and the view leaves that part
