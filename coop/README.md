@@ -69,7 +69,8 @@ instead of the scoreboard (`cg_scoresWhenDead 0`, set in
 - The list is `scripts/shop.txt` (`coop_shopFile`): category, what to
   give (a weapon, `ammo_<type> <count>`, `health <n>` or `armor <n>`),
   price and the name shown. It's read when a map starts. Health and
-  armour stop at `coop_shopMaxHealth` and `coop_shopMaxArmor` (100).
+  armour stop at `coop_shopMaxHealth` and `coop_shopMaxArmor` (100),
+  or at the player's own maximum health when that is higher.
 - `cmd shop` opens the shop menu (B, when B is free, or Shop and skills
   in the pause menu). It has a Shop tab and, with the XP mod, a Skills
   tab; Tab switches between them. The server sends its own list, so clients always see the
@@ -77,6 +78,30 @@ instead of the scoreboard (`cg_scoresWhenDead 0`, set in
   a category, a number buys, 8 and 9 turn the page, 0 goes back.
 - `cmd buy <n>` buys item n. `sv coop_givepoints <n>` gives every player
   points, for tests.
+
+## Heroes (`src/rules/heroes.qc`)
+
+- `coop_heroes 0` (default) is plain co-op: everyone spawns as the same
+  `player_mp`, with their own player model as a skin, and only the XP mod
+  sets players apart. `coop_heroes 1` turns heroes on. Both are read when
+  a map starts.
+- Players pick a hero and one of its kits (its subclasses) on the Hero tab
+  of the shop menu, which opens by itself on a player's first spawn. A
+  pick takes effect at the next spawn, so it never respawns anyone or
+  takes away what they bought. `cmd heroes` sends the list and
+  `cmd hero <kit>` picks.
+- Heroes and kits are defs in `decls/def/heroes.def`: a hero sets the
+  model, health and speed, and each kit inherits its hero and sets the
+  starting weapons. Players spawn as the kit. `coop_heroList` names the
+  heroes on offer, in menu order; `coop_heroLimit` (2) is how many players
+  may play one hero, 0 for any number.
+- The placeholder heroes use Quake Live player models baked to .md2 (Tank
+  tankjr sport, Support grunt, Pointman crash sport). They come in
+  `zz_coopheroes.pk3`, which isn't in git: put it in `coop/`. Without it
+  heroes fall back to `models/player.mdl`. The models need Bulwark's .md2
+  support.
+- There are no abilities yet; they and Barrier, which replaces armour in
+  hero mode, come next.
 
 ## Menus (`src/menu/`, `panorama/`)
 

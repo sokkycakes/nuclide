@@ -1,0 +1,229 @@
+// Justice Task Force heroes (coop_heroes 1).
+//
+// A hero is a player class that inherits coop_hero_base, which inherits
+// the game's player_mp. Each hero has kits, its subclasses: a kit is a def
+// that inherits its hero and changes what it needs (so far, the starting
+// weapons). Players spawn as a kit, so a kit is the class they play.
+//
+// Hero keys, read by the rules (coop/src/rules/heroes.qc) and the menu:
+//   hero_name   the name shown
+//   hero_role   Tank, Support, Pointman, ...
+//   hero_desc   one line about the hero
+//   hero_kits   its kits, comma separated, the first is the default
+//   hero_weight heavy, mid or light: sets the Barrier size (75, 50, 25)
+// Kit keys:
+//   kit_name    the name shown
+//   kit_desc    one line about the kit
+// The roster is the coop_heroList cvar. With coop_heroes 0 none of this is
+// used: everyone spawns as player_mp with their own player model.
+//
+// Models are Quake Live players baked to .md2 (zz_coopheroes.pk3, kept out
+// of git, see coop/README.md). Their framegroups: 0 idle, 1 walk, 2 run,
+// 3 back, 4 crouch idle, 5 crouch walk, 6 jump, 7 attack, 8 melee attack,
+// 9 gesture, 10-15 deaths and dead poses, 16 swim, 17 draw, 18 crouched
+// attack, 19 crouched melee. Every act_* key of Half-Life's player def is
+// set again here, because its numbers are player.mdl sequences.
+
+entityDef coop_hero_base
+{
+	"inherit"			"player_mp"
+	"hero_name"			""
+	"hero_role"			""
+	"hero_desc"			""
+	"hero_kits"			""
+	"hero_weight"		"mid"
+	"kit_name"			""
+	"kit_desc"			""
+
+	// .md2 models have no bones: player.mdl's spine bone, which splits
+	// the torso's animation from the legs', would point at nothing
+	"spine"				"none"
+	"torsoStart"		"none"
+	"torsoEnd"			"none"
+
+	"act_aim"					"0"
+	"act_aim_crossbow"			"0"
+	"act_aim_crouch_crossbow"	"4"
+	"act_aim_crouch_crowbar"	"4"
+	"act_aim_crouch_egon"		"4"
+	"act_aim_crouch_gauss"		"4"
+	"act_aim_crouch_hive"		"4"
+	"act_aim_crouch_mp5"		"4"
+	"act_aim_crouch_onehand"	"4"
+	"act_aim_crouch_python"		"4"
+	"act_aim_crouch_rpg"		"4"
+	"act_aim_crouch_shotgun"	"4"
+	"act_aim_crouch_squeak"		"4"
+	"act_aim_crouch_tripmine"	"4"
+	"act_aim_crowbar"			"0"
+	"act_aim_egon"				"0"
+	"act_aim_gauss"				"0"
+	"act_aim_hive"				"0"
+	"act_aim_mp5"				"0"
+	"act_aim_onehand"			"0"
+	"act_aim_python"			"0"
+	"act_aim_rpg"				"0"
+	"act_aim_shotgun"			"0"
+	"act_aim_squeak"			"0"
+	"act_aim_tripmine"			"0"
+	"act_attack"				"7"
+	"act_attack_crossbow"		"7"
+	"act_attack_crouch_crossbow"	"18"
+	"act_attack_crouch_crowbar"	"19"
+	"act_attack_crouch_egon"	"18"
+	"act_attack_crouch_gauss"	"18"
+	"act_attack_crouch_hive"	"18"
+	"act_attack_crouch_mp5"		"18"
+	"act_attack_crouch_onehand"	"18"
+	"act_attack_crouch_python"	"18"
+	"act_attack_crouch_rpg"		"18"
+	"act_attack_crouch_shotgun"	"18"
+	"act_attack_crouch_squeak"	"18"
+	"act_attack_crouch_tripmine"	"18"
+	"act_attack_crowbar"		"8"
+	"act_attack_egon"			"7"
+	"act_attack_gauss"			"7"
+	"act_attack_hive"			"7"
+	"act_attack_mp5"			"7"
+	"act_attack_onehand"		"7"
+	"act_attack_python"			"7"
+	"act_attack_rpg"			"7"
+	"act_attack_shotgun"		"7"
+	"act_attack_squeak"			"7"
+	"act_attack_tripmine"		"7"
+	"act_draw"					"17"
+	"act_draw_crossbow"			"17"
+	"act_draw_crowbar"			"17"
+	"act_draw_egon"				"17"
+	"act_draw_gauss"			"17"
+	"act_draw_hive"				"17"
+	"act_draw_mp5"				"17"
+	"act_draw_onehand"			"17"
+	"act_draw_python"			"17"
+	"act_draw_rpg"				"17"
+	"act_draw_shotgun"			"17"
+	"act_draw_squeak"			"17"
+	"act_draw_tripmine"			"17"
+	"act_idle"					"0"
+	"act_idle_crouch"			"4"
+	"act_jump"					"6"
+	"act_run"					"2"
+	"act_walk"					"1"
+	"act_walk_crouch"			"5"
+	"act_swim"				"16"
+	"act_treadwater"		"16"
+	"act_death"				"10,12,14"
+}
+
+// ---- Tank ---------------------------------------------------------------
+
+entityDef hero_tank
+{
+	"inherit"			"coop_hero_base"
+	"hero_name"			"Tank"
+	"hero_role"			"Tank"
+	"hero_weight"		"heavy"
+	"hero_desc"			"Takes the hits up front. More health, slower on its feet."
+	"hero_kits"			"kit_tank_gunner,kit_tank_breacher"
+	"model"				"progs/ql/tankjr_sport.md2"
+	"health"			"150"
+	"max_health"		"150"
+	"pm_walkspeed"		"240"
+	"pm_crouchspeed"	"80"
+}
+
+entityDef kit_tank_gunner
+{
+	"inherit"			"hero_tank"
+	"kit_name"			"Gunner"
+	"kit_desc"			"MP5 and grenades for holding a line."
+	"weapon"			"weapon_crowbar,weapon_9mmhandgun,weapon_9mmAR,weapon_handgrenade"
+	"current_weapon"	"2"
+	"ammo_9mm"			"150"
+	"ammo_m203_grenade"	"2"
+}
+
+entityDef kit_tank_breacher
+{
+	"inherit"			"hero_tank"
+	"kit_name"			"Breacher"
+	"kit_desc"			"Shotgun and satchel charges for close fights."
+	"weapon"			"weapon_crowbar,weapon_9mmhandgun,weapon_shotgun,weapon_satchel"
+	"current_weapon"	"2"
+	"ammo_9mm"			"44"
+	"ammo_buckshot"		"36"
+}
+
+// ---- Support ------------------------------------------------------------
+
+entityDef hero_support
+{
+	"inherit"			"coop_hero_base"
+	"hero_name"			"Support"
+	"hero_role"			"Support"
+	"hero_weight"		"mid"
+	"hero_desc"			"Keeps the team going. Revives and resupplies."
+	"hero_kits"			"kit_support_medic,kit_support_quartermaster"
+	"model"				"progs/ql/grunt_default.md2"
+	"health"			"100"
+	"max_health"		"100"
+}
+
+entityDef kit_support_medic
+{
+	"inherit"			"hero_support"
+	"kit_name"			"Medic"
+	"kit_desc"			"The Hivehand never runs dry, so your hands stay free for revives."
+	"weapon"			"weapon_crowbar,weapon_9mmhandgun,weapon_hornetgun"
+	"current_weapon"	"2"
+	"ammo_9mm"			"68"
+}
+
+entityDef kit_support_quartermaster
+{
+	"inherit"			"hero_support"
+	"kit_name"			"Quartermaster"
+	"kit_desc"			"Tripmines and grenades to lock down a room."
+	"weapon"			"weapon_crowbar,weapon_9mmhandgun,weapon_tripmine,weapon_handgrenade"
+	"current_weapon"	"1"
+	"ammo_9mm"			"85"
+}
+
+// ---- Pointman -----------------------------------------------------------
+
+entityDef hero_pointman
+{
+	"inherit"			"coop_hero_base"
+	"hero_name"			"Pointman"
+	"hero_role"			"Pointman"
+	"hero_weight"		"light"
+	"hero_desc"			"Moves first and picks targets. Fast, but less health."
+	"hero_kits"			"kit_pointman_scout,kit_pointman_marksman"
+	"model"				"progs/ql/crash_sport.md2"
+	"health"			"90"
+	"max_health"		"90"
+	"pm_walkspeed"		"300"
+	"pm_crouchspeed"	"100"
+}
+
+entityDef kit_pointman_scout
+{
+	"inherit"			"hero_pointman"
+	"kit_name"			"Scout"
+	"kit_desc"			"A .357 for picking off what's ahead."
+	"weapon"			"weapon_crowbar,weapon_9mmhandgun,weapon_357"
+	"current_weapon"	"2"
+	"ammo_9mm"			"44"
+	"ammo_357"			"24"
+}
+
+entityDef kit_pointman_marksman
+{
+	"inherit"			"hero_pointman"
+	"kit_name"			"Marksman"
+	"kit_desc"			"The crossbow, for long shots and quiet ones."
+	"weapon"			"weapon_crowbar,weapon_9mmhandgun,weapon_crossbow"
+	"current_weapon"	"2"
+	"ammo_9mm"			"44"
+	"ammo_bolt"			"15"
+}

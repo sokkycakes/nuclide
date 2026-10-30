@@ -165,7 +165,7 @@ Shop_Refuse(entity pl, int n)
 
 	switch (argv(0)) {
 	case "health":
-		if (pl.health >= autocvar_coop_shopMaxHealth) {
+		if (pl.health >= max(autocvar_coop_shopMaxHealth, pl.max_health)) {
 			return ("Your health is full.");
 		}
 		break;
@@ -234,7 +234,7 @@ Shop_Give(entity pl, int n)
 
 	switch (what) {
 	case "health":
-		ents.Input(pl, "SetHealth", ftos(min(autocvar_coop_shopMaxHealth, pl.health + amount)), pl);
+		ents.Input(pl, "SetHealth", ftos(min(max(autocvar_coop_shopMaxHealth, pl.max_health), pl.health + amount)), pl);
 		break;
 	case "armor":
 		ents.Input(pl, "SetArmor", ftos(min(autocvar_coop_shopMaxArmor, actor.GetArmor(pl) + amount)), pl);

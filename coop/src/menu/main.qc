@@ -22,12 +22,15 @@
 
    Views: layout/coop/menu.xml is the title menu and, in a game, the pause
    menu; the script is told which with the "context" event.
-   layout/coop/loadout.xml is the shop menu: a Shop tab with the points
-   shop and a Skills tab with the XP mod's skills. The server sends both
-   as menu_coop commands (coop/src/rules/shop.qc, coop/src/plugins/xpm.qc).
+   layout/coop/loadout.xml is the shop menu: a Hero tab when the server
+   has heroes on, a Shop tab with the points shop and a Skills tab with the
+   XP mod's skills. The server sends them as menu_coop commands
+   (coop/src/rules/heroes.qc, coop/src/rules/shop.qc,
+   coop/src/plugins/xpm.qc).
    The shop list opens the view, the skills are kept for their tab, and
    "menu_coop loadout_open <tab>" opens it on a tab. Buying is
-   "cmd buy <n>" and spending a skill point "cmd menuselect <n>". */
+   "cmd buy <n>", spending a skill point "cmd menuselect <n>" and picking
+   a hero's kit "cmd hero <kit>". */
 
 /* Bulwark's view builtins, bound by name (docs/spec/ui.md) */
 float(string layout, float flags) ui_open = #0:ui_open;
@@ -54,6 +57,7 @@ float g_panelView;	/* the shop menu */
 string g_panelJson;	/* the list being received, zoned */
 string g_shopJson;	/* the last lists, zoned, for when the view opens */
 string g_skillsJson;
+string g_heroesJson;
 
 /* ---- JSON --------------------------------------------------------------- */
 
@@ -264,6 +268,8 @@ Panel_Open(string tab)
 			ui_post(g_panelView, "shop", g_shopJson);
 		if (g_skillsJson)
 			ui_post(g_panelView, "skills", g_skillsJson);
+		if (g_heroesJson)
+			ui_post(g_panelView, "heroes", g_heroesJson);
 	}
 
 	setkeydest(2);
@@ -289,6 +295,10 @@ Panel_End(string kind)
 		if (g_shopJson)
 			strunzone(g_shopJson);
 		g_shopJson = json;
+	} else if (kind == "heroes") {
+		if (g_heroesJson)
+			strunzone(g_heroesJson);
+		g_heroesJson = json;
 	} else {
 		if (g_skillsJson)
 			strunzone(g_skillsJson);
@@ -296,7 +306,8 @@ Panel_End(string kind)
 	}
 
 	/* the shop list is the answer to "cmd shop", so it opens the menu;
-	   skills also come on level-up and only update it */
+	   skills also come on level-up and heroes before the shop, and only
+	   update it */
 	if (kind == "shop" && !Panel_IsOpen())
 		Panel_Open("shop");
 	else if (Panel_IsOpen())
@@ -307,7 +318,10 @@ Panel_End(string kind)
    shop_item <n> <category> "<name>" <price> <state>, shop_end;
    menu_coop skills_begin <points> <level> "<rank>",
    skills_item <n> "<name>" <level> <max>, skills_end;
-   menu_coop loadout_open <shop|skills>, panel_close */
+   menu_coop heroes_begin <on> "<kit now>" "<kit picked>" "<message>",
+   heroes_item <n> "<def>" "<name>" "<role>" "<desc>" <health> <speed> <full>,
+   heroes_kit <n> <hero> "<def>" "<name>" "<desc>", heroes_end;
+   menu_coop loadout_open <hero|shop|skills>, panel_close */
 void
 Panel_Command(void)
 {
@@ -336,6 +350,25 @@ Panel_Command(void)
 	case "skills_end":
 		Panel_End("skills");
 		break;
+	case "heroes_begin":
+		Panel_Begin(sprintf("{\"on\":%d,\"current\":%s,\"picked\":%s,\"message\":%s,\"items\":[",
+			stof(argv(2)), Json_Str(argv(3)), Json_Str(argv(4)), Json_Str(argv(5))));
+		break;
+	case "heroes_item":
+		if (g_panelJson)
+			Panel_Append(strcat(sprintf("%s{\"type\":\"hero\",\"id\":%d,\"def\":%s,\"name\":%s,",
+				Panel_Comma(), stof(argv(2)), Json_Str(argv(3)), Json_Str(argv(4))),
+				sprintf("\"role\":%s,\"desc\":%s,\"health\":%d,\"speed\":%d,\"full\":%d}",
+				Json_Str(argv(5)), Json_Str(argv(6)), stof(argv(7)), stof(argv(8)), stof(argv(9)))));
+		break;
+	case "heroes_kit":
+		if (g_panelJson)
+			Panel_Append(sprintf("%s{\"type\":\"kit\",\"id\":%d,\"hero\":%d,\"def\":%s,\"name\":%s,\"desc\":%s}",
+				Panel_Comma(), stof(argv(2)), stof(argv(3)), Json_Str(argv(4)), Json_Str(argv(5)), Json_Str(argv(6))));
+		break;
+	case "heroes_end":
+		Panel_End("heroes");
+		break;
 	case "loadout_open":
 		Panel_Open(argv(2));
 		break;
@@ -357,6 +390,8 @@ Menu_UIAction(float view, string action, string arg)
 			localcmd(sprintf("cmd buy %d\n", stof(arg)));
 		else if (action == "spend")
 			localcmd(sprintf("cmd menuselect %d\n", stof(arg)));
+		else if (action == "hero")
+			localcmd(sprintf("cmd hero %s\n", arg));
 		else if (action == "close")
 			Panel_Close();
 		return;
