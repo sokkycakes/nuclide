@@ -44,18 +44,20 @@
 /* the Hero page: the menu progs draws the backdrop and the hero under the
    view (coop/src/menu/main.qc), so nothing here may cover #HeroWindow */
 .hero-open .backdrop { background-color: #00000000; }
-.hero-open .page { width: 36%; }
+.hero-open .page { width: 39%; }
 .hero-window
 {
-	x: 69%;
+	x: 71.5%;
 	y: 12%;
-	width: 25%;
+	width: 22.5%;
 	height: 76%;
 	border: 1px solid #ffa31a55;
 	visibility: collapse;
 }
 .hero-open .hero-window { visibility: visible; }
 .page-body .title-heroes { padding: 0px; height: fill-parent-flow( 1.0 ); }
+/* the picked kit is marked by its colour; its descriptions need the room */
+.title-heroes .kit-state { visibility: collapse; }
 
 /* ---- brand and main buttons --------------------------------------------- */
 

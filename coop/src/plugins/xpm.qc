@@ -94,6 +94,7 @@ typedef struct
 	bool lowGravity;
 	bool menuOpen;
 	float spawnedAt;	/* when to take the spawn snapshot, 0 when done */
+	string spawnClass;	/* the class they spawned as, zoned */
 } xpmPlayer_t;
 
 static xpmPlayer_t g_xpm[XPM_PLAYERS];
@@ -744,7 +745,15 @@ XPM_FastTick(void)
 		/* the snapshot waits a moment, so health and armour that the map
 		   gives at spawn (Sven's startarmor, sent as a queued input)
 		   are part of the base the skills add to */
-		if (alive && !g_xpm[s].wasAlive) {
+		/* a new class while alive is a respawn too: the co-op rules
+		   respawn a player as the hero their client saved, when it comes
+		   in after they first spawned (coop/src/rules/heroes.qc) */
+		if (alive && (!g_xpm[s].wasAlive || pl.classname != g_xpm[s].spawnClass)) {
+			if (g_xpm[s].spawnClass) {
+				strunzone(g_xpm[s].spawnClass);
+			}
+
+			g_xpm[s].spawnClass = strzone(pl.classname);
 			g_xpm[s].spawnedAt = time + 0.1f;
 		} else if (!alive) {
 			g_xpm[s].spawnedAt = 0.0f;
