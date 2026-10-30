@@ -648,6 +648,15 @@ CodeCallback_PlayerSpawn(entity playerEntity)
 	ents.Input(playerEntity, "SetTeam", itos(COOP_PLAYERTEAM), playerEntity);
 
 	if (g_coopHeroes) {
+		/* respawning as the class one already is skips the def's health:
+		   the player is reset to 100 (ncPlayer::MakePlayer) */
+		float heroHealth = entityDef.GetFloat(playerEntity.classname, "health");
+
+		if (heroHealth > 0) {
+			ents.Input(playerEntity, "SetMaxHealth", ftos(heroHealth), playerEntity);
+			ents.Input(playerEntity, "SetHealth", ftos(heroHealth), playerEntity);
+		}
+
 		/* the hero's model, unless its pack isn't installed */
 		playerModel = entityDef.GetString(playerEntity.classname, "model");
 
