@@ -314,13 +314,28 @@ Hero_ClientCommand(entity pl, string command)
 }
 
 /* opens the Hero tab: a moment after the first spawn, because what's sent
-   to a client while it's still connecting doesn't reach its menu */
+   to a client while it's still connecting doesn't reach its menu. By then
+   the hero their client saved has come in if they have one. */
 void
 Hero_AskThink(void)
 {
 	entity pl = self.owner;
+	string wanted;
 
 	if (pl && is.Player(pl)) {
+		wanted = Hero_Wanted(pl);
+
+		/* a game started with +map spawns the player before their client
+		   sends the hero it saved: spawn them again, as it */
+		if (wanted != "") {
+			if (is.Alive(pl) && Hero_SpawnClass(pl) != pl.classname) {
+				CodeCallback_PlayerSpawn(pl);
+			}
+
+			remove(self);
+			return;
+		}
+
 		Hero_Send(pl, "Pick a hero. You can change it any time, it takes effect when you respawn.");
 		stuffcmd(pl, "menu_coop loadout_open hero\n");
 	}
@@ -329,7 +344,7 @@ Hero_AskThink(void)
 }
 
 /* the first spawn on a map with heroes on opens the Hero tab, unless they
-   came with a hero picked on the title menu */
+   came with a hero picked on the title menu (or it comes in by then) */
 void
 Hero_PlayerSpawned(entity pl)
 {

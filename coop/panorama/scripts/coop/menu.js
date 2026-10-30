@@ -330,7 +330,7 @@ var CoopMenu = ( function ()
 	var roster = null;
 
 	// #HeroWindow, as fractions of the screen (menu.css .hero-window)
-	var HERO_WINDOW = "0.69 0.12 0.25 0.76";
+	var HERO_WINDOW = "0.715 0.12 0.225 0.76";
 
 	function heroPageOff()
 	{
