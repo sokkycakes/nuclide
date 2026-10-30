@@ -26,9 +26,31 @@ HUD_Init(void)
 	g_ammoPic = 0;
 }
 
+var float autocvar_crosshair = 1;
+
+/** A plain plus with a gap at the centre of the screen. Nuclide turns the
+engine's crosshair off, so the HUD draws its own; `crosshair 0` hides it. */
+void
+HUD_DrawCrosshair(void)
+{
+	if (autocvar_crosshair == 0) {
+		return;
+	}
+
+	vector crossCenter = screen.HUDMins() + screen.HUDSize() / 2;
+	crossCenter[0] = rint(crossCenter[0]);
+	crossCenter[1] = rint(crossCenter[1]);
+
+	drawfill(crossCenter + [-8, 0], [5, 1], [1, 1, 1], 0.8f, DRAWFLAG_NORMAL);
+	drawfill(crossCenter + [4, 0], [5, 1], [1, 1, 1], 0.8f, DRAWFLAG_NORMAL);
+	drawfill(crossCenter + [0, -8], [1, 5], [1, 1, 1], 0.8f, DRAWFLAG_NORMAL);
+	drawfill(crossCenter + [0, 4], [1, 5], [1, 1, 1], 0.8f, DRAWFLAG_NORMAL);
+}
+
 void
 HUD_Draw(void)
 {
+	HUD_DrawCrosshair();
 
 	vector hud_mins = screen.HUDMins();
 	vector hudSize = screen.HUDSize();

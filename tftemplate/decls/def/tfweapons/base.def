@@ -1,0 +1,44 @@
+// Team Fortress template: shared weapon bases. The weapons themselves are in
+// the per-class files next to this one. Stats are TF2's stock weapons
+// (damage at base; tf_player.qc adds TF2's range falloff and ramp-up from the
+// "tf_distanceMod" keys, there are no random crits). The guns, the knife and
+// their sounds are Action Quake 2's (zz_aq2.pk3); the other view models are
+// from "Worldmodel to Viewmodel" (zz_wm2vm.pk3). Both packs are kept outside
+// git, see the README. The act numbers are framegroups in those packs: 0 draw,
+// 1 fire, 2 idle.
+//
+// hudSlot: 0 primary, 1 secondary, 2 melee, 3 PDA, 4 second PDA.
+
+entityDef tf_weapon_base
+{
+	"spawnclass"	"ncWeapon"
+	"snd_acquire"	"weapon.pickup"
+	"snd_empty"		"weapon.empty"
+	"act_idle"		"0"
+	"act_fire"		"1"
+	"act_draw"		"0"
+	"crosshair"		"none"
+	"weight"		"10"
+}
+
+entityDef tf_bullet_base
+{
+	"spawnclass"		"ncProjectile"
+	"is_bullet"			"1"
+	"decal_impact"		"Impact.BigShot"
+	"detonate_on_world"	"1"
+	"range"				"8192"
+	"fx_path"			"tf_weapons.tracer"
+}
+
+entityDef tf_melee_base
+{
+	"spawnclass"		"ncProjectile"
+	"is_bullet"			"1"
+	"range"				"72"
+	"decal_detonate"	"Impact.Shot"
+	"detonate_on_world"	"0"
+	"snd_hitBody"		"Weapon_Axe.Melee_Hit"
+	"snd_hitWorld"		"Weapon_Axe.Melee_HitWorld"
+}
+

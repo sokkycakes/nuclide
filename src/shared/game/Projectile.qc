@@ -31,6 +31,8 @@ ncProjectile::ncProjectile(void)
 	m_flThrustEnd = 0.0f;
 	m_flFrictionLinear = 0.0f;
 	m_flBounce = 0.0f;
+	m_flBounceFactor = 0.0f;
+	m_flBounceStop = 0.0f;
 	m_flMass = 0.0f;
 	m_flGravity = 0.0f;
 	m_flFuse = 0.0f;
@@ -45,6 +47,7 @@ ncProjectile::ncProjectile(void)
 	m_partSmokeFly = __NULL__;
 	m_partFXPath = __NULL__;
 	m_partModelDetonate = __NULL__;
+	m_partModelDetonateAir = __NULL__;
 	m_partSmokeDetonate = __NULL__;
 	m_partSmokeBounce = __NULL__;
 	m_partSmokeFuse = __NULL__;
@@ -72,6 +75,11 @@ ncProjectile::ncProjectile(void)
 	/* ETQW-additions */
 	m_bIsBullet = false;
 	m_iShots = 1i;
+	m_trackRadius = 1024.0f;
+	m_trackFOV = -1.0f;
+	m_trackTurn = false;
+	m_flThrowSpeed = 5.0f;
+	m_flThrowSpeedMax = 1000.0f;
 	m_vecSpread = [0.0, 0.0, 0.0];
 	m_strDecalGroup = __NULL__;
 	m_flRange = 8192.0f;
@@ -130,6 +138,12 @@ ncProjectile::SpawnKey(string keyName, string setValue)
 	case "bounce": /* bounce multiplier */
 		m_flBounce = ReadFloat(setValue);
 		break;
+	case "bounce_factor":
+		m_flBounceFactor = ReadFloat(setValue);
+		break;
+	case "bounce_stop":
+		m_flBounceStop = ReadFloat(setValue);
+		break;
 	case "mass":
 		m_flMass = ReadFloat(setValue);
 		break;
@@ -172,6 +186,9 @@ ncProjectile::SpawnKey(string keyName, string setValue)
 		break;
 	case "model_detonate":
 		m_partModelDetonate = ReadString(setValue);
+		break;
+	case "model_detonate_air":
+		m_partModelDetonateAir = ReadString(setValue);
 		break;
 	case "smoke_detonate":
 		m_partSmokeDetonate = ReadString(setValue);
@@ -288,6 +305,12 @@ ncProjectile::SpawnKey(string keyName, string setValue)
 	case "thrown":
 		m_bThrown = ReadBool(setValue);
 		break;
+	case "throw_speed":
+		m_flThrowSpeed = ReadFloat(setValue);
+		break;
+	case "throw_speed_max":
+		m_flThrowSpeedMax = ReadFloat(setValue);
+		break;
 	case "reflects":
 		m_bReflect = ReadBool(setValue);
 		break;
@@ -299,6 +322,15 @@ ncProjectile::SpawnKey(string keyName, string setValue)
 		break;
 	case "trackDelay":
 		m_trackDelay = ReadFloat(setValue);
+		break;
+	case "trackRadius":
+		m_trackRadius = ReadFloat(setValue);
+		break;
+	case "trackFOV":
+		m_trackFOV = ReadFloat(setValue);
+		break;
+	case "trackTurn":
+		m_trackTurn = ReadBool(setValue);
 		break;
 	case "def_planeImpact":
 		m_defPlaneImpact = ReadString(setValue);
@@ -342,6 +374,8 @@ ncProjectile::Save(float handle)
 	SaveFloat(handle, "m_flThrustEnd", m_flThrustEnd);
 	SaveFloat(handle, "m_flFrictionLinear", m_flFrictionLinear);
 	SaveFloat(handle, "m_flBounce", m_flBounce);
+	SaveFloat(handle, "m_flBounceFactor", m_flBounceFactor);
+	SaveFloat(handle, "m_flBounceStop", m_flBounceStop);
 	SaveFloat(handle, "m_flMass", m_flMass);
 	SaveFloat(handle, "m_flGravity", m_flGravity);
 	SaveFloat(handle, "m_flFuse", m_flFuse);
@@ -356,6 +390,7 @@ ncProjectile::Save(float handle)
 	SaveString(handle, "m_partSmokeFly", m_partSmokeFly);
 	SaveString(handle, "m_partFXPath", m_partFXPath);
 	SaveString(handle, "m_partModelDetonate", m_partModelDetonate);
+	SaveString(handle, "m_partModelDetonateAir", m_partModelDetonateAir);
 	SaveString(handle, "m_partSmokeDetonate", m_partSmokeDetonate);
 	SaveString(handle, "m_partSmokeBounce", m_partSmokeBounce); 
 	SaveString(handle, "m_partSmokeFuse", m_partSmokeFuse);
@@ -380,6 +415,8 @@ ncProjectile::Save(float handle)
 	SaveFloat(handle, "m_flSpawnFrame", m_flSpawnFrame);
 	SaveBool(handle, "m_bInheritVelocity", m_bInheritVelocity);
 	SaveBool(handle, "m_bThrown", m_bThrown);
+	SaveFloat(handle, "m_flThrowSpeed", m_flThrowSpeed);
+	SaveFloat(handle, "m_flThrowSpeedMax", m_flThrowSpeedMax);
 }
 
 void
@@ -422,6 +459,12 @@ ncProjectile::Restore(string keyName, string setValue)
 	case "m_flBounce":
 		m_flBounce = ReadFloat(setValue);
 		break;
+	case "m_flBounceFactor":
+		m_flBounceFactor = ReadFloat(setValue);
+		break;
+	case "m_flBounceStop":
+		m_flBounceStop = ReadFloat(setValue);
+		break;
 	case "m_flMass":
 		m_flMass = ReadFloat(setValue);
 		break;
@@ -463,6 +506,9 @@ ncProjectile::Restore(string keyName, string setValue)
 		break;
 	case "m_partModelDetonate":
 		m_partModelDetonate = ReadString(setValue);
+		break;
+	case "m_partModelDetonateAir":
+		m_partModelDetonateAir = ReadString(setValue);
 		break;
 	case "m_partSmokeDetonate":
 		m_partSmokeDetonate = ReadString(setValue);
@@ -535,6 +581,12 @@ ncProjectile::Restore(string keyName, string setValue)
 		break;
 	case "m_bThrown":
 		m_bThrown = ReadBool(setValue);
+		break;
+	case "m_flThrowSpeed":
+		m_flThrowSpeed = ReadFloat(setValue);
+		break;
+	case "m_flThrowSpeedMax":
+		m_flThrowSpeedMax = ReadFloat(setValue);
 		break;
 	default:
 		super::Restore(keyName, setValue);
@@ -767,6 +819,9 @@ void
 ncProjectile::_FuseEnded(void)
 {
 	if (m_bDetonateOnFuse) {
+		/* it explodes where it is now, not where it last touched something
+		   (or at the world's origin, if it never did) */
+		m_vecImpactPos = GetOrigin();
 		_Explode(this);
 		return;
 	}
@@ -845,7 +900,21 @@ ncProjectile::_Explode(entity explodedOn)
 	}
 
 	if (STRING_SET(m_partModelDetonate)) {
-		pointparticles(particleeffectnum(m_partModelDetonate), detonatePos, m_lastPlaneNormal, 1);
+		string detonateFX = m_partModelDetonate;
+		vector detonateDir = m_lastPlaneNormal;
+
+		/* nothing solid within 48 units: the mid-air effect, when there is one */
+		if (STRING_SET(m_partModelDetonateAir)) {
+			vector awayDir = (length(m_lastPlaneNormal) > 0) ? m_lastPlaneNormal : [0, 0, 1];
+			traceline(detonatePos + (awayDir * 2), detonatePos - (awayDir * 48), MOVE_NORMAL, this);
+
+			if (trace_fraction == 1.0) {
+				detonateFX = m_partModelDetonateAir;
+				detonateDir = g_vec_null;
+			}
+		}
+
+		pointparticles(particleeffectnum(detonateFX), detonatePos, detonateDir, 1);
 	}
 
 	if (STRING_SET(m_defSplashDamage)) {
@@ -908,11 +977,19 @@ ncProjectile::_LaunchHitscan(vector startPos, vector launchDir, float dmgMultipl
 	m_iMultiValue = 0;
 
 	while (m_iShots > 0) {
+		/* the sum of two randoms, as GoldSrc and Source spread bullets:
+		   still up to the full spread, but most land near the middle */
 		vecDir = anglesToForward(launchDir);
-		vecDir += random(-1,1) * m_vecSpread[0] * anglesToRight(launchDir);
-		vecDir += random(-1,1) * m_vecSpread[1] * anglesToUp(launchDir);
+		vecDir += (random(-0.5, 0.5) + random(-0.5, 0.5)) * m_vecSpread[0] * anglesToRight(launchDir);
+		vecDir += (random(-0.5, 0.5) + random(-0.5, 0.5)) * m_vecSpread[1] * anglesToUp(launchDir);
 		_FireSingle(startPos, vecDir, m_flDamage, m_flRange);
 		m_iShots--;
+	}
+
+	if (owner) {
+		owner.stat_shotsFired++;
+		if (m_eMultiTarget && (m_eMultiTarget.flags & (FL_CLIENT | FL_MONSTER)))
+			owner.stat_shotsHit++;
 	}
 
 	if (m_eMultiTarget) {
@@ -1103,6 +1180,79 @@ ncProjectile::_FireSingle(vector vecPos, vector vecAngles, float flDamage, float
 	}
 }
 
+/* what a tracking projectile steers towards: a monster's own enemy, or
+   for anyone else the nearest visible thing that is fair game, kept until
+   it dies */
+entity
+ncProjectile::_TrackTarget(void)
+{
+	entity best = world;
+	float bestDist = m_trackRadius;
+	vector flightDir = vectorNormalize(GetVelocity());
+
+	if (owner.flags & FL_MONSTER) {
+		ncMonster monOwner = (ncMonster)owner;
+		return (monOwner.m_eEnemy);
+	}
+
+	if (m_trackTarget && !wasfreed(m_trackTarget) && m_trackTarget.health > 0 && m_trackTarget.takedamage != DAMAGE_NO) {
+		return (m_trackTarget);
+	}
+
+	for (entity e = findradius(GetOrigin(), bestDist); e; e = e.chain) {
+		float dist;
+
+		if (e == owner || e == this || e.takedamage == DAMAGE_NO || e.health <= 0) {
+			continue;
+		}
+
+		if (e.flags & FL_MONSTER) {
+			ncMonster mon = (ncMonster)e;
+
+			/* allies of the player and bystanders are left alone */
+			if (mon.m_iAlliance == MAL_FRIEND || mon.m_iAlliance == MAL_NEUTRAL) {
+				continue;
+			}
+		} else if (e.flags & FL_CLIENT) {
+			/* players on the shooter's team are left alone */
+			if (owner.team != 0 && e.team == owner.team) {
+				continue;
+			}
+		} else {
+			continue;
+		}
+
+		dist = vlen(e.origin - GetOrigin());
+
+		if (dist >= bestDist) {
+			continue;
+		}
+
+		/* only what's ahead, measured flat as HL's view cones are */
+		if (m_trackFOV > -1.0f) {
+			vector flatTo = e.origin - GetOrigin();
+			vector flatFwd = flightDir;
+			flatTo[2] = flatFwd[2] = 0.0f;
+
+			if (dotproduct(vectorNormalize(flatTo), vectorNormalize(flatFwd)) <= m_trackFOV) {
+				continue;
+			}
+		}
+
+		traceline(GetOrigin(), (e.absmin + e.absmax) * 0.5f, MOVE_NOMONSTERS, this);
+
+		if (trace_fraction < 1.0f) {
+			continue;
+		}
+
+		best = e;
+		bestDist = dist;
+	}
+
+	m_trackTarget = best;
+	return (best);
+}
+
 void
 ncProjectile::_ThrustThink(void)
 {
@@ -1131,17 +1281,47 @@ ncProjectile::_ThrustThink(void)
 		traceline(ownerPos, endPos, MOVE_NORMAL, projectileOwner);
 		SetAngles(vectoangles(trace_endpos - GetOrigin()));
 	} else if (m_bTrackEnemy) {
+		if (m_trackDelayTime <= time) {
+			entity trackTarget = _TrackTarget();
 
-		if (m_trackDelayTime > time) {
-			ncMonster monOwner = (ncMonster)owner;
-			vector angleToTarget = vectoangles(monOwner.m_eEnemy.origin - GetOrigin());
-			angleToTarget[0] += random(-m_trackJitter[0],m_trackJitter[0]);
-			angleToTarget[1] += random(-m_trackJitter[1],m_trackJitter[1]);
-			angleToTarget[2] += random(-m_trackJitter[2],m_trackJitter[2]);
-			SetAngles(angleToTarget);
+			if (trackTarget) {
+				vector targetPos = (trackTarget.absmin + trackTarget.absmax) * 0.5f;
+				vector angleToTarget;
+				bool jitter = true;
+
+				if (m_trackTurn) {
+					/* half-way between where we fly and where it is */
+					vector dirToTarget = vectorNormalize(targetPos - GetOrigin());
+					vector flightDir = vectorNormalize(currentVelocity);
+
+					if (currentSpeed < 0.1f) {
+						flightDir = dirToTarget;
+					}
+
+					angleToTarget = vectoangles(flightDir + dirToTarget);
+					jitter = (owner.flags & FL_MONSTER) ? true : false;
+				} else {
+					angleToTarget = vectoangles(targetPos - GetOrigin());
+				}
+
+				if (jitter) {
+					angleToTarget[0] += random(-m_trackJitter[0],m_trackJitter[0]);
+					angleToTarget[1] += random(-m_trackJitter[1],m_trackJitter[1]);
+					angleToTarget[2] += random(-m_trackJitter[2],m_trackJitter[2]);
+				}
+
+				SetAngles(angleToTarget);
+			}
+
+			m_trackDelayTime = time + m_trackDelay;
 		}
+	}
 
-		m_trackDelayTime = time + m_trackDelay;
+	/* the fuse is checked here too, as the think that would end it can be
+	   replaced (by animation, for one) while we keep flying */
+	if (m_flFuse > 0.0f && GetSpawnAge() > m_flFuse + 0.1f) {
+		_FuseEnded();
+		return;
 	}
 
 	makevectors(GetAngles());
@@ -1165,6 +1345,12 @@ ncProjectile::_ThrustThink(void)
 void
 ncProjectile::OnRemoveEntity(void)
 {
+	/* a looping flight sound (the rocket's) would keep playing where we
+	   went away */
+	if (STRING_SET(m_sndFly)) {
+		StopSound(CHAN_BODY, true);
+	}
+
 	if (m_thrustHandler) {
 		m_thrustHandler.Destroy(); /* invalidate */
 		m_thrustHandler = 0;
@@ -1228,8 +1414,8 @@ ncProjectile::Launch(vector startPos, vector launchDir, float fuseOffset, float 
 			throwDirection[0] += (launchDir[0] * 1.1f);
 		}
 
-		throwingStrength = bound(0, (90 - throwDirection[0]) * 5.0f, 1000);
-		moveVel = (v_forward * throwingStrength) + owner.velocity;
+		throwingStrength = bound(0, (90 - throwDirection[0]) * m_flThrowSpeed, m_flThrowSpeedMax);
+		moveVel = (anglesToForward(throwDirection) * throwingStrength) + owner.velocity;
 	}
 
 	/* fire slower underwater */
@@ -1246,6 +1432,9 @@ ncProjectile::Launch(vector startPos, vector launchDir, float fuseOffset, float 
 
 	if (m_flBounce > 0) {
 		SetMovetype(MOVETYPE_BOUNCE);
+		/* the engine's bounce extension fields; 0 leaves its defaults */
+		bouncefactor = m_flBounceFactor;
+		bouncestop = m_flBounceStop;
 	} else {
 		SetMovetype(MOVETYPE_FLYMISSILE);
 	}

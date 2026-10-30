@@ -123,7 +123,7 @@ CSEv_VoteY(void)
 		return;
 	}
 
-	if (is.Player(self)) {
+	if (!is.Player(self)) {
 		return;
 	}
 
@@ -168,7 +168,7 @@ CSEv_VoteN(void)
 		return;
 	}
 
-	if (is.Player(self)) {
+	if (!is.Player(self)) {
 		return;
 	}
 
@@ -212,7 +212,7 @@ Vote_InitiateVote(string votemsg)
 		return;
 	}
 
-	if (is.Player(self)) {
+	if (!is.Player(self)) {
 		return;
 	}
 
@@ -245,6 +245,14 @@ CSEv_CallVote_s(string text)
 
 	tokenize(text);
 	switch (argv(0)) {
+	case "skill":
+		if (stof(argv(1)) < 1 || stof(argv(1)) > 3) {
+			sprint(self, PRINT_CHAT, "Skill must be 1 (easy), 2 (medium) or 3 (hard).\n");
+			break;
+		}
+		Vote_InitiateVote(sprintf("skill %d", stof(argv(1))));
+		CSEv_VoteY();
+		break;
 	case "map":
 		if (fileExists(sprintf("maps/%s.bsp", argv(1))) == false) {
 			sprint(self, PRINT_CHAT, sprintf("Map '%s' not available on server.\n", argv(1)));

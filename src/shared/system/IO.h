@@ -285,6 +285,10 @@ private:
 	/* entityDef powered modelevent callbacks */
 	string m_modelEventCallbacks;
 	string m_gameModeFilter;
+
+	/* entity scripts, see c_script.h */
+	string m_scriptFiles;
+	string m_scriptThink;
 #endif
 };
 

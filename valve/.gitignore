@@ -1,0 +1,10 @@
+*.bsp
+*.dat
+*.lno
+*.mdl
+*core.txt
+dlcache/*
+fte.cfg
+mapsrc/*
+saves/*
+screenshots/*

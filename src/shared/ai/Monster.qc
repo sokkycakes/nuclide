@@ -79,6 +79,10 @@ ncMonster::ncMonster(void)
 	m_flRanged2Range =
 	m_flSpecial1Range =
 	m_flSpecial2Range = -1.0f;
+	m_flRanged1Min = 0.0f;
+	m_flRanged1Dot = -1.0f;
+	m_bRanged1OnGround = false;
+	m_flMeleeDot = -1.0f;
 
 	m_flReserveAmmo = -1; /* unlimited */
 
@@ -215,6 +219,10 @@ ncMonster::Save(float handle)
 	SaveFloat(handle, "m_flRanged1Range", m_flRanged1Range);
 	SaveString(handle, "m_defRanged2", m_defRanged2);
 	SaveFloat(handle, "m_flRanged2Range", m_flRanged2Range);
+	SaveFloat(handle, "m_flRanged1Min", m_flRanged1Min);
+	SaveFloat(handle, "m_flRanged1Dot", m_flRanged1Dot);
+	SaveBool(handle, "m_bRanged1OnGround", m_bRanged1OnGround);
+	SaveFloat(handle, "m_flMeleeDot", m_flMeleeDot);
 	SaveInt(handle, "m_iNumProjectiles", m_iNumProjectiles);
 	SaveFloat(handle, "m_flProjectileDelay", m_flProjectileDelay);
 	SaveFloat(handle, "m_flProjectileSpread", m_flProjectileSpread);
@@ -414,6 +422,18 @@ ncMonster::Restore(string keyName, string setValue)
 	case "m_defRanged2":
 		m_defRanged2 = ReadString(setValue);
 		break;
+	case "m_flRanged1Min":
+		m_flRanged1Min = ReadFloat(setValue);
+		break;
+	case "m_flRanged1Dot":
+		m_flRanged1Dot = ReadFloat(setValue);
+		break;
+	case "m_bRanged1OnGround":
+		m_bRanged1OnGround = ReadBool(setValue);
+		break;
+	case "m_flMeleeDot":
+		m_flMeleeDot = ReadFloat(setValue);
+		break;
 	case "m_flRanged2Range":
 		m_flRanged2Range = ReadFloat(setValue);
 		break;
@@ -538,7 +558,7 @@ ncMonster::Gib(int damage, vector dir)
 	MakeInvulnerable();
 
 	if (STRING_SET(breakModel)) {
-		BreakModel_Spawn(absmin, absmax, dir, damage * 2.5f, vlen(size) / 10, breakModel);
+		BreakModel_Gib(absmin, absmax, vlen(size) / 10, breakModel, GetHealth());
 	}
 
 	Disappear();
@@ -597,11 +617,43 @@ ncMonster::MeleeMaxDistance(void)
 	return m_flMeleeRange;
 }
 
+/* how squarely the enemy is in front of us, ignoring height, as HL
+   measures it for its attack checks */
+float
+ncMonster::EnemyFlatDot(void)
+{
+	vector toEnemy = m_eEnemy.origin - origin;
+	vector forward = anglesToForward([0, angles[1], 0]);
+	toEnemy[2] = 0.0f;
+	return dotproduct(vectorNormalize(toEnemy), forward);
+}
+
 /* Whether or not we should attempt a melee attack */
 bool
 ncMonster::MeleeCondition(void)
 {
-	return (vlen(origin - m_eEnemy.origin) < MeleeMaxDistance()) ? true : false;
+	if (vlen(origin - m_eEnemy.origin) >= MeleeMaxDistance()) {
+		return (false);
+	}
+
+	return (m_flMeleeDot <= -1.0f || EnemyFlatDot() >= m_flMeleeDot) ? true : false;
+}
+
+/* Whether or not the primary ranged attack can reach the enemy now */
+bool
+ncMonster::RangedCondition(void)
+{
+	float dist = vlen(origin - m_eEnemy.origin);
+
+	if (m_flRanged1Range <= 0.0f || dist > m_flRanged1Range || dist <= m_flRanged1Min) {
+		return (false);
+	}
+
+	if (m_bRanged1OnGround && !(flags & FL_ONGROUND)) {
+		return (false);
+	}
+
+	return (m_flRanged1Dot <= -1.0f || EnemyFlatDot() >= m_flRanged1Dot) ? true : false;
 }
 
 float
@@ -836,12 +888,44 @@ ncMonster::SeeThink(void)
 
 	/* a horde type monster always knows where the nearest player is */
 	if (m_iFlags & MSF_HORDE) {
-		if (!m_eEnemy || PathNodeCount() < 1i) {
+		if (!m_eEnemy || m_eEnemy.health <= 0) {
 			m_eEnemy = ncMonster_FindClosestPlayer(this);
+		}
 
-			if (m_eEnemy) {
-				RouteToPositionDenyFlags(m_eEnemy.origin, LF_JUMP | LF_CROUCH | LF_HAZARDOUS | LF_AIM);
+		if (!m_eEnemy) {
+			return;
+		}
+
+		/* in reach with a clear line: stop walking and let the combat
+		   schedules attack. Routing all the time kept any schedule from
+		   running, so horde monsters walked up to players and never hit
+		   them. */
+		float enemyDist = vlen(origin - m_eEnemy.origin);
+		bool inReach = (enemyDist < MeleeMaxDistance() || (m_flRanged1Range > 0 && enemyDist < m_flRanged1Range));
+
+		if (inReach && ncMonster_TraceAgainsTarget(this, (ncEntity)m_eEnemy) == true) {
+			m_flHordeOutOfReach = 0.0f;
+
+			if (PathNodeCount() > 0i) {
+				RouteClear();
 			}
+
+			if (m_mindset != "combat") {
+				m_mindset = "combat";
+				CancelSchedule();
+			}
+		} else if (m_mindset == "combat" && m_activeSchedule && (m_flHordeOutOfReach == 0.0f || time < m_flHordeOutOfReach)) {
+			/* let an attack that's under way finish: cutting it off the
+			   moment the enemy stepped out of reach made houndeyes wind up
+			   and stop over and over. Give chase a second later. */
+			if (m_flHordeOutOfReach == 0.0f) {
+				m_flHordeOutOfReach = time + 1.0f;
+			}
+		} else if (PathNodeCount() < 1i) {
+			m_flHordeOutOfReach = 0.0f;
+			CancelSchedule();
+			m_mindset = "";
+			RouteToPositionDenyFlags(m_eEnemy.origin, LF_JUMP | LF_CROUCH | LF_HAZARDOUS | LF_AIM);
 		}
 
 		return;
@@ -922,11 +1006,14 @@ ncMonster::SeeThink(void)
 				if (m_eEnemy != m_eLookAt || !m_eLookAt) {
 					SeenEnemy((ncActor)w);
 
-					if (m_eEnemy) {
-						MessageSchedule("NewEnemy");
-					} else {
+					/* every schedule reacts to NewEnemy, so send it for
+					   the first enemy too (HL's bits_COND_NEW_ENEMY):
+					   idle monsters used to ignore the first one they saw */
+					if (!m_eEnemy) {
 						MessageSchedule("FoundEnemy");
 					}
+
+					MessageSchedule("NewEnemy");
 
 					m_eEnemy = m_eLookAt = w;
 
@@ -1041,6 +1128,14 @@ ncMonster::_LerpTurnToPos(vector turnPos)
 }
 
 void
+ncMonster::_AdvanceAfterAnim(void)
+{
+	if (m_activeSchedule) {
+		m_activeSchedule.AdvanceLater(frameduration(modelindex, frame));
+	}
+}
+
+void
 ncMonster::AttackThink(void)
 {
 	if (InScriptedSequence()) {
@@ -1075,10 +1170,12 @@ ncMonster::AttackThink(void)
 		return;
 	}
 
+	/* only when the attack can reach: a ranged attack out of range used to
+	   be started anyway, and its animation events fired at any distance */
 	if (m_bCanAttack == true) {
 		if (MeleeCondition() == TRUE) {
 			MessageSchedule("CanMeleeAttack1");
-		} else {
+		} else if (RangedCondition() == TRUE) {
 			MessageSchedule("CanRangedAttack1");
 		}
 	}
@@ -1086,52 +1183,74 @@ ncMonster::AttackThink(void)
 	m_flAttackThink = time + 0.25f;
 }
 
-int
-ncMonster::AttackMelee(void)
+/* Hits land on a timer taken from the def_attack_melee def (delay, then
+   wait between attempts), so any monster with a melee def does damage
+   while its melee activity plays, without per-model event codes. */
+void
+ncMonster::MeleeStrikeStart(void)
 {
-#if 1
-	float actMelee1 = GetDefAct("meleeAttack1");
-	float actMelee2 = GetDefAct("meleeAttack2");
-
-	if (STRING_SET(m_defMelee))
-		return (false);
+	if not (STRING_SET(m_defMelee))
+		return;
 
 	_m_flMeleeDelay = GetSubDefFloat(m_defMelee, "delay");
 	_m_flMeleeAttempts = GetSubDefFloat(m_defMelee, "attempts");
 
-	//print(sprintf("Melee attack %S with delay %f and %d attempts\n", m_defMelee, _m_flMeleeDelay, _m_flMeleeAttempts));
+	if (_m_flMeleeAttempts < 1)
+		_m_flMeleeAttempts = 1;
 
 	static void
 	AttackMelee_AttackFlail(void)
 	{
 		ncActor targetEnt;
+		float meleeWait = GetSubDefFloat(m_defMelee, "wait");
 
-		if (distance(origin, m_eEnemy.origin) > m_flMeleeRange) {
-			return (false);
+		if (!m_eEnemy || health <= 0 || m_eEnemy.health <= 0) {
+			return;
 		}
 
-		float meleeWait = GetSubDefFloat(m_defMelee, "wait");
-		traceline(origin, m_eEnemy.origin, FALSE, this);
+		_m_flMeleeAttempts--;
 
-		if (trace_fraction >= 1.0 || trace_ent.takedamage == DAMAGE_NO) {
+		if (_m_flMeleeAttempts > 0)
+			ScheduleThink(AttackMelee_AttackFlail, meleeWait > 0 ? meleeWait : _m_flMeleeDelay);
+
+		/* range is measured between the hulls, not the origins */
+		vector ourCenter = WorldSpaceCenter();
+		vector enemyCenter = m_eEnemy.origin + (m_eEnemy.mins + m_eEnemy.maxs) * 0.5f;
+		float reach = m_flMeleeRange + vlen([m_eEnemy.maxs[0], m_eEnemy.maxs[1], 0]);
+
+		if (vlen(enemyCenter - ourCenter) > reach) {
 			StartSoundDef(m_sndMeleeAttackMiss, CHAN_WEAPON, true);
-			return (false);
+			return;
+		}
+
+		traceline(ourCenter, enemyCenter, MOVE_NORMAL, this);
+
+		if (trace_ent != m_eEnemy || trace_ent.takedamage == DAMAGE_NO) {
+			StartSoundDef(m_sndMeleeAttackMiss, CHAN_WEAPON, true);
+			return;
 		}
 
 		targetEnt = (ncActor)trace_ent;
 
 		ncDict damageDecl = spawn(ncDict);
 		damageDecl.AddKey("damage", GetSubDefString(m_defMelee, "damage"));
-		targetEnt.Damage(this, this, damageDecl, 1.0, vectorNormalize(angles), trace_endpos);
+		targetEnt.Damage(this, this, damageDecl, 1.0, vectorNormalize(enemyCenter - ourCenter), trace_endpos);
 		remove(damageDecl);
 
 		StartSoundDef(m_sndMeleeAttackHit, CHAN_WEAPON, true);
-
-		_m_flMeleeAttempts--;
-
-		if (_m_flMeleeAttempts > 0)
-			ScheduleThink(AttackMelee_AttackFlail, _m_flMeleeDelay + meleeWait);
 	}
+
+	ScheduleThink(AttackMelee_AttackFlail, _m_flMeleeDelay);
+}
+
+int
+ncMonster::AttackMelee(void)
+{
+	float actMelee1 = GetDefAct("meleeAttack1");
+	float actMelee2 = GetDefAct("meleeAttack2");
+
+	if not (STRING_SET(m_defMelee))
+		return (false);
 
 	AnimationRewind();
 
@@ -1142,10 +1261,7 @@ ncMonster::AttackMelee(void)
 
 	m_flAttackThink = m_flAnimTime;
 	StartSoundDef(m_sndMeleeAttack, CHAN_WEAPON, true);
-
-	/* functional */
-	ScheduleThink(AttackMelee_AttackFlail, _m_flMeleeDelay);
-#endif
+	MeleeStrikeStart();
 	return (true);
 }
 
@@ -2078,6 +2194,8 @@ ncMonster::Death(entity inflictor, entity attacker, int damage, vector dir, vect
 	} else {
 		/* if we make more than 50 damage, gib immediately */
 		if (GetHealth() < -50) {
+			/* the rules still need to hear about a gibbed kill */
+			g_grMode.NPCDeath(this, (ncActor)inflictor, (ncActor)attacker);
 			HasBeenGibbed();
 			Gib(damage, dir);
 			Extinguish();
@@ -2172,6 +2290,9 @@ ncMonster::Respawn(void)
 	MakeVulnerable();
 	EnableAimAssist();
 	SetState(MONSTER_IDLE);
+	/* full health is the def's health, not the generic default of 100 */
+	if (GetSpawnFloat("health") > 0)
+		SetMaxHealth(GetSpawnFloat("health"));
 	SetHealth(GetSpawnFloat("health"));
 	m_eEnemy = __NULL__;
 	m_iFlags = 0x0;
@@ -2288,7 +2409,7 @@ ncMonster::Input( entity entityActivator, string inputName, string dataField )
 		float randomTime;
 
 		/* if not specified... make something up */
-		if (waitTime > 0.0f) {
+		if (maxRandomTime > 0.0f) {
 			randomTime = random(0.0f, maxRandomTime);
 		} else {
 			randomTime = random(0.0f, 1.0f);
@@ -2312,6 +2433,11 @@ ncMonster::Input( entity entityActivator, string inputName, string dataField )
 	case "PlayActivity":
 		if (STRING_SET(dataField)) {
 			AnimPlay(GetDefAct(dataField));
+
+			if (substring(dataField, 0, 11) == "meleeAttack") {
+				StartSoundDef(m_sndMeleeAttack, CHAN_WEAPON, true);
+				MeleeStrikeStart();
+			}
 
 			if (m_activeSchedule) {
 				m_activeSchedule.AdvanceLater(frameduration(modelindex, frame));
@@ -2444,21 +2570,125 @@ ncMonster::Input( entity entityActivator, string inputName, string dataField )
 		float randomYaw = random(45.0f,180.0f) - 90.0f;
 		ideal_yaw += randomYaw;
 		break;
+	/* HL's squad monsters hold fire when an ally is in the line of fire
+	   (NoFriendlyFire); used by most schedules but was never handled */
+	case "TaskCheck_FriendlyFire":
+		if (!m_eEnemy) {
+			CancelSchedule();
+			break;
+		}
+
+		traceline(GetEyePos(), m_eEnemy.origin + (m_eEnemy.mins + m_eEnemy.maxs) * 0.5f, MOVE_NORMAL, this);
+
+		if (trace_ent && trace_ent != m_eEnemy && trace_ent.takedamage != DAMAGE_NO)
+		if (trace_ent.flags & (FL_MONSTER | FL_CLIENT))
+		if (IsFriend(trace_ent.m_iAlliance)) {
+			CancelSchedule();
+		}
+		break;
+	/* monsters outside a squad change only their own mindset */
+	case "AlertSquadWithMindset":
+		CancelSchedule();
+		m_mindset = dataField;
+		break;
+	/* HL's SCHED_ARM_WEAPON: Barney draws his pistol before he fights */
+	case "DrawWeapon":
+		if (m_bWeaponDrawn == false) {
+			AttackDraw();
+			m_bWeaponDrawn = true;
+			_AdvanceAfterAnim();
+		}
+		break;
+	case "HolsterWeapon":
+		if (m_bWeaponDrawn == true) {
+			AttackHolster();
+			m_bWeaponDrawn = false;
+			_AdvanceAfterAnim();
+		}
+		break;
+	case "TargetEnemy":
+		if (m_activeSchedule && m_eEnemy) {
+			m_activeSchedule.SetTarget((ncEntity)m_eEnemy);
+		} else {
+			CancelSchedule();
+		}
+		break;
+	case "WaitFacingEnemy":
+		if (m_eEnemy) {
+			vector faceEnemy = vectoangles(m_eEnemy.origin - origin);
+			ideal_yaw = faceEnemy[1];
+		}
+
+		m_flStopTime = GetTime() + stof(dataField);
+
+		if (m_activeSchedule) {
+			m_activeSchedule.AdvanceLater(stof(dataField));
+		}
+		break;
+	/* like HL's TASK_MELEE_ATTACK1 etc., the task ends when the attack
+	   animation does: the next task used to start 0.1 seconds later, so
+	   back-to-back attack tasks restarted the animation before its
+	   events (shots, leaps) could fire, or fired them over and over */
 	case "AttackMelee1":
 		AnimationRewind();
 		AnimPlay(GetDefAct("meleeAttack1"));
+		StartSoundDef(m_sndMeleeAttack, CHAN_WEAPON, true);
+		MeleeStrikeStart();
+		_AdvanceAfterAnim();
 		break;
 	case "AttackMelee2":
 		AnimationRewind();
 		AnimPlay(GetDefAct("meleeAttack2"));
+		StartSoundDef(m_sndMeleeAttack, CHAN_WEAPON, true);
+		MeleeStrikeStart();
+		_AdvanceAfterAnim();
 		break;
 	case "AttackRanged1":
 		AnimationRewind();
 		AnimPlay(GetDefAct("rangeAttack1"));
+		_AdvanceAfterAnim();
 		break;
 	case "AttackRanged2":
 		AnimationRewind();
 		AnimPlay(GetDefAct("rangeAttack2"));
+		_AdvanceAfterAnim();
+		break;
+	/* HL's headcrab jump (HC_AE_JUMPATTACK): a ballistic hop that lands
+	   on the enemy's eyes, capped in speed (650 by default) */
+	case "LeapAtEnemy":
+		float leapCap = stof(dataField);
+		vector leapVel;
+
+		if (leapCap <= 0.0f)
+			leapCap = 650.0f;
+
+		RemoveFlags(FL_ONGROUND);
+		SetOrigin(origin + [0, 0, 1]);
+
+		if (m_eEnemy) {
+			float leapGrav = cvar("sv_gravity");
+			vector leapTarget = m_eEnemy.origin + m_eEnemy.view_ofs;
+			float leapHeight = leapTarget[2] - origin[2];
+
+			if (leapGrav <= 1.0f)
+				leapGrav = 1.0f;
+			if (leapHeight < 16.0f)
+				leapHeight = 16.0f;
+
+			float leapSpeed = sqrt(2.0f * leapGrav * leapHeight);
+			float leapTime = leapSpeed / leapGrav;
+			leapVel = (leapTarget - origin) * (1.0f / leapTime);
+			leapVel[2] = leapSpeed;
+
+			if (vlen(leapVel) > leapCap)
+				leapVel = leapVel * (leapCap / vlen(leapVel));
+		} else {
+			vector leapFwd = anglesToForward([0, angles[1], 0]);
+			leapVel = [leapFwd[0], leapFwd[1], 1.0f] * 350.0f;
+		}
+
+		velocity = leapVel;
+		m_bLeapAttacked = false;
 		break;
 	default:
 		super::Input(entityActivator, inputName, dataField);
@@ -2594,6 +2824,18 @@ ncMonster::SpawnKey(string keyName, string setValue)
 	case "ranged2_range":
 		m_flRanged2Range = ReadFloat(setValue);
 		break;
+	case "attack_ranged_min":
+		m_flRanged1Min = ReadFloat(setValue);
+		break;
+	case "attack_ranged_dot":
+		m_flRanged1Dot = ReadFloat(setValue);
+		break;
+	case "attack_ranged_onground":
+		m_bRanged1OnGround = ReadBool(setValue);
+		break;
+	case "attack_melee_dot":
+		m_flMeleeDot = ReadFloat(setValue);
+		break;
 	case "snd_ranged_attack":
 		m_sndRangedAttack = ReadString(setValue);
 		break;
@@ -2710,6 +2952,8 @@ ncMonster::EvaluateEntity(void)
 	EVALUATE_FIELD(frame, MONFL_CHANGED_FRAME)
 	EVALUATE_FIELD(skin, MONFL_CHANGED_SKINHEALTH)
 	EVALUATE_FIELD(health, MONFL_CHANGED_SKINHEALTH)
+	EVALUATE_FIELD(max_health, MONFL_CHANGED_SKINHEALTH)
+	EVALUATE_FIELD(m_iAlliance, MONFL_CHANGED_SKINHEALTH)
 	EVALUATE_FIELD(effects, MONFL_CHANGED_EFFECTS)
 	EVALUATE_FIELD(m_geomsetField, MONFL_CHANGED_BODY)
 	EVALUATE_FIELD(scale, MONFL_CHANGED_SCALE)
@@ -2756,6 +3000,7 @@ ncMonster::SendEntity(entity ePEnt, float flChanged)
 	SENDENTITY_ANGLE(v_angle[0], MONFL_CHANGED_ANGLES_X)
 	SENDENTITY_SHORT(modelindex, MONFL_CHANGED_MODELINDEX)
 	SENDENTITY_BYTE(view_ofs[2], MONFL_CHANGED_MODELINDEX)
+	SENDENTITY_STRING(netname, MONFL_CHANGED_MODELINDEX)
 	SENDENTITY_BYTE(solid, MONFL_CHANGED_SOLID)
 	SENDENTITY_BYTE(movetype, MONFL_CHANGED_FLAGS)
 	SENDENTITY_INT(flags, MONFL_CHANGED_FLAGS)
@@ -2768,6 +3013,8 @@ ncMonster::SendEntity(entity ePEnt, float flChanged)
 	SENDENTITY_BYTE(frame, MONFL_CHANGED_FRAME)
 	SENDENTITY_FLOAT(skin, MONFL_CHANGED_SKINHEALTH)
 	SENDENTITY_FLOAT(health, MONFL_CHANGED_SKINHEALTH)
+	SENDENTITY_FLOAT(max_health, MONFL_CHANGED_SKINHEALTH)
+	SENDENTITY_BYTE(m_iAlliance, MONFL_CHANGED_SKINHEALTH)
 	SENDENTITY_FLOAT(effects, MONFL_CHANGED_EFFECTS)
 	SENDENTITY_SHORT(m_geomsetField, MONFL_CHANGED_BODY)
 	SENDENTITY_FLOAT(scale, MONFL_CHANGED_SCALE)
@@ -2823,6 +3070,7 @@ ncMonster::ReceiveEntity(float flNew, float flChanged)
 	READENTITY_ANGLE(v_angle[0], MONFL_CHANGED_ANGLES_X)
 	READENTITY_SHORT(modelindex, MONFL_CHANGED_MODELINDEX)
 	READENTITY_BYTE(view_ofs[2], MONFL_CHANGED_MODELINDEX)
+	READENTITY_STRING(netname, MONFL_CHANGED_MODELINDEX)
 	READENTITY_BYTE(solid, MONFL_CHANGED_SOLID)
 	READENTITY_BYTE(movetype, MONFL_CHANGED_FLAGS)
 	READENTITY_INT(flags, MONFL_CHANGED_FLAGS)
@@ -2835,6 +3083,8 @@ ncMonster::ReceiveEntity(float flNew, float flChanged)
 	READENTITY_BYTE(frame, MONFL_CHANGED_FRAME)
 	READENTITY_FLOAT(skin, MONFL_CHANGED_SKINHEALTH)
 	READENTITY_FLOAT(health, MONFL_CHANGED_SKINHEALTH)
+	READENTITY_FLOAT(max_health, MONFL_CHANGED_SKINHEALTH)
+	READENTITY_BYTE(m_iAlliance, MONFL_CHANGED_SKINHEALTH)
 	READENTITY_FLOAT(effects, MONFL_CHANGED_EFFECTS)
 	READENTITY_SHORT(m_geomsetField, MONFL_CHANGED_BODY)
 	READENTITY_FLOAT(scale, MONFL_CHANGED_SCALE)

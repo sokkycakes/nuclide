@@ -1,0 +1,13 @@
+typeInfo bullsquid_rangedAttack
+{
+	"task_1"					"StopMovement"
+	"task_2"					"TurnToEnemy"
+	"task_3"					"AttackRanged1"
+	"task_4"					"TurnToEnemy"
+	"task_5"					"WaitRandom 0.5"
+	"fail_onDeadEnemy"			"1"
+	"fail_onHeavyDamage"		"1"
+	"fail_onOccludedEnemy"		"1"
+	"DeadEnemy"					"PerformSchedule bullsquid_idle"
+	"CanMeleeAttack1"			"PerformSchedule bullsquid_meleeAttack"
+}

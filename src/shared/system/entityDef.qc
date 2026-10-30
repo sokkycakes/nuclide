@@ -169,6 +169,9 @@ EntityDef_ReadFile(string filePath)
 	fclose(defFile);
 }
 
+/* "class key" -> "=value", see EntityDef_GetKeyValue */
+hashtable g_entDefKeyCache;
+
 void
 EntityDef_Init(void)
 {
@@ -176,6 +179,12 @@ EntityDef_Init(void)
 	searchhandle pm;
 
 	InitStart();
+
+	/* the defs are read again: forget the cached key lookups */
+	if (g_entDefKeyCache) {
+		hash_destroytab(g_entDefKeyCache);
+		g_entDefKeyCache = 0;
+	}
 
 	g_entDefInclude = "";
 
@@ -197,7 +206,16 @@ EntityDef_Init(void)
 		EntityDef_ReadFile(mapDef);
 	}
 
-	/* if spawnclass wasn't set, read the one from the inheritkeys entityDef */
+	/* resolve parents now that every def is known, regardless of file order */
+	for (int i = 0i; i < g_entDefCount; i++) {
+		if (STRING_SET(g_entDefTable[i].inheritKeys)) {
+			g_entDefTable[i].inheritID = EntityDef_IDFromName(g_entDefTable[i].inheritKeys);
+		}
+	}
+
+	/* if spawnclass wasn't set, read the one from the inheritkeys entityDef.
+	   repeated so that defs more than one level deep resolve too. */
+	for (int pass = 0i; pass < 8i; pass++)
 	for (int i = 0i; i < g_entDefCount; i++) {
 		if (!STRING_SET(g_entDefTable[i].spawnClass)) {
 			if (g_entDefTable[i].inheritID != -1i) {
@@ -273,13 +291,11 @@ EntityDef_CheckCondition(ncEntity target, int id, string keyWord, float tweakCon
 
 
 var bool autocvar_entityDef_profile = false;
+static string EntityDef_LookUpKeyValue(string className, string keyName);
 
 string
 EntityDef_GetKeyValue(string className, string keyName)
 {
-	float spawnWords = 0;
-	string inheritKeys = __NULL__;
-
 	static string lastClass, lastKey, lastResult;
 
 	if (className == lastClass && keyName == lastKey) {
@@ -290,6 +306,35 @@ EntityDef_GetKeyValue(string className, string keyName)
 	if (!STRING_SET(className)) {
 		return "";
 	}
+
+	/* Every answer, misses included, is kept: monsters ask for keys
+	   like act_run each frame, and a miss walks every def. The value
+	   is stored behind a '=' so an empty answer differs from none. */
+	if (!g_entDefKeyCache) {
+		g_entDefKeyCache = hash_createtab(4096, EV_STRING);
+	}
+
+	string cacheKey = strcat(className, " ", keyName);
+	string cachedValue = (string)hash_get(g_entDefKeyCache, cacheKey, "", EV_STRING);
+
+	if (cachedValue != "") {
+		lastClass = className;
+		lastKey = keyName;
+		lastResult = substring(cachedValue, 1, -1);
+		return (lastResult);
+	}
+
+	lastResult = EntityDef_LookUpKeyValue(className, keyName);
+	lastClass = className;
+	lastKey = keyName;
+	hash_add(g_entDefKeyCache, cacheKey, strcat("=", lastResult), HASH_REPLACE | EV_STRING);
+	return (lastResult);
+}
+
+static string
+EntityDef_LookUpKeyValue(string className, string keyName)
+{
+	float spawnWords = 0;
 
 	if (autocvar_entityDef_profile) {
 		breakpoint();
@@ -310,10 +355,7 @@ EntityDef_GetKeyValue(string className, string keyName)
 				/* iterate over our own spawnkeys first */
 				for (int c = 0i; c < spawnWords; c+= 2i) {
 					if (argv(c) == keyName) {
-						lastClass = className;
-						lastKey = keyName;
-						lastResult = argv(c+1);
-						return (lastResult);
+						return (argv(c+1));
 					}
 				}
 
@@ -381,14 +423,21 @@ EntityDef_PrepareEntity(entity target, int id)
 		targetEnt.spawnclass = g_entDefTable[id].spawnClass;
 		self = oldSelf;
 
-		/* first load all keys we inherit from the 'inherited' class */
-		for (int x = 0; x < g_entDefCount; x++) {
-			/* found the thing we're supposed to inherit */
-			if (g_entDefTable[x].entClass == g_entDefTable[id].inheritKeys) {
+		/* first load all keys we inherit, walking the whole 'inherit' chain
+		   and applying the root-most def first so children override it. */
+		int inheritChain[16];
+		int chainLength = 0i;
 
-				for (int i = 0; i < tokenize_console(g_entDefTable[x].spawnData); i+= 2) {
-					targetEnt.SpawnKey(argv(i), argv(i+1));
-				}
+		for (int x = g_entDefTable[id].inheritID; x != -1i && chainLength < 16i; x = g_entDefTable[x].inheritID) {
+			inheritChain[chainLength] = x;
+			chainLength++;
+		}
+
+		for (int c = chainLength - 1i; c >= 0i; c--) {
+			int x = inheritChain[c];
+
+			for (int i = 0; i < tokenize_console(g_entDefTable[x].spawnData); i+= 2) {
+				targetEnt.SpawnKey(argv(i), argv(i+1));
 			}
 		}
 	}

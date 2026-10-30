@@ -157,6 +157,12 @@ typedef enum
 /* FIXME: I'd like to move this into ncMonster, but our current IsFriend()
  * check is currently only checking on a .takedamage basis. */
 .int m_iAlliance;
+.int m_iAlliance_net;
+.float max_health_net;
+#ifdef CSQC
+.float max_health; /* server-only in fteextensions, networked for nameplates */
+.string netname;
+#endif
 
 /*! \brief This entity class represents non-player characters. */
 /*!QUAKED ncMonster (0 0.8 0.8) (-16 -16 0) (16 16 72) WAITTILLSEEN GAG MONSTERCLIP x PRISONER x IGNOREPLAYER WAITFORSCRIPT PREDISASTER FADECORPSE MULTIPLAYER FALLING HORDE
@@ -205,6 +211,10 @@ capable of fighting if prompted to.
 - "attack_ranged1_range" : Range for the primary ranged attack.
 - "def_attack_ranged_2" :  EntityDef that contains secondary ranged attack info.
 - "attack_ranged2_range" : Range for the secondary ranged attack.
+- "attack_ranged_min" : The primary ranged attack isn't used on enemies closer than this (default 0).
+- "attack_ranged_dot" : The enemy must be within this cone in front of us, as a flat dot product, before a ranged attack (default -1, anywhere).
+- "attack_ranged_onground" : Only attack at range while standing on the ground (default 0).
+- "attack_melee_dot" : The same cone check for melee attacks (default -1, anywhere).
 - "snd_ranged_attack" : SoundDef to play upon ranged attack.
 - "reload_count" : how many ranged attacks until reload. Only affects primary ranged attacks.
 - "reload_delay" : Time between reloads in seconds. Requires `reload_count` to be set > 0.
@@ -345,6 +355,8 @@ public:
 	virtual void AttackThink(void);
 	/** Overridable: Called when attempting to melee attack. Return 0 if impossible. */
 	virtual int AttackMelee(void);
+	/** Starts the timed hits of the def_attack_melee def against the enemy. */
+	nonvirtual void MeleeStrikeStart(void);
 	/** Overridable: Called when attempting to attack from a distance. Return 0 if impossible. */
 	virtual int AttackRanged(void);
 	nonvirtual void PerformAttack(string);
@@ -355,6 +367,11 @@ public:
 	/** Returns whether or not we should attempt a melee attack.
 		FIXME: Should pass a parameter for the enemy in question instead! */
 	virtual bool MeleeCondition(void);
+	/** Returns whether the primary ranged attack can reach the enemy. */
+	virtual bool RangedCondition(void);
+	/** How squarely the enemy is in front of us, flat, from -1 to 1. */
+	nonvirtual float EnemyFlatDot(void);
+	nonvirtual void _AdvanceAfterAnim(void);
 
 	/** Returns TRUE if 'enemy' should be considered a valid target for killing */
 	nonvirtual bool IsValidEnemy(entity);
@@ -549,6 +566,11 @@ private:
 	float m_flRanged1Range;
 	string m_defRanged2;
 	float m_flRanged2Range;
+	float m_flRanged1Min;
+	float m_flRanged1Dot;
+	bool m_bRanged1OnGround;
+	float m_flMeleeDot;
+	float m_flHordeOutOfReach;
 
 	/* ranged1 only */
 	int m_iNumProjectiles;

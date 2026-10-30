@@ -71,7 +71,7 @@ void vguiTabView::SizeChanged (vector vecOld, vector vecNew)
 void vguiTabView::SetTitle (string strName)
 {
 	m_strTitle = strName;
-	SetSize([stringwidth(m_strTitle, TRUE, [g_fntDefault.iScaleX, g_fntDefault.iScaleY]), 16]);
+	SetSize([Font_StringWidth(m_strTitle, TRUE, g_fntDefault), 16]);
 }
 void vguiTabView::Draw(void)
 {

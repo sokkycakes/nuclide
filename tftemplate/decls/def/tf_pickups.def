@@ -1,0 +1,123 @@
+// Team Fortress template: Team Fortress 2 style health kits and ammo packs.
+//
+// "tf_ammoFraction" is the share of each ammo type's maximum the pack
+// refills; bots read it through TF_PickupAmount(). The "inv_ammo_*" keys
+// below are that share of each maximum in ammo.def (rounded up), and need
+// updating when the maximums change. Health kits use Nuclide's "inv_health".
+
+entityDef tf_pickup_base
+{
+	"spawnclass"	"ncItem"
+	"mins"			"-16 -16 0"
+	"maxs"			"16 16 16"
+	"snd_respawn"	"item.respawn"
+	"respawn"		"10"
+	"droptofloor"	"1"
+	"pickupFlash"	"1"
+}
+
+entityDef item_healthkit_small
+{
+	"inherit"		"tf_pickup_base"
+	"model"			"maps/b_bh10.bsp"
+	"snd_acquire"	"health.pickup"
+	"inv_health"	"25"
+}
+
+entityDef item_healthkit_medium
+{
+	"inherit"		"tf_pickup_base"
+	"model"			"maps/b_bh25.bsp"
+	"snd_acquire"	"health.pickup"
+	"inv_health"	"60"
+}
+
+entityDef item_healthkit_full
+{
+	"inherit"		"tf_pickup_base"
+	"model"			"maps/b_bh100.bsp"
+	"snd_acquire"	"health.pickup"
+	"inv_health"	"150"
+}
+
+entityDef item_ammopack_small
+{
+	"inherit"			"tf_pickup_base"
+	"model"				"maps/b_shell0.bsp"
+	"snd_acquire"		"ammo.pickup"
+	"tf_ammoFraction"	"0.2"
+	"inv_ammo_tf_scattergun"	"7"
+	"inv_ammo_tf_pistol"	"8"
+	"inv_ammo_tf_rockets"	"4"
+	"inv_ammo_tf_shotgun"	"7"
+	"inv_ammo_tf_flame"	"40"
+	"inv_ammo_tf_pipes"	"4"
+	"inv_ammo_tf_stickies"	"5"
+	"inv_ammo_tf_minigun"	"40"
+	"inv_ammo_tf_metal"	"40"
+	"inv_ammo_tf_syringes"	"30"
+	"inv_ammo_tf_sniper"	"5"
+	"inv_ammo_tf_smg"		"15"
+	"inv_ammo_tf_revolver"	"5"
+	"inv_ammo_tf_pistol_eng"	"40"
+}
+
+entityDef item_ammopack_medium
+{
+	"inherit"			"tf_pickup_base"
+	"model"				"maps/b_shell1.bsp"
+	"snd_acquire"		"ammo.pickup"
+	"tf_ammoFraction"	"0.5"
+	"inv_ammo_tf_scattergun"	"16"
+	"inv_ammo_tf_pistol"	"18"
+	"inv_ammo_tf_rockets"	"10"
+	"inv_ammo_tf_shotgun"	"16"
+	"inv_ammo_tf_flame"	"100"
+	"inv_ammo_tf_pipes"	"8"
+	"inv_ammo_tf_stickies"	"12"
+	"inv_ammo_tf_minigun"	"100"
+	"inv_ammo_tf_metal"	"100"
+	"inv_ammo_tf_syringes"	"75"
+	"inv_ammo_tf_sniper"	"13"
+	"inv_ammo_tf_smg"		"38"
+	"inv_ammo_tf_revolver"	"12"
+	"inv_ammo_tf_pistol_eng"	"100"
+}
+
+entityDef item_ammopack_full
+{
+	"inherit"			"tf_pickup_base"
+	"model"				"maps/b_shell1.bsp"
+	"snd_acquire"		"ammo.pickup"
+	"tf_ammoFraction"	"1"
+	"inv_ammo_tf_scattergun"	"32"
+	"inv_ammo_tf_pistol"	"36"
+	"inv_ammo_tf_rockets"	"20"
+	"inv_ammo_tf_shotgun"	"32"
+	"inv_ammo_tf_flame"	"200"
+	"inv_ammo_tf_pipes"	"16"
+	"inv_ammo_tf_stickies"	"24"
+	"inv_ammo_tf_minigun"	"200"
+	"inv_ammo_tf_metal"	"200"
+	"inv_ammo_tf_syringes"	"150"
+	"inv_ammo_tf_sniper"	"25"
+	"inv_ammo_tf_smg"		"75"
+	"inv_ammo_tf_revolver"	"24"
+	"inv_ammo_tf_pistol_eng"	"200"
+}
+
+// Team Fortress has no armor: Quake maps' armor spawns are left empty.
+entityDef item_armor1
+{
+	"spawnclass"	"info_null"
+}
+
+entityDef item_armor2
+{
+	"spawnclass"	"info_null"
+}
+
+entityDef item_armorInv
+{
+	"spawnclass"	"info_null"
+}

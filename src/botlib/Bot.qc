@@ -102,13 +102,21 @@ void
 ncBot::BrainThink(int enemyvisible, int enemydistant)
 {
 	/* we had a target and it's now dead. now what? */
-	if (m_eTarget) {
-		if (m_eTarget.health <= 0) {
-			SetEnemy(__NULL__);
-			RouteClear();
-		}
-	} else if (m_eTarget && enemyvisible && enemydistant) {
-		/* we can see the player, but are too far away, plot a route */
+	if (!m_eTarget)
+		return;
+
+	if (m_eTarget.health <= 0) {
+		SetEnemy(__NULL__);
+		RouteClear();
+		return;
+	}
+
+	/* we can see them but can't reach them from here (too far for most
+	   guns, or out of reach of a melee weapon): plot a route to them,
+	   at most once a second. This branch used to sit under the else of
+	   the m_eTarget check and could never run. */
+	if (enemyvisible && (enemydistant || m_flEnemyDist > 128.0f) && m_flChaseTime < time) {
+		m_flChaseTime = time + 1.0f;
 		RouteToPosition(m_eTarget.origin);
 	}
 }
@@ -174,21 +182,31 @@ ncBot::SeeThink(void)
 		m_flSeeTime = time + 1.0f;
 	}
 
-	for (entity w = world; (w = findfloat(w, ::takedamage, DAMAGE_YES));) {
+	/* players and monsters alike: monsters take damage as DAMAGE_AIM */
+	for (entity w = world; (w = next.Actor(w));) {
 		float flDot;
 
-		/* is w a client? */
-		if (!(w.flags & FL_CLIENT))
+		if (w == this || w.takedamage == DAMAGE_NO)
 			continue;
 
 		/* is w alive? */
 		if (w.health <= 0)
 			continue;
 
-		/* ain't go hurt our brothers and sisters */
-		if (teams.TeamCount() > 1)
-			if (team == w.team)
+		if (w.flags & FL_CLIENT) {
+			/* ain't go hurt our brothers and sisters */
+			if (teams.TeamCount() > 0)
+				if (team == w.team)
+					continue;
+		} else if (is.AI(w)) {
+			/* monsters are fair game, unless they're on the players' side */
+			ncMonster m = (ncMonster)w;
+
+			if (m.m_iAlliance == MAL_FRIEND || m.m_iAlliance == MAL_NEUTRAL)
 				continue;
+		} else {
+			continue;
+		}
 
 		/* first, is the potential enemy in our field of view? */
 		flDot = vectorNormalize(w.origin - origin) * anglesToForward(v_angle);
@@ -201,6 +219,7 @@ ncBot::SeeThink(void)
 
 		/* break out if at all a valid trace */
 		if (trace_ent == w) {
+			BotLog("Bot %S (%d) sees enemy %S (%d)", netname, num_for_edict(this), w.classname, num_for_edict(w));
 			SetEnemy(w);
 			return;
 		}
@@ -301,9 +320,15 @@ ncBot::CheckRoute(void)
 			input_buttons |= INPUT_JUMP;
 		}
 	} else {
-		/* entire way-link needs to be crouched. that's the law of the land */
-		if (Route_GetNodeFlags(&m_pathfindingGraph[m_pathfindingCurrentNode]) & LF_CROUCH || autocvar_bot_crouch)
+		/* entire way-link needs to be crouched. that's the law of the land.
+		   heading for the destination itself (node -1) there is no link,
+		   and with a direct route the graph may not exist at all */
+		if (autocvar_bot_crouch) {
 			input_buttons |= INPUT_CROUCH;
+		} else if (m_pathfindingCurrentNode >= 0) {
+			if (Route_GetNodeFlags(&m_pathfindingGraph[m_pathfindingCurrentNode]) & LF_CROUCH)
+				input_buttons |= INPUT_CROUCH;
+		}
 	}
 }
 
@@ -331,6 +356,13 @@ ncBot::RunAI(void)
 		WeaponAttack();
 		SetEnemy(__NULL__);
 		return;
+	}
+
+	/* DEVELOPER CVAR: press an attack button. 1 and 2 tap primary and
+	   secondary (released every other tenth of a second, so
+	   semi-automatic weapons fire too), 3 and 4 hold them down */
+	if (autocvar_bot_forceAttack >= 3i || (autocvar_bot_forceAttack && ((int)(time * 10.0f) & 1i))) {
+		input_buttons |= (autocvar_bot_forceAttack & 1i) ? INPUT_PRIMARY : INPUT_SECONDARY;
 	}
 
 	/* DEVELOPER CVAR: freeze the bot */
@@ -402,14 +434,24 @@ ncBot::RunAI(void)
 			if (m_pathfindingCurrentNode == BOTROUTE_DESTINATION)
 				aimPos = PathDestination();
 			else {
-				if (m_pathfindingCurrentNode > 0 && !(Route_GetNodeFlags(&m_pathfindingGraph[m_pathfindingCurrentNode]) & LF_AIM))
+				/* QC's && evaluates both sides, so test the index before
+				   reading the node: a negative one points before the list */
+				bool aimAhead = false;
+
+				if (m_pathfindingCurrentNode > 0)
+					aimAhead = (Route_GetNodeFlags(&m_pathfindingGraph[m_pathfindingCurrentNode]) & LF_AIM) ? false : true;
+
+				if (aimAhead)
 					aimPos = m_pathfindingGraph[m_pathfindingCurrentNode - 1].dest;
-				else
+				else if (m_pathfindingCurrentNode >= 0)
 					aimPos = m_pathfindingGraph[m_pathfindingCurrentNode].dest;
+				else
+					aimPos = PathDestination();
 			}
 		} else {
-			/* aim towards the enemy */
-			aimPos = m_eTarget.origin;
+			/* aim towards the middle of the enemy: a monster's origin is
+			   at its feet, so aiming at it shot over its head */
+			aimPos = m_eTarget.origin + (m_eTarget.mins + m_eTarget.maxs) * 0.5f;
 		}
 
 		/* force bot to fire at a position if desired */
@@ -498,7 +540,11 @@ ncBot::RunAI(void)
 		}
 
 		/* make them walk when they need to. */
-		if ((m_pathfindingCurrentNode >= 0 && Route_GetNodeFlags(&m_pathfindingGraph[m_pathfindingCurrentNode]) & LF_WALK) || shouldWalk)
+		if (m_pathfindingCurrentNode >= 0)
+			if (Route_GetNodeFlags(&m_pathfindingGraph[m_pathfindingCurrentNode]) & LF_WALK)
+				shouldWalk = true;
+
+		if (shouldWalk)
 			SetMoveSpeedScale(0.5f);
 		else
 			SetMoveSpeedScale(1.0f);
@@ -518,6 +564,18 @@ ncBot::RunAI(void)
 			}
 		}
 #endif
+	} else if (m_eTarget && enemyVisible) {
+		/* no route (it ends when we reach the enemy), but we can see them:
+		   face them, and keep closing in with a melee weapon. Without this
+		   the bot froze in place facing wherever it last looked, and melee
+		   swings went into the air. */
+		input_angles = angles = v_angle = vectorToAngles(m_eTarget.origin + (m_eTarget.mins + m_eTarget.maxs) * 0.5f - GetEyePos());
+
+		if (m_wtWeaponType == WPNTYPE_CLOSE) {
+			vector chaseDir = vectorNormalize(m_eTarget.origin - origin) * g_pmoveVars.pm_walkspeed;
+			makevectors(input_angles);
+			input_movevalues = [v_forward * chaseDir, v_right * chaseDir, 0];
+		}
 	}
 
 	/* press any buttons needed */

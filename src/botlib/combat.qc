@@ -49,7 +49,7 @@ ncBot::SetEnemy(entity en)
 	m_eTarget = en;
 
 	if (m_eTarget) {
-		m_flEnemyDist = distanceSquared(origin, m_eTarget.origin);
+		m_flEnemyDist = vlen(origin - m_eTarget.origin); /* linear, like RunAI keeps it */
 	} else {
 		m_flEnemyDist = -1;
 	}
@@ -58,9 +58,24 @@ ncBot::SetEnemy(entity en)
 void
 ncBot::WeaponThink(void)
 {
+	/* empty-handed with something in the inventory (a weapon strip,
+	   a class change): take out the best weapon we have */
+	if (!m_activeWeapon && m_itemList)
+		SwitchToBestWeapon(false);
+
 	if (!m_activeWeapon) {
+		m_wtWeaponType = WPNTYPE_INVALID;
 		return;
 	}
+
+	/* melee weapons only connect when something is within testDistance,
+	   which their decls give as a negative range; the movement code needs
+	   to know so the bot walks up to its enemy instead of following its
+	   route past them */
+	if (stof(EntityDef_GetKeyValue(m_activeWeapon.declclass, "testDistance")) < 0)
+		m_wtWeaponType = WPNTYPE_CLOSE;
+	else
+		m_wtWeaponType = WPNTYPE_RANGED;
 
 	bool isEmpty = m_activeWeapon.IsEmpty();
 
@@ -74,7 +89,6 @@ ncBot::WeaponThink(void)
 		SwitchToBestWeapon(false);
 	}
 
-	//m_wtWeaponType = Weapons_GetType(this, activeweapon);
 }
 
 void

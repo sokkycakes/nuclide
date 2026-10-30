@@ -240,10 +240,10 @@ CSQC_Update2D(float w, float h, bool focus)
 	ncPlayer cl = (ncPlayer)pSeat->m_ePlayer;
 	self = cl;
 
-	if (Util_GetMaxPlayers() > 1 && !VGUI_Active() && (Client_InIntermission() || (!cl.IsFakeSpectator() && cl.IsDead()))) {
+	if (Util_GetMaxPlayers() > 1 && !VGUI_Active() && (Client_InIntermission() || (!cl.IsFakeSpectator() && cl.IsDead() && cl.m_spectatingMode != SPECMODE_DEATHCAM))) {
 		HUD_DrawIntermission();
 		Textmenu_Draw();
-		Scores_Draw();
+		HUDProgs_DrawScores();
 		Chat_Draw();
 		Print_Draw();
 	} else if (Util_IsFocused() == true) {
@@ -258,6 +258,7 @@ CSQC_Update2D(float w, float h, bool focus)
 					cl.m_activeWeapon.UpdateGUI();
 				}
 
+				Nameplates_Draw();
 				HUD_Draw();
 			} else {
 				HUD_DrawSpectator();
@@ -271,7 +272,7 @@ CSQC_Update2D(float w, float h, bool focus)
 
 		/* no prints overlapping scoreboards */
 		if (Client_InIntermission() || pSeat->m_iScoresVisible == TRUE) {
-			Scores_Draw();
+			HUDProgs_DrawScores();
 		} else {
 			VGUI_Draw();
 			Print_DrawCenterprint();
@@ -291,6 +292,19 @@ var float autocvar_overview_zoom = 1.0f;
 This is for all clients on display. So we handle splitscreen/multiple-views
 in here.
 */
+/** The cursor shows while a VGUI panel is up. Also run every frame, so a
+panel that opens by itself (the MOTD) frees the mouse before the first
+mouse movement, which would otherwise turn the view. */
+void
+CSQC_SyncCursor(void)
+{
+	if (g_vguiWidgetCount || HUDProgs_WantsCursor()) {
+		setcursormode(TRUE, "gfx/cursor", [0,0,0], 1.0f);
+	} else {
+		setcursormode(FALSE, "gfx/cursor", [0,0,0], 1.0f);
+	}
+}
+
 void
 CSQC_UpdateView(float w, float h, float focus)
 {
@@ -299,6 +313,8 @@ CSQC_UpdateView(float w, float h, float focus)
 	vector vecViewAngles = view_angles;
 
 	g_focus = (bool)focus;
+	CSQC_SyncCursor();
+	Cmd_MenuBinds();
 
 	if (w == 0 || h == 0) {
 		return;
@@ -489,18 +505,17 @@ CSQC_InputEvent(float fEventType, float fKey, float fCharacter, float fDeviceID)
 	//g_vecMousePos = getmousepos();
 
 	bool vgui_pressed;
-	vgui_pressed = Commandmenu_Input(fEventType, fKey, fCharacter, fDeviceID);
+	vgui_pressed = HUDProgs_InputEvent(fEventType, fKey, fCharacter, fDeviceID);
+
+	if (!vgui_pressed) {
+		vgui_pressed = Commandmenu_Input(fEventType, fKey, fCharacter, fDeviceID);
+	}
 
 	if (!vgui_pressed) {
 		vgui_pressed = VGUI_Input(fEventType, fKey, fCharacter, fDeviceID);
 	}
 
-	if (g_vguiWidgetCount) {
-		setcursormode(TRUE, "gfx/cursor", [0,0,0], 1.0f);
-	} else {
-		setcursormode(FALSE, "gfx/cursor", [0,0,0], 1.0f);
-	}
-
+	CSQC_SyncCursor();
 	return (vgui_pressed);
 }
 
@@ -629,8 +644,9 @@ CSQC_Parse_Print(string sMessage, float fLevel)
 
 	pSeat->m_flPrintTime = time + CHAT_TIME;
 
-	/* log to console */
-	localcmd(sprintf("echo \"%s\"\n", sMessage));
+	/* log to console. print it directly: echoing it through localcmd ran
+	   every line after the first as a console command */
+	print(sMessage);
 }
 
 /** Catches every centerprint call and allows us to tinker with it.

@@ -205,10 +205,10 @@ ncActor::ReloadCachedAttributes(void)
 	}
 
 	m_sndLandSoft = GetSpawnString("snd_landSoft");
+	m_sndLandHard = GetSpawnString("snd_landHard");
 
-	if (STRING_SET(m_sndLandSoft)) {
-		m_sndLandHard = GetSpawnString("snd_landHard");
-	} else {
+	/* either one may be set on its own (a quiet soft landing is common) */
+	if (!STRING_SET(m_sndLandSoft) && !STRING_SET(m_sndLandHard)) {
 		m_sndLandSoft =
 		m_sndLandHard = GetSpawnString("snd_land");
 	}
@@ -810,6 +810,9 @@ ncActor::Input(entity eAct, string strInput, string strData)
 		float randomYaw = random(45.0f,180.0f) - 90.0f;
 		angles[1] += randomYaw;
 		v_angle = angles;
+		break;
+	case "GoToPosition":
+		RouteToPosition(stov(strData));
 		break;
 	case "GoForward":
 		float distance = stof(strData);
@@ -1892,8 +1895,9 @@ ncActor::RemoveAllWeapons(void)
 				m_activeWeapon = __NULL__;
 			}
 
-			linkedList._RemovedCallback();
-			continue;
+			/* unlink it like RemoveAllItems does; calling _RemovedCallback
+			   alone left it in the list and looped on it forever */
+			RemoveItem(linkedList.declclass);
 		}
 
 		linkedList = nextItem;

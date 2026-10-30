@@ -1,0 +1,17 @@
+// King of the Hill on lqdm1: one locked point in the middle.
+{
+"classname" "team_control_point"
+"targetname" "koth_point"
+"origin" "672 -512 -32"
+"point_index" "0"
+"point_printname" "The Hill"
+"point_start_locked" "1"
+}
+{
+"classname" "trigger_capture_area"
+"origin" "672 -512 -8"
+"mins" "-80 -80 -32"
+"maxs" "80 80 96"
+"area_cap_point" "koth_point"
+"area_time_to_cap" "8"
+}

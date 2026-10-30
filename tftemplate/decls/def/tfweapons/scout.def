@@ -1,0 +1,129 @@
+// Scout: Scattergun, Pistol, Bat. The double jump is "pm_airjumps" on the class.
+
+entityDef tf_weapon_scattergun
+{
+	"inherit"					"tf_weapon_base"
+	"spawnclass"				"ncWeapon"
+	"tf_distanceMod"		"1"
+	"tf_rampUpScale"		"1.5"
+	"inv_name"					"Scattergun"
+	"model"						"models/weapons/g_shotg/tris.md2"
+	"model_view"				"progs/dox/v_scattergun.mdl"
+	"def_fireInfo"				"fireInfo_tf_scattergun"
+	"hudSlot"					"0"
+	"hudSlotPos"				"0"
+	"ammoType"					"ammo_tf_scattergun"
+	"ammoRequired"				"1"
+	"ammoPerShot"				"1"
+	"inv_ammo_tf_scattergun"	"32"
+	"clipSize"					"6"
+	"clipSizeDefault"			"6"
+	"reloadTime"				"0.5"
+	"reloadTimed"				"1"
+	"reloadStartTime"			"0.7"
+	"act_reload"				"4"
+	"act_reloadStart"			"2"
+	"act_reloadEnd"				"2"
+	"msg_obituary"				"%s was blasted by %s's scattergun."
+	"snd_fire"					"aq2.m3.fire"
+	"punchKick"				"3"
+	"act_draw"					"0"
+	"act_fire"					"1"
+	"act_idle"					"2"
+	"snd_reload"				"aq2.m3.insert"
+	"snd_empty"					"aq2.empty"
+}
+
+entityDef fireInfo_tf_scattergun
+{
+	"def_onFire"	"projectile_tf_scattergun"
+	"fireRate"		"0.625"
+}
+
+entityDef projectile_tf_scattergun
+{
+	"inherit"	"tf_bullet_base"
+	"damage"	"6"
+	"hitscans"	"10"
+	"spread"	"0.0675 0.0675"
+}
+
+entityDef tf_weapon_pistol_scout
+{
+	"inherit"				"tf_weapon_base"
+	"spawnclass"			"ncWeapon"
+	"tf_distanceMod"		"1"
+	"inv_name"				"Pistol"
+	"model"					"progs/g_shot1.mdl"
+	"model_view"			"models/weapons/v_blast/tris.md2"
+	"def_fireInfo"			"fireInfo_tf_pistol_scout"
+	"hudSlot"				"1"
+	"hudSlotPos"			"0"
+	"ammoType"				"ammo_tf_pistol"
+	"ammoRequired"			"1"
+	"ammoPerShot"			"1"
+	"inv_ammo_tf_pistol"	"36"
+	"clipSize"				"12"
+	"clipSizeDefault"		"12"
+	"reloadTime"			"1.005"
+	"reloadTimed"			"1"
+	"act_reload"			"4"
+	"msg_obituary"			"%s was shot by %s's pistol."
+	"snd_fire"				"aq2.mk23.fire"
+	"act_draw"				"0"
+	"act_fire"				"1"
+	"act_idle"				"2"
+	"snd_reload"			"aq2.mk23.reload"
+	"snd_empty"				"aq2.empty"
+}
+
+entityDef fireInfo_tf_pistol_scout
+{
+	"def_onFire"	"projectile_tf_pistol"
+	"fireRate"		"0.15"
+}
+
+entityDef projectile_tf_pistol
+{
+	"inherit"	"tf_bullet_base"
+	"damage"	"15"
+	"hitscans"	"1"
+	"spread"	"0.02 0.02"
+}
+
+entityDef tf_weapon_bat
+{
+	"inherit"			"tf_weapon_base"
+	"spawnclass"		"ncWeapon"
+	"inv_name"			"Bat"
+	"model"				""
+	"model_view"		"progs/wm2vm/v_axe.mdl"
+	"def_fireInfo"		"fireInfo_tf_weapon_bat"
+	"hudSlot"			"2"
+	"hudSlotPos"		"0"
+	"ammoRequired"		"0"
+	"msg_obituary"		"%s was clubbed by %s's bat."
+	"animPrefix"		"axe"
+	"act_fire"			"1,3"
+	"act_fireFailed"	"1,3"
+	"silent_fire"		"1"
+	"act_draw"			"0"
+	"act_idle"			"2"
+}
+
+entityDef fireInfo_tf_weapon_bat
+{
+	"def_onFire"	"projectile_tf_weapon_bat"
+	"testDistance"	"-72"
+	"fireRate"		"0.5"
+	"failRate"		"0.5"
+	"snd_hit"		"Weapon_Axe.Melee_Hit"
+	"snd_fireFailed"	"Weapon_Axe.Miss"
+}
+
+entityDef projectile_tf_weapon_bat
+{
+	"inherit"	"tf_melee_base"
+	"damage"	"35"
+}
+

@@ -1,18 +1,17 @@
 Player.FallDamage
 {
-	sample player/pl_fallpain3.wav
+	sample player/land2.wav
 }
 SprayCan.Paint
 {
-	sample player/sprayer.wav
+	sample common/null.wav
 }
 Player.LightFall
 {
-	sample player/pl_fallpain1.wav
+	sample player/land.wav
 }
 Player.Death
 {
-	sample player/death1.wav
 	sample player/death2.wav
 	sample player/death3.wav
 	sample player/death4.wav
@@ -45,7 +44,7 @@ Player.DenyWeaponSelection
 	omnidirectional
 	attenuation none
 	volume 0.5
-	sample common/wpn_denyselect.wav
+	sample misc/menu3.wav
 }
 
 Player.WeaponSelected
@@ -54,7 +53,7 @@ Player.WeaponSelected
 	omnidirectional
 	attenuation none
 	volume 0.5
-	sample common/wpn_select.wav
+	sample misc/menu2.wav
 }
 
 Player.WeaponSelectionMoveSlot
@@ -63,7 +62,7 @@ Player.WeaponSelectionMoveSlot
 	omnidirectional
 	attenuation none
 	volume 0.5
-	sample common/wpn_moveselect.wav
+	sample misc/menu1.wav
 }
 
 Player.WeaponSelectionOpen
@@ -72,7 +71,7 @@ Player.WeaponSelectionOpen
 	omnidirectional
 	attenuation none
 	volume 0.5
-	sample common/wpn_hudon.wav
+	sample misc/menu1.wav
 }
 
 Player.WeaponSelectionClose
@@ -81,7 +80,17 @@ Player.WeaponSelectionClose
 	omnidirectional
 	attenuation none
 	volume 0.5
-	sample common/wpn_hudoff.wav
+	sample misc/menu3.wav
+}
+
+Player.Pain
+{
+	sample player/pain1.wav
+	sample player/pain2.wav
+	sample player/pain3.wav
+	sample player/pain4.wav
+	sample player/pain5.wav
+	sample player/pain6.wav
 }
 
 Player.Jump

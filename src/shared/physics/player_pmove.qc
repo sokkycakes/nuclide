@@ -61,6 +61,21 @@ ncPlayer::Physics_Fall(float flDownforce)
 
 	/* basic server-side falldamage */
 #ifdef SERVER
+	/* Source's landing step: 0.85 volume from 350 u/s, full volume once it
+	   hurts, or 0.5 landing in water. The next step waits 400 ms. */
+	if (flDownforce >= 350.0f) {
+		float landVolume = 0.85f;
+
+		if (WaterLevel() > 0) {
+			landVolume = 0.5f;
+		} else if (flDownforce >= minFallDistance) {
+			landVolume = 1.0f;
+		}
+
+		Footsteps_Play(landVolume, CHAN_AUTO);
+		m_timeUntilNextFootstep = time + 0.4f;
+	}
+
 	/* if we've reached a fallheight of minFallDistance qu, start applying damage */
 	if (flDownforce >= minFallDistance) {
 		float finalDamage;
@@ -269,14 +284,59 @@ ncPlayer::Physics_Jump(void)
 	} else {
 		/* standard jump here */
 		if (GetFlags() & FL_ONGROUND) {
+			/* Team Fortress 2 stops bunny hopping: every jump from the
+			   ground starts no faster than a share of the top speed */
+			if (m_pmoveVars.pm_jumpspeedcap > 0.0f) {
+				float jumpSpeedCap = m_pmoveVars.pm_jumpspeedcap * Physics_TopSpeed();
+				float jumpSpeed = vlen(velocity);
+
+				if (jumpSpeed > jumpSpeedCap) {
+					velocity *= jumpSpeedCap / jumpSpeed;
+				}
+			}
+
 			velocity[2] += m_pmoveVars.pm_jumpheight;
 #ifdef SERVER
+			/* Source pushes off with a full-volume step (CHAN_AUTO so a
+			   jump sound on CHAN_BODY doesn't cut it) */
+			Footsteps_Play(1.0f, CHAN_AUTO);
+
 			if (STRING_SET(m_sndJump)) {
 				StartSoundDef(m_sndJump, CHAN_BODY, true);
 			}
 #endif
 		}
 	}
+}
+
+/* a mid-air jump: TF2's double jump. the new horizontal speed follows the
+   movement keys, so the player can change direction in the air. */
+void
+ncPlayer::Physics_AirJump(void)
+{
+	vector wishMove = input_movevalues;
+	vector moveAngles = [0, input_angles[1], 0];
+	vector wishDir = (anglesToForward(moveAngles) * wishMove[0]) + (anglesToRight(moveAngles) * wishMove[1]);
+	float horizontalSpeed = Physics_MaxSpeed();
+
+	wishDir[2] = 0;
+
+	if (vlen(wishDir) > 0) {
+		wishDir = normalize(wishDir);
+		velocity[0] = wishDir[0] * horizontalSpeed;
+		velocity[1] = wishDir[1] * horizontalSpeed;
+	} else {
+		velocity[0] = 0;
+		velocity[1] = 0;
+	}
+
+	velocity[2] = m_pmoveVars.pm_jumpheight;
+
+#ifdef SERVER
+	if (STRING_SET(m_sndJump)) {
+		StartSoundDef(m_sndJump, CHAN_BODY, true);
+	}
+#endif
 }
 
 /* check if we're elligible to jump */
@@ -291,8 +351,23 @@ ncPlayer::Physics_CheckJump(float premove)
 
 	if (GetFlags() & FL_WATERJUMP)
 		return;
-	if (!(GetFlags() & FL_ONGROUND))
+
+	if (GetFlags() & FL_ONGROUND) {
+		m_nuclideFlags &= ~VFL_AIRJUMPS;
+	} else {
+		/* air jumps need a fresh press of the jump key */
+		if (premove && HasFlags(FL_JUMPRELEASED) && m_pmoveVars.pm_airjumps > 0) {
+			float airJumpsUsed = (m_nuclideFlags & VFL_AIRJUMPS) / VFL_AIRJUMP_ONE;
+
+			if (airJumpsUsed < m_pmoveVars.pm_airjumps && GetMovetype() == MOVETYPE_WALK && WaterLevel() < 2) {
+				Physics_AirJump();
+				m_nuclideFlags = (m_nuclideFlags & ~VFL_AIRJUMPS) | ((airJumpsUsed + 1) * VFL_AIRJUMP_ONE);
+				RemoveFlags(FL_JUMPRELEASED);
+			}
+		}
+
 		return;
+	}
 
 	/* if a player wants to be able to hold jump, let them */
 	if (!(infokey(this, "autojump") == "1"))
@@ -379,14 +454,19 @@ ncPlayer::Physics_WaterMove(void)
 		}
 	}
 
-	/* we've just exited water */
+	/* m_timeUnderwater is when our air runs out, or 0 while our head is
+	   above water, so we only gasp on the frame we surface (not on spawn) */
 	if (WaterLevel() != 3) {
-		if (m_timeUnderwater < time) {
+		if (m_timeUnderwater > 0.0f) {
+			if (m_timeUnderwater < time) {
 #warning Read sound from player decl
-			StartSoundDef(m_sndAirGaspHeavy, CHAN_BODY, true);
-		} else if (m_timeUnderwater < time + 9) {
-			StartSoundDef(m_sndAirGaspLight, CHAN_BODY, true);
+				StartSoundDef(m_sndAirGaspHeavy, CHAN_BODY, true);
+			} else if (m_timeUnderwater < time + 9) {
+				StartSoundDef(m_sndAirGaspLight, CHAN_BODY, true);
+			}
 		}
+		m_timeUnderwater = 0.0f;
+	} else if (m_timeUnderwater <= 0.0f) {
 #warning Read lung capacity for water from typeInfo water
 		m_timeUnderwater = time + 12;
 	} else if (m_timeUnderwater < time) {
@@ -459,7 +539,76 @@ ncPlayer::Physics_MaxSpeed(void)
 		wishSpeed = walkSpeed;
 	}
 
+	/* moving at another speed than our own, as the server says */
+	if (m_pmoveSpeedTarget > 0.0f && walkSpeed > 0.0f) {
+		wishSpeed *= m_pmoveSpeedTarget / walkSpeed;
+	}
+
 	return wishSpeed * speedMod;
+}
+
+float
+ncPlayer::Physics_TopSpeed(void)
+{
+	/* the speed before crouching or proning slows us down */
+	float topSpeed = m_pmoveVars.pm_walkspeed;
+
+	if (m_pmoveSpeedTarget > 0.0f && topSpeed > 0.0f) {
+		topSpeed = m_pmoveSpeedTarget;
+	}
+
+	if (m_activeWeapon) {
+		topSpeed *= m_activeWeapon.PlayerSpeedMod();
+	}
+
+	return max(maxspeed, topSpeed);
+}
+
+/* Source's walking speed limits, run after accelerating on the ground */
+void
+ncPlayer::Physics_ClampWalkSpeed(void)
+{
+	float topSpeed = Physics_TopSpeed();
+	float groundCap = m_pmoveVars.pm_groundspeedcap * topSpeed;
+	float backSpeed = m_pmoveVars.pm_backspeed;
+	vector flatVelocity = [velocity[0], velocity[1], 0];
+	float flatSpeed = vlen(flatVelocity);
+
+	/* sliding along walls or turning can't push us past the top speed */
+	if (groundCap > 0.0f && flatSpeed > groundCap) {
+		flatVelocity *= groundCap / flatSpeed;
+		flatSpeed = groundCap;
+	}
+
+	/* slower when backing up, in games that want it (Team Fortress 2):
+	   only the backwards part of the movement is slowed, and not while
+	   creeping along */
+	if (backSpeed > 0.0f && backSpeed < 1.0f && flatSpeed > 100.0f) {
+		vector moveAngles = [0, input_angles[1], 0];
+		vector forwardDir = anglesToForward(moveAngles);
+		vector rightDir = anglesToRight(moveAngles);
+		float backDot = forwardDir * flatVelocity;
+
+		if (backDot < 0.0f) {
+			vector backMove = forwardDir * backDot;
+			vector sideMove = rightDir * (rightDir * flatVelocity);
+			float maxBackSpeed = topSpeed * backSpeed;
+
+			if (-backDot > maxBackSpeed) {
+				backMove *= maxBackSpeed / -backDot;
+			}
+
+			flatVelocity = backMove + sideMove;
+			flatSpeed = vlen(flatVelocity);
+
+			if (flatSpeed > topSpeed) {
+				flatVelocity *= topSpeed / flatSpeed;
+			}
+		}
+	}
+
+	velocity[0] = flatVelocity[0];
+	velocity[1] = flatVelocity[1];
 }
 
 void

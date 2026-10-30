@@ -38,6 +38,10 @@ of type ncPlayer.
 - "pm_friction" : Friction value for when walking on ground.
 - "pm_gravity" : Gravity for this player.
 - "pm_jumpheight" : Jump height (vertical upwards velocity, units per second) the player can perform.
+- "pm_airjumps" : Extra jumps the player can make in mid-air, like a double jump (0 to 7). Each one sets the vertical speed to pm_jumpheight and turns the horizontal speed towards the movement keys.
+- "pm_backspeed" : Fraction of the top speed the player can move backwards at, on the ground (Team Fortress 2: 0.9). Only the backwards part of the movement is slowed.
+- "pm_groundspeedcap" : Fraction of the top speed that walking on the ground can't exceed, 0 for no limit (Source: 1).
+- "pm_jumpspeedcap" : Fraction of the top speed that a jump from the ground starts at most, 0 for no limit (Team Fortress 2: 1.2).
 - "pm_maxviewpitch" : Maximum camera pitch.
 - "pm_minviewpitch" : Minimum camera pitch.
 - "pm_noclipaccelerate" : Movement speed acceleration when noclip/spectating.
@@ -153,11 +157,15 @@ public:
 	virtual void Physics_Crouch(void);
 	virtual void Physics_Prone(void);
 	virtual void Physics_Jump(void);
+	virtual void Physics_AirJump(void);
 	virtual void Physics_CheckJump(float);
 	virtual void Physics_SetViewParms(void);
 	virtual void Physics_WaterJump(void);
 	virtual void Physics_WaterMove(void);
 	virtual float Physics_MaxSpeed(void);
+	/** Returns the top speed before crouching or proning slows the player down. */
+	virtual float Physics_TopSpeed(void);
+	nonvirtual void Physics_ClampWalkSpeed(void);
 	virtual void Physics_InputPreMove(void);
 	virtual void Physics_InputPostMove(void);
 	virtual void Physics_Run(void);
@@ -244,6 +252,8 @@ public:
 	nonvirtual float WeaponAnimTime(void);
 
 	virtual void Footsteps_Update(void);
+	/** Plays the next foot's step sound for the surface below, at the given volume, on the given channel. Server-side. */
+	nonvirtual void Footsteps_Play(float, float);
 
 private:
 	nonvirtual void _UpdatePMoveVars(void);
@@ -301,6 +311,11 @@ private:
 	NETWORKED_ENT(vehicle)
 	NETWORKED_VECTOR(m_pmoveHookVelocity)
 
+	/** Set by the server: when above 0, the player moves as if their
+	run speed were this instead (a Team Fortress Medic matching a faster
+	patient). Crouching, backing up and weapon slowdowns scale with it. */
+	NETWORKED_FLOAT(m_pmoveSpeedTarget)
+
 #ifdef CLIENT
 	int sequence;
 
@@ -316,6 +331,7 @@ private:
 	int voted;
 	int step;
 	float m_timeUntilNextFootstep;
+	int m_stepWadeSkip;
 
 	int m_underwaterDamageDealt;
 	float m_timeUnderwater;

@@ -1,0 +1,35 @@
+// Co-op points shop: what "shop" lists and "buy" sells (src/rules/coop.qc).
+// One item per line:   category  "what"  price  "name shown"
+//   what is a weapon class (weapon_*), "ammo_<type> <count>",
+//   "health <amount>" or "armor <amount>".
+// Points come from kills (a tenth of the monster's health) and revives
+// (coop_revivePoints). Spending them doesn't lower the score.
+// The file is read when a map starts; coop_shopFile names another one.
+
+weapons  weapon_9mmhandgun     5   "9mm Handgun"
+weapons  weapon_357           25   ".357 Magnum"
+weapons  weapon_9mmAR         30   "MP5"
+weapons  weapon_shotgun       30   "Shotgun"
+weapons  weapon_crossbow      45   "Crossbow"
+weapons  weapon_hornetgun     40   "Hivehand"
+weapons  weapon_rpg           70   "RPG"
+weapons  weapon_gauss         90   "Tau Cannon"
+weapons  weapon_egon         110   "Gluon Gun"
+weapons  weapon_handgrenade   15   "Hand grenades"
+weapons  weapon_satchel       30   "Satchel charges"
+weapons  weapon_tripmine      30   "Tripmines"
+weapons  weapon_snark         20   "Snarks"
+
+ammo  "ammo_9mm 50"           4   "9mm rounds (50)"
+ammo  "ammo_357 6"            4   ".357 rounds (6)"
+ammo  "ammo_buckshot 12"      5   "Buckshot (12)"
+ammo  "ammo_m203_grenade 2"   8   "MP5 grenades (2)"
+ammo  "ammo_bolt 5"           6   "Crossbow bolts (5)"
+ammo  "ammo_rocket 1"         8   "Rocket (1)"
+ammo  "ammo_uranium 20"       8   "Uranium (20)"
+ammo  "ammo_handgrenade 1"    4   "Hand grenade (1)"
+
+supplies  "health 25"         6   "Health (+25)"
+supplies  "health 100"       20   "Full health"
+supplies  "armor 25"          8   "Armour (+25)"
+supplies  "armor 100"        28   "Full armour"

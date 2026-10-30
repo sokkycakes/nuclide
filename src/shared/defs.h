@@ -186,6 +186,12 @@ enumflags
 .float vw_index;
 .float identity;
 .bool _isWeapon;
+
+/* filled in by the engine-side damage and hitscan code so game rules
+   (including add-on rules progs, which link fields by name) can read them */
+.float dmg_lastHitBody;	/**< bodyType_t of the last damage this entity took */
+.float stat_shotsFired;	/**< hitscan attacks this entity has fired */
+.float stat_shotsHit;		/**< of those, ones that hit a player or monster */
 .bool _isItem;
 
 void

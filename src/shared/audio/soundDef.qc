@@ -470,12 +470,12 @@ SoundDef_Distance(entity target, string shader)
 	}
 
 	/* pick a sample */
-	r = floor(random(0,  newSound.sample_count));
+	r = (int)min(floor(random(0, newSound.sample_count)), newSound.sample_count - 1);
 	tokenizebyseparator(newSound.samples, "\n");
 
 	/* set pitch */
 	pitch = random(newSound.pitch_min, newSound.pitch_max);
-	radius = SoundDef_GetAttenuation(sample);
+	radius = SoundDef_GetAttenuation(newSound);
 	volume = newSound.volume;
 
 	/* flags */
@@ -534,12 +534,12 @@ SoundDef_DistancePos(vector pos, string shader)
 	}
 
 	/* pick a sample */
-	r = floor(random(0,  newSound.sample_count));
+	r = (int)min(floor(random(0, newSound.sample_count)), newSound.sample_count - 1);
 	tokenizebyseparator(newSound.samples, "\n");
 
 	/* set pitch */
 	pitch = random(newSound.pitch_min, newSound.pitch_max);
-	radius = SoundDef_GetAttenuation(sample);
+	radius = SoundDef_GetAttenuation(newSound);
 	volume = newSound.volume;
 
 	/* flags */
@@ -573,8 +573,9 @@ SoundDef_Stop(entity target, float chan)
 	sound(target, chan, "common/null.wav", 0.1f, ATTN_NORM, 100, SOUNDFLAG_FOLLOW, 0 );
 }
 
-void
-SoundDef_Play(entity target, int chan, string shader)
+/* volumeOverride < 0 uses the def's volume (scaled by "footstep") */
+static void
+SoundDef_PlayInternal(entity target, int chan, string shader, float volumeOverride)
 {
 	int r;
 	float volume;
@@ -598,12 +599,12 @@ SoundDef_Play(entity target, int chan, string shader)
 	}
 
 	/* pick a sample */
-	r = floor(random(0,  newSound.sample_count));
+	r = (int)min(floor(random(0, newSound.sample_count)), newSound.sample_count - 1);
 	tokenizebyseparator(newSound.samples, "\n");
 
 	/* set pitch */
 	pitch = random(newSound.pitch_min, newSound.pitch_max);
-	radius = SoundDef_GetAttenuation(sample);
+	radius = SoundDef_GetAttenuation(newSound);
 	volume = newSound.volume;
 
 	/* flags */
@@ -622,10 +623,17 @@ SoundDef_Play(entity target, int chan, string shader)
 		}
 		r = newSound.playc++;
 	}
+
+	/* grab the sample now: the alert and shake calls below can run code
+	   that tokenizes, which would leave argv(r) pointing at their words */
+	string sampleName = argv(r);
+
 	if (newSound.flags & SNDFL_FOLLOW) {
 		flag |= SOUNDFLAG_FOLLOW;
 	}
-	if (newSound.flags & SNDFL_STEP) {
+	if (volumeOverride >= 0.0f) {
+		volume = volumeOverride;
+	} else if (newSound.flags & SNDFL_STEP) {
 		float s = vlen(target.velocity);
 
 		if (s <= (g_pmoveVars.pm_walkspeed * 0.5)) {
@@ -651,7 +659,7 @@ SoundDef_Play(entity target, int chan, string shader)
 	}
 #endif
 
-	SndLog("Playing %S (radius: %f)", argv(r), newSound.dist_max );
+	SndLog("Playing %S (radius: %f)", sampleName, newSound.dist_max );
 
 #ifdef SERVER
 	if (newSound.shakes > 0.0) {
@@ -663,10 +671,7 @@ SoundDef_Play(entity target, int chan, string shader)
 		float dist = vlen(pSeat->m_vecPredictedOrigin - target.origin);
 		if (dist < srad) {
 			float dif = 1.0 - (dist/srad);
-			pSeat->m_flShakeFreq = (1.0 * dif) * newSound.shakes;
-			pSeat->m_flShakeAmp = (1.0 * dif) * newSound.shakes;
-			pSeat->m_flShakeDuration = soundlength(argv(r));
-			pSeat->m_flShakeTime = pSeat->m_flShakeDuration;
+			Shake_Start(dif * newSound.shakes, dif * newSound.shakes, soundlength(sampleName));
 		}
 	}
 #endif
@@ -682,7 +687,7 @@ SoundDef_Play(entity target, int chan, string shader)
 	sound(
 		target,
 		chan,
-		argv(r),
+		sampleName,
 		volume,
 		radius,
 		pitch,
@@ -693,6 +698,18 @@ SoundDef_Play(entity target, int chan, string shader)
 	if (STRING_SET(newSound.distshader)) {
 		SoundDef_Distance(target, newSound.distshader);
 	}
+}
+
+void
+SoundDef_Play(entity target, int chan, string shader)
+{
+	SoundDef_PlayInternal(target, chan, shader, -1.0f);
+}
+
+void
+SoundDef_PlayVolume(entity target, int chan, string shader, float volume)
+{
+	SoundDef_PlayInternal(target, chan, shader, bound(0.0f, volume, 1.0f));
 }
 
 void
@@ -719,7 +736,7 @@ SoundDef_PlayAt(vector pos, string shader)
 	}
 
 	/* pick a sample */
-	r = floor(random(0,  newSound.sample_count));
+	r = (int)min(floor(random(0, newSound.sample_count)), newSound.sample_count - 1);
 	tokenizebyseparator(newSound.samples, "\n");
 
 	/* set pitch */
@@ -750,7 +767,7 @@ SoundDef_PlayAt(vector pos, string shader)
 	SndLog("Playing %s %S (radius: %f)", shader, argv(r), newSound.dist_max );
 
 	/* really? this doesn't do any more? */
-	pointsound_proper(pos, argv(r), newSound.volume, SoundDef_GetAttenuation(sample), pitch);
+	pointsound_proper(pos, argv(r), newSound.volume, SoundDef_GetAttenuation(newSound), pitch);
 
 	if (STRING_SET(newSound.distshader)) {
 		SoundDef_DistancePos(pos, newSound.distshader);
@@ -779,7 +796,7 @@ SoundDef_PlayLocal(string shader)
 	}
 
 	/* pick a sample */
-	r = floor(random(0,  newSound.sample_count));
+	r = (int)min(floor(random(0, newSound.sample_count)), newSound.sample_count - 1);
 	tokenizebyseparator(newSound.samples, "\n");
 
 	/* really? this doesn't do any more? */
@@ -813,7 +830,7 @@ SoundDef_Update(entity target, int channel, int sample, float volume)
 	}
 
 	/* pick a sample */
-	r = floor(random(0,  newSound.sample_count));
+	r = (int)min(floor(random(0, newSound.sample_count)), newSound.sample_count - 1);
 	tokenizebyseparator(newSound.samples, "\n");
 
 	/* set pitch */
@@ -875,7 +892,7 @@ SoundDef_Speak(entity target, string shader)
 	}
 
 	/* pick a sample */
-	r = floor(random(0,  newSound.sample_count));
+	r = (int)min(floor(random(0, newSound.sample_count)), newSound.sample_count - 1);
 	tokenizebyseparator(newSound.samples, "\n");
 
 	/* set pitch */
