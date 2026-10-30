@@ -30,7 +30,15 @@
    The shop list opens the view, the skills are kept for their tab, and
    "menu_coop loadout_open <tab>" opens it on a tab. Buying is
    "cmd buy <n>", spending a skill point "cmd menuselect <n>" and picking
-   a hero's kit "cmd hero <kit>". */
+   a hero's kit "cmd hero <kit>".
+
+   Heroes can be picked out of a game too, on the title menu's Hero page:
+   this progs reads the roster from decls/def/heroes.def itself, and the
+   pick is the "hero" cvar, saved in the config and sent to servers as
+   userinfo (coop/src/rules/heroes.qc spawns players as it). Both menus
+   show the hero in 3D: a script asks for the preview with
+   Bulwark.Send("preview", "<kit> <rect>") and this progs draws it each
+   frame under the views, so the view leaves that rect see-through. */
 
 /* Bulwark's view builtins, bound by name (docs/spec/ui.md) */
 float(string layout, float flags) ui_open = #0:ui_open;
@@ -58,6 +66,7 @@ string g_panelJson;	/* the list being received, zoned */
 string g_shopJson;	/* the last lists, zoned, for when the view opens */
 string g_skillsJson;
 string g_heroesJson;
+bool g_heroSent;	/* the saved hero is in the userinfo */
 
 /* ---- JSON --------------------------------------------------------------- */
 
@@ -154,6 +163,343 @@ Servers_Json(void)
 	}
 
 	return strcat("[", json, "]");
+}
+
+/* ---- the hero roster, read from the defs -------------------------------- */
+
+/* The menu has no def parser, so this reads decls/def/heroes.def itself:
+   entityDef blocks of "key" "value" pairs, with inherit. Only the keys the
+   menus show are kept. */
+
+#define DEF_MAX 64
+#define DEF_KEYS "inherit hero_name hero_role hero_desc hero_kits hero_weight kit_name kit_desc model health pm_walkspeed"
+#define HERO_LIST "hero_tank hero_support hero_pointman"
+
+string g_defName[DEF_MAX];
+string g_defInfo[DEF_MAX];	/* the kept keys, as an infostring */
+float g_defCount;
+string g_rosterJson;
+
+void
+Defs_Load(string path)
+{
+	float file = fopen(path, FILE_READ);
+	float blank = 0;
+	float in = -1;	/* the def being read */
+	string pendingName = "";
+	string line;
+
+	if (file < 0)
+		return;
+
+	/* fgets gives "" for blank lines and at the end alike */
+	while (blank < 32) {
+		line = fgets(file);
+
+		if (line == "") {
+			blank++;
+			continue;
+		}
+
+		blank = 0;
+		float n = tokenize(line);
+
+		for (float i = 0; i < n; i++) {
+			string t = argv(i);
+
+			if (substring(t, 0, 2) == "//") {
+				break;
+			} else if (in < 0 && t == "entityDef" && i + 1 < n) {
+				pendingName = argv(++i);
+			} else if (in < 0 && t == "{" && pendingName != "" && g_defCount < DEF_MAX) {
+				in = g_defCount++;
+				g_defName[in] = strzone(pendingName);
+				g_defInfo[in] = strzone("");
+				pendingName = "";
+			} else if (in >= 0 && t == "}") {
+				in = -1;
+			} else if (in >= 0 && i + 1 < n) {
+				string value = argv(++i);
+
+				if (strstrofs(strcat(" ", DEF_KEYS, " "), strcat(" ", t, " ")) >= 0) {
+					string old = g_defInfo[in];
+					g_defInfo[in] = strzone(infoadd(old, t, value));
+					strunzone(old);
+				}
+			}
+		}
+	}
+
+	fclose(file);
+}
+
+float
+Def_Index(string def)
+{
+	for (float i = 0; i < g_defCount; i++)
+		if (g_defName[i] == def)
+			return i;
+
+	return -1;
+}
+
+/* a key of a def or what it inherits, "" when none has it */
+string
+Def_Get(string def, string key)
+{
+	for (float depth = 0; depth < 8; depth++) {
+		float i = Def_Index(def);
+
+		if (i < 0)
+			return "";
+
+		string value = infoget(g_defInfo[i], key);
+
+		if (value != "")
+			return value;
+
+		def = infoget(g_defInfo[i], "inherit");
+	}
+
+	return "";
+}
+
+string
+Def_Name(string def, string key)
+{
+	string name = Def_Get(def, key);
+	return (name != "") ? name : def;
+}
+
+/* the roster as the Hero tab's "heroes" event takes it, from the defs, with
+   picked as the pick: what a server with heroes on would send, minus who's
+   playing what */
+void
+Roster_Build(string picked)
+{
+	string list = cvar_string("coop_heroList");
+	string heroes[8];
+	float heroCount;
+	string json;
+	float kitCount = 0;
+
+	if (!g_defCount)
+		Defs_Load("decls/def/heroes.def");
+
+	if (list == "")
+		list = HERO_LIST;
+
+	heroCount = min(tokenize(list), 8);
+
+	for (float h = 0; h < heroCount; h++)
+		heroes[h] = argv(h);
+
+	json = "";
+
+	for (float h = 0; h < heroCount; h++) {
+		string def = heroes[h];
+		float speed = stof(Def_Get(def, "pm_walkspeed"));
+
+		if (Def_Index(def) < 0)
+			continue;
+
+		if (speed <= 0)
+			speed = cvar("pm_walkspeed") > 0 ? cvar("pm_walkspeed") : 270;
+
+		json = strcat(json, (json == "") ? "" : ",",
+			sprintf("{\"type\":\"hero\",\"id\":%d,\"def\":%s,\"name\":%s,", h, Json_Str(def),
+				Json_Str(Def_Name(def, "hero_name"))),
+			sprintf("\"role\":%s,\"desc\":%s,\"health\":%d,\"speed\":%d,\"full\":0}",
+				Json_Str(Def_Get(def, "hero_role")), Json_Str(Def_Get(def, "hero_desc")),
+				stof(Def_Get(def, "health")), speed));
+
+		float n = tokenizebyseparator(Def_Get(def, "hero_kits"), ",");
+
+		for (float k = 0; k < n; k++) {
+			string kit = argv(k);
+			json = strcat(json, ",", sprintf("{\"type\":\"kit\",\"id\":%d,\"hero\":%d,\"def\":%s,", kitCount++, h,
+				Json_Str(kit)), sprintf("\"name\":%s,\"desc\":%s}", Json_Str(Def_Name(kit, "kit_name")),
+				Json_Str(Def_Get(kit, "kit_desc"))));
+			tokenizebyseparator(Def_Get(def, "hero_kits"), ",");
+		}
+	}
+
+	if (g_rosterJson)
+		strunzone(g_rosterJson);
+
+	g_rosterJson = strzone(sprintf("{\"on\":1,\"current\":\"\",\"picked\":%s,\"message\":\"\",\"items\":[%s]}",
+		Json_Str(picked), json));
+}
+
+/* saves the hero picked, for this game and the next */
+void
+Hero_Save(string kit)
+{
+	if (strstrofs(kit, "\"") >= 0 || strstrofs(kit, "\\") >= 0 || strstrofs(kit, ";") >= 0)
+		return;
+
+	localcmd(sprintf("seta hero \"%s\"\nsetinfo hero \"%s\"\n", kit, kit));
+	g_heroSent = true;
+}
+
+/* the saved hero goes out with the userinfo, once the config that has it
+   has run: before m_init when a game is started from the command line,
+   after it otherwise */
+void
+Hero_SendSaved(void)
+{
+	if (g_heroSent || cvar_string("hero") == "")
+		return;
+
+	g_heroSent = true;
+	Hero_Save(cvar_string("hero"));
+}
+
+/* ---- the 3D hero preview ------------------------------------------------ */
+
+/* Drawn in m_draw, before the views, so a view shows it through a part it
+   leaves see-through. The rect is either fractions of the screen
+   ("screen x y w h") or design units at the 1080-line height from the
+   screen's centre ("center x y w h"). */
+
+float(string name) pv_getmodelindex = #0:getmodelindex;
+void() pv_clearscene = #0:clearscene;
+void(entity e) pv_addentity = #0:addentity;
+void() pv_renderscene = #0:renderscene;
+float(float property, ...) pv_setproperty = #0:setproperty;
+void(string texture, float flags, float is2d) pv_beginpolygon = #0:R_BeginPolygon;
+void(vector org, vector st, vector rgb, float alpha) pv_polygonvertex = #0:R_PolygonVertex;
+void() pv_endpolygon = #0:R_EndPolygon;
+
+/* the fields addentity reads */
+.vector origin;
+.vector angles;
+.float frame;
+.float frame1time;
+.float modelindex;
+
+#define VF_DRAWWORLD 19
+
+entity g_preview;
+string g_previewModel;
+string g_previewAnchor;
+vector g_previewPos;
+vector g_previewSize;
+float g_previewView;	/* the view that asked; it ends with it */
+float g_previewStart;
+string g_previewUnder;	/* what to draw under it: "dim" for the shop's darkening,
+			   "backdrop" for the title menu's backdrop */
+
+void
+Preview_Off(void)
+{
+	if (g_previewModel)
+		strunzone(g_previewModel);
+
+	g_previewModel = __NULL__;
+	g_previewView = 0;
+}
+
+/* "<kit> <screen|center> <x> <y> <w> <h> [dim|backdrop]", or "" to stop */
+void
+Preview_Set(float view, string arg)
+{
+	float n = tokenize(arg);
+	string model;
+
+	if (n < 6) {
+		Preview_Off();
+		return;
+	}
+
+	if (!g_defCount) {
+		Defs_Load("decls/def/heroes.def");
+		tokenize(arg);
+	}
+
+	model = Def_Get(argv(0), "model");
+
+	if (model == "" || whichpack(model) == "") {
+		Preview_Off();
+		return;
+	}
+
+	if (model != g_previewModel) {
+		if (g_previewModel)
+			strunzone(g_previewModel);
+		g_previewModel = strzone(model);
+		g_previewStart = time;
+	}
+
+	if (g_previewAnchor)
+		strunzone(g_previewAnchor);
+
+	g_previewAnchor = strzone(argv(1));
+	g_previewPos = [stof(argv(2)), stof(argv(3))];
+	g_previewSize = [stof(argv(4)), stof(argv(5))];
+	if (g_previewUnder)
+		strunzone(g_previewUnder);
+	g_previewUnder = strzone(argv(6));
+	g_previewView = view;
+}
+
+void
+Preview_Draw(void)
+{
+	vector pos, size;
+	float fovY = 30;
+
+	if (!g_previewModel)
+		return;
+
+	if (!g_previewView || !ui_isopen(g_previewView)) {
+		Preview_Off();
+		return;
+	}
+
+	if (g_previewAnchor == "center") {
+		float scale = g_screen[1] / 1080;
+		pos = g_screen * 0.5 + g_previewPos * scale;
+		size = g_previewSize * scale;
+	} else {
+		pos = [g_previewPos[0] * g_screen[0], g_previewPos[1] * g_screen[1]];
+		size = [g_previewSize[0] * g_screen[0], g_previewSize[1] * g_screen[1]];
+	}
+
+	if (g_previewUnder == "dim") {
+		drawfill([0,0], g_screen, [0,0,0], 0.4, 0);
+	} else if (g_previewUnder == "backdrop") {
+		/* menu.css's .backdrop gradient, corner to corner */
+		pv_beginpolygon("$white", 0, true);
+		pv_polygonvertex([0, 0], [0, 0], [0.047, 0.047, 0.047], 1);
+		pv_polygonvertex([g_screen[0], 0], [1, 0], [0.075, 0.059, 0.031], 1);
+		pv_polygonvertex(g_screen, [1, 1], [0.141, 0.094, 0.020], 1);
+		pv_polygonvertex([0, g_screen[1]], [0, 1], [0.075, 0.059, 0.031], 1);
+		pv_endpolygon();
+	}
+
+	if (size[0] < 8 || size[1] < 8)
+		return;
+
+	if (!g_preview)
+		g_preview = spawn();
+
+	/* model indexes reset when a game starts, so look it up every frame */
+	g_preview.modelindex = pv_getmodelindex(g_previewModel);
+	g_preview.origin = [0, 0, 0];
+	g_preview.angles = [0, 200 + (time - g_previewStart) * 30, 0];
+	g_preview.frame = 0;	/* the idle framegroup */
+	g_preview.frame1time = time - g_previewStart;
+
+	pv_clearscene();
+	pv_setproperty(VF_MIN, pos);
+	pv_setproperty(VF_SIZE, size);
+	pv_setproperty(VF_FOV, [atan2(tan(fovY * M_PI / 360) * size[0] / size[1], 1) * 360 / M_PI, fovY]);
+	pv_setproperty(VF_ORIGIN, [220, 0, 4]);
+	pv_setproperty(VF_ANGLES, [0, 180, 0]);
+	pv_setproperty(VF_DRAWWORLD, 0);
+	pv_addentity(g_preview);
+	pv_renderscene();
 }
 
 /* ---- the view ----------------------------------------------------------- */
@@ -390,8 +736,11 @@ Menu_UIAction(float view, string action, string arg)
 			localcmd(sprintf("cmd buy %d\n", stof(arg)));
 		else if (action == "spend")
 			localcmd(sprintf("cmd menuselect %d\n", stof(arg)));
-		else if (action == "hero")
+		else if (action == "hero") {
+			Hero_Save(arg);
 			localcmd(sprintf("cmd hero %s\n", arg));
+		} else if (action == "preview")
+			Preview_Set(view, arg);
 		else if (action == "close")
 			Panel_Close();
 		return;
@@ -413,6 +762,19 @@ Menu_UIAction(float view, string action, string arg)
 		break;
 	case "stopservers":
 		g_browsing = false;
+		break;
+	case "roster":
+		Roster_Build(cvar_string("hero"));
+		ui_post(view, "roster", g_rosterJson);
+		break;
+	case "hero":
+		/* the cvar changes when the command buffer runs, after this */
+		Hero_Save(arg);
+		Roster_Build(arg);
+		ui_post(view, "roster", g_rosterJson);
+		break;
+	case "preview":
+		Preview_Set(view, arg);
 		break;
 	case "close":
 		/* only a pause menu closes; the title menu stays up */
@@ -444,6 +806,8 @@ m_init(void)
 	/* the shop's key, the first time: B, if it's free */
 	if (findkeysforcommandex("cmd shop") == "" && getkeybind(stringtokeynum("B")) == "")
 		localcmd("bind B \"cmd shop\"\n");
+
+	Hero_SendSaved();
 }
 
 void
@@ -470,6 +834,7 @@ void
 m_draw(vector screensize)
 {
 	g_screen = screensize;
+	Hero_SendSaved();
 
 	if (clientstate() != 2) {
 		/* out of a game the title menu is always up */
@@ -482,6 +847,8 @@ m_draw(vector screensize)
 		/* just joined a game from the title menu */
 		Menu_Close();
 	}
+
+	Preview_Draw();
 
 	if (g_bindsFrames > 0 && --g_bindsFrames == 0 && Menu_IsOpen())
 		ui_post(g_view, "binds", Binds_Json(g_bindsWanted));
@@ -506,6 +873,8 @@ m_drawloading(vector screensize, float opaque)
 	vector barSize = [screensize[0] * 0.4, 6];
 	vector barPos = [(screensize[0] - barSize[0]) / 2, screensize[1] * 0.6];
 	string text = (map != "") ? sprintf("Loading %s", map) : "Connecting...";
+
+	Hero_SendSaved();
 
 	if (Menu_IsOpen())
 		Menu_Close();

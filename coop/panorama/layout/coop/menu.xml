@@ -8,6 +8,8 @@
 <root>
 	<styles>
 		<include src="file://{resources}/styles/coop/menu.css" />
+		<include src="file://{resources}/styles/coop/shop.css" />
+		<include src="file://{resources}/styles/coop/skills.css" />
 	</styles>
 	<scripts>
 		<include src="file://{resources}/scripts/coop/menu.js" />
@@ -33,6 +35,10 @@
 			<Panel id="PageBody" class="page-body" />
 			<Panel id="PageFooter" class="page-footer" />
 		</Panel>
+
+		<!-- the Hero page's 3D preview: the menu progs draws the model under
+		     the view, so this only frames it -->
+		<Panel id="HeroWindow" class="hero-window" hittest="false" />
 
 	</Panel>
 </root>
