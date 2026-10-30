@@ -5,4 +5,5 @@
 ../../../src/rules.src
 coop.qc
 shop.qc
+heroes.qc
 #endlist

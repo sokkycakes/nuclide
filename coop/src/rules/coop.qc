@@ -45,6 +45,12 @@ void Shop_PlayerConnect(entity pl);
 bool Shop_ClientCommand(entity pl, string command);
 void Shop_PlayerSpawned(entity pl);
 int Coop_Points(entity pl);
+void Hero_Precache(void);
+string Hero_SpawnClass(entity pl);
+void Hero_PlayerSpawned(entity pl);
+void Hero_PlayerConnect(entity pl);
+bool Hero_ClientCommand(entity pl, string command);
+var bool g_coopHeroes;
 
 var float autocvar_coop_respawnDelay = 5;
 var bool autocvar_coop_survival = false;
@@ -552,6 +558,7 @@ CodeCallback_Precache(void)
 
 	motd.LoadDefault();
 	precache.Entity("player_mp");
+	Hero_Precache();
 	monsterCount = (int)tokenize(monsterList);
 
 	/* the precaches tokenize too, so copy the names out first */
@@ -614,6 +621,7 @@ CodeCallback_StartGameType(void)
 	serverinfo.SetString("coop_wave", "0");
 	serverinfo.SetString("nameplates", "1");
 	serverinfo.SetString("targetid", "1");
+	serverinfo.SetString("coop_heroes", g_coopHeroes ? "1" : "0");
 	Shop_Load();
 
 	/* plugins live as long as the map, so load them again on each one */
@@ -636,20 +644,31 @@ CodeCallback_PlayerSpawn(entity playerEntity)
 	int slot = Coop_Slot(playerEntity);
 	string playerModel;
 
-	ents.ChangeToClass(playerEntity, "player_mp");
+	ents.ChangeToClass(playerEntity, Hero_SpawnClass(playerEntity));
 	ents.Input(playerEntity, "SetTeam", itos(COOP_PLAYERTEAM), playerEntity);
 
-	playerModel = userinfo.GetString(playerEntity, "model");
+	if (g_coopHeroes) {
+		/* the hero's model, unless its pack isn't installed */
+		playerModel = entityDef.GetString(playerEntity.classname, "model");
 
-	if (playerModel != "") {
-		playerModel = sprintf("models/player/%s/%s.mdl", playerModel, playerModel);
+		if (exists.InVFS(playerModel) == false) {
+			playerEntity.modelindex = getmodelindex("models/player.mdl");
+		}
+	} else {
+		/* the player's own model: only a look, the class is the same */
+		playerModel = userinfo.GetString(playerEntity, "model");
+
+		if (playerModel != "") {
+			playerModel = sprintf("models/player/%s/%s.mdl", playerModel, playerModel);
+		}
+
+		if (playerModel == "" || exists.InVFS(playerModel) == false) {
+			playerModel = "models/player.mdl";
+		}
+
+		playerEntity.modelindex = getmodelindex(playerModel);
 	}
 
-	if (playerModel == "" || exists.InVFS(playerModel) == false) {
-		playerModel = "models/player.mdl";
-	}
-
-	playerEntity.modelindex = getmodelindex(playerModel);
 	game.TeleportToSpawn(playerEntity);
 
 	if (slot >= 0i) {
@@ -657,6 +676,7 @@ CodeCallback_PlayerSpawn(entity playerEntity)
 	}
 
 	Shop_PlayerSpawned(playerEntity);
+	Hero_PlayerSpawned(playerEntity);
 }
 
 void
@@ -670,11 +690,16 @@ CodeCallback_PlayerConnect(entity playerEntity)
 	}
 
 	Shop_PlayerConnect(playerEntity);
+	Hero_PlayerConnect(playerEntity);
 }
 
 bool
 CodeCallback_ClientCommand(entity playerEntity, string command)
 {
+	if (Hero_ClientCommand(playerEntity, command)) {
+		return (true);
+	}
+
 	return Shop_ClientCommand(playerEntity, command);
 }
 

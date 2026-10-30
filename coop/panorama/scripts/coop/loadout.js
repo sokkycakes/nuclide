@@ -1,4 +1,10 @@
-// Co-op shop menu: the points shop and the XP mod's skills on two tabs.
+// Co-op shop menu: heroes, the points shop and the XP mod's skills on tabs.
+//
+// Hero tab: a "heroes" event {on, current, picked, message, items: [{type:
+// "hero", id, def, name, role, desc, health, speed, full} and {type: "kit",
+// id, hero, def, name, desc}]} from the rules. The tab only shows when the
+// server has heroes on. A number key or a click picks a kit ("hero" ->
+// "cmd hero <kit>"); it takes effect when the player next spawns.
 //
 // Shop tab: a "shop" event {points, closed, message, items: [{id, category,
 // name, price, state}]}, state 0 can buy, 1 can't afford, 2 owned (or
@@ -11,7 +17,7 @@
 // level, max}]} from the XP plugin. A number key or a click spends a point
 // ("spend" -> "cmd menuselect <n>"), 0 closes.
 //
-// Tab switches tabs; a "tab" event ("shop" or "skills") picks one.
+// Tab switches tabs; a "tab" event ("hero", "shop" or "skills") picks one.
 var CoopLoadout = ( function ()
 {
 	var CATEGORIES = [ [ "weapons", "Weapons" ], [ "ammo", "Ammo" ], [ "supplies", "Health and armour" ] ];
@@ -33,6 +39,7 @@ var CoopLoadout = ( function ()
 	var category = "";	// "" while picking a category
 	var pageNum = 0;
 	var skills = null;	// null until the plugin sends them: the XP mod is off
+	var heroes = null;	// null until the rules send them
 
 	function make( type, parent, cls, props )
 	{
@@ -233,10 +240,65 @@ var CoopLoadout = ( function ()
 			"1-" + skills.skills.length + "  Spend a point      0  Close" : "No points to spend      0  Close" ) + "      Tab  Shop";
 	}
 
+	// ---- heroes ----
+
+	function heroesOn() { return !!( heroes && heroes.on ); }
+	function kits()
+	{
+		return heroes.items.filter( function ( it ) { return it.type === "kit"; } );
+	}
+	function pickKit( kit ) { Bulwark.Send( "hero", kit.def ); }
+
+	function renderHeroes()
+	{
+		var list = $( "#Heroes" );
+		list.RemoveAndDeleteChildren();
+		$( "#HeroMessage" ).text = heroes.message || "";
+
+		var all = kits();
+		var key = 0;
+		heroes.items.filter( function ( it ) { return it.type === "hero"; } ).forEach( function ( h )
+		{
+			var card = make( "Panel", list, "hero" + ( h.full ? " full" : "" ), { hittest: "false" } );
+			var head = make( "Panel", card, "hero-head", { hittest: "false" } );
+			label( head, "hero-name", h.name );
+			label( head, "hero-stats", ( h.role && h.role !== h.name ? h.role + "  ·  " : "" ) +
+				h.health + " health  ·  speed " + h.speed + ( h.full ? "  ·  full" : "" ) );
+			if ( h.desc )
+				label( card, "hero-desc", h.desc );
+
+			all.filter( function ( k ) { return k.hero === h.id; } ).forEach( function ( k )
+			{
+				key++;
+				var now = k.def === heroes.current;
+				var next = k.def === heroes.picked && !now;
+				var row = make( "Button", card, "skill kit" + ( now ? " current" : "" ) + ( next ? " picked" : "" ),
+					{ hittest: "true" } );
+				label( row, "shop-key", String( key ) );
+				var text = make( "Panel", row, "skill-text", { hittest: "false" } );
+				label( text, "skill-name", k.name );
+				label( text, "skill-desc", k.desc || "" );
+				label( row, "kit-state", now ? "Playing" : ( next ? "Next spawn" : "" ) );
+				row.SetPanelEvent( "onactivate", function ()
+				{
+					$.GetContextPanel().SetFocus();
+					pickKit( k );
+				} );
+			} );
+		} );
+
+		$( "#Keys" ).text = "1-" + all.length + "  Pick a kit      0  Close      Tab  Shop";
+	}
+
 	// ---- both ----
 
 	function render()
 	{
+		if ( tab === "hero" && !heroesOn() )
+			tab = "shop";
+		$( "#TabHero" ).SetHasClass( "hidden", !heroesOn() );
+		$( "#TabHero" ).SetHasClass( "current", tab === "hero" );
+		$( "#HeroPage" ).SetHasClass( "open", tab === "hero" );
 		$( "#TabShop" ).SetHasClass( "current", tab === "shop" );
 		$( "#TabSkills" ).SetHasClass( "current", tab === "skills" );
 		$( "#ShopPage" ).SetHasClass( "open", tab === "shop" );
@@ -247,7 +309,12 @@ var CoopLoadout = ( function ()
 		$( "#TabSkills" ).SetHasClass( "has-points", unspent > 0 );
 		$( "#TabSkillsLabel" ).text = unspent > 0 ? "Skills (" + unspent + ")" : "Skills";
 
-		if ( tab === "shop" )
+		if ( tab === "hero" )
+		{
+			$( "#Points" ).text = plural( shop.points, "point" );
+			renderHeroes();
+		}
+		else if ( tab === "shop" )
 		{
 			$( "#Points" ).text = plural( shop.points, "point" );
 			renderShop();
@@ -261,8 +328,13 @@ var CoopLoadout = ( function ()
 
 	function setTab( t )
 	{
-		tab = t === "skills" ? "skills" : "shop";
+		tab = ( t === "skills" || ( t === "hero" && heroesOn() ) ) ? t : "shop";
 		render();
+	}
+	function nextTab()
+	{
+		var tabs = heroesOn() ? [ "hero", "shop", "skills" ] : [ "shop", "skills" ];
+		setTab( tabs[ ( tabs.indexOf( tab ) + 1 ) % tabs.length ] );
 	}
 	function close() { Bulwark.Send( "close", "" ); }
 
@@ -276,6 +348,11 @@ var CoopLoadout = ( function ()
 		skills = d || skills;
 		render();
 	} );
+	Bulwark.On( "heroes", function ( h )
+	{
+		heroes = h || heroes;
+		render();
+	} );
 	Bulwark.On( "tab", function ( t ) { setTab( t ); } );
 	Bulwark.On( "key", function ( e )
 	{
@@ -284,11 +361,19 @@ var CoopLoadout = ( function ()
 		if ( e.key === "Escape" )
 			close();
 		else if ( e.key === "Tab" )
-			setTab( tab === "shop" ? "skills" : "shop" );
+			nextTab();
 		else if ( /^[0-9]$/.test( e.bind ) )
 		{
 			var n = parseInt( e.bind, 10 );
-			if ( tab === "shop" )
+			if ( tab === "hero" )
+			{
+				var k = heroesOn() ? kits()[ n - 1 ] : null;
+				if ( n === 0 )
+					close();
+				else if ( k )
+					pickKit( k );
+			}
+			else if ( tab === "shop" )
 				shopDigit( n );
 			else if ( n === 0 )
 				close();
@@ -299,6 +384,7 @@ var CoopLoadout = ( function ()
 			shopDigit( e.key === "WheelUp" ? 8 : 9 );
 	} );
 	$( "#Close" ).SetPanelEvent( "onactivate", close );
+	$( "#TabHero" ).SetPanelEvent( "onactivate", function () { setTab( "hero" ); } );
 	$( "#TabShop" ).SetPanelEvent( "onactivate", function () { setTab( "shop" ); } );
 	$( "#TabSkills" ).SetPanelEvent( "onactivate", function () { setTab( "skills" ); } );
 
