@@ -72,6 +72,7 @@ types of pathfinding in the future.
 
 - "UseItem" : Uses a named item in the actor their inventory.
 - "GiveItem" : Gives a named item to the actor.
+- "RemoveItem" : Takes a named item (e.g. a weapon) out of the actor their inventory.
 - "GiveAmmo" : Gives a named ammo type with a specific amount. Two arguments: "ammoTypeName" "count"
 - "ChangeMindset" : Tells the actor to choose a different type of schedule.
 - "PerformSchedule" : Performs a named schedule, defined in `<gamedir>/decls/schedules/`.

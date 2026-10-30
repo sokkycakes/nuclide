@@ -343,6 +343,12 @@ View_DrawViewModel(void)
 		m_eViewModelL.renderflags = RF_DEPTHHACK | RF_FIRSTPERSON;
 		m_eViewModel.renderflags = RF_DEPTHHACK | RF_FIRSTPERSON;
 
+		/* view models built for the other hand */
+		if (pl.m_activeWeapon && stof(EntityDef_GetKeyValue(pl.m_activeWeapon.declclass, "model_viewMirror")) != 0) {
+			m_eViewModel.renderflags |= RF_MIRROR;
+			m_eViewModelL.renderflags |= RF_MIRROR;
+		}
+
 
 		m_eViewModel.bonecontrol1 = m_eViewModel.m_studioBoneController1;
 		m_eViewModel.bonecontrol2 = m_eViewModel.m_studioBoneController2;

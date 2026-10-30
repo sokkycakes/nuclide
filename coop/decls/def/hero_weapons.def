@@ -1,0 +1,187 @@
+// Justice Task Force: the heroes' static weapons (coop_heroes 1).
+//
+// A hero has a static slot and a dynamic slot. The static weapon is the
+// hero's own: given at every spawn, never dropped or replaced, its reserve
+// (ammo_hero) never runs out, only the clip needs reloading. The dynamic
+// slot holds one other gun; picking up another swaps it
+// (coop/src/rules/heroes.qc). Melee and throwables are outside both.
+//
+// The models, sounds and textures are Counter-Strike Online's, from the
+// CSNZ install, in zz_coopweapons.pk3, which isn't in git (coop/README.md).
+// Their view models are drawn without arms: coop/tools/cso_hide_arms.py
+// empties the "hands" body part. Stats are stand-ins until they're
+// measured against CSNZ.
+
+entityDef hero_weapon_base
+{
+	"inherit"			"weapon_base"
+	"hudSlot"			"1"
+	"hudSlotPos"		"4"
+	"weight"			"30"
+	"hero_static"		"1"
+	"snd_empty"			"Weapons.Empty"
+}
+
+// ---- BALROG-VII (Tank) ----------------------------------------------------
+// v_balrog7.mdl: 0 idle1, 1-2 shoot1/2, 3 shoot3 (the bigger muzzle flash of
+// its explosive round), 4 reload (121 frames at 30 fps), 5 draw
+
+entityDef weapon_balrog7
+{
+	"inherit"			"hero_weapon_base"
+	"model"				"models/w_balrog7.mdl"
+	"model_player"		"models/p_balrog7.mdl"
+	"model_view"		"models/v_balrog7.mdl"
+	"model_viewMirror"	"1"
+	"animPrefix"		"mp5"
+	"inv_name"			"BALROG-VII"
+
+	"def_fireInfo"		"fireInfo_balrog7"
+	"clipSize"			"120"
+	"clipSizeDefault"	"120"
+
+	"def_ejectBrass"	"debris_brass_fast"
+	"ejectBrassDelay"	"0"
+	"ejectBrassOffset"	"17 6 -8"
+
+	"act_fire"			"1,2"
+	"act_reload"		"4"
+	"act_draw"			"5"
+	"act_idle"			"0"
+
+	"snd_fire"			"Weapon_Balrog7.Single"
+}
+
+entityDef fireInfo_balrog7
+{
+	"def_onFire"		"projectile_balrog7"
+	"ammoType"			"ammo_hero"
+	"ammoRequired"		"1"
+	"ammoPerShot"		"1"
+	"fireRate"			"0.1"
+	"punchAngle"		"-1.5 0 0"
+	"model_flash"		"sprites/muzzleflash1.spr"
+}
+
+entityDef projectile_balrog7
+{
+	"inherit"		"projectile_bullet_base"
+	"damage"		"32"
+	"spread"		"0.03 0.03"
+}
+
+// ---- Cyclone (Support) ----------------------------------------------------
+// CSO's sfpistol: 50 energy cells fired as a continuous beam while the
+// trigger is held. v_sfpistol.mdl: 0 idle, 1 shoot1 (the beam, looped),
+// 2 shoot_end, 3 reload, 4 draw
+
+entityDef weapon_cyclone
+{
+	"inherit"			"hero_weapon_base"
+	"model"				"models/w_sfpistol.mdl"
+	"model_player"		"models/p_sfpistol.mdl"
+	"model_view"		"models/v_sfpistol.mdl"
+	"model_viewMirror"	"1"
+	"animPrefix"		"onehand"
+	"inv_name"			"Cyclone"
+
+	"def_fireInfo"		"fireInfo_cyclone"
+	"clipSize"			"50"
+	"clipSizeDefault"	"50"
+
+	"act_idle"			"0"
+	"act_loop"			"1"
+	"act_fireStop"		"2"
+	"act_reload"		"3"
+	"act_draw"			"4"
+
+	"snd_fireStart"		"Weapon_Cyclone.Start"
+	"snd_fireLoop"		"Weapon_Cyclone.Loop"
+	"snd_fireStop"		"Weapon_Cyclone.Stop"
+}
+
+entityDef fireInfo_cyclone
+{
+	"def_onFire"		"projectile_cyclone"
+	"ammoType"			"ammo_hero"
+	"ammoRequired"		"1"
+	"ammoPerShot"		"1"
+	"fireRate"			"0.08"
+}
+
+entityDef projectile_cyclone
+{
+	"inherit"		"projectile_bullet_base"
+	"damage"		"12"
+	"spread"		"0.005 0.005"
+}
+
+// ---- SKULL-1 (Pointman) ----------------------------------------------------
+// A 7-round .50AE pistol: primary is the slower precise shot, secondary the
+// less accurate barrage. v_skull1.mdl: 0 idle, 1 idle_leftempty, 2-3 shoot1/2,
+// 4-5 SP_shoot1/2 (the barrage), 6 reload, 7 draw
+
+entityDef weapon_skull1
+{
+	"inherit"			"hero_weapon_base"
+	"model"				"models/w_skull1.mdl"
+	"model_player"		"models/p_skull1.mdl"
+	"model_view"		"models/v_skull1.mdl"
+	"model_viewMirror"	"1"
+	"animPrefix"		"onehand"
+	"inv_name"			"SKULL-1"
+
+	"def_fireInfo"		"fireInfo_skull1"
+	"def_altFireInfo"	"fireInfo_skull1_barrage"
+	"clipSize"			"7"
+	"clipSizeDefault"	"7"
+
+	"def_ejectBrass"	"debris_brass"
+	"ejectBrassDelay"	"0"
+	"ejectBrassOffset"	"18 6 -6"
+
+	"act_idle"			"0"
+	"act_idleEmpty"		"1"
+	"act_fire"			"2,3"
+	"act_reload"		"6"
+	"act_draw"			"7"
+
+	"snd_fire"			"Weapon_Skull1.Single"
+	"snd_altfire"		"Weapon_Skull1.Barrage"
+}
+
+entityDef fireInfo_skull1
+{
+	"def_onFire"		"projectile_skull1"
+	"ammoType"			"ammo_hero"
+	"ammoRequired"		"1"
+	"ammoPerShot"		"1"
+	"semiAuto"			"1"
+	"fireRate"			"0.3"
+	"punchAngle"		"-4 0 0"
+	"model_flash"		"sprites/muzzleflash2.spr"
+}
+
+entityDef fireInfo_skull1_barrage
+{
+	"inherit"			"fireInfo_skull1"
+	"def_onFire"		"projectile_skull1_barrage"
+	"semiAuto"			"0"
+	"fireRate"			"0.12"
+	"punchAngle"		"-2 0 0"
+	"act_fire"			"4,5"
+	"snd_fire"			"Weapon_Skull1.Barrage"
+}
+
+entityDef projectile_skull1
+{
+	"inherit"		"projectile_bullet_base"
+	"damage"		"60"
+	"spread"		"0.005 0.005"
+}
+
+entityDef projectile_skull1_barrage
+{
+	"inherit"		"projectile_skull1"
+	"spread"		"0.06 0.06"
+}

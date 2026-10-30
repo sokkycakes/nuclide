@@ -75,6 +75,11 @@ var bool autocvar_net_showArrivals = false;
 #define MAX_AMMO_TYPES 16i
 #endif
 
+/** Render flag: draw the entity mirrored left to right. Bulwark's own;
+other engines ignore it. A weapon def's "model_viewMirror" "1" sets it on
+the view model, for models built for the other hand. */
+#define RF_MIRROR 65536
+
 noref const float   SVC_TEMPENTITY          = 23;
 
 #ifdef CLIENT

@@ -99,6 +99,7 @@ FireInfo. If that does not exist, secondary attacks are not possible.
 # KEYS
 - "model" : Item/pickup model in world.
 - "model_view" : First-person view model.
+- "model_viewMirror" : Set to 1 to mirror the view model left to right (left-handed models, e.g. CSO).
 - "model_flash" : muzzleflash model/sprite to use. 
 - "flashColor" : muzzleflash dlight color
 - "flashRadius" : muzzleflash dlight radius

@@ -110,6 +110,19 @@ instead of the scoreboard (`cg_scoresWhenDead 0`, set in
   `zz_coopheroes.pk3`, which isn't in git: put it in `coop/`. Without it
   heroes fall back to `models/player.mdl`. The models need Bulwark's .md2
   support.
+- Each hero has two weapon slots, like Left 4 Dead's sidearm and primary
+  (`decls/def/hero_weapons.def`, `src/rules/heroes.qc`). The static weapon
+  is the hero's own ("hero_weapon": Tank BALROG-VII, Support Cyclone,
+  Pointman SKULL-1): given at every spawn, never dropped, and its reserve
+  (`ammo_hero`) refills, so only the clip needs reloading. The dynamic slot
+  holds one other gun; picking up another drops the one you had in front of
+  you (it can't be picked up again for 1.5 s) and switches to the new one.
+  Melee and throwables are outside both. The static weapons are Counter-
+  Strike Online's, from the CSNZ install, in `zz_coopweapons.pk3`, which
+  isn't in git either: put it in `coop/`. Their view models have the arms
+  emptied (`tools/cso_hide_arms.py`) and are mirrored to the right hand
+  ("model_viewMirror"; needs Bulwark's RF_MIRROR). Their stats are
+  stand-ins, and BALROG-VII's explosive round isn't in yet.
 - There are no abilities yet; they and Barrier, which replaces armour in
   hero mode, come next.
 

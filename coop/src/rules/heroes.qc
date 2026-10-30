@@ -29,6 +29,12 @@
      title menu, saved with the player's config.
    - coop_heroLimit is how many players may play one hero, 0 for any
      number. Someone over the limit gets the first hero with room.
+   - A hero has two weapon slots, as in Left 4 Dead: a static one with the
+     hero's own weapon (the hero def's "hero_weapon"), given at every spawn
+     and never dropped, whose reserve never runs out; and a dynamic one
+     with one other gun, from the kit or picked up. Picking up a second gun
+     drops the one held. Melee weapons and throwables (HUD slots 0 and 4)
+     are outside both. Hero_SlotThink keeps this every frame.
    - "cmd heroes" asks for the list and "cmd hero <kit>" picks. The server
      answers with menu_coop commands, drawn on the Hero tab of the shop
      menu (coop/src/menu/main.qc). A player's first spawn on a map with
@@ -48,6 +54,10 @@ string g_heroKit[HERO_MAXKITS];
 int g_heroKitHero[HERO_MAXKITS];	/* the hero each kit belongs to */
 int g_heroKitCount;
 bool g_heroAsked[COOP_MAXPLAYERS];	/* the Hero tab was opened for them */
+string g_heroDynamic[COOP_MAXPLAYERS];	/* the gun in their dynamic slot, zoned */
+string g_heroSwitch[COOP_MAXPLAYERS];	/* gun to switch to once the client has it, zoned */
+float g_heroSwitchTime[COOP_MAXPLAYERS];
+float g_heroSettle[COOP_MAXPLAYERS];	/* when to settle the dynamic slot after a spawn, 0 once done */
 
 /* reads coop_heroes and the roster */
 void
@@ -111,6 +121,14 @@ Hero_Precache(void)
 
 	for (int i = 0i; i < g_heroKitCount; i++) {
 		precache.Entity(g_heroKit[i]);
+	}
+
+	for (int i = 0i; i < g_heroCount; i++) {
+		string weapon = entityDef.GetString(g_heroDef[i], "hero_weapon");
+
+		if (weapon != "") {
+			precache.Entity(weapon);
+		}
 	}
 }
 
@@ -369,5 +387,191 @@ Hero_PlayerConnect(entity pl)
 
 	if (slot >= 0i) {
 		g_heroAsked[slot] = false;
+	}
+}
+
+/* ---- weapon slots ------------------------------------------------------- */
+
+#define HERO_PICKUPDELAY 1.5f	/* before a dropped gun can be picked up */
+
+/* the hero's own weapon, "" for none */
+string
+Hero_StaticWeapon(entity pl)
+{
+	return (entityDef.GetString(pl.classname, "hero_weapon"));
+}
+
+/* a gun that takes the dynamic slot: not melee or a throwable, not a
+   static weapon */
+bool
+Hero_IsDynamic(string item)
+{
+	float slot;
+
+	if (substring(item, 0, 7) != "weapon_" || entityDef.GetBool(item, "hero_static")) {
+		return (false);
+	}
+
+	slot = entityDef.GetFloat(item, "hudSlot");
+	return (slot >= 1 && slot <= 3) ? true : false;
+}
+
+void
+Hero_SetDynamic(int slot, string item)
+{
+	if (g_heroDynamic[slot]) {
+		strunzone(g_heroDynamic[slot]);
+	}
+
+	g_heroDynamic[slot] = (item != "") ? strzone(item) : __NULL__;
+}
+
+/* lets a dropped gun be picked up again */
+void
+Hero_DropThink(void)
+{
+	self.solid = SOLID_TRIGGER;
+	setorigin(self, self.origin);
+	self.think = __NULL__;
+}
+
+/* takes item out of pl's hands and puts it on the ground in front of them */
+void
+Hero_DropWeapon(entity pl, string item)
+{
+	entity dropped;
+	vector spot;
+
+	ents.Input(pl, "RemoveItem", item, pl);
+	makevectors([0, pl.angles[1], 0]);
+	spot = pl.origin + v_forward * 64;
+	traceline(pl.origin, spot, MOVE_NOMONSTERS, pl);
+	dropped = ents.Create(item, trace_endpos);
+
+	/* not straight back into the hands that dropped it */
+	dropped.solid = SOLID_NOT;
+	setorigin(dropped, dropped.origin);
+	dropped.think = Hero_DropThink;
+	dropped.nextthink = time + HERO_PICKUPDELAY;
+}
+
+/* the hero's weapons at spawn: the static one and its reserve. The kit's
+   own items arrive after the spawn callback, so Hero_SlotThink settles
+   the dynamic slot a moment later */
+void
+Hero_GiveWeapons(entity pl)
+{
+	int slot = Coop_Slot(pl);
+	string weapon = Hero_StaticWeapon(pl);
+
+	if (slot < 0i) {
+		return;
+	}
+
+	if (weapon != "" && !actor.HasItem(pl, weapon)) {
+		ents.Input(pl, "GiveItem", weapon, pl);
+	}
+
+	ents.Input(pl, "GiveAmmo", "ammo_hero 200", pl);
+	Hero_SetDynamic(slot, "");
+	g_heroSettle[slot] = time + 0.25f;
+}
+
+/* puts pl on item. A switch made on the server alone leaves the client
+   drawing the old view model, so players are asked to select it */
+void
+Hero_SelectWeapon(entity pl, string item)
+{
+	if (is.Bot(pl)) {
+		ents.Input(pl, "SwitchToWeapon", item, pl);
+	} else {
+		stuffcmd(pl, sprintf("selectItem %s\n", item));
+	}
+}
+
+/* every frame, for each living hero: one gun in the dynamic slot, the
+   static weapon kept and its reserve full */
+void
+Hero_SlotThink(entity pl)
+{
+	int slot = Coop_Slot(pl);
+	string held = (slot >= 0i && g_heroDynamic[slot]) ? g_heroDynamic[slot] : "";
+	string picked = "";
+	bool hasHeld = false;
+	int n;
+
+	if (!g_coopHeroes || slot < 0i || !is.Alive(pl) || Hero_OfKit(pl.classname) < 0i) {
+		return;
+	}
+
+	n = (int)tokenize(actor.GetInventory(pl));
+
+	/* just after spawning, once the kit's items are in: the kit's gun is
+	   the dynamic one, and a kit without a gun starts with the static
+	   weapon out */
+	if (g_heroSettle[slot] > 0.0f) {
+		if (time < g_heroSettle[slot]) {
+			return;
+		}
+
+		g_heroSettle[slot] = 0.0f;
+
+		for (int i = 0i; i < n; i++) {
+			if (Hero_IsDynamic(argv(i))) {
+				picked = argv(i);
+			}
+		}
+
+		Hero_SetDynamic(slot, picked);
+
+		if (picked == "" && Hero_StaticWeapon(pl) != "") {
+			Hero_SelectWeapon(pl, Hero_StaticWeapon(pl));
+		}
+
+		return;
+	}
+
+	for (int i = 0i; i < n; i++) {
+		string item = argv(i);
+
+		if (!Hero_IsDynamic(item)) {
+			continue;
+		}
+
+		if (item == held) {
+			hasHeld = true;
+		} else {
+			picked = item;
+		}
+	}
+
+	if (picked != "") {
+		/* a second gun came in: it takes the slot, the old one goes */
+		if (hasHeld) {
+			Hero_DropWeapon(pl, held);
+
+			/* the picked-up gun is a new entity: the client can only
+			   select it once it has been sent */
+			if (g_heroSwitch[slot]) {
+				strunzone(g_heroSwitch[slot]);
+			}
+
+			g_heroSwitch[slot] = strzone(picked);
+			g_heroSwitchTime[slot] = time + 0.1f;
+		}
+
+		Hero_SetDynamic(slot, picked);
+	} else if (!hasHeld && held != "") {
+		Hero_SetDynamic(slot, "");
+	}
+
+	if (g_heroSwitch[slot] && time >= g_heroSwitchTime[slot]) {
+		Hero_SelectWeapon(pl, g_heroSwitch[slot]);
+		strunzone(g_heroSwitch[slot]);
+		g_heroSwitch[slot] = __NULL__;
+	}
+
+	if (actor.GetReserveAmmo(pl, ammo.NumForName("ammo_hero")) < 200i) {
+		ents.Input(pl, "GiveAmmo", "ammo_hero 200", pl);
 	}
 }

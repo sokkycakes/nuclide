@@ -384,12 +384,13 @@ ncItem::Touch(entity eToucher)
 		/* don't remove if AddItem fails */
 		string itemToAdd = STRING_SET(m_itemWeapon) ? m_itemWeapon : declclass;
 
-		if (CreatedByMap()) {
-			ncItem copy = spawn(ncItem);
-			copyentity(this, copy);
-			pl.GiveExactItem(copy);
-		} else {
-			pl.GiveExactItem(this);
+		/* the inventory gets a copy: this entity is removed below, also
+		   when it was dropped or spawned rather than placed by the map */
+		ncItem copy = spawn(ncItem);
+		copyentity(this, copy);
+
+		if (pl.GiveExactItem(copy) == false) {
+			remove(copy);
 		}
 
 		/* if we have the carry flag set in addition, we'll put in an extra copy of this item */
