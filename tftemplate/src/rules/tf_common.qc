@@ -486,6 +486,17 @@ CodeCallback_Precache(void)
 	precache.Entity("tf_building_dispenser");
 	precache.Entity("tf_building_tele_entrance");
 	precache.Entity("tf_building_tele_exit");
+
+	/* sounds the code plays by name, which no def_ or snd_ key points at:
+	   the Medi Gun's lock-on, ÜberCharge, the sapper, building upgrades,
+	   the Spy's cloak and the teleporters */
+	precache.Sound("item_health.pickup");
+	precache.Sound("item_artifact_invulnerability.pickup");
+	precache.Sound("item_artifact_super_damage.attack");
+	precache.Sound("item_artifact_super_damage.pickup");
+	precache.Sound("item_artifact_invisibility.pickup");
+	precache.Sound("item_artifact_invisibility.expiring");
+	precache.Sound("mayhem_teleporter.teleported");
 }
 
 void
