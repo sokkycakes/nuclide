@@ -131,9 +131,12 @@ instead of the scoreboard (`cg_scoresWhenDead 0`, set in
   like in `hero_visuals.def`. They're first in `coop_heroList`.
 - Abilities (`src/rules/hero_abilities.qc`, the shared parts, and
   `hero_kits.qc`, the ten kits): C the tool, G and X the two abilities,
-  Z henshin, V the form's exclusive move (impulses 21 to 25; the menu
-  binds the keys the first time if they're free, and Options > Keys lists
-  them). A hero line on the HUD shows Energy, Barrier and cooldowns.
+  Z henshin, V the form's exclusive move (impulses 21 to 25). The menu
+  binds them once the saved config has run, only for a command with no
+  key yet: if C/G/X/Z/V are taken (radio, drop) it falls back to
+  H/J/K/L/O, then MOUSE4/MOUSE5/N/M/P, then keypad keys, and prints a
+  warning if all are taken. `coop_herokeys` forces C G X Z V; Options >
+  Keys lists them. A hero line on the HUD shows Energy, Barrier and cooldowns.
 - Energy (0 to 100) is the shared pool and only pays for henshin: it needs
   `coop_henshinCost` (50) and drains `coop_henshinDrain` (2.5) a second.
   In hero mode armour is Energy: any armour a hero gets turns into Energy
