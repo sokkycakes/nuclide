@@ -477,7 +477,9 @@ var CoopMenu = ( function ()
 		[ "slot2", "Weapon slot 2" ], [ "slot3", "Weapon slot 3" ], [ "slot4", "Weapon slot 4" ],
 		[ "slot5", "Weapon slot 5" ], [ "+showscores", "Scores" ], [ "messagemode", "Chat" ],
 		[ "messagemode2", "Team chat" ], [ "cmd selectskills", "Skills" ], [ "cmd shop", "Shop and skills" ], [ "vote yes", "Vote yes" ],
-		[ "vote no", "Vote no" ], [ "impulse 201", "Spray" ]
+		[ "vote no", "Vote no" ], [ "impulse 201", "Spray" ],
+		[ "impulse 21", "Hero tool" ], [ "impulse 22", "Hero ability 1" ], [ "impulse 23", "Hero ability 2" ],
+		[ "impulse 24", "Henshin" ], [ "impulse 25", "Henshin move" ]
 	];
 	var binds = {};
 

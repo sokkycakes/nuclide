@@ -52,6 +52,14 @@ void Hero_PlayerConnect(entity pl);
 bool Hero_ClientCommand(entity pl, string command);
 void Hero_GiveWeapons(entity pl);
 void Hero_SlotThink(entity pl);
+void Hero_AbilitySpawned(entity pl);	/* hero_abilities.qc */
+void Hero_AbilityFrame(void);
+void Hero_AbilityInput(entity pl);
+bool Hero_AbilityImpulse(entity pl, float num);
+void Hero_AbilityKilled(entity pl);
+void Hero_AbilityNPCKilled(entity npc, entity attacker);
+void Hero_AbilityDisconnect(entity pl);
+bool Hero_AbilityCommand(entity pl, string command);
 var bool g_coopHeroes;
 
 var float autocvar_coop_respawnDelay = 5;
@@ -692,6 +700,7 @@ CodeCallback_PlayerSpawn(entity playerEntity)
 		Hero_GiveWeapons(playerEntity);
 	}
 
+	Hero_AbilitySpawned(playerEntity);
 	Hero_PlayerSpawned(playerEntity);
 }
 
@@ -716,6 +725,10 @@ CodeCallback_ClientCommand(entity playerEntity, string command)
 		return (true);
 	}
 
+	if (Hero_AbilityCommand(playerEntity, command)) {
+		return (true);
+	}
+
 	return Shop_ClientCommand(playerEntity, command);
 }
 
@@ -728,6 +741,7 @@ CodeCallback_PlayerDisconnect(entity playerEntity)
 		g_coopDown[slot] = false;
 	}
 
+	Hero_AbilityDisconnect(playerEntity);
 	Coop_CheckWipe();
 }
 
@@ -785,6 +799,8 @@ CodeCallback_PlayerKilled(entity playerEntity, entity inflictor, entity attacker
 		g_coopDownOrigin[slot] = playerEntity.origin;
 	}
 
+	Hero_AbilityKilled(playerEntity);
+
 	if (!autocvar_coop_survival) {
 		centerprint(playerEntity, sprintf("You are down. A teammate can revive you, or respawn in %d seconds", autocvar_coop_respawnDelay));
 	}
@@ -804,6 +820,8 @@ CodeCallback_NPCKilled(entity npcEntity, entity inflictor, entity attacker, stri
 	if (attacker) {
 		combat.Obituary(npcName, attacker.netname, weapon, "");
 	}
+
+	Hero_AbilityNPCKilled(npcEntity, attacker);
 
 	if (!is.Player(attacker)) {
 		return;
@@ -996,6 +1014,8 @@ CodeCallback_FrameStart(void)
 		Hero_SlotThink(p);
 	}
 
+	Hero_AbilityFrame();
+
 	if (autocvar_coop_weapontest) {
 		Coop_WeaponTestThink();
 	}
@@ -1012,6 +1032,11 @@ CodeCallback_ImpulseCommand(entity playerEntity, float impulseNum)
 {
 	/* called every input frame, impulse or not */
 	Coop_ReviveInput(playerEntity);
+	Hero_AbilityInput(playerEntity);
+
+	if (Hero_AbilityImpulse(playerEntity, impulseNum)) {
+		return (true);
+	}
 
 	if (autocvar_coop_pmtrace && !is.Bot(playerEntity)) {
 		print(sprintf("pmtrace %f %v %v %d\n", time, playerEntity.origin, playerEntity.velocity,

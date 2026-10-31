@@ -1,0 +1,311 @@
+// Justice Task Force: the prototype heroes' primaries (coop_heroes 1).
+//
+// Stand-ins built on Half-Life's weapons so the ten example heroes
+// (coop/heroes design, example-heroes.md) can be played before they have
+// their own models. Each is a static weapon: hudSlot 1, "hero_static",
+// and the never-ending ammo_hero reserve (see hero_weapons.def). Only the
+// feel is aimed at: burst, pump, slow and heavy, spray, charged. Numbers
+// are first guesses.
+
+// ---- Dispatch: compact burst PDW ------------------------------------------
+entityDef weapon_jtf_pdw
+{
+	"inherit"			"weapon_9mmhandgun"
+	"inv_name"			"Burst PDW"
+	"def_fireInfo"		"fireInfo_jtf_pdw"
+	"def_altFireInfo"	""
+	"clipSize"			"30"
+	"clipSizeDefault"	"30"
+	"hudSlot"			"1"
+	"hudSlotPos"		"4"
+	"hero_static"		"1"
+}
+
+entityDef fireInfo_jtf_pdw
+{
+	"def_onFire"		"projectile_jtf_pdw"
+	"ammoType"			"ammo_hero"
+	"ammoRequired"		"1"
+	"ammoPerShot"		"1"
+	"fireRate"			"0.06"
+	"burstCount"		"3"
+	"burstTime"			"0.3"
+	"punchAngle"		"-1 0 0"
+	"model_flash"		"sprites/muzzleflash1.spr"
+}
+
+entityDef projectile_jtf_pdw
+{
+	"inherit"		"projectile_bullet_base"
+	"damage"		"9"
+	"spread"		"0.01 0.01"
+}
+
+// ---- Choir: pump shotgun ---------------------------------------------------
+entityDef weapon_jtf_pump
+{
+	"inherit"			"weapon_shotgun"
+	"inv_name"			"Pump Shotgun"
+	"def_fireInfo"		"fireInfo_jtf_pump"
+	"def_altFireInfo"	""
+	"clipSize"			"6"
+	"clipSizeDefault"	"6"
+	"hudSlot"			"1"
+	"hudSlotPos"		"4"
+	"hero_static"		"1"
+}
+
+entityDef fireInfo_jtf_pump
+{
+	"def_onFire"	"projectile_jtf_pump"
+	"ammoType"		"ammo_hero"
+	"ammoRequired"	"1"
+	"ammoPerShot"	"1"
+	"fireRate"		"0.9"
+	"punchAngle"	"-5 0 0"
+}
+
+entityDef projectile_jtf_pump
+{
+	"inherit"		"projectile_shotgun"
+	"damage"		"9"
+	"hitscans"		"8"
+	"spread"		"0.12 0.12"
+}
+
+// ---- Bulkhead: heavy one-handed revolver -----------------------------------
+entityDef weapon_jtf_revolver
+{
+	"inherit"			"weapon_357"
+	"inv_name"			"Heavy Revolver"
+	"def_fireInfo"		"fireInfo_jtf_revolver"
+	"def_altFireInfo"	""
+	"clipSize"			"5"
+	"clipSizeDefault"	"5"
+	"hudSlot"			"1"
+	"hudSlotPos"		"4"
+	"hero_static"		"1"
+}
+
+entityDef fireInfo_jtf_revolver
+{
+	"def_onFire"		"projectile_jtf_revolver"
+	"ammoType"			"ammo_hero"
+	"ammoRequired"		"1"
+	"ammoPerShot"		"1"
+	"fireRate"			"0.9"
+	"semiAuto"			"1"
+	"punchAngle"		"-8 0 0"
+	"model_flash"		"sprites/muzzleflash2.spr"
+}
+
+entityDef projectile_jtf_revolver
+{
+	"inherit"		"projectile_357"
+	"damage"		"70"
+}
+
+// ---- Kettle: pressure gauntlets (the carbine is the kit's gun) ---------------
+entityDef weapon_jtf_gauntlets
+{
+	"inherit"			"weapon_crowbar"
+	"inv_name"			"Pressure Gauntlets"
+	"def_onFire"		"projectile_jtf_gauntlets"
+	"fireRate"			"0.35"
+	"hudSlot"			"1"
+	"hudSlotPos"		"4"
+	"hero_static"		"1"
+}
+
+entityDef projectile_jtf_gauntlets
+{
+	"inherit"		"projectile_crowbar"
+	"damage"		"22"
+	"range"			"64"
+	"knockback"		"350"
+	"push"			"35000"
+}
+
+// ---- Vector: light SMG -----------------------------------------------------
+entityDef weapon_jtf_smg
+{
+	"inherit"			"weapon_9mmAR"
+	"inv_name"			"Light SMG"
+	"def_fireInfo"		"fireInfo_jtf_smg"
+	"def_altFireInfo"	""
+	"clipSize"			"40"
+	"clipSizeDefault"	"40"
+	"hudSlot"			"1"
+	"hudSlotPos"		"4"
+	"hero_static"		"1"
+}
+
+entityDef fireInfo_jtf_smg
+{
+	"def_onFire"		"projectile_jtf_smg"
+	"ammoType"			"ammo_hero"
+	"ammoRequired"		"1"
+	"ammoPerShot"		"1"
+	"fireRate"			"0.065"
+	"punchAngle"		"-1 0 0"
+	"model_flash"		"sprites/muzzleflash1.spr"
+}
+
+entityDef projectile_jtf_smg
+{
+	"inherit"		"projectile_bullet_base"
+	"damage"		"6"
+	"spread"		"0.04 0.04"
+}
+
+// ---- Stray: machine pistols ------------------------------------------------
+entityDef weapon_jtf_machinepistols
+{
+	"inherit"			"weapon_9mmhandgun"
+	"inv_name"			"Machine Pistols"
+	"def_fireInfo"		"fireInfo_jtf_machinepistols"
+	"def_altFireInfo"	""
+	"clipSize"			"36"
+	"clipSizeDefault"	"36"
+	"hudSlot"			"1"
+	"hudSlotPos"		"4"
+	"hero_static"		"1"
+}
+
+entityDef fireInfo_jtf_machinepistols
+{
+	"def_onFire"		"projectile_jtf_machinepistols"
+	"ammoType"			"ammo_hero"
+	"ammoRequired"		"1"
+	"ammoPerShot"		"1"
+	"fireRate"			"0.07"
+	"punchAngle"		"-1 0 0"
+	"model_flash"		"sprites/muzzleflash1.spr"
+}
+
+entityDef projectile_jtf_machinepistols
+{
+	"inherit"		"projectile_bullet_base"
+	"damage"		"6"
+	"spread"		"0.07 0.07"
+}
+
+// ---- Ledger: battle rifle --------------------------------------------------
+entityDef weapon_jtf_battlerifle
+{
+	"inherit"			"weapon_9mmAR"
+	"inv_name"			"Battle Rifle"
+	"def_fireInfo"		"fireInfo_jtf_battlerifle"
+	"def_altFireInfo"	""
+	"clipSize"			"20"
+	"clipSizeDefault"	"20"
+	"hudSlot"			"1"
+	"hudSlotPos"		"4"
+	"hero_static"		"1"
+}
+
+entityDef fireInfo_jtf_battlerifle
+{
+	"def_onFire"		"projectile_jtf_battlerifle"
+	"ammoType"			"ammo_hero"
+	"ammoRequired"		"1"
+	"ammoPerShot"		"1"
+	"fireRate"			"0.2"
+	"semiAuto"			"1"
+	"punchAngle"		"-3 0 0"
+	"model_flash"		"sprites/muzzleflash1.spr"
+}
+
+entityDef projectile_jtf_battlerifle
+{
+	"inherit"		"projectile_bullet_base"
+	"damage"		"24"
+	"spread"		"0.01 0.01"
+}
+
+// ---- Tripwire: silenced carbine --------------------------------------------
+entityDef weapon_jtf_silenced
+{
+	"inherit"			"weapon_9mmhandgun"
+	"inv_name"			"Silenced Carbine"
+	"def_fireInfo"		"fireInfo_jtf_silenced"
+	"def_altFireInfo"	""
+	"clipSize"			"20"
+	"clipSizeDefault"	"20"
+	"hudSlot"			"1"
+	"hudSlotPos"		"4"
+	"hero_static"		"1"
+	"snd_fire"			"Weapon_JTF.Silenced"
+}
+
+entityDef fireInfo_jtf_silenced
+{
+	"def_onFire"		"projectile_jtf_silenced"
+	"ammoType"			"ammo_hero"
+	"ammoRequired"		"1"
+	"ammoPerShot"		"1"
+	"fireRate"			"0.15"
+	"semiAuto"			"1"
+	"punchAngle"		"-1 0 0"
+}
+
+entityDef projectile_jtf_silenced
+{
+	"inherit"		"projectile_bullet_base"
+	"damage"		"16"
+	"spread"		"0.01 0.01"
+}
+
+// ---- Longhand: charged rifle -----------------------------------------------
+// Slow and heavy here; the charge (time since the last shot) and the
+// weak point bonus are the rules' (coop/src/rules/hero_kits.qc).
+entityDef weapon_jtf_chargerifle
+{
+	"inherit"			"weapon_357"
+	"inv_name"			"Charge Rifle"
+	"def_fireInfo"		"fireInfo_jtf_chargerifle"
+	"def_altFireInfo"	""
+	"clipSize"			"4"
+	"clipSizeDefault"	"4"
+	"hudSlot"			"1"
+	"hudSlotPos"		"4"
+	"hero_static"		"1"
+}
+
+entityDef fireInfo_jtf_chargerifle
+{
+	"def_onFire"		"projectile_jtf_chargerifle"
+	"ammoType"			"ammo_hero"
+	"ammoRequired"		"1"
+	"ammoPerShot"		"1"
+	"fireRate"			"1.2"
+	"semiAuto"			"1"
+	"punchAngle"		"-10 0 0"
+	"model_flash"		"sprites/muzzleflash2.spr"
+}
+
+entityDef projectile_jtf_chargerifle
+{
+	"inherit"		"projectile_357"
+	"damage"		"55"
+	"spread"		"0 0"
+}
+
+// ---- Mantis: twin blades (the pistol is the kit's gun) ----------------------
+entityDef weapon_jtf_blades
+{
+	"inherit"			"weapon_crowbar"
+	"inv_name"			"Twin Blades"
+	"def_onFire"		"projectile_jtf_blades"
+	"fireRate"			"0.3"
+	"hudSlot"			"1"
+	"hudSlotPos"		"4"
+	"hero_static"		"1"
+}
+
+entityDef projectile_jtf_blades
+{
+	"inherit"		"projectile_crowbar"
+	"damage"		"18"
+	"range"			"56"
+}

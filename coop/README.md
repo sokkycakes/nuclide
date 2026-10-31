@@ -123,8 +123,30 @@ instead of the scoreboard (`cg_scoresWhenDead 0`, set in
   emptied (`tools/cso_hide_arms.py`) and are mirrored to the right hand
   ("model_viewMirror"; needs Bulwark's RF_MIRROR). Their stats are
   stand-ins, and BALROG-VII's explosive round isn't in yet.
-- There are no abilities yet; they and Barrier, which replaces armour in
-  hero mode, come next.
+- Ten prototype heroes, two per genre, from the example roster: Dispatch
+  and Choir (Commander), Bulkhead and Kettle (Wall), Vector and Stray
+  (Runner), Ledger and Tripwire (Planner), Longhand and Mantis (Hunter).
+  Defs in `decls/def/heroes_roster.def`, their primaries (Half-Life
+  stand-ins) in `hero_primaries.def`, and what their placed things look
+  like in `hero_visuals.def`. They're first in `coop_heroList`.
+- Abilities (`src/rules/hero_abilities.qc`, the shared parts, and
+  `hero_kits.qc`, the ten kits): C the tool, G and X the two abilities,
+  Z henshin, V the form's exclusive move (impulses 21 to 25; the menu
+  binds the keys the first time if they're free, and Options > Keys lists
+  them). A hero line on the HUD shows Energy, Barrier and cooldowns.
+- Energy (0 to 100) is the shared pool and only pays for henshin: it needs
+  `coop_henshinCost` (50) and drains `coop_henshinDrain` (2.5) a second.
+  In hero mode armour is Energy: any armour a hero gets turns into Energy
+  one for one (`coop_energyPerKill` adds some per kill, 0 by default).
+- Barrier is the armour stat now and takes all damage before health, up to
+  75, 50 or 25 by weight. Only Commanders, henshin and Planner emitters
+  give it.
+- Swap at checkpoints: between waves a new pick applies at once, on the
+  spot. Everything a player placed goes when they change hero; Energy
+  stays.
+- Test helpers, with `sv_cheats 1`: `cmd energy [n]`, `cmd places` (lists
+  placed things), and `coop_heroAimTest 1` (the server aims human players
+  at the nearest foe).
 
 ## Menus (`src/menu/`, `panorama/`)
 

@@ -788,6 +788,8 @@ Menu_UIAction(float view, string action, string arg)
 
 /* ---- entry points ------------------------------------------------------- */
 
+void Menu_DefaultBind(string command, string key);
+
 void
 m_init(void)
 {
@@ -807,7 +809,23 @@ m_init(void)
 	if (findkeysforcommandex("cmd shop") == "" && getkeybind(stringtokeynum("B")) == "")
 		localcmd("bind B \"cmd shop\"\n");
 
+	/* the hero abilities' keys (coop/src/rules/hero_abilities.qc), the
+	   same way: C tool, G and X abilities, Z henshin, V the form's move */
+	Menu_DefaultBind("impulse 21", "C");
+	Menu_DefaultBind("impulse 22", "G");
+	Menu_DefaultBind("impulse 23", "X");
+	Menu_DefaultBind("impulse 24", "Z");
+	Menu_DefaultBind("impulse 25", "V");
+
 	Hero_SendSaved();
+}
+
+/* binds key to command if the command has no key and the key no command */
+void
+Menu_DefaultBind(string command, string key)
+{
+	if (findkeysforcommandex(command) == "" && getkeybind(stringtokeynum(key)) == "")
+		localcmd(sprintf("bind %s \"%s\"\n", key, command));
 }
 
 void

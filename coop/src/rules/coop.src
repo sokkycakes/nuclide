@@ -6,4 +6,6 @@
 coop.qc
 shop.qc
 heroes.qc
+hero_abilities.qc
+hero_kits.qc
 #endlist

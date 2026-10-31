@@ -40,11 +40,11 @@
      menu (coop/src/menu/main.qc). A player's first spawn on a map with
      heroes on opens that tab once. */
 
-#define HERO_MAX 8
+#define HERO_MAX 16
 #define HERO_MAXKITS 32
 
 var bool autocvar_coop_heroes = false;
-var string autocvar_coop_heroList = "hero_tank hero_support hero_pointman";
+var string autocvar_coop_heroList = "hero_dispatch hero_choir hero_bulkhead hero_kettle hero_vector hero_stray hero_ledger hero_tripwire hero_longhand hero_mantis hero_tank hero_support hero_pointman";
 var int autocvar_coop_heroLimit = 2;
 
 /* g_coopHeroes, heroes on for this map, is declared in coop.qc */
@@ -114,10 +114,13 @@ Hero_Load(void)
 	}
 }
 
+void Hero_AbilityPrecache(void);	/* hero_abilities.qc */
+
 void
 Hero_Precache(void)
 {
 	Hero_Load();
+	Hero_AbilityPrecache();
 
 	for (int i = 0i; i < g_heroKitCount; i++) {
 		precache.Entity(g_heroKit[i]);
@@ -299,8 +302,19 @@ Hero_Select(entity pl, string kit)
 
 	if (pl.classname == kit) {
 		Hero_Send(pl, "");
+	} else if (is.Alive(pl) && autocvar_coop_waves && g_coopWaveState == WAVE_WAITING) {
+		/* a checkpoint: between waves the swap happens now, on the spot */
+		vector spot = pl.origin;
+		vector look = pl.v_angle;
+
+		CodeCallback_PlayerSpawn(pl);
+		ents.Input(pl, "SetOrigin", vtos(spot + [0, 0, 4]), pl);
+		pl.angles = [0, look[1], 0];
+		pl.v_angle = look;
+		pl.fixangle = TRUE;
+		Hero_Send(pl, sprintf("You're %s now.", Hero_Name(g_heroDef[h], "hero_name")));
 	} else if (is.Alive(pl)) {
-		Hero_Send(pl, sprintf("You'll be %s, %s, when you respawn.", Hero_Name(g_heroDef[h], "hero_name"),
+		Hero_Send(pl, sprintf("You'll be %s, %s, at the next wave break or respawn.", Hero_Name(g_heroDef[h], "hero_name"),
 			Hero_Name(kit, "kit_name")));
 	} else {
 		Hero_Send(pl, sprintf("You'll spawn as %s, %s.", Hero_Name(g_heroDef[h], "hero_name"),
@@ -507,8 +521,8 @@ Hero_SlotThink(entity pl)
 	n = (int)tokenize(actor.GetInventory(pl));
 
 	/* just after spawning, once the kit's items are in: the kit's gun is
-	   the dynamic one, and a kit without a gun starts with the static
-	   weapon out */
+	   the dynamic one, and a kit without a gun (or a hero with abilities)
+	   starts with the static weapon out */
 	if (g_heroSettle[slot] > 0.0f) {
 		if (time < g_heroSettle[slot]) {
 			return;
@@ -524,7 +538,8 @@ Hero_SlotThink(entity pl)
 
 		Hero_SetDynamic(slot, picked);
 
-		if (picked == "" && Hero_StaticWeapon(pl) != "") {
+		/* the ten example heroes start with their primary, the static one */
+		if ((picked == "" || entityDef.GetString(pl.classname, "hero_logic") != "") && Hero_StaticWeapon(pl) != "") {
 			Hero_SelectWeapon(pl, Hero_StaticWeapon(pl));
 		}
 

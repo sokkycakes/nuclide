@@ -35,3 +35,11 @@ Weapon_Skull1.Barrage
 	alerts
 	sample weapons/skull1-2.wav
 }
+
+// the prototype heroes' primaries (decls/def/hero_primaries.def), Half-Life's
+Weapon_JTF.Silenced
+{
+	volume 0.6
+	sample weapons/pl_gun1.wav
+	sample weapons/pl_gun2.wav
+}

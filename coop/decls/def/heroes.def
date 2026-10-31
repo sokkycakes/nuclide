@@ -38,6 +38,11 @@ entityDef coop_hero_base
 	"kit_name"			""
 	"kit_desc"			""
 
+	// Barrier (hero_abilities.qc) is the armour stat: it takes all of the
+	// damage until it's gone, one point for one
+	"armorProtection"	"0.001"
+	"armorBonus"		"1"
+
 	// .md2 models have no bones: player.mdl's spine bone, which splits
 	// the torso's animation from the legs', would point at nothing
 	"spine"				"none"
