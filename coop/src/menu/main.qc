@@ -788,7 +788,16 @@ Menu_UIAction(float view, string action, string arg)
 
 /* ---- entry points ------------------------------------------------------- */
 
-void Menu_DefaultBind(string command, string key);
+void Menu_DefaultBind(string command, string keys);
+void Menu_ForceHeroKeys(void);
+void Menu_DefaultBinds(void);
+
+/* first choice, then fallbacks */
+#define HERO_KEYS_21 "C H MOUSE4 KP_INS"
+#define HERO_KEYS_22 "G J MOUSE5 KP_END"
+#define HERO_KEYS_23 "X K N KP_DOWNARROW"
+#define HERO_KEYS_24 "Z L M KP_PGDN"
+#define HERO_KEYS_25 "V O P KP_LEFTARROW"
 
 void
 m_init(void)
@@ -805,27 +814,62 @@ m_init(void)
 	if (whichpack("fonts/tahomabd.ttf") != "")
 		localcmd("ui_font Tahoma fonts/tahomabd.ttf 700\n");
 
-	/* the shop's key, the first time: B, if it's free */
-	if (findkeysforcommandex("cmd shop") == "" && getkeybind(stringtokeynum("B")) == "")
-		localcmd("bind B \"cmd shop\"\n");
-
-	/* the hero abilities' keys (coop/src/rules/hero_abilities.qc), the
-	   same way: C tool, G and X abilities, Z henshin, V the form's move */
-	Menu_DefaultBind("impulse 21", "C");
-	Menu_DefaultBind("impulse 22", "G");
-	Menu_DefaultBind("impulse 23", "X");
-	Menu_DefaultBind("impulse 24", "Z");
-	Menu_DefaultBind("impulse 25", "V");
+	/* the default keys wait for the saved config: at m_init it hasn't run
+	   yet (it's still in the command buffer), so every key looks free and
+	   a bind made now would overwrite the player's own */
+	registercommand("coop_defaultbinds");
+	registercommand("coop_herokeys");
+	localcmd("coop_defaultbinds\n");
 
 	Hero_SendSaved();
 }
 
-/* binds key to command if the command has no key and the key no command */
+/* coop_defaultbinds: the keys a new player gets, only where neither the
+   command nor the key is taken. The shop: B. The hero abilities
+   (coop/src/rules/hero_abilities.qc): C tool, G and X abilities, Z henshin,
+   V the form's move. Configs from other games often hold C/G/X/Z (radio,
+   drop), so each has fallbacks, tried in order; "coop_herokeys" forces the
+   first choices */
 void
-Menu_DefaultBind(string command, string key)
+Menu_DefaultBinds(void)
 {
-	if (findkeysforcommandex(command) == "" && getkeybind(stringtokeynum(key)) == "")
-		localcmd(sprintf("bind %s \"%s\"\n", key, command));
+	Menu_DefaultBind("cmd shop", "B");
+	Menu_DefaultBind("impulse 21", HERO_KEYS_21);
+	Menu_DefaultBind("impulse 22", HERO_KEYS_22);
+	Menu_DefaultBind("impulse 23", HERO_KEYS_23);
+	Menu_DefaultBind("impulse 24", HERO_KEYS_24);
+	Menu_DefaultBind("impulse 25", HERO_KEYS_25);
+}
+
+/* binds command to the first free key of keys (space separated), if the
+   command has no key yet */
+void
+Menu_DefaultBind(string command, string keys)
+{
+	float i, c;
+	string key;
+
+	if (findkeysforcommandex(command) != "")
+		return;
+
+	c = tokenize(keys);
+	for (i = 0; i < c; i++) {
+		key = argv(i);
+		if (getkeybind(stringtokeynum(key)) == "") {
+			localcmd(sprintf("bind %s \"%s\"\n", key, command));
+			return;
+		}
+	}
+
+	print(sprintf("^3coop: no free key for \"%s\" (tried %s); bind one in Options or run coop_herokeys\n", command, keys));
+}
+
+/* coop_herokeys: puts the hero keys on C G X Z V, over whatever is there */
+void
+Menu_ForceHeroKeys(void)
+{
+	localcmd("bind C \"impulse 21\"\nbind G \"impulse 22\"\nbind X \"impulse 23\"\nbind Z \"impulse 24\"\nbind V \"impulse 25\"\n");
+	print("coop: hero keys set to C G X Z V\n");
 }
 
 void
@@ -924,6 +968,12 @@ m_consolecommand(string cmd)
 			Menu_Close();
 		else
 			Menu_Open();
+		return TRUE;
+	case "coop_defaultbinds":
+		Menu_DefaultBinds();
+		return TRUE;
+	case "coop_herokeys":
+		Menu_ForceHeroKeys();
 		return TRUE;
 	}
 
