@@ -1,0 +1,336 @@
+// Justice Task Force: the ten prototype heroes (coop_heroes 1).
+//
+// From the example roster (two per genre). Each has one kit, "Standard".
+// The kit's own gun (if any) is the dynamic slot; the primary is the
+// static weapon (hero_primaries.def). Their abilities are rules code
+// (coop/src/rules/hero_kits.qc), picked by "hero_logic". The keys
+// below only name things for the HUD and the menu:
+//   hero_logic  which ability set the rules run
+//   hero_tool   the tool (C), or the passive resource when it has no key
+//   hero_ab1    ability 1 (G)
+//   hero_ab2    ability 2 (X)
+//   hero_form   the henshin form (Z)
+//   hero_ex     the form's exclusive move (V)
+// The models are the three Quake Live stand-ins by weight.
+
+// ---- Dispatch (Commander) -------------------------------------------
+entityDef hero_dispatch
+{
+	"inherit"		"coop_hero_base"
+	"hero_name"		"Dispatch"
+	"hero_role"		"Commander"
+	"hero_weight"	"mid"
+	"hero_desc"		"Leads from the back: places orders that shield whoever follows them."
+	"hero_kits"		"kit_dispatch"
+	"hero_weapon"	"weapon_jtf_pdw"
+	"hero_logic"	"dispatch"
+	"hero_tool"		"Orders"
+	"hero_ab1"		"Courier"
+	"hero_ab2"		"Reroute"
+	"hero_form"		"Operations"
+	"hero_ex"		"Recall"
+	"model"			"progs/ql/grunt_default.md2"
+	"health"		"100"
+	"max_health"	"100"
+	"pm_walkspeed"	"260"
+	"pm_crouchspeed"	"86"
+}
+
+entityDef kit_dispatch
+{
+	"inherit"		"hero_dispatch"
+	"kit_name"		"Standard"
+	"kit_desc"		"A burst PDW that's never the answer."
+	"weapon"		"weapon_crowbar"
+	"current_weapon"	"0"
+}
+
+// ---- Choir (Commander) ----------------------------------------------
+entityDef hero_choir
+{
+	"inherit"		"coop_hero_base"
+	"hero_name"		"Choir"
+	"hero_role"		"Commander"
+	"hero_weight"	"mid"
+	"hero_desc"		"Leads from the front: whoever she faces fights harder."
+	"hero_kits"		"kit_choir"
+	"hero_weapon"	"weapon_jtf_pump"
+	"hero_logic"	"choir"
+	"hero_tool"		"Cadence"
+	"hero_ab1"		"On Your Feet"
+	"hero_ab2"		"Hold the Line"
+	"hero_form"		"Chorus"
+	"hero_ex"		"Sync"
+	"model"			"progs/ql/grunt_default.md2"
+	"health"		"120"
+	"max_health"	"120"
+	"pm_walkspeed"	"260"
+	"pm_crouchspeed"	"86"
+}
+
+entityDef kit_choir
+{
+	"inherit"		"hero_choir"
+	"kit_name"		"Standard"
+	"kit_desc"		"A pump shotgun for the front and nowhere else."
+	"weapon"		"weapon_crowbar"
+	"current_weapon"	"0"
+}
+
+// ---- Bulkhead (Wall) ------------------------------------------------
+entityDef hero_bulkhead
+{
+	"inherit"		"coop_hero_base"
+	"hero_name"		"Bulkhead"
+	"hero_role"		"Wall"
+	"hero_weight"	"heavy"
+	"hero_desc"		"The door everyone stands behind."
+	"hero_kits"		"kit_bulkhead"
+	"hero_weapon"	"weapon_jtf_revolver"
+	"hero_logic"	"bulkhead"
+	"hero_tool"		"The Door"
+	"hero_ab1"		"Set"
+	"hero_ab2"		"Breach"
+	"hero_form"		"Vault"
+	"hero_ex"		"Lockdown"
+	"model"			"progs/ql/tankjr_sport.md2"
+	"health"		"180"
+	"max_health"	"180"
+	"pm_walkspeed"	"200"
+	"pm_crouchspeed"	"66"
+}
+
+entityDef kit_bulkhead
+{
+	"inherit"		"hero_bulkhead"
+	"kit_name"		"Standard"
+	"kit_desc"		"A heavy revolver in one hand, the door in the other."
+	"weapon"		"weapon_crowbar"
+	"current_weapon"	"0"
+}
+
+// ---- Kettle (Wall) --------------------------------------------------
+entityDef hero_kettle
+{
+	"inherit"		"coop_hero_base"
+	"hero_name"		"Kettle"
+	"hero_role"		"Wall"
+	"hero_weight"	"heavy"
+	"hero_desc"		"Gets hit on purpose, then vents it back at the pack."
+	"hero_kits"		"kit_kettle"
+	"hero_weapon"	"weapon_jtf_gauntlets"
+	"hero_logic"	"kettle"
+	"hero_tool"		"Pressure"
+	"hero_ab1"		"Vent"
+	"hero_ab2"		"Come Here"
+	"hero_form"		"Boiler"
+	"hero_ex"		"Charge"
+	"model"			"progs/ql/tankjr_sport.md2"
+	"health"		"220"
+	"max_health"	"220"
+	"pm_walkspeed"	"250"
+	"pm_crouchspeed"	"83"
+}
+
+entityDef kit_kettle
+{
+	"inherit"		"hero_kettle"
+	"kit_name"		"Standard"
+	"kit_desc"		"Pressure gauntlets, and a stubby carbine for what he can't reach."
+	"weapon"		"weapon_9mmAR"
+	"current_weapon"	"0"
+	"ammo_9mm"			"100"
+}
+
+// ---- Vector (Runner) ------------------------------------------------
+entityDef hero_vector
+{
+	"inherit"		"coop_hero_base"
+	"hero_name"		"Vector"
+	"hero_role"		"Runner"
+	"hero_weight"	"light"
+	"hero_desc"		"Hates floors. Finds the way while the fight is happening."
+	"hero_kits"		"kit_vector"
+	"hero_weapon"	"weapon_jtf_smg"
+	"hero_logic"	"vector"
+	"hero_tool"		"Line"
+	"hero_ab1"		"Beacon"
+	"hero_ab2"		"Pick-up"
+	"hero_form"		"Streak"
+	"hero_ex"		"Trace"
+	"model"			"progs/ql/crash_sport.md2"
+	"health"		"85"
+	"max_health"	"85"
+	"pm_walkspeed"	"320"
+	"pm_crouchspeed"	"106"
+}
+
+entityDef kit_vector
+{
+	"inherit"		"hero_vector"
+	"kit_name"		"Standard"
+	"kit_desc"		"A light SMG, fired while swinging."
+	"weapon"		"weapon_crowbar"
+	"current_weapon"	"0"
+}
+
+// ---- Stray (Runner) -------------------------------------------------
+entityDef hero_stray
+{
+	"inherit"		"coop_hero_base"
+	"hero_name"		"Stray"
+	"hero_role"		"Runner"
+	"hero_weight"	"light"
+	"hero_desc"		"Pulls the pack into the Wall for fun, and gets back up."
+	"hero_kits"		"kit_stray"
+	"hero_weapon"	"weapon_jtf_machinepistols"
+	"hero_logic"	"stray"
+	"hero_tool"		"Slide"
+	"hero_ab1"		"Racket"
+	"hero_ab2"		"Second Wind"
+	"hero_form"		"Afterimage"
+	"hero_ex"		"Rush"
+	"model"			"progs/ql/crash_sport.md2"
+	"health"		"90"
+	"max_health"	"90"
+	"pm_walkspeed"	"320"
+	"pm_crouchspeed"	"106"
+}
+
+entityDef kit_stray
+{
+	"inherit"		"hero_stray"
+	"kit_name"		"Standard"
+	"kit_desc"		"Two machine pistols, fired on the move."
+	"weapon"		"weapon_crowbar"
+	"current_weapon"	"0"
+}
+
+// ---- Ledger (Planner) -----------------------------------------------
+entityDef hero_ledger
+{
+	"inherit"		"coop_hero_base"
+	"hero_name"		"Ledger"
+	"hero_role"		"Planner"
+	"hero_weight"	"mid"
+	"hero_desc"		"Turns salvage into caches and jump pads. Lost if she swaps."
+	"hero_kits"		"kit_ledger"
+	"hero_weapon"	"weapon_jtf_battlerifle"
+	"hero_logic"	"ledger"
+	"hero_tool"		"Stock"
+	"hero_ab1"		"Cache"
+	"hero_ab2"		"Jump Pad"
+	"hero_form"		"Depot"
+	"hero_ex"		"Requisition"
+	"model"			"progs/ql/grunt_default.md2"
+	"health"		"100"
+	"max_health"	"100"
+	"pm_walkspeed"	"270"
+	"pm_crouchspeed"	"90"
+}
+
+entityDef kit_ledger
+{
+	"inherit"		"hero_ledger"
+	"kit_name"		"Standard"
+	"kit_desc"		"A battle rifle. Firing it stops stock coming in."
+	"weapon"		"weapon_crowbar"
+	"current_weapon"	"0"
+}
+
+// ---- Tripwire (Planner) ---------------------------------------------
+entityDef hero_tripwire
+{
+	"inherit"		"coop_hero_base"
+	"hero_name"		"Tripwire"
+	"hero_role"		"Planner"
+	"hero_weight"	"light"
+	"hero_desc"		"Goes ahead and leaves things behind that explode."
+	"hero_kits"		"kit_tripwire"
+	"hero_weapon"	"weapon_jtf_silenced"
+	"hero_logic"	"tripwire"
+	"hero_tool"		"Recon"
+	"hero_ab1"		"Mines"
+	"hero_ab2"		"Snare"
+	"hero_form"		"Armed"
+	"hero_ex"		"Remote"
+	"model"			"progs/ql/crash_sport.md2"
+	"health"		"90"
+	"max_health"	"90"
+	"pm_walkspeed"	"290"
+	"pm_crouchspeed"	"96"
+}
+
+entityDef kit_tripwire
+{
+	"inherit"		"hero_tripwire"
+	"kit_name"		"Standard"
+	"kit_desc"		"A silenced carbine. Firing it costs prep."
+	"weapon"		"weapon_crowbar"
+	"current_weapon"	"0"
+}
+
+// ---- Longhand (Hunter) ----------------------------------------------
+entityDef hero_longhand
+{
+	"inherit"		"coop_hero_base"
+	"hero_name"		"Longhand"
+	"hero_role"		"Hunter"
+	"hero_weight"	"light"
+	"hero_desc"		"Studies one target until it has a weak point, then takes the shot."
+	"hero_kits"		"kit_longhand"
+	"hero_weapon"	"weapon_jtf_chargerifle"
+	"hero_logic"	"longhand"
+	"hero_tool"		"Mark"
+	"hero_ab1"		"Overwatch"
+	"hero_ab2"		"Clear Shot"
+	"hero_form"		"Longshot"
+	"hero_ex"		"Verdict"
+	"model"			"progs/ql/crash_sport.md2"
+	"health"		"90"
+	"max_health"	"90"
+	"pm_walkspeed"	"270"
+	"pm_crouchspeed"	"90"
+}
+
+entityDef kit_longhand
+{
+	"inherit"		"hero_longhand"
+	"kit_name"		"Standard"
+	"kit_desc"		"A charge rifle: the longer since the last shot, the harder the next."
+	"weapon"		"weapon_crowbar"
+	"current_weapon"	"0"
+}
+
+// ---- Mantis (Hunter) ------------------------------------------------
+entityDef hero_mantis
+{
+	"inherit"		"coop_hero_base"
+	"hero_name"		"Mantis"
+	"hero_role"		"Hunter"
+	"hero_weight"	"light"
+	"hero_desc"		"Fades when still, kills the elite from behind."
+	"hero_kits"		"kit_mantis"
+	"hero_weapon"	"weapon_jtf_blades"
+	"hero_logic"	"mantis"
+	"hero_tool"		"Still"
+	"hero_ab1"		"Execute"
+	"hero_ab2"		"Slip"
+	"hero_form"		"Ghost"
+	"hero_ex"		"Reap"
+	"model"			"progs/ql/crash_sport.md2"
+	"health"		"85"
+	"max_health"	"85"
+	"pm_walkspeed"	"310"
+	"pm_crouchspeed"	"103"
+}
+
+entityDef kit_mantis
+{
+	"inherit"		"hero_mantis"
+	"kit_name"		"Standard"
+	"kit_desc"		"Twin blades, deadly from behind, and a compact pistol."
+	"weapon"		"weapon_9mmhandgun"
+	"current_weapon"	"0"
+	"ammo_9mm"			"68"
+}
