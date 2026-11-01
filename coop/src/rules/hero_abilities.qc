@@ -885,6 +885,8 @@ Hero_HudInfo(entity pl, int slot, string form)
 	} else if (time < g_hLiteUntil[slot]) {
 		formState = 2i;
 		line = sprintf("Synced: %s form %ds", form, ceil(g_hLiteUntil[slot] - time));
+	} else if (form == "") {
+		line = "";	/* no engage form for this kit: no row */
 	} else {
 		line = sprintf("[Z] Engage: %s %s", form, (g_hEnergy[slot] >= autocvar_coop_engageCost) ? "ready" :
 			ftos(autocvar_coop_engageCost));
