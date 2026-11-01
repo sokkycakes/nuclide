@@ -78,6 +78,12 @@
 /* the name is wider than the gap beside an open page */
 .paging .brand { visibility: collapse; }
 
+/* opened from the JTF title menu (layout/qt/jtf-menu.xml): that menu is the
+   navigation, so this view shows only the page */
+.fromtitle .main-buttons,
+.fromtitle .brand,
+.fromtitle .backdrop-line { visibility: collapse; }
+
 .main-buttons
 {
 	x: 6%;

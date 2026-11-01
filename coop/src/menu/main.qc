@@ -53,9 +53,22 @@ typedef float bool;
 #define UI_INPUT 1
 #define MENU_LAYOUT "layout/coop/menu.xml"
 #define LOADOUT_LAYOUT "layout/coop/loadout.xml"
+/* the title menu out of a game: sokky's JTF menu, a QtCurve-themed
+   Panorama view shipped with Bulwark (data/panorama/layout/qt/), drawn at
+   540 lines and pixelated by its own layout. Its buttons send "jtf_menu"
+   with play, hero, settings or quit; the first three open MENU_LAYOUT on
+   that page, and leaving the page comes back here ("title"). */
+#define TITLE_LAYOUT "layout/qt/jtf-menu.xml"
 
 float g_view;
 bool g_inGame;		/* the open view was opened in a game (pause menu) */
+bool g_title;		/* the open view is TITLE_LAYOUT */
+bool g_noTitle;		/* TITLE_LAYOUT didn't open: use MENU_LAYOUT's own buttons */
+bool g_fontsReady;	/* m_init's localcmds have run, so its ui_font faces exist */
+float g_drawFrames;	/* m_draw calls while waiting for them */
+string g_switchTo;	/* a view to swap to in m_draw: "title" or a page. Not
+			   in the action itself: that runs inside a view's
+			   script, while the engine walks its views */
 string g_mapsJson;
 bool g_browsing;
 float g_browseNext;
@@ -517,18 +530,15 @@ Menu_Close(void)
 		ui_close(g_view);
 
 	g_view = 0;
+	g_title = false;
 	g_browsing = false;
 	setkeydest(0);
 }
 
+/* MENU_LAYOUT, on one page when opened from the title menu */
 void
-Menu_Open(void)
+Menu_OpenPages(bool inGame, string page)
 {
-	bool inGame = (clientstate() == 2) ? true : false;
-
-	if (Menu_IsOpen() && g_inGame == inGame)
-		return;
-
 	Menu_Close();
 	g_view = ui_open(MENU_LAYOUT, UI_INPUT);
 	g_inGame = inGame;
@@ -539,7 +549,56 @@ Menu_Open(void)
 	}
 
 	setkeydest(2);
-	ui_post(g_view, "context", sprintf("{\"ingame\":%s}", inGame ? "true" : "false"));
+	ui_post(g_view, "context", sprintf("{\"ingame\":%s,\"title\":%s}",
+		inGame ? "true" : "false", page != "" ? "true" : "false"));
+
+	if (page != "")
+		ui_post(g_view, "page", Json_Str(page));
+}
+
+/* the title menu, or MENU_LAYOUT's own when it can't be opened */
+void
+Menu_OpenTitle(void)
+{
+	/* the faces m_init registers (localcmd) exist only once the command
+	   buffer has run: a view opened before then resolves its font-family
+	   names to the fallback face. coop_defaultbinds is queued after them,
+	   so it says when they have run (or give up after a while: a config
+	   can hold the buffer with waits). m_draw asks again each frame. */
+	if (!g_fontsReady && g_drawFrames < 120)
+		return;
+
+	Menu_Close();
+
+	if (!g_noTitle) {
+		g_view = ui_open(TITLE_LAYOUT, UI_INPUT);
+
+		if (g_view) {
+			g_title = true;
+			g_inGame = false;
+			setkeydest(2);
+			return;
+		}
+
+		print(sprintf("^3menu: can't open %s, using %s\n", TITLE_LAYOUT, MENU_LAYOUT));
+		g_noTitle = true;
+	}
+
+	Menu_OpenPages(false, "");
+}
+
+void
+Menu_Open(void)
+{
+	bool inGame = (clientstate() == 2) ? true : false;
+
+	if (Menu_IsOpen() && g_inGame == inGame)
+		return;
+
+	if (inGame)
+		Menu_OpenPages(true, "");
+	else
+		Menu_OpenTitle();
 }
 
 /* ---- panels the server fills: the points shop and the XP skill menu ---- */
@@ -747,6 +806,19 @@ Menu_UIAction(float view, string action, string arg)
 	}
 
 	switch (action) {
+	case "jtf_menu":
+		if (arg == "quit")
+			localcmd("quit\n");
+		else if (arg == "play")
+			g_switchTo = "play";	/* literals: arg is a temp string */
+		else if (arg == "hero")
+			g_switchTo = "hero";
+		else if (arg == "settings")
+			g_switchTo = "settings";
+		break;
+	case "title":
+		g_switchTo = "title";
+		break;
 	case "maps":
 		Maps_Build();
 		ui_post(view, "maps", g_mapsJson);
@@ -813,6 +885,10 @@ m_init(void)
 
 	if (whichpack("fonts/tahomabd.ttf") != "")
 		localcmd("ui_font Tahoma fonts/tahomabd.ttf 700\n");
+
+	/* the title menu's faces (SIL OFL, shipped with Bulwark's data) */
+	localcmd("ui_font Iceberg panorama/fonts-jtf/Iceberg-Regular.ttf 400\n");
+	localcmd("ui_font \"Kode Mono\" panorama/fonts-jtf/KodeMono-Regular.ttf 400\n");
 
 	/* the default keys wait for the saved config: at m_init it hasn't run
 	   yet (it's still in the command buffer), so every key looks free and
@@ -901,13 +977,23 @@ m_draw(vector screensize)
 	if (clientstate() != 2) {
 		/* out of a game the title menu is always up */
 		drawfill([0,0], screensize, [0,0,0], 1.0, 0);
+		g_drawFrames++;
+
+		if (g_switchTo == "title")
+			Menu_OpenTitle();
+		else if (g_switchTo != "")
+			Menu_OpenPages(false, g_switchTo);
+		g_switchTo = "";
 
 		if (!Menu_IsOpen() || g_inGame)
 			Menu_Open();
 		Panel_Close();
-	} else if (Menu_IsOpen() && !g_inGame) {
+	} else {
+		g_switchTo = "";
+
 		/* just joined a game from the title menu */
-		Menu_Close();
+		if (Menu_IsOpen() && !g_inGame)
+			Menu_Close();
 	}
 
 	Preview_Draw();
@@ -970,6 +1056,7 @@ m_consolecommand(string cmd)
 			Menu_Open();
 		return TRUE;
 	case "coop_defaultbinds":
+		g_fontsReady = true;
 		Menu_DefaultBinds();
 		return TRUE;
 	case "coop_herokeys":
