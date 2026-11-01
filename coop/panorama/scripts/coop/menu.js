@@ -492,7 +492,7 @@ var CoopMenu = ( function ()
 		[ "messagemode2", "Team chat" ], [ "cmd selectskills", "Skills" ], [ "cmd shop", "Shop and skills" ], [ "vote yes", "Vote yes" ],
 		[ "vote no", "Vote no" ], [ "impulse 201", "Spray" ],
 		[ "impulse 21", "Hero tool" ], [ "impulse 22", "Hero ability 1" ], [ "impulse 23", "Hero ability 2" ],
-		[ "impulse 24", "Henshin" ], [ "impulse 25", "Henshin move" ]
+		[ "impulse 24", "Engage" ], [ "impulse 25", "Engage move" ]
 	];
 	var binds = {};
 

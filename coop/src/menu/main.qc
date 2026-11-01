@@ -186,12 +186,24 @@ Servers_Json(void)
 
 #define DEF_MAX 64
 #define DEF_KEYS "inherit hero_name hero_role hero_desc hero_kits hero_weight kit_name kit_desc model health pm_walkspeed"
-#define HERO_LIST "hero_tank hero_support hero_pointman"
+/* the rules' coop_heroList default (src/rules/heroes.qc) */
+#define HERO_LIST "hero_dispatch hero_choir hero_bulkhead hero_kettle hero_vector hero_stray hero_ledger hero_tripwire hero_longhand hero_mantis hero_tank hero_support hero_pointman"
+#define HERO_MAX 16
 
 string g_defName[DEF_MAX];
 string g_defInfo[DEF_MAX];	/* the kept keys, as an infostring */
 float g_defCount;
 string g_rosterJson;
+
+void Defs_Load(string path);
+
+/* every def file with heroes or kits in it */
+void
+Defs_LoadHeroes(void)
+{
+	Defs_Load("decls/def/heroes.def");
+	Defs_Load("decls/def/heroes_roster.def");
+}
 
 void
 Defs_Load(string path)
@@ -291,18 +303,18 @@ void
 Roster_Build(string picked)
 {
 	string list = cvar_string("coop_heroList");
-	string heroes[8];
+	string heroes[HERO_MAX];
 	float heroCount;
 	string json;
 	float kitCount = 0;
 
 	if (!g_defCount)
-		Defs_Load("decls/def/heroes.def");
+		Defs_LoadHeroes();
 
 	if (list == "")
 		list = HERO_LIST;
 
-	heroCount = min(tokenize(list), 8);
+	heroCount = min(tokenize(list), HERO_MAX);
 
 	for (float h = 0; h < heroCount; h++)
 		heroes[h] = argv(h);
@@ -426,7 +438,7 @@ Preview_Set(float view, string arg)
 	}
 
 	if (!g_defCount) {
-		Defs_Load("decls/def/heroes.def");
+		Defs_LoadHeroes();
 		tokenize(arg);
 	}
 
@@ -902,7 +914,7 @@ m_init(void)
 
 /* coop_defaultbinds: the keys a new player gets, only where neither the
    command nor the key is taken. The shop: B. The hero abilities
-   (coop/src/rules/hero_abilities.qc): C tool, G and X abilities, Z henshin,
+   (coop/src/rules/hero_abilities.qc): C tool, G and X abilities, Z engage,
    V the form's move. Configs from other games often hold C/G/X/Z (radio,
    drop), so each has fallbacks, tried in order; "coop_herokeys" forces the
    first choices */
