@@ -59,6 +59,7 @@ void Hero_SlotInput(entity pl);
 void Hero_GunsFrame(void);
 vector Coop_FreeSpot(entity who, vector org);
 void Coop_Unstick(void);
+void Coop_CorpseFade(entity npc);
 bool Hero_AbilityImpulse(entity pl, float num);
 void Hero_AbilityKilled(entity pl);
 void Hero_AbilityNPCKilled(entity npc, entity attacker);
@@ -901,6 +902,7 @@ CodeCallback_NPCKilled(entity npcEntity, entity inflictor, entity attacker, stri
 	}
 
 	Hero_AbilityNPCKilled(npcEntity, attacker);
+	Coop_CorpseFade(npcEntity);
 
 	if (!is.Player(attacker)) {
 		return;

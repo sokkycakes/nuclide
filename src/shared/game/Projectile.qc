@@ -1178,6 +1178,15 @@ ncProjectile::_FireSingle(vector vecPos, vector vecAngles, float flDamage, float
 			m_iMultiValue += flDamage;
 		}
 	}
+
+	/* a corpse takes the hit but doesn't stop the bullet: it goes on, with
+	   the corpse left out of the trace, to whatever is behind it */
+	if (impactTarget && impactTarget.solid == SOLID_CORPSE && flRange > 0) {
+		float oldDimension = impactTarget.dimension_solid;
+		impactTarget.dimension_solid = 0;
+		_FireSingle(m_hitLocation + vecAngles, vecAngles, flDamage, flRange - 1);
+		impactTarget.dimension_solid = oldDimension;
+	}
 }
 
 /* what a tracking projectile steers towards: a monster's own enemy, or
