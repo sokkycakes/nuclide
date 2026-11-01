@@ -324,3 +324,57 @@ Coop_Unstick(void)
 		}
 	}
 }
+
+/* ---- corpses fade away like gibs ----
+
+   A dead monster stays where it fell for good in Nuclide. In co-op it waits
+   coop_corpseTime (15) seconds, then fades out the way gibs do (255 to 0,
+   7 every tenth of a second, about 3.6 s) and goes. Wave monsters are
+   removed; map-placed ones (with a targetname, which something may still
+   point at) are only hidden. 0 keeps corpses. Players' bodies aren't
+   touched: reviving needs them. */
+
+var float autocvar_coop_corpseTime = 15;
+
+void
+Coop_CorpseThink(void)
+{
+	entity npc = self.owner;
+
+	/* gibbed, removed, or alive again (a corpse keeps some health, for gibbing) */
+	if (!npc || wasfreed(npc) || !npc.modelindex || npc.solid != SOLID_CORPSE || is.Player(npc)) {
+		remove(self);
+		return;
+	}
+
+	if (self.health == 0) {
+		self.health = 255;
+		ents.Input(npc, "SetRenderMode", "2", world);
+	} else {
+		self.health -= 7;
+	}
+
+	if (self.health > 0) {
+		ents.Input(npc, "Alpha", ftos(self.health), world);
+		self.nextthink = time + 0.1f;
+		return;
+	}
+
+	ents.Input(npc, (npc.targetname == "") ? "Kill" : "Disappear", "", world);
+	remove(self);
+}
+
+void
+Coop_CorpseFade(entity npc)
+{
+	if (autocvar_coop_corpseTime <= 0 || !npc || is.Player(npc)) {
+		return;
+	}
+
+	entity fader = spawn();
+	fader.classname = "coop_corpsefade";
+	fader.owner = npc;
+	fader.health = 0;
+	fader.think = Coop_CorpseThink;
+	fader.nextthink = time + autocvar_coop_corpseTime;
+}

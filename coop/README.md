@@ -44,6 +44,11 @@ Headless test with bots (prints the wave and scores every 10 seconds):
   free spot. Revives also put the revived player beside the reviver rather
   than inside them. `sv coop_survivors stack` puts the bots inside the
   first human, to test it.
+- Corpses fade out like gibs: a dead monster lies for `coop_corpseTime`
+  (15) seconds, fades over about 3.6 s and goes (wave monsters are
+  removed, map monsters with a targetname only hidden). 0 keeps them.
+  Players' bodies stay, for reviving. Bullets go through corpses (Nuclide
+  core): the corpse takes the hit and the shot carries on to what's behind.
 - `coop_survival 1`: no respawning on your own. Clearing a wave brings
   everyone back; if the whole team is down the map restarts.
 - Waves spawn at `info_monster_spawn` points (or deathmatch spawns). A map
