@@ -2184,6 +2184,143 @@ Mantis_Status(entity pl, int slot)
 
 /* ==== routing ============================================================== */
 
+/* ==== MEDIC (Support kit) ==================================================
+   Patch (C): heals the teammate under the crosshair (within 512 units, in
+   sight) by coop_medicPatch (40), or the Medic by half that when no one is
+   there; 6 s. Triage (G): everyone within 400 units, the Medic too, gets
+   coop_medicTriage (30); 20 s. Neither goes over max health. Revives are
+   the shared Use-on-a-body. */
+
+var float autocvar_coop_medicPatch = 40;
+var float autocvar_coop_medicTriage = 30;
+
+/* gives up to amount health, never past max; how much it gave */
+float
+Medic_Heal(entity medic, entity p, float amount)
+{
+	float maxHealth = entityDef.GetFloat(p.classname, "max_health");
+
+	if (maxHealth <= 0) {
+		maxHealth = 100;
+	}
+
+	if (!is.Alive(p) || p.health >= maxHealth) {
+		return (0);
+	}
+
+	float add = min(amount, maxHealth - p.health);
+	ents.Input(p, "SetHealth", ftos(p.health + add), medic);
+	sound(p, CHAN_ITEM, "items/smallmedkit1.wav", 1, ATTN_NORM);
+
+	if (p != medic) {
+		Hero_Notice(p, sprintf("+%d health from %s", add, medic.netname));
+	}
+
+	return (add);
+}
+
+/* the teammate closest to the crosshair, within range and in sight */
+entity
+Medic_AimedMate(entity pl, float range)
+{
+	entity best = world;
+	float bestDot = 0.95f;
+	vector eye = pl.origin + pl.view_ofs;
+
+	makevectors(pl.v_angle);
+
+	for (entity p = world; (p = next.Player(p));) {
+		if (p == pl || !is.Alive(p) || p.classname == "spectator") {
+			continue;
+		}
+
+		vector to = (p.origin + [0, 0, 16]) - eye;
+
+		if (vlen(to) > range) {
+			continue;
+		}
+
+		float d = normalize(to) * v_forward;
+
+		if (d <= bestDot) {
+			continue;
+		}
+
+		traceline(eye, eye + to, MOVE_NOMONSTERS, pl);
+
+		if (trace_fraction >= 1.0f) {
+			bestDot = d;
+			best = p;
+		}
+	}
+
+	return (best);
+}
+
+void
+Medic_Patch(entity pl, int slot)
+{
+	if (!Kit_Ready(pl, g_hReadyT[slot], "hero_tool")) {
+		return;
+	}
+
+	entity mate = Medic_AimedMate(pl, 512);
+	float gave;
+
+	if (mate) {
+		gave = Medic_Heal(pl, mate, autocvar_coop_medicPatch);
+	} else {
+		gave = Medic_Heal(pl, pl, autocvar_coop_medicPatch * 0.5f);
+	}
+
+	if (gave <= 0) {
+		Hero_Notice(pl, mate ? sprintf("%s is at full health", mate.netname) : "Aim at a hurt teammate");
+		return;
+	}
+
+	Hero_Notice(pl, sprintf("Patched %s: +%d", mate ? mate.netname : "yourself", gave));
+	g_hReadyT[slot] = time + 6.0f;
+}
+
+void
+Medic_Triage(entity pl, int slot)
+{
+	if (!Kit_Ready(pl, g_hReady1[slot], "hero_ab1")) {
+		return;
+	}
+
+	float total = 0;
+	int count = 0i;
+
+	for (entity p = world; (p = next.Player(p));) {
+		if (p.classname == "spectator" || vlen(p.origin - pl.origin) > 400) {
+			continue;
+		}
+
+		float gave = Medic_Heal(pl, p, autocvar_coop_medicTriage);
+
+		if (gave > 0) {
+			total += gave;
+			count++;
+		}
+	}
+
+	if (count == 0i) {
+		Hero_Notice(pl, "No one near is hurt");
+		return;
+	}
+
+	ents.Input(pl, "Shockwave", "sprites/shockwave.spr 400 0 4 8 90 255 120 160", pl);
+	Hero_Notice(pl, sprintf("Triage: %i healed, +%d", count, total));
+	g_hReady1[slot] = time + 20.0f;
+}
+
+string
+Medic_Status(entity pl, int slot)
+{
+	return (sprintf("[C] Patch %s  [G] Triage %s", Hero_Ready(g_hReadyT[slot]), Hero_Ready(g_hReady1[slot])));
+}
+
 void
 Kit_Spawned(entity pl, int slot)
 {
@@ -2266,6 +2403,11 @@ Kit_Use(entity pl, int slot, int ab)
 		else if (ab == AB_ONE) Longhand_Overwatch(pl, slot);
 		else if (ab == AB_TWO) Longhand_ClearShot(pl, slot);
 		else if (ab == AB_EX) Longhand_Verdict(pl, slot);
+		break;
+	case HL_MEDIC:
+		if (ab == AB_TOOL) Medic_Patch(pl, slot);
+		else if (ab == AB_ONE) Medic_Triage(pl, slot);
+		else Hero_Notice(pl, "The Medic has Patch (C) and Triage (G)");
 		break;
 	case HL_MANTIS:
 		if (ab == AB_TOOL) Hero_Notice(pl, "Stand still to fade");
@@ -2454,6 +2596,7 @@ Kit_Status(entity pl, int slot)
 	case HL_TRIPWIRE: return (Tripwire_Status(pl, slot));
 	case HL_LONGHAND: return (Longhand_Status(pl, slot));
 	case HL_MANTIS: return (Mantis_Status(pl, slot));
+	case HL_MEDIC: return (Medic_Status(pl, slot));
 	}
 
 	return ("");
