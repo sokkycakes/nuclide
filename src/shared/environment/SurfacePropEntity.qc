@@ -300,6 +300,8 @@ ncSurfacePropEntity::ParentUpdate(void)
 	super::ParentUpdate();
 }
 
+var bool autocvar_sv_allyDamage = true;
+
 void
 ncSurfacePropEntity::Damage(entity inflictor, entity attacker, ncDict damageDecl, float damageScale, vector dmgDir, vector hitLocation)
 {
@@ -313,6 +315,18 @@ ncSurfacePropEntity::Damage(entity inflictor, entity attacker, ncDict damageDecl
 
 	if (IsVulnerable() == false) {
 		return;
+	}
+
+	/* sv_allyDamage 0: characters on the players' side (Barney, scientists,
+	   allied soldiers) take no damage from players, so they also never turn
+	   on them, as in Sven Co-op. A def can opt out with "player_damage" "1"
+	   (the cockroach is one of ours by alliance, but still squishable). */
+	if (autocvar_sv_allyDamage == false && this != attacker && is.AI(this) && is.Player(attacker)) {
+		ncMonster allyCheck = (ncMonster)this;
+
+		if (allyCheck.m_iAlliance == MAL_FRIEND && GetSpawnBool("player_damage") == false) {
+			return;
+		}
 	}
 
 	ourAttacker = (ncSurfacePropEntity)attacker;
