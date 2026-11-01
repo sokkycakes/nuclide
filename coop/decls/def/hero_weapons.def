@@ -20,6 +20,9 @@ entityDef hero_weapon_base
 	"weight"			"30"
 	"hero_static"		"1"
 	"snd_empty"			"Weapons.Empty"
+	// the Half-Life HUD draws the crosshair the def names, and a hero gun's
+	// own name has none in sprites/: borrow Half-Life's
+	"crosshair"			"weapon_9mmar.crosshair"
 }
 
 // ---- BALROG-VII (Tank) ----------------------------------------------------
@@ -80,6 +83,7 @@ entityDef projectile_balrog7
 entityDef weapon_cyclone
 {
 	"inherit"			"hero_weapon_base"
+	"crosshair"			"weapon_9mmhandgun.crosshair"
 	"model"				"models/w_sfpistol.mdl"
 	"model_player"		"models/p_sfpistol.mdl"
 	"model_view"		"models/v_sfpistol.mdl"
@@ -125,6 +129,7 @@ entityDef projectile_cyclone
 entityDef weapon_skull1
 {
 	"inherit"			"hero_weapon_base"
+	"crosshair"			"weapon_9mmhandgun.crosshair"
 	"model"				"models/w_skull1.mdl"
 	"model_player"		"models/p_skull1.mdl"
 	"model_view"		"models/v_skull1.mdl"

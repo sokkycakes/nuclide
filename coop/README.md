@@ -33,10 +33,14 @@ Headless test with bots (prints the wave and scores every 10 seconds):
   their own once the delay is over.
 - Survivor bots (`src/rules/survivors.qc`), like Left 4 Dead's: the server
   keeps `coop_survivorBots` (1) bots in while a human plays, using the
-  `coop_survivorProfiles` bot profiles in turn. With no one to revive and no
-  foe near, a bot further than `coop_survivorFollow` (320) from the nearest
-  human walks back to them; one further than `coop_survivorWarp` (2000)
-  that no human can see is moved behind them. Hero bots engage when three
+  `coop_survivorProfiles` bot profiles in turn. With no one to revive, a
+  bot sticks with the nearest human through Nuclide's bot follow mode: it
+  keeps within `bot_followDist` (180), just behind and to one side, looks
+  where the human looks, shoots the foe nearest the team from where it
+  stands, and only leaves with a melee weapon, for a foe within
+  `bot_followLeash` (600) of the human. It steps aside when the human walks
+  into it. One further than `coop_survivorWarp` (2000) that no human can
+  see is moved behind them. Hero bots engage when three
   or more foes are within 512 units. `sv coop_survivors` lists them.
 - Nobody stays stuck inside a teammate (`coop_unstick`, on): two living
   players whose boxes overlap can't move, so five times a second they're

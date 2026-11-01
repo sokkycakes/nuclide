@@ -60,6 +60,7 @@ void Hero_GunsFrame(void);
 vector Coop_FreeSpot(entity who, vector org);
 void Coop_Unstick(void);
 void Coop_CorpseFade(entity npc);
+void Coop_BodyFade(entity pl, int slot);
 bool Hero_AbilityImpulse(entity pl, float num);
 void Hero_AbilityKilled(entity pl);
 void Hero_AbilityNPCKilled(entity npc, entity attacker);
@@ -555,6 +556,8 @@ Coop_BotThink(void)
 		}
 
 		if (best && bestDist > autocvar_coop_reviveRange * 0.5f) {
+			/* off the leader's side for this */
+			ents.Input(pl, "BotFollow", "", pl);
 			ents.Input(pl, "GoToPosition", vtos(g_coopDownOrigin[Coop_Slot(best)]), pl);
 			g_coopBotOrder[slot] = time + 2.0f;
 		} else if (!best) {
@@ -880,6 +883,7 @@ CodeCallback_PlayerKilled(entity playerEntity, entity inflictor, entity attacker
 	}
 
 	Hero_AbilityKilled(playerEntity);
+	Coop_BodyFade(playerEntity, slot);
 
 	if (!autocvar_coop_survival) {
 		centerprint(playerEntity, sprintf("You are down. A teammate can revive you, or respawn in %d seconds", autocvar_coop_respawnDelay));
@@ -1163,6 +1167,20 @@ Coop_PrintStatus(void)
 		g_coopWave, g_coopWaveState, g_coopWaveLeft, Coop_MonstersAlive(),
 		Coop_AlivePlayerCount(), Coop_PlayerCount()));
 	print(sprintf(" scale %f skill %d\n", Coop_HealthScale(), cvar("skill")));
+
+	/* entity load, for performance reports */
+	int ents = 0i, hornets = 0i;
+
+	for (entity e = world; (e = nextent(e));) {
+		ents++;
+
+		if (substring(e.classname, 0, 18) == "ranged_agrunt_shot" || substring(e.classname, 0, 17) == "projectile_hornet") {
+			hornets++;
+
+		}
+	}
+
+	print(sprintf("  entities %i, hornets %i\n", ents, hornets));
 
 	for (entity p = world; (p = next.Player(p));) {
 		int slot = Coop_Slot(p);

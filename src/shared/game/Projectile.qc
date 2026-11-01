@@ -773,6 +773,12 @@ ncProjectile::SetImpact(void(entity a,entity b) func)
 void
 ncProjectile::_AnimateThink(void)
 {
+	/* this think replaces the one that would end the fuse */
+	if (m_flFuse > 0.0f && GetSpawnAge() > m_flFuse + 0.1f) {
+		_FuseEnded();
+		return;
+	}
+
 	SetFrame(frame + 1);
 
 	if (frame > (float)m_iProjectileAnimEnd) {
@@ -1271,7 +1277,18 @@ ncProjectile::_ThrustThink(void)
 	vector newVelocity;
 
 	/* the entity may have been invalidated */
-	if (wasfreed(this) || !owner) {
+	if (wasfreed(this)) {
+		return;
+	}
+
+	/* the fuse first: a hornet whose owner died (owner is cleared then)
+	   or that is pinned against a wall must still go away */
+	if (m_flFuse > 0.0f && GetSpawnAge() > m_flFuse + 0.1f) {
+		_FuseEnded();
+		return;
+	}
+
+	if (!owner) {
 		return;
 	}
 
