@@ -357,7 +357,7 @@ var CoopMenu = ( function ()
 	{
 		openPage( "hero", "Hero" );
 		stage.SetHasClass( "hero-open", true );
-		var list = make( "Panel", body, "heroes-list title-heroes", { hittest: "false" } );
+		var list = make( "Panel", body, "heroes-list title-heroes", { hittest: "true" } );
 		var status = label( body, "status", "" );
 		body.heroList = list;
 		body.heroStatus = status;

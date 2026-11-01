@@ -38,7 +38,7 @@
 			</Panel>
 			<Panel id="HeroPage" class="loadout-page hero-page" hittest="false">
 				<Panel class="hero-side" hittest="false">
-					<Panel id="Heroes" class="heroes-list" hittest="false" />
+					<Panel id="Heroes" class="heroes-list" hittest="true" />
 					<Label id="HeroMessage" class="shop-message" text="" hittest="false" />
 				</Panel>
 				<!-- the menu progs draws the hero in 3D under the view here -->
