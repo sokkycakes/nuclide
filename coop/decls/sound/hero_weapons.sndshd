@@ -7,6 +7,12 @@ Weapon_Balrog7.Single
 	sample weapons/balrog7-1.wav
 }
 
+Weapon_Cyclone.Shot
+{
+	alerts
+	sample weapons/sfpistol_shoot_start.wav
+}
+
 Weapon_Cyclone.Start
 {
 	alerts

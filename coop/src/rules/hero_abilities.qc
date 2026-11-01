@@ -681,6 +681,7 @@ string Kit_Status(entity pl, int slot);
 void Kit_AnyThink(entity pl, int slot);
 void Kit_DeadThink(entity pl, int slot);
 void Kit_FieldReviveInput(entity pl);
+void Medic_GunInput(entity pl, int slot);
 
 void
 Hero_ResetState(int slot)
@@ -855,6 +856,7 @@ Hero_AbilityInput(entity pl)
 	}
 
 	Kit_FieldReviveInput(pl);
+	Medic_GunInput(pl, slot);
 }
 
 /* cooldown text for the HUD */
@@ -1171,6 +1173,7 @@ Hero_AbilityPrecache(void)
 	precache_model("sprites/shockwave.spr");
 	precache_sound("debris/beamstart1.wav");
 	precache_sound("items/smallmedkit1.wav");
+	precache_sound("items/suitchargeok1.wav");
 	precache_sound("debris/beamstart4.wav");
 	precache_sound("buttons/blip1.wav");
 	precache_sound("buttons/button9.wav");

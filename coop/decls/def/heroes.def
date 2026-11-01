@@ -182,10 +182,10 @@ entityDef kit_support_medic
 {
 	"inherit"			"hero_support"
 	"kit_name"			"Medic"
-	"kit_desc"			"Patch (C) heals who you aim at, Triage (G) everyone near. The Hivehand never runs dry."
+	"kit_desc"			"The Cyclone heals teammates it hits. Shield (C) and Barrier Field (G) hand out Barrier."
 	"hero_logic"		"medic"
-	"hero_tool"			"Patch"
-	"hero_ab1"			"Triage"
+	"hero_tool"			"Shield"
+	"hero_ab1"			"Barrier Field"
 	"weapon"			"weapon_hornetgun"
 	"current_weapon"	"0"
 }

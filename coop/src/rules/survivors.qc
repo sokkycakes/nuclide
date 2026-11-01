@@ -210,6 +210,24 @@ Survivor_List(void)
 {
 	/* "sv coop_survivors stack": puts the bots inside the first human, to
 	   test Coop_Unstick */
+	/* "sv coop_survivors hurt": the bots at 30 health, 120 units in front
+	   of the first human, to test the Medic */
+	if (argv(1) == "hurt") {
+		for (entity hh = world; (hh = next.Player(hh));) {
+			if (!is.Bot(hh) && is.Alive(hh)) {
+				makevectors([0, hh.v_angle[1], 0]);
+
+				for (entity bb = world; (bb = next.Player(bb));) {
+					if (is.Bot(bb) && is.Alive(bb)) {
+						setorigin(bb, hh.origin + v_forward * 120);
+						ents.Input(bb, "SetHealth", "30", hh);
+					}
+				}
+				break;
+			}
+		}
+	}
+
 	if (argv(1) == "stack") {
 		entity human = world;
 

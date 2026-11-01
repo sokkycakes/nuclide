@@ -71,9 +71,11 @@ entityDef projectile_balrog7
 }
 
 // ---- Cyclone (Support) ----------------------------------------------------
-// CSO's sfpistol: 50 energy cells fired as a continuous beam while the
-// trigger is held. v_sfpistol.mdl: 0 idle, 1 shoot1 (the beam, looped),
-// 2 shoot_end, 3 reload, 4 draw
+// CSO's sfpistol as the Medic's medigun pistol: single shots. A shot that
+// hits a teammate heals them (rules: Medic_GunInput, coop_medigunHeal), one
+// that hits a foe hurts it. v_sfpistol.mdl: 0 idle, 1 shoot1, 2 shoot_end,
+// 3 reload, 4 draw. (It used to be CSO's held beam, whose loop sound never
+// stopped.)
 
 entityDef weapon_cyclone
 {
@@ -86,18 +88,15 @@ entityDef weapon_cyclone
 	"inv_name"			"Cyclone"
 
 	"def_fireInfo"		"fireInfo_cyclone"
-	"clipSize"			"50"
-	"clipSizeDefault"	"50"
+	"clipSize"			"20"
+	"clipSizeDefault"	"20"
 
 	"act_idle"			"0"
-	"act_loop"			"1"
-	"act_fireStop"		"2"
+	"act_fire"			"2"
 	"act_reload"		"3"
 	"act_draw"			"4"
 
-	"snd_fireStart"		"Weapon_Cyclone.Start"
-	"snd_fireLoop"		"Weapon_Cyclone.Loop"
-	"snd_fireStop"		"Weapon_Cyclone.Stop"
+	"snd_fire"			"Weapon_Cyclone.Shot"
 }
 
 entityDef fireInfo_cyclone
@@ -106,14 +105,16 @@ entityDef fireInfo_cyclone
 	"ammoType"			"ammo_hero"
 	"ammoRequired"		"1"
 	"ammoPerShot"		"1"
-	"fireRate"			"0.08"
+	"semiAuto"			"1"
+	"fireRate"			"0.25"
+	"punchAngle"		"-2 0 0"
 }
 
 entityDef projectile_cyclone
 {
 	"inherit"		"projectile_bullet_base"
-	"damage"		"12"
-	"spread"		"0.005 0.005"
+	"damage"		"22"
+	"spread"		"0.004 0.004"
 }
 
 // ---- SKULL-1 (Pointman) ----------------------------------------------------
