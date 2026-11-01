@@ -135,6 +135,12 @@ instead of the scoreboard (`cg_scoresWhenDead 0`, set in
   `zz_coopheroes.pk3`, which isn't in git: put it in `coop/`. Without it
   heroes fall back to `models/player.mdl`. The models need Bulwark's .md2
   support.
+- Support's Medic kit heals (`hero_logic "medic"`, `src/rules/hero_kits.qc`):
+  Patch (C) gives the teammate under the crosshair (512 units, in sight)
+  `coop_medicPatch` (40) health, or the Medic half that with no one there,
+  every 6 s; Triage (G) gives everyone within 400 units, the Medic too,
+  `coop_medicTriage` (30), every 20 s. Never past max health. It has no
+  engage form yet, so Z says so.
 - Each hero has two weapon slots, like Left 4 Dead's sidearm and primary
   (`decls/def/hero_weapons.def`, `src/rules/heroes.qc`). The static weapon
   is the hero's own ("hero_weapon": Tank BALROG-VII, Support Cyclone,

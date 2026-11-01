@@ -64,7 +64,8 @@ enum
 	HL_LEDGER,
 	HL_TRIPWIRE,
 	HL_LONGHAND,
-	HL_MANTIS
+	HL_MANTIS,
+	HL_MEDIC
 };
 
 enum
@@ -118,6 +119,7 @@ Hero_LogicOf(string def)
 	case "tripwire": return (HL_TRIPWIRE);
 	case "longhand": return (HL_LONGHAND);
 	case "mantis": return (HL_MANTIS);
+	case "medic": return (HL_MEDIC);
 	}
 
 	return (HL_NONE);
@@ -762,6 +764,11 @@ Hero_EngageEnd(entity pl, int slot)
 void
 Hero_EngageStart(entity pl, int slot)
 {
+	if (entityDef.GetString(pl.classname, "hero_form") == "") {
+		Hero_Notice(pl, "No engage form for this kit yet");
+		return;
+	}
+
 	if (g_hEnergy[slot] < autocvar_coop_engageCost) {
 		Hero_Notice(pl, sprintf("Engage needs %d Energy", autocvar_coop_engageCost));
 		return;
@@ -881,7 +888,7 @@ Hero_Hud(entity pl, int slot)
 			g_hExUsed[slot] ? "used" : "ready"));
 	} else if (time < g_hLiteUntil[slot]) {
 		text = strcat(text, sprintf("\nSynced: %s form %ds", form, ceil(g_hLiteUntil[slot] - time)));
-	} else {
+	} else if (form != "") {
 		text = strcat(text, sprintf("\n[Z] Engage: %s (%d)", form, autocvar_coop_engageCost));
 	}
 
@@ -1122,6 +1129,7 @@ Hero_AbilityPrecache(void)
 
 	precache_model("sprites/shockwave.spr");
 	precache_sound("debris/beamstart1.wav");
+	precache_sound("items/smallmedkit1.wav");
 	precache_sound("debris/beamstart4.wav");
 	precache_sound("buttons/blip1.wav");
 	precache_sound("buttons/button9.wav");
