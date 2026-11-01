@@ -929,19 +929,6 @@ Menu_DefaultBinds(void)
 	Menu_DefaultBind("impulse 23", HERO_KEYS_23);
 	Menu_DefaultBind("impulse 24", HERO_KEYS_24);
 	Menu_DefaultBind("impulse 25", HERO_KEYS_25);
-
-	/* Q swaps the hero's weapon slots (outside hero mode it's the last
-	   weapon). Q was the mod's "weaplast" key, so that bind gives way too;
-	   anything else the player put on Q stays */
-	if (findkeysforcommandex("cmd heroswap") == "") {
-		string onQ = getkeybind(stringtokeynum("Q"));
-
-		if (onQ == "" || onQ == "weaplast") {
-			localcmd("bind Q \"cmd heroswap\"\n");
-		} else {
-			Menu_DefaultBind("cmd heroswap", "MOUSE3 F");
-		}
-	}
 }
 
 /* binds command to the first free key of keys (space separated), if the

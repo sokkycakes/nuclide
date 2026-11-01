@@ -38,6 +38,12 @@ Headless test with bots (prints the wave and scores every 10 seconds):
   human walks back to them; one further than `coop_survivorWarp` (2000)
   that no human can see is moved behind them. Hero bots engage when three
   or more foes are within 512 units. `sv coop_survivors` lists them.
+- Nobody stays stuck inside a teammate (`coop_unstick`, on): two living
+  players whose boxes overlap can't move, so five times a second they're
+  pulled apart, the bot (or else the second player) moving to the nearest
+  free spot. Revives also put the revived player beside the reviver rather
+  than inside them. `sv coop_survivors stack` puts the bots inside the
+  first human, to test it.
 - `coop_survival 1`: no respawning on your own. Clearing a wave brings
   everyone back; if the whole team is down the map restarts.
 - Waves spawn at `info_monster_spawn` points (or deathmatch spawns). A map
@@ -133,10 +139,9 @@ instead of the scoreboard (`cg_scoresWhenDead 0`, set in
   (within about 96 units, "[Use] Take <gun>" shows) and press Use, and it
   replaces the dynamic gun, which drops in front of you (it can't be taken
   again for 1.5 s), and switches to it. Survivor bots still take a gun by
-  walking over it when their dynamic slot is empty. Q (`cmd heroswap`)
-  swaps between the static and the dynamic gun; outside hero mode it's the
-  last weapon, as before. The menu binds Q only when it's free or still the
-  mod's old `weaplast`, and otherwise falls back to MOUSE3 or F.
+  walking over it when their dynamic slot is empty. Q (`weaplast`, the
+  last weapon) swaps between the static and the dynamic gun, since a hero
+  carries nothing else.
   `cmd heroguns` lists the floor guns and what you hold (`take` takes the
   nearest one), for tests.
   Melee and throwables are outside both. The static weapons are Counter-

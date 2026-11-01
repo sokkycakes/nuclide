@@ -159,6 +159,7 @@ ncPlayer::SharedInputFrame(void)
 		if (nextWeapon != m_activeWeapon) {
 			if (nextWeapon && HasExactItem(nextWeapon)) {
 				ncWeapon oldWeapon = m_activeWeapon;
+				m_lastWeapon = oldWeapon;
 				m_activeWeapon = nextWeapon;
 				m_activeWeapon._SwitchedToCallback();
 				

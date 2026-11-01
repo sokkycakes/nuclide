@@ -348,6 +348,7 @@ private:
 .ncItem m_itemList;
 .ncWeapon m_activeWeapon;
 .ncWeapon m_firstWeapon;
+.ncWeapon m_lastWeapon; /* the one held before m_activeWeapon, for weaplast */
 .bool _isActor;
 
 void ncActor_ListInventory(ncActor);

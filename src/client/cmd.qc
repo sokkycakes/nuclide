@@ -809,6 +809,7 @@ Cmd_Init(void)
 	registercommand("weapnext");
 	registercommand("selectItem");
 	registercommand("weapprev");
+	registercommand("weaplast");
 
 	registercommand("giveInventoryItem");
 	registercommand("removeInventoryItem");

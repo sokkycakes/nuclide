@@ -1976,6 +1976,10 @@ ncActor::SwitchToExactWeapon(ncWeapon item)
 		return;
 	}
 
+	if (m_activeWeapon && m_activeWeapon != item) {
+		m_lastWeapon = m_activeWeapon;
+	}
+
 	m_activeWeapon = item;
 	m_activeWeapon._SwitchedToCallback();
 	//m_activeWeapon.PrintDebugInfo();
@@ -2133,8 +2137,13 @@ ncActor::GetPreviousWeapon(void)
 ncWeapon
 ncActor::GetLastWeapon(void)
 {
-	/* TODO: Finish this */
-	return (m_activeWeapon);
+	/* the weapon held before this one, while we still have it;
+	   otherwise the previous one in the inventory */
+	if (m_lastWeapon && m_lastWeapon != m_activeWeapon && HasExactItem(m_lastWeapon)) {
+		return (m_lastWeapon);
+	}
+
+	return (GetPreviousWeapon());
 }
 
 void
