@@ -1,0 +1,323 @@
+/* Justice Task Force HUD: sokky's Figma HUD (layout/coop/hud.xml) drawn as
+   an embedded Panorama view. This progs gathers what the HUD shows and
+   posts it to the view as JSON:
+
+     "state"   health, armour, ammo, the hero (from the "*herohud" infokey
+               the rules set), teammates ("*mate"), the wave (serverinfo
+               coop_wave, coop_left) and a key prompt ("*prompt"); posted
+               only when it changed
+     "feed"    one kill, from HUD_Obituary
+     "notice"  wave news, from serverinfo coop_notice ("seq|text")
+
+   Weapon selection, pickup notices, damage arrows and the crosshair are
+   still the Half-Life HUD's (classic.qc). cg_hudPanorama 0, or an engine
+   without Panorama (FTE), draws the Half-Life HUD instead. The "phud 1"
+   userinfo tells the rules to stop sending the hero text line and wave
+   centerprints this HUD replaces. */
+
+float(string layout, float flags) ui_open = #0:ui_open;
+void(float view) ui_close = #0:ui_close;
+float(float view) ui_isopen = #0:ui_isopen;
+void(float view, string event, string json) ui_post = #0:ui_post;
+void(float view, vector pos, vector size, float alpha) ui_draw = #0:ui_draw;
+
+#define JTF_LAYOUT "layout/coop/hud.xml"
+#define JTF_EMBED 2
+
+var float autocvar_cg_hudPanorama = 1;
+
+float g_jtfView;
+bool g_jtfTried;
+string g_jtfLast;
+float g_jtfNoticeSeq;
+bool g_jtfNoticeInit;
+string g_jtfPhud;
+
+string
+Jtf_Str(string s)
+{
+	s = strreplace("\\", "\\\\", s);
+	s = strreplace("\"", "\\\"", s);
+	s = strreplace("\n", "\\n", s);
+	return strcat("\"", s, "\"");
+}
+
+/* the view, opened once; false when the engine has no Panorama */
+bool
+Jtf_Ready(void)
+{
+	if (g_jtfView && ui_isopen(g_jtfView)) {
+		return (true);
+	}
+
+	if (g_jtfTried) {
+		return (false);
+	}
+
+	/* the menu registers the faces (coop/src/menu/main.qc m_init); a view
+	   opened before that keeps the fallback face's look */
+	if (!cvar("_coop_uifonts")) {
+		return (false);
+	}
+
+	g_jtfTried = true;
+
+	if (!checkbuiltin(ui_open) || !checkbuiltin(ui_draw)) {
+		return (false);
+	}
+
+	g_jtfView = ui_open(JTF_LAYOUT, JTF_EMBED);
+	return (g_jtfView) ? true : false;
+}
+
+/* tell the rules which HUD we draw, when that changes */
+void
+Jtf_SetPhud(string value)
+{
+	if (g_jtfPhud == value) {
+		return;
+	}
+
+	g_jtfPhud = value;
+	localcmd(sprintf("setinfo phud %s\n", value));
+}
+
+string
+Jtf_WeaponName(string def)
+{
+	string name = entityDef.GetString(def, "inv_name");
+
+	if (name == "") {
+		return (def);
+	}
+
+	return (name);
+}
+
+/* the bound key for a command, "" for none */
+string
+Jtf_KeyFor(string command)
+{
+	tokenize(findkeysforcommandex(command));
+	float key = stof(argv(0));
+
+	if (key <= 0) {
+		return ("");
+	}
+
+	return (strtoupper(keynumtostring(key)));
+}
+
+/* "name|energy|energymax|barrier|cap|form|status|formline|static|dynamic"
+   from the rules (coop/src/rules/hero_abilities.qc Hero_Hud) */
+string
+Jtf_Hero(__out string staticName, __out string dynamicName)
+{
+	string s = player.GetString("*herohud");
+	staticName = dynamicName = "";
+
+	if (s == "" || tokenizebyseparator(s, "|") < 10) {
+		return ("null");
+	}
+
+	string json = sprintf("{\"name\":%s,\"energy\":%s,\"emax\":%s,\"barrier\":%s,\"cap\":%s,",
+		Jtf_Str(argv(0)), argv(1), argv(2), argv(3), argv(4));
+	json = strcat(json, sprintf("\"form\":%s,\"status\":%s,\"formLine\":%s,", argv(5), Jtf_Str(argv(6)),
+		Jtf_Str(argv(7))));
+	staticName = (argv(8) != "") ? Jtf_WeaponName(argv(8)) : "";
+	dynamicName = (argv(9) != "") ? Jtf_WeaponName(argv(9)) : "";
+	return (strcat(json, sprintf("\"staticName\":%s,\"dynamicName\":%s}", Jtf_Str(staticName),
+		Jtf_Str(dynamicName))));
+}
+
+/* everyone else on the server: "*mate" is "health|state", state a alive,
+   d down, x dead or spectating */
+string
+Jtf_Team(void)
+{
+	string json = "";
+
+	for (float i = 0; i < 32; i++) {
+		if (i == player_localnum) {
+			continue;
+		}
+
+		string name = getplayerkeyvalue(i, "name");
+		string mate = getplayerkeyvalue(i, "*mate");
+
+		if (name == "" || mate == "") {
+			continue;
+		}
+
+		tokenizebyseparator(mate, "|");
+		json = strcat(json, (json == "") ? "" : ",", sprintf("{\"name\":%s,\"hp\":%d,\"st\":%s}",
+			Jtf_Str(name), stof(argv(0)), Jtf_Str(argv(1))));
+	}
+
+	return (strcat("[", json, "]"));
+}
+
+void
+Jtf_Post(void)
+{
+	string staticName, dynamicName;
+	string hero = Jtf_Hero(staticName, dynamicName);
+	string title = weapon.GetTitle();
+	bool noAmmo = (weapon.AmmoRequired() == false) ? true : false;
+	float held = 0;
+	string left = serverkey("coop_left");
+	string prompt = player.GetString("*prompt");
+	string json;
+
+	if (!weapon.IsValid()) {
+		title = "";
+	}
+
+	if (title != "" && title == staticName) {
+		held = 1;
+	} else if (title != "" && title == dynamicName) {
+		held = 2;
+	}
+
+	json = sprintf("{\"hp\":%d,\"ar\":%d,\"weapon\":%s,\"clip\":%i,\"clipSize\":%i,\"reserve\":%i,",
+		max(0, player.GetHealth()), player.GetArmor(), Jtf_Str(title), weapon.GetClip(), weapon.GetClipSize(),
+		weapon.GetAmmo1());
+	json = strcat(json, sprintf("\"noAmmo\":%s,\"held\":%d,\"hero\":%s,", noAmmo ? "true" : "false", held, hero));
+	json = strcat(json, sprintf("\"wave\":%d,\"left\":%d,\"team\":%s,\"prompt\":%s,\"promptKey\":%s}",
+		stof(serverkey("coop_wave")), (left == "") ? -1 : stof(left), Jtf_Team(), Jtf_Str(prompt),
+		Jtf_Str(Jtf_KeyFor("+use"))));
+
+	if (json != g_jtfLast) {
+		if (g_jtfLast) {
+			strunzone(g_jtfLast);
+		}
+
+		g_jtfLast = strzone(json);
+		ui_post(g_jtfView, "state", json);
+	}
+
+	/* wave news: "seq|Wave 3: 12 monsters" */
+	string notice = serverkey("coop_notice");
+
+	if (!g_jtfNoticeInit) {
+		/* the one already up when we joined isn't news */
+		g_jtfNoticeInit = true;
+		g_jtfNoticeSeq = (notice != "") ? stof(substring(notice, 0, strstrofs(notice, "|"))) : 0;
+	} else if (notice != "") {
+		float seq = stof(substring(notice, 0, strstrofs(notice, "|")));
+
+		if (seq != g_jtfNoticeSeq) {
+			string text = substring(notice, strstrofs(notice, "|") + 1, -1);
+			string sub = "";
+			float split = strstrofs(text, ": ");
+
+			if (split < 0) {
+				split = strstrofs(text, "! ");
+			}
+
+			if (split >= 0) {
+				sub = substring(text, split + 2, -1);
+				text = substring(text, 0, split);
+			}
+
+			ui_post(g_jtfView, "notice", sprintf("{\"title\":%s,\"sub\":%s,\"hold\":3}", Jtf_Str(text),
+				Jtf_Str(sub)));
+
+			g_jtfNoticeSeq = seq;
+		}
+	}
+}
+
+/* the Half-Life feedback kept on top of the Panorama HUD: damage arrows and
+   tint, pickup notices, weapon selection, crosshair (valve/src/hud/hud.qc) */
+void
+Jtf_DrawFeedback(vector hud_mins, vector hud_size)
+{
+	vector pos;
+
+	HLHUD_UpdateTimers(player.GetHealth(), player.GetArmor(), weapon.GetClip(), weapon.GetAmmo1(),
+		weapon.GetAmmo2());
+	HLHUD_DamageNotifyDraw(hud_mins, hud_size);
+
+	pos = g_hudMins + [g_hudRes[0] - 192, g_hudRes[1] - 128];
+	pos[1] += 48;
+	HLHUD_ItemNotify_Draw(pos);
+	HLHUD_AmmoNotify_Draw(pos);
+
+	if (g_damageAlpha > 0.0f) {
+		vector center = hud_mins + (hud_size / 2);
+		vector playerPosition = player.GetCameraPosition();
+		vector playerAngle = player.GetCameraAngles();
+		playerPosition[2] = g_damageLocation[2];
+		vector rel_pos = vectorNormalize(g_damageLocation - playerPosition);
+		float fw = vectorDot(rel_pos, anglesToForward(playerAngle));
+		float rt = vectorDot(rel_pos, anglesToRight(playerAngle));
+		float fw_alpha = fabs(fw) * g_damageAlpha;
+		float rt_alpha = fabs(rt) * g_damageAlpha;
+
+		if (fw > 0.25f) {
+			draw.Pic(center + [-64,-102], g_damage_spr_t, [128,48], [1,1,1], fw_alpha, DRAWFLAG_ADDITIVE);
+		} else if (fw < -0.25f) {
+			draw.Pic(center + [-64,70], g_damage_spr_b, [128,48], [1,1,1], fw_alpha, DRAWFLAG_ADDITIVE);
+		}
+
+		if (rt > 0.25f) {
+			draw.Pic(center + [70,-64], g_damage_spr_r, [48,128], [1,1,1], rt_alpha, DRAWFLAG_ADDITIVE);
+		} else if (rt < -0.25f) {
+			draw.Pic(center + [-102,-64], g_damage_spr_l, [48,128], [1,1,1], rt_alpha, DRAWFLAG_ADDITIVE);
+		}
+
+		if (autocvar_cg_damageFill > 0.0) {
+			vector finalColor = [1,1,1];
+			finalColor[1] = finalColor[2] = 1.0 - (g_damageAlpha * autocvar_cg_damageFill);
+			draw.Pic(screen.Mins(), "fade_modulate", screen.Size(), finalColor, 1.0, DRAWFLAG_NORMAL);
+		}
+
+		g_damageAlpha -= clframetime;
+	}
+
+	weaponSelectionHUD.Draw();
+
+	if (g_spriteCrosshair != -1i) {
+		atlasPic.DrawCrosshair(g_spriteCrosshair);
+	}
+
+	HLHUD_ClampTimers();
+}
+
+void
+HUD_Draw(void)
+{
+	if (!autocvar_cg_hudPanorama || !Jtf_Ready()) {
+		Jtf_SetPhud("0");
+		HLHUD_ClassicDraw();
+		return;
+	}
+
+	Jtf_SetPhud("1");
+	g_hudMins = screen.HUDMins();
+	g_hudRes = screen.HUDSize();
+	Jtf_Post();
+
+	/* the Figma frame is the whole screen, not Half-Life's 4:3 HUD area */
+	ui_draw(g_jtfView, screen.Mins(), screen.Size(), 1.0f);
+	Jtf_DrawFeedback(g_hudMins, g_hudRes);
+}
+
+void
+HUD_Obituary(string targetName, string attackerName, string weaponDef, string meansOfDeath)
+{
+	HLHUD_ClassicObituary(targetName, attackerName, weaponDef, meansOfDeath);
+
+	if (!autocvar_cg_hudPanorama || !g_jtfView) {
+		return;
+	}
+
+	string me = getplayerkeyvalue(player_localnum, "name");
+	bool self = wordInString(meansOfDeath, "self");
+	string attacker = self ? "" : attackerName;
+	string weaponName = (weaponDef != "") ? Jtf_WeaponName(weaponDef) : "";
+
+	ui_post(g_jtfView, "feed", sprintf("{\"a\":%s,\"w\":%s,\"v\":%s,\"you\":%s}", Jtf_Str(attacker),
+		Jtf_Str(weaponName), Jtf_Str(targetName), (attacker == me || targetName == me) ? "true" : "false"));
+}
