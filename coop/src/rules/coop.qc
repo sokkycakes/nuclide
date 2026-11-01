@@ -60,6 +60,7 @@ void Hero_GunsFrame(void);
 vector Coop_FreeSpot(entity who, vector org);
 void Coop_Unstick(void);
 void Coop_CorpseFade(entity npc);
+void Coop_BodyFade(entity pl, int slot);
 bool Hero_AbilityImpulse(entity pl, float num);
 void Hero_AbilityKilled(entity pl);
 void Hero_AbilityNPCKilled(entity npc, entity attacker);
@@ -880,6 +881,7 @@ CodeCallback_PlayerKilled(entity playerEntity, entity inflictor, entity attacker
 	}
 
 	Hero_AbilityKilled(playerEntity);
+	Coop_BodyFade(playerEntity, slot);
 
 	if (!autocvar_coop_survival) {
 		centerprint(playerEntity, sprintf("You are down. A teammate can revive you, or respawn in %d seconds", autocvar_coop_respawnDelay));

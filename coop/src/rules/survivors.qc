@@ -349,8 +349,8 @@ Coop_Unstick(void)
    coop_corpseTime (15) seconds, then fades out the way gibs do (255 to 0,
    7 every tenth of a second, about 3.6 s) and goes. Wave monsters are
    removed; map-placed ones (with a targetname, which something may still
-   point at) are only hidden. 0 keeps corpses. Players' bodies aren't
-   touched: reviving needs them. */
+   point at) are only hidden. 0 keeps corpses. Players' bodies are handled
+   below (Coop_BodyFade). */
 
 var float autocvar_coop_corpseTime = 15;
 
@@ -395,4 +395,119 @@ Coop_CorpseFade(entity npc)
 	fader.health = 0;
 	fader.think = Coop_CorpseThink;
 	fader.nextthink = time + autocvar_coop_corpseTime;
+}
+
+/* ---- players' bodies fade too ----
+
+   A player's body comes from Nuclide's body queue and stays until the queue
+   comes round to it again. In co-op it stays while its player is down (it
+   marks where to revive them), then fades the same way as a monster's:
+   at once when they were revived where they fell, otherwise coop_corpseTime
+   after they respawned. Body-queue entities are reused, so a faded body is
+   hidden and put back to full alpha instead of being removed. */
+
+void
+Coop_BodyThink(void)
+{
+	entity body = self.enemy;
+	entity pl = self.owner;
+	int slot = (int)self.max_health;
+
+	if (!body || wasfreed(body) || body.solid != SOLID_CORPSE) {
+		remove(self);
+		return;
+	}
+
+	/* waiting for the player to be back up */
+	if (self.frags == 0) {
+		if (pl && !wasfreed(pl) && slot >= 0i && g_coopDown[slot]) {
+			self.nextthink = time + 0.5f;
+			return;
+		}
+
+		self.frags = 1;
+
+		/* revived on the spot: don't leave a second of them lying there */
+		if (pl && !wasfreed(pl) && vlen(pl.origin - body.origin) < 96) {
+			self.nextthink = time;
+		} else {
+			self.nextthink = time + autocvar_coop_corpseTime;
+		}
+		return;
+	}
+
+	if (self.health == 0) {
+		self.health = 255;
+		ents.Input(body, "SetRenderMode", "2", world);
+	} else {
+		self.health -= 7;
+	}
+
+	if (self.health > 0) {
+		ents.Input(body, "Alpha", ftos(self.health), world);
+		self.nextthink = time + 0.1f;
+		return;
+	}
+
+	ents.Input(body, "Alpha", "255", world);
+	ents.Input(body, "SetRenderMode", "0", world);
+	ents.Input(body, "Disappear", "", world);
+	remove(self);
+}
+
+/* the body is made just after the death callback: find it a moment later */
+void
+Coop_BodyFind(void)
+{
+	entity pl = self.owner;
+	entity body = world;
+	float bestDist = 64;
+
+	for (entity e = world; (e = nextent(e));) {
+		if (e.solid != SOLID_CORPSE || e == pl || is.Player(e) || is.AI(e)) {
+			continue;
+		}
+
+		float d = vlen(e.origin - self.origin);
+
+		if (d < bestDist) {
+			bestDist = d;
+			body = e;
+		}
+	}
+
+	if (!body) {
+		remove(self);
+		return;
+	}
+
+	/* a recycled body may still have a fader from its last owner */
+	for (entity f = world; (f = find(f, ::classname, "coop_bodyfade"));) {
+		if (f.enemy == body) {
+			remove(f);
+		}
+	}
+
+	self.classname = "coop_bodyfade";
+	self.enemy = body;
+	self.health = 0;
+	self.frags = 0;
+	self.think = Coop_BodyThink;
+	self.nextthink = time + 0.5f;
+}
+
+void
+Coop_BodyFade(entity pl, int slot)
+{
+	if (autocvar_coop_corpseTime <= 0 || !pl) {
+		return;
+	}
+
+	entity finder = spawn();
+	finder.classname = "coop_bodyfind";
+	finder.owner = pl;
+	finder.max_health = (float)slot;
+	finder.origin = pl.origin;
+	finder.think = Coop_BodyFind;
+	finder.nextthink = time + 0.1f;
 }
