@@ -1232,6 +1232,12 @@ ncMonster::MeleeStrikeStart(void)
 
 		targetEnt = (ncActor)trace_ent;
 
+		/* blood where it lands, as a bullet's would (Half-Life's melee
+		   traces bleed too) */
+		if (targetEnt.HasSurfaceData()) {
+			SurfData_ImpactOfType(targetEnt.m_surfdataID, trace_endpos, vectorNormalize(ourCenter - enemyCenter));
+		}
+
 		ncDict damageDecl = spawn(ncDict);
 		damageDecl.AddKey("damage", GetSubDefString(m_defMelee, "damage"));
 		targetEnt.Damage(this, this, damageDecl, 1.0, vectorNormalize(enemyCenter - ourCenter), trace_endpos);
