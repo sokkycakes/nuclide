@@ -37,9 +37,70 @@ Weapon_Skull1.Barrage
 }
 
 // the prototype heroes' primaries (decls/def/hero_primaries.def), Half-Life's
+
+// The ten prototype heroes' primaries (hero_primaries.def), from
+// zz_coopguns.pk3.
+
+Weapon_JTF.PDW
+{
+	alerts
+	sample weapons/mp7-1.wav
+}
+
+Weapon_JTF.Pump
+{
+	alerts
+	sample weapons/ksg12-1.wav
+}
+
+Weapon_JTF.Revolver
+{
+	alerts
+	sample weapons/ana-1.wav
+	sample weapons/ana-2.wav
+}
+
+Weapon_JTF.Gauntlets
+{
+	alerts
+	sample weapons/laserfist_shootb_shoot.wav
+}
+
+Weapon_JTF.SMG
+{
+	alerts
+	sample weapons/kriss-1.wav
+}
+
+Weapon_JTF.MachinePistols
+{
+	alerts
+	sample weapons/dualuzi-1.wav
+}
+
+Weapon_JTF.BattleRifle
+{
+	alerts
+	sample weapons/scar_h.wav
+}
+
 Weapon_JTF.Silenced
 {
-	volume 0.6
-	sample weapons/pl_gun1.wav
-	sample weapons/pl_gun2.wav
+	alerts
+	sample weapons/m4a1-1.wav
+}
+
+Weapon_JTF.ChargeRifle
+{
+	alerts
+	sample weapons/railgun-1.wav
+	sample weapons/railgun-2.wav
+}
+
+Weapon_JTF.Blades
+{
+	alerts
+	sample weapons/dualsword_slash_1.wav
+	sample weapons/dualsword_slash_2.wav
+	sample weapons/dualsword_slash_3.wav
 }

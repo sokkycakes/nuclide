@@ -1,8 +1,11 @@
 // Justice Task Force: the prototype heroes' primaries (coop_heroes 1).
 //
-// Stand-ins built on Half-Life's weapons so the ten example heroes
-// (coop/heroes design, example-heroes.md) can be played before they have
-// their own models. Each is a static weapon: hudSlot 1, "hero_static",
+// Built on Half-Life's weapons for their behaviour (burst, pump, melee),
+// with Counter-Strike Online's models and sounds, one per hero, from the
+// CSNZ install, in zz_coopguns.pk3, which isn't in git (coop/README.md).
+// View models have their arms hidden (tools/cso_hide_arms.py) and are
+// mirrored like the other heroes' guns.
+// Each is a static weapon: hudSlot 1, "hero_static",
 // and the never-ending ammo_hero reserve (see hero_weapons.def). Only the
 // feel is aimed at: burst, pump, slow and heavy, spray, charged. Numbers
 // are first guesses.
@@ -19,6 +22,17 @@ entityDef weapon_jtf_pdw
 	"hudSlot"			"1"
 	"hudSlotPos"		"4"
 	"hero_static"		"1"
+	// CSO mp7a1 (zz_coopguns.pk3, private): MP7A1 (carbine stock)
+	"model"				"models/w_mp7a1.mdl"
+	"model_player"		"models/p_mp7a1.mdl"
+	"model_view"			"models/v_mp7a1.mdl"
+	"model_viewMirror"	"1"
+	"act_holster"		""
+	"act_idle"			"6"
+	"act_reload"		"7"
+	"act_draw"		"8"
+	"act_fire"		"9,10"
+	"snd_fire"			"Weapon_JTF.PDW"
 }
 
 entityDef fireInfo_jtf_pdw
@@ -53,6 +67,19 @@ entityDef weapon_jtf_pump
 	"hudSlot"			"1"
 	"hudSlotPos"		"4"
 	"hero_static"		"1"
+	// CSO ksg12 (zz_coopguns.pk3, private): KSG-12
+	"model"				"models/w_ksg12.mdl"
+	"model_player"		"models/p_ksg12.mdl"
+	"model_view"			"models/v_ksg12.mdl"
+	"model_viewMirror"	"1"
+	"act_holster"		""
+	"act_idle"			"0"
+	"act_fire"		"1,2"
+	"act_reloadStart"		"5"
+	"act_reload"		"3"
+	"act_reloadEnd"		"4"
+	"act_draw"		"6"
+	"snd_fire"			"Weapon_JTF.Pump"
 }
 
 entityDef fireInfo_jtf_pump
@@ -85,6 +112,17 @@ entityDef weapon_jtf_revolver
 	"hudSlot"			"1"
 	"hudSlotPos"		"4"
 	"hero_static"		"1"
+	// CSO anaconda (zz_coopguns.pk3, private): Anaconda
+	"model"				"models/w_anaconda.mdl"
+	"model_player"		"models/p_anaconda.mdl"
+	"model_view"			"models/v_anaconda.mdl"
+	"model_viewMirror"	"1"
+	"act_holster"		""
+	"act_idle"			"0"
+	"act_fire"		"1,2"
+	"act_reload"		"4"
+	"act_draw"		"5"
+	"snd_fire"			"Weapon_JTF.Revolver"
 }
 
 entityDef fireInfo_jtf_revolver
@@ -115,6 +153,18 @@ entityDef weapon_jtf_gauntlets
 	"hudSlot"			"1"
 	"hudSlotPos"		"4"
 	"hero_static"		"1"
+	// CSO laserfist (zz_coopguns.pk3, private): Laser Fist (its arms are the weapon, kept)
+	"model"				"models/w_laserfist.mdl"
+	"model_player"		"models/p_laserfist.mdl"
+	"model_view"			"models/v_laserfist.mdl"
+	"model_viewMirror"	"1"
+	"act_holster"		""
+	"act_idle"			"0"
+	"act_fire"		"7"
+	"act_fireFailed"		"7"
+	"act_draw"		"9"
+	"snd_fire"			"Weapon_JTF.Gauntlets"
+	"snd_fireFailed"		"Weapon_JTF.Gauntlets"
 }
 
 entityDef projectile_jtf_gauntlets
@@ -138,6 +188,17 @@ entityDef weapon_jtf_smg
 	"hudSlot"			"1"
 	"hudSlotPos"		"4"
 	"hero_static"		"1"
+	// CSO kriss (zz_coopguns.pk3, private): KRISS Vector, unsilenced
+	"model"				"models/w_kriss.mdl"
+	"model_player"		"models/p_kriss.mdl"
+	"model_view"			"models/v_kriss.mdl"
+	"model_viewMirror"	"1"
+	"act_holster"		""
+	"act_idle"			"7"
+	"act_fire"		"8,9,10"
+	"act_reload"		"11"
+	"act_draw"		"12"
+	"snd_fire"			"Weapon_JTF.SMG"
 }
 
 entityDef fireInfo_jtf_smg
@@ -170,6 +231,17 @@ entityDef weapon_jtf_machinepistols
 	"hudSlot"			"1"
 	"hudSlotPos"		"4"
 	"hero_static"		"1"
+	// CSO dualuzi (zz_coopguns.pk3, private): Dual UZI
+	"model"				"models/w_dualuzi.mdl"
+	"model_player"		"models/p_dualuzi.mdl"
+	"model_view"			"models/v_dualuzi.mdl"
+	"model_viewMirror"	"1"
+	"act_holster"		""
+	"act_idle"			"0"
+	"act_fire"		"3,9,4,10,5,11"
+	"act_reload"		"15"
+	"act_draw"		"16"
+	"snd_fire"			"Weapon_JTF.MachinePistols"
 }
 
 entityDef fireInfo_jtf_machinepistols
@@ -202,6 +274,17 @@ entityDef weapon_jtf_battlerifle
 	"hudSlot"			"1"
 	"hudSlotPos"		"4"
 	"hero_static"		"1"
+	// CSO scar (zz_coopguns.pk3, private): SCAR, heavy (H) mode
+	"model"				"models/w_scar.mdl"
+	"model_player"		"models/p_scar.mdl"
+	"model_view"			"models/v_scar.mdl"
+	"model_viewMirror"	"1"
+	"act_holster"		""
+	"act_idle"			"7"
+	"act_reload"		"8"
+	"act_draw"		"9"
+	"act_fire"		"10,11,12"
+	"snd_fire"			"Weapon_JTF.BattleRifle"
 }
 
 entityDef fireInfo_jtf_battlerifle
@@ -235,6 +318,16 @@ entityDef weapon_jtf_silenced
 	"hudSlot"			"1"
 	"hudSlotPos"		"4"
 	"hero_static"		"1"
+	// CSO m4a1 (zz_coopguns.pk3, private): M4A1, silenced
+	"model"				"models/w_m4a1.mdl"
+	"model_player"		"models/p_m4a1.mdl"
+	"model_view"			"models/v_m4a1.mdl"
+	"model_viewMirror"	"1"
+	"act_holster"		""
+	"act_idle"			"0"
+	"act_fire"		"1,2,3"
+	"act_reload"		"4"
+	"act_draw"		"5"
 	"snd_fire"			"Weapon_JTF.Silenced"
 }
 
@@ -270,6 +363,17 @@ entityDef weapon_jtf_chargerifle
 	"hudSlot"			"1"
 	"hudSlotPos"		"4"
 	"hero_static"		"1"
+	// CSO railgun (zz_coopguns.pk3, private): Railgun: no reload sequence, charge stands in
+	"model"				"models/w_railgun.mdl"
+	"model_player"		"models/p_railgun.mdl"
+	"model_view"			"models/v_railgun.mdl"
+	"model_viewMirror"	"1"
+	"act_holster"		""
+	"act_idle"			"0"
+	"act_fire"		"4"
+	"act_reload"		"5"
+	"act_draw"		"7"
+	"snd_fire"			"Weapon_JTF.ChargeRifle"
 }
 
 entityDef fireInfo_jtf_chargerifle
@@ -301,6 +405,17 @@ entityDef weapon_jtf_blades
 	"hudSlot"			"1"
 	"hudSlotPos"		"4"
 	"hero_static"		"1"
+	// CSO dualsword (zz_coopguns.pk3, private): Dual Sword (p_katana in third person, no world model)
+	"model_player"		"models/p_katana.mdl"
+	"model_view"			"models/v_dualsword.mdl"
+	"model_viewMirror"	"0"
+	"act_holster"		""
+	"act_idle"			"0"
+	"act_fire"		"1,2,3,4"
+	"act_fireFailed"		"1,2,3,4"
+	"act_draw"		"6"
+	"snd_fire"			"Weapon_JTF.Blades"
+	"snd_fireFailed"		"Weapon_JTF.Blades"
 }
 
 entityDef projectile_jtf_blades

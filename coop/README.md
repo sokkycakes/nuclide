@@ -140,8 +140,11 @@ instead of the scoreboard (`cg_scoresWhenDead 0`, set in
 - Ten prototype heroes, two per genre, from the example roster: Dispatch
   and Choir (Commander), Bulkhead and Kettle (Wall), Vector and Stray
   (Runner), Ledger and Tripwire (Planner), Longhand and Mantis (Hunter).
-  Defs in `decls/def/heroes_roster.def`, their primaries (Half-Life
-  stand-ins) in `hero_primaries.def`, and what their placed things look
+  Defs in `decls/def/heroes_roster.def`, their primaries in
+  `hero_primaries.def` (Half-Life weapon logic with Counter-Strike Online
+  models and sounds: MP7A1, KSG-12, Anaconda, Laser Fist, KRISS, Dual UZI,
+  SCAR, M4A1, Railgun, Dual Sword, from `zz_coopguns.pk3`, which is built
+  from the CSNZ install and isn't in git: put it in `coop/`), and what their placed things look
   like in `hero_visuals.def`. They're first in `coop_heroList`.
 - Abilities (`src/rules/hero_abilities.qc`, the shared parts, and
   `hero_kits.qc`, the ten kits): C the tool, G and X the two abilities,
