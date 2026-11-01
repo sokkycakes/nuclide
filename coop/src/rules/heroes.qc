@@ -322,6 +322,14 @@ Hero_Select(entity pl, string kit)
 	}
 }
 
+string Hero_StaticWeapon(entity pl);
+void Hero_Swap(entity pl);
+bool Hero_IsFloorGun(entity e);
+bool Hero_Holding(entity pl, string item);
+void Hero_TakeGun(entity pl, entity gun);
+entity Hero_AimedGun(entity pl, float range);
+#define HERO_TAKERANGE 96
+
 bool
 Hero_ClientCommand(entity pl, string command)
 {
@@ -339,6 +347,41 @@ Hero_ClientCommand(entity pl, string command)
 		return (true);
 	case "hero":
 		Hero_Select(pl, argv(1));
+		return (true);
+	case "heroswap":
+		Hero_Swap(pl);
+		return (true);
+	case "heroguns":
+		/* tests: the guns on the floor and what pl holds */
+		for (entity e = world; (e = nextent(e));) {
+			if (Hero_IsFloorGun(e)) {
+				print(sprintf("%s at %v solid %d\n", e.classname, e.origin, e.solid));
+			}
+		}
+
+		/* "cmd heroguns take": the nearest one, wherever pl looks */
+		if (argv(1) == "take") {
+			entity near = world;
+			float nearDist = 99999;
+
+			for (entity e = world; (e = nextent(e));) {
+				if (Hero_IsFloorGun(e) && vlen(e.origin - pl.origin) < nearDist) {
+					near = e;
+					nearDist = vlen(e.origin - pl.origin);
+				}
+			}
+
+			if (near) {
+				Hero_TakeGun(pl, near);
+			}
+		}
+
+		entity aimed = Hero_AimedGun(pl, HERO_TAKERANGE);
+		print(sprintf("at %v looking %v at %s\n", pl.origin, pl.v_angle, aimed ? aimed.classname : "nothing"));
+
+		int s = Coop_Slot(pl);
+		print(sprintf("holding the static weapon %d, dynamic %s\n", Hero_Holding(pl, Hero_StaticWeapon(pl)),
+			(s >= 0i && g_heroDynamic[s]) ? g_heroDynamic[s] : "-"));
 		return (true);
 	}
 
@@ -617,5 +660,213 @@ Hero_SlotThink(entity pl)
 
 	if (actor.GetReserveAmmo(pl, ammo.NumForName("ammo_hero")) < 200i) {
 		ents.Input(pl, "GiveAmmo", "ammo_hero 200", pl);
+	}
+}
+
+/* ---- weapon slots: Q swaps them, guns on the floor are taken with Use ----
+
+   - "cmd heroswap" (Q) puts a hero on the other slot: the dynamic gun when
+     they hold the static weapon, the static weapon otherwise. Which one
+     they hold is read from the player's visible-weapon model (vw_index),
+     so number keys and the wheel count too.
+     Outside hero mode it is the last weapon, like Q always was.
+   - A gun that would take the dynamic slot isn't picked up by walking over
+     it: it's not solid to touch while heroes are on. Looking at one within
+     HERO_TAKERANGE and pressing Use takes it, through the item's own touch,
+     so map items respawn as usual; the slot code then drops the old gun.
+     Bots take one they walk onto when their dynamic slot is empty. */
+
+void Hero_Notice(entity pl, string text);
+
+bool g_heroUseHeld[COOP_MAXPLAYERS];
+float g_heroTakeHint[COOP_MAXPLAYERS];	/* next time the "take" hint may show */
+float g_heroGunsNext;
+
+/* a gun lying in the world that the dynamic slot takes */
+bool
+Hero_IsFloorGun(entity e)
+{
+	/* owned, or picked up and waiting to respawn (no model) */
+	if (e.owner || !e.modelindex || substring(e.classname, 0, 7) != "weapon_") {
+		return (false);
+	}
+
+	return (Hero_IsDynamic(e.classname));
+}
+
+
+/* the floor gun pl is looking at, within reach */
+entity
+Hero_AimedGun(entity pl, float range)
+{
+	entity best = world;
+	float bestDot = 0.8f;
+	vector eye = pl.origin + pl.view_ofs;
+
+	makevectors(pl.v_angle);
+
+	/* not findradius: it skips SOLID_NOT, which floor guns are */
+	for (entity e = world; (e = nextent(e));) {
+		if (!Hero_IsFloorGun(e)) {
+			continue;
+		}
+
+		vector to = (e.absmin + e.absmax) * 0.5f - eye;
+
+		if (vlen(to) > range + 32) {
+			continue;
+		}
+
+		float d = normalize(to) * v_forward;
+
+		if (d <= bestDot) {
+			continue;
+		}
+
+		/* not through walls */
+		traceline(eye, eye + to, MOVE_NOMONSTERS, pl);
+
+		if (trace_fraction >= 1.0f || trace_ent == e) {
+			bestDot = d;
+			best = e;
+		}
+	}
+
+	return (best);
+}
+
+/* gives pl the floor gun through its own touch */
+void
+Hero_TakeGun(entity pl, entity gun)
+{
+	int slot = Coop_Slot(pl);
+	entity oldSelf = self;
+	entity oldOther = other;
+	string item = gun.classname;
+
+	gun.solid = SOLID_TRIGGER;
+	self = gun;
+	other = pl;
+	gun.touch();
+	self = oldSelf;
+	other = oldOther;
+
+	/* the slot code drops the old one; this picks the new one up */
+	if (slot >= 0i && actor.HasItem(pl, item)) {
+		if (g_heroSwitch[slot]) {
+			strunzone(g_heroSwitch[slot]);
+		}
+
+		g_heroSwitch[slot] = strzone(item);
+		g_heroSwitchTime[slot] = time + 0.15f;
+	}
+}
+
+/* every input frame: Use on a floor gun */
+void
+Hero_SlotInput(entity pl)
+{
+	int slot = Coop_Slot(pl);
+	bool use;
+
+	if (slot < 0i || !g_coopHeroes) {
+		return;
+	}
+
+	if (!is.Alive(pl) || Hero_OfKit(pl.classname) < 0i) {
+		return;
+	}
+
+	use = ((float)externvalue(0, "input_buttons") & INPUT_USE) ? true : false;
+
+	if (use && !g_heroUseHeld[slot]) {
+		entity gun = Hero_AimedGun(pl, HERO_TAKERANGE);
+
+		if (gun) {
+			Hero_TakeGun(pl, gun);
+		}
+	}
+
+	g_heroUseHeld[slot] = use;
+}
+
+/* true when pl holds item: the game sets the player's visible-weapon
+   model (vw_index) to the held weapon's "model_player" */
+bool
+Hero_Holding(entity pl, string item)
+{
+	string model = entityDef.GetString(item, "model_player");
+	return (model != "" && pl.vw_index == getmodelindex(model, true)) ? true : false;
+}
+
+/* "cmd heroswap" */
+void
+Hero_Swap(entity pl)
+{
+	int slot = Coop_Slot(pl);
+	string staticGun, dynamicGun;
+
+	if (!g_coopHeroes || slot < 0i || Hero_OfKit(pl.classname) < 0i) {
+		stuffcmd(pl, "weaplast\n");
+		return;
+	}
+
+	staticGun = Hero_StaticWeapon(pl);
+	dynamicGun = g_heroDynamic[slot] ? g_heroDynamic[slot] : "";
+
+	if (dynamicGun != "" && (staticGun == "" || Hero_Holding(pl, staticGun))) {
+		Hero_SelectWeapon(pl, dynamicGun);
+	} else if (staticGun != "") {
+		Hero_SelectWeapon(pl, staticGun);
+	}
+}
+
+/* ten times a second: floor guns aren't taken by touch, bots take one
+   they stand on, and players looking at one are told how to take it */
+void
+Hero_GunsFrame(void)
+{
+	if (!g_coopHeroes || time < g_heroGunsNext) {
+		return;
+	}
+
+	g_heroGunsNext = time + 0.1f;
+
+	for (entity e = world; (e = nextent(e));) {
+		if (e.solid == SOLID_TRIGGER && Hero_IsFloorGun(e)) {
+			e.solid = SOLID_NOT;
+			setorigin(e, e.origin);
+		}
+	}
+
+	for (entity p = world; (p = next.Player(p));) {
+		int slot = Coop_Slot(p);
+
+		if (slot < 0i || !is.Alive(p) || Hero_OfKit(p.classname) < 0i) {
+			continue;
+		}
+
+		if (is.Bot(p)) {
+			if (!g_heroDynamic[slot]) {
+				for (entity g = world; (g = nextent(g));) {
+					if (Hero_IsFloorGun(g) && vlen(g.origin - p.origin) < 48) {
+						Hero_TakeGun(p, g);
+						break;
+					}
+				}
+			}
+
+			continue;
+		}
+
+		if (time >= g_heroTakeHint[slot]) {
+			entity gun = Hero_AimedGun(p, HERO_TAKERANGE);
+
+			if (gun) {
+				string name = entityDef.GetString(gun.classname, "inv_name");
+				Hero_Notice(p, sprintf("[Use] Take %s", (name != "") ? name : gun.classname));
+				g_heroTakeHint[slot] = time + 1.0f;
+			}
+		}
 	}
 }

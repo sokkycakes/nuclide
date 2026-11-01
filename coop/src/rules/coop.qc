@@ -55,6 +55,8 @@ void Hero_SlotThink(entity pl);
 void Hero_AbilitySpawned(entity pl);	/* hero_abilities.qc */
 void Hero_AbilityFrame(void);
 void Hero_AbilityInput(entity pl);
+void Hero_SlotInput(entity pl);
+void Hero_GunsFrame(void);
 bool Hero_AbilityImpulse(entity pl, float num);
 void Hero_AbilityKilled(entity pl);
 void Hero_AbilityNPCKilled(entity npc, entity attacker);
@@ -1075,6 +1077,7 @@ CodeCallback_FrameStart(void)
 	Coop_WaveThink();
 	Coop_BotThink();
 	Survivor_Frame();
+	Hero_GunsFrame();
 
 	for (entity p = world; (p = next.Player(p));) {
 		Hero_SlotThink(p);
@@ -1099,6 +1102,7 @@ CodeCallback_ImpulseCommand(entity playerEntity, float impulseNum)
 	/* called every input frame, impulse or not */
 	Coop_ReviveInput(playerEntity);
 	Hero_AbilityInput(playerEntity);
+	Hero_SlotInput(playerEntity);
 
 	if (Hero_AbilityImpulse(playerEntity, impulseNum)) {
 		return (true);

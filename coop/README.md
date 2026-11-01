@@ -129,8 +129,16 @@ instead of the scoreboard (`cg_scoresWhenDead 0`, set in
   is the hero's own ("hero_weapon": Tank BALROG-VII, Support Cyclone,
   Pointman SKULL-1): given at every spawn, never dropped, and its reserve
   (`ammo_hero`) refills, so only the clip needs reloading. The dynamic slot
-  holds one other gun; picking up another drops the one you had in front of
-  you (it can't be picked up again for 1.5 s) and switches to the new one.
+  holds one other gun. Walking over a gun doesn't take it: look at it
+  (within about 96 units, "[Use] Take <gun>" shows) and press Use, and it
+  replaces the dynamic gun, which drops in front of you (it can't be taken
+  again for 1.5 s), and switches to it. Survivor bots still take a gun by
+  walking over it when their dynamic slot is empty. Q (`cmd heroswap`)
+  swaps between the static and the dynamic gun; outside hero mode it's the
+  last weapon, as before. The menu binds Q only when it's free or still the
+  mod's old `weaplast`, and otherwise falls back to MOUSE3 or F.
+  `cmd heroguns` lists the floor guns and what you hold (`take` takes the
+  nearest one), for tests.
   Melee and throwables are outside both. The static weapons are Counter-
   Strike Online's, from the CSNZ install, in `zz_coopweapons.pk3`, which
   isn't in git either: put it in `coop/`. Their view models have the arms

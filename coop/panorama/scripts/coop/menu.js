@@ -485,7 +485,7 @@ var CoopMenu = ( function ()
 		[ "+forward", "Move forward" ], [ "+back", "Move back" ], [ "+moveleft", "Strafe left" ],
 		[ "+moveright", "Strafe right" ], [ "+jump", "Jump" ], [ "+duck", "Duck" ], [ "+speed", "Walk" ],
 		[ "+use", "Use / revive" ], [ "+attack", "Fire" ], [ "+attack2", "Secondary fire" ],
-		[ "+reload", "Reload" ], [ "impulse 100", "Flashlight" ], [ "lastinv", "Last weapon" ],
+		[ "+reload", "Reload" ], [ "impulse 100", "Flashlight" ], [ "lastinv", "Last weapon" ], [ "cmd heroswap", "Swap weapon slot" ],
 		[ "invnext", "Next weapon" ], [ "invprev", "Previous weapon" ], [ "slot1", "Weapon slot 1" ],
 		[ "slot2", "Weapon slot 2" ], [ "slot3", "Weapon slot 3" ], [ "slot4", "Weapon slot 4" ],
 		[ "slot5", "Weapon slot 5" ], [ "+showscores", "Scores" ], [ "messagemode", "Chat" ],
