@@ -4,3 +4,4 @@ all:
 	cd rules && $(MAKE) QCC=$(QCC)
 	cd plugins && $(MAKE) QCC=$(QCC)
 	cd menu && $(MAKE) QCC=$(QCC)
+	cd hud && $(MAKE) QCC=$(QCC)

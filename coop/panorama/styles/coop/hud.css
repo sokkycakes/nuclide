@@ -1,0 +1,279 @@
+/* Justice Task Force in-game HUD, built from sokky's Figma kit
+   (Design System page, "HUD" components and the "Example · HUD" frame).
+   Sizes are the Figma ones on a 1920x1080 frame (the layout sets
+   bwdesignheight 1080, so 1px here is 1px there at 1080p).
+
+   Tokens (Figma variables):
+     accent #ffa31a  accent-soft #ffd27a  success #7aa36a  danger #e0503a
+     text strong #fff  primary #e6e6e6  secondary #d0d0d0  muted #9a9a9a
+     subtle #8a8a8a  dim #555
+     bg/scrim #000000a6  bg/accent-current #ffa31a33  bg/meter-track #262626
+     border/accent #ffa31a  accent-soft #ffa31a88  panel #ffa31a55  subtle #2c2c2c
+   Text styles (Figma line-height 120% is the font default here; shadow 0 2px 3px #000c):
+     Numeral XL 48 bold, Numeral 32 bold, Label 16 bold +2 upper,
+     Feed 18 regular, Notice 24 bold +1 upper. */
+
+.hud
+{
+	width: 100%;
+	height: 100%;
+	font-family: "Tahoma", "Nimbus";
+	color: #e6e6e6;
+	font-size: 18px;
+}
+
+/* ---- text styles ------------------------------------------------------- */
+
+Label { text-shadow: 0px 2px 3px 1.0 #000000cc; }
+.hud-label
+{
+	font-size: 16px;
+	font-weight: bold;
+	letter-spacing: 2px;
+	text-transform: uppercase;
+	color: #e6e6e6;
+}
+.hud-numeral { font-size: 32px; font-weight: bold; color: #ffffff; }
+.accent { color: #ffa31a; }
+.muted { color: #9a9a9a; }
+
+/* ---- squad: top-left --------------------------------------------------- */
+
+.squad
+{
+	x: 32px;
+	y: 32px;
+	width: 240px;
+	height: fit-children;
+	flow-children: down;
+}
+.mate
+{
+	width: 240px;
+	height: fit-children;
+	margin-bottom: 8px;
+	padding: 6px 10px 8px 10px;
+	background-color: #000000a6;
+	flow-children: down;
+}
+.mate-top { width: 100%; height: fit-children; flow-children: right; margin-bottom: 4px; }
+.mate-name { font-size: 18px; color: #e6e6e6; width: fill-parent-flow( 1.0 ); }
+.mate-status { font-size: 16px; font-weight: bold; letter-spacing: 2px; text-transform: uppercase; color: #7aa36a; vertical-align: center; }
+.mate .meter-fill { background-color: #7aa36a; }
+.mate.low .mate-status { color: #e0503a; }
+.mate.low .meter-fill { background-color: #e0503a; }
+.mate.down { border: 1px solid #ffa31a; }
+.mate.down .mate-status { color: #ffa31a; }
+.mate.down .meter-fill { background-color: #ffa31a; }
+.mate.dead { opacity: 0.4; }
+.mate.dead .mate-status { color: #9a9a9a; }
+
+/* ---- wave counter: top centre ------------------------------------------ */
+
+.wave-counter
+{
+	horizontal-align: center;
+	y: 24px;
+	width: fit-children;
+	height: fit-children;
+	padding: 6px 18px 8px 18px;
+	background-color: #000000a6;
+	border: 1px solid #ffa31a55;
+	flow-children: down;
+}
+.wave-counter Label { horizontal-align: center; }
+.wave-counter.hidden { visibility: collapse; }
+
+/* ---- kill feed: top-right ---------------------------------------------- */
+
+.kill-feed
+{
+	horizontal-align: right;
+	margin-right: 32px;
+	y: 32px;
+	width: 700px;
+	height: fit-children;
+	flow-children: down;
+}
+.feed-entry
+{
+	horizontal-align: right;
+	height: 32px;
+	width: fit-children;
+	margin-bottom: 6px;
+	padding: 0px 10px;
+	background-color: #000000a6;
+	flow-children: right;
+}
+.feed-entry.you { border: 1px solid #ffa31a; }
+.feed-entry Label { font-size: 18px; vertical-align: center; margin-right: 10px; }
+.feed-entry Label.last { margin-right: 0px; }
+.feed-attacker { color: #ffa31a; }
+.feed-weapon { color: #8a8a8a; }
+.feed-victim { color: #e6e6e6; }
+
+/* ---- notice ------------------------------------------------------------ */
+
+.hud-notice
+{
+	x: 600px;
+	y: 230px;
+	width: 720px;
+	height: fit-children;
+	padding: 12px 0px;
+	background-color: gradient( linear, 0% 0%, 100% 0%, from( #ffa31a00 ), color-stop( 0.5, #ffa31a40 ), to( #ffa31a00 ) );
+	flow-children: down;
+	opacity: 1;
+	transition-property: opacity;
+	transition-duration: 0.4s;
+}
+.hud-notice.hidden { opacity: 0; }
+.notice-title
+{
+	horizontal-align: center;
+	font-size: 24px;
+	font-weight: bold;
+	letter-spacing: 1px;
+	text-transform: uppercase;
+	color: #ffa31a;
+}
+.notice-sub { horizontal-align: center; font-size: 18px; color: #e6e6e6; }
+
+/* ---- key prompt -------------------------------------------------------- */
+
+.key-prompt
+{
+	horizontal-align: center;
+	y: 600px;
+	width: fit-children;
+	height: fit-children;
+	flow-children: right;
+}
+.key-prompt.hidden { visibility: collapse; }
+.key-cap
+{
+	min-width: 32px;
+	height: 32px;
+	width: fit-children;
+	padding: 0px 8px;
+	background-color: #1c1c1c;
+	border: 1px solid #ffa31a;
+	margin-right: 10px;
+	vertical-align: center;
+}
+.key-text
+{
+	horizontal-align: center;
+	vertical-align: center;
+	font-size: 16px;
+	font-weight: bold;
+	letter-spacing: 2px;
+	text-transform: uppercase;
+	color: #ffffff;
+}
+.prompt-action { font-size: 18px; color: #e6e6e6; vertical-align: center; }
+
+/* ---- vitals: bottom-left ----------------------------------------------- */
+
+.vitals
+{
+	x: 40px;
+	vertical-align: bottom;
+	margin-bottom: 40px;
+	width: 280px;
+	height: fit-children;
+	flow-children: down;
+}
+.vitals > Panel { margin-top: 14px; }
+
+/* hero abilities: one row per kit ability, above the readout */
+.abilities { width: 100%; height: fit-children; flow-children: down; }
+.abilities.hidden { visibility: collapse; }
+.ability
+{
+	width: 100%;
+	height: 36px;
+	margin-top: 4px;
+	padding: 0px 10px;
+	background-color: #000000a6;
+	border: 1px solid #2c2c2c;
+	flow-children: right;
+}
+.ability.ready { border: 1px solid #ffa31a88; }
+.ability.engaged { background-color: #ffa31a33; border: 1px solid #ffa31a; }
+.ability Label { vertical-align: center; }
+.ability-key { font-size: 16px; font-weight: bold; color: #ffa31a; width: 24px; }
+.ability-name { font-size: 19px; color: #e6e6e6; width: fill-parent-flow( 1.0 ); }
+.ability-state { font-size: 16px; font-weight: bold; letter-spacing: 2px; text-transform: uppercase; color: #9a9a9a; }
+.ability.ready .ability-state { color: #ffd27a; }
+
+/* readout: icon slot, then label over value */
+.hud-readout { width: fit-children; height: fit-children; flow-children: right; }
+.icon-slot { width: 32px; height: 32px; margin-right: 10px; vertical-align: center; }
+.icon-placeholder { x: 4px; y: 4px; width: 24px; height: 24px; background-color: #ffa31a; }
+.readout-text { width: fit-children; height: fit-children; flow-children: down; }
+.readout-label { color: #9a9a9a; }
+.readout-value { font-size: 48px; font-weight: bold; color: #ffffff; }
+.hud-readout.low .icon-placeholder { background-color: #e0503a; }
+.hud-readout.low .readout-label,
+.hud-readout.low .readout-value { color: #e0503a; }
+
+/* bar: label and value, then a 10px meter */
+.hud-bar { width: 280px; height: fit-children; flow-children: down; }
+.hud-bar.hidden { visibility: collapse; }
+.bar-top { width: 100%; height: fit-children; flow-children: right; margin-bottom: 6px; }
+.bar-label { width: fill-parent-flow( 1.0 ); }
+.bar-value { horizontal-align: right; }
+.meter { width: 100%; height: 10px; background-color: #262626; }
+.meter-fill { height: 100%; width: 0%; background-color: #ffa31a; }
+.hud-bar.success .meter-fill { background-color: #7aa36a; }
+.hud-bar.accent .meter-fill { background-color: #ffa31a; }
+.hud-bar.low .meter-fill { background-color: #e0503a; }
+.hud-bar.low .bar-value { color: #e0503a; }
+
+/* ---- weapons: bottom-right --------------------------------------------- */
+
+.weapons
+{
+	horizontal-align: right;
+	vertical-align: bottom;
+	margin-right: 40px;
+	margin-bottom: 40px;
+	width: 300px;
+	height: fit-children;
+	flow-children: down;
+}
+.weapons > Panel { margin-top: 12px; horizontal-align: right; }
+
+.hud-ammo { width: fit-children; height: fit-children; flow-children: down; }
+.hud-ammo > Label { horizontal-align: right; }
+.ammo-counts { width: fit-children; height: fit-children; flow-children: right; horizontal-align: right; }
+.ammo-clip { font-size: 48px; font-weight: bold; color: #ffa31a; vertical-align: bottom; }
+.ammo-divider { width: 2px; height: 40px; margin: 0px 10px 8px 10px; background-color: #ffd27a; vertical-align: bottom; }
+.ammo-reserve { font-size: 32px; font-weight: bold; color: #e6e6e6; vertical-align: bottom; margin-bottom: 2px; }
+.hud-ammo.noclip .ammo-clip,
+.hud-ammo.noclip .ammo-divider { visibility: collapse; }
+.hud-ammo.empty { visibility: collapse; }
+.hud-ammo.low .ammo-clip { color: #e0503a; }
+
+.weapon-slot
+{
+	width: 220px;
+	height: 40px;
+	padding: 0px 12px;
+	background-color: #000000a6;
+	border: 1px solid #2c2c2c;
+	flow-children: right;
+}
+.weapon-slot Label { vertical-align: center; margin-right: 10px; }
+.weapon-slot Label.slot-tag { margin-right: 0px; }
+.slot-key { color: #8a8a8a; }
+.slot-name { font-size: 18px; color: #d0d0d0; width: fill-parent-flow( 1.0 ); }
+.slot-tag { color: #8a8a8a; }
+.weapon-slot.static .slot-tag { color: #ffd27a; }
+.weapon-slot.active { background-color: #ffa31a33; border: 1px solid #ffa31a; }
+.weapon-slot.active .slot-key { color: #ffa31a; }
+.weapon-slot.active .slot-name { color: #ffffff; }
+.weapon-slot.empty .slot-name { color: #555555; }
+.weapon-slot.hidden { visibility: collapse; }
+Label.hidden { visibility: collapse; }

@@ -868,6 +868,38 @@ Hero_Ready(float when)
 	return (sprintf("%ds", ceil(when - time)));
 }
 
+/* what the Panorama HUD shows of a hero, as the "*herohud" infokey:
+   name|energy|energymax|barrier|cap|form|status|formline|static|dynamic
+   form is 0, 1 engaged or 2 synced; the lines are Kit_Status's, whose
+   parts are two spaces apart */
+void
+Hero_HudInfo(entity pl, int slot, string form)
+{
+	string line;
+	int formState = 0i;
+
+	if (g_hEngage[slot]) {
+		formState = 1i;
+		line = sprintf("[Z] %s form  [V] %s %s", form, entityDef.GetString(pl.classname, "hero_ex"),
+			g_hExUsed[slot] ? "used" : "ready");
+	} else if (time < g_hLiteUntil[slot]) {
+		formState = 2i;
+		line = sprintf("Synced: %s form %ds", form, ceil(g_hLiteUntil[slot] - time));
+	} else {
+		line = sprintf("[Z] Engage: %s %s", form, (g_hEnergy[slot] >= autocvar_coop_engageCost) ? "ready" :
+			ftos(autocvar_coop_engageCost));
+	}
+
+	string info = sprintf("%s|%d|%d|%d|%d|%i|", entityDef.GetString(pl.classname, "hero_name"),
+		g_hEnergy[slot], HERO_ENERGYMAX, g_hBarrier[slot], g_hBarrierCap[slot], formState);
+	info = strcat(info, sprintf("%s|%s|%s|%s", strreplace("|", "/", Kit_Status(pl, slot)), line,
+		Hero_StaticWeapon(pl), g_heroDynamic[slot] ? g_heroDynamic[slot] : ""));
+
+	if (infokey(pl, "*herohud") != info) {
+		forceinfokey(pl, "*herohud", info);
+	}
+}
+
 void
 Hero_Hud(entity pl, int slot)
 {
@@ -879,6 +911,13 @@ Hero_Hud(entity pl, int slot)
 	}
 
 	g_hHudNext[slot] = time + 0.25f;
+	Hero_HudInfo(pl, slot, form);
+
+	/* the Panorama HUD (coop/src/hud) shows it from *herohud */
+	if (infokey(pl, "phud") == "1") {
+		return;
+	}
+
 	text = sprintf("%s  ENERGY %d  BARRIER %d/%d\n", strtoupper(entityDef.GetString(pl.classname, "hero_name")),
 		g_hEnergy[slot], g_hBarrier[slot], g_hBarrierCap[slot]);
 	text = strcat(text, Kit_Status(pl, slot));

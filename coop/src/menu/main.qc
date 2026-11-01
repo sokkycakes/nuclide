@@ -901,6 +901,8 @@ m_init(void)
 	/* the title menu's faces (SIL OFL, shipped with Bulwark's data) */
 	localcmd("ui_font Iceberg panorama/fonts-jtf/Iceberg-Regular.ttf 400\n");
 	localcmd("ui_font \"Kode Mono\" panorama/fonts-jtf/KodeMono-Regular.ttf 400\n");
+	/* the in-game HUD (coop/src/hud) waits for these faces */
+	localcmd("set _coop_uifonts 1\n");
 
 	/* the default keys wait for the saved config: at m_init it hasn't run
 	   yet (it's still in the command buffer), so every key looks free and

@@ -1,0 +1,90 @@
+<!--
+	Justice Task Force in-game HUD, from sokky's Figma kit ("Example · HUD"
+	on the Design System page; the components are described in
+	styles/coop/hud.css). The co-op HUD progs (coop/src/hud/) opens this view
+	embedded and draws it each frame it draws the HUD, posting "state" with
+	everything shown. Positions are the Figma ones on the 1920x1080 frame.
+-->
+<root>
+	<styles>
+		<include src="file://{resources}/styles/coop/hud.css" />
+	</styles>
+	<scripts>
+		<include src="file://{resources}/scripts/coop/hud.js" />
+	</scripts>
+
+	<Panel id="Hud" class="hud" hittest="false" bwdesignheight="1080">
+		<!-- squad: top-left, one Teammate card per other player -->
+		<Panel id="Squad" class="squad" hittest="false" />
+
+		<!-- wave counter: top centre -->
+		<Panel id="Wave" class="wave-counter" hittest="false">
+			<Label id="WaveTitle" class="hud-label accent" text="Wave 1" />
+			<Label id="WaveLeft" class="hud-numeral" text="0" />
+			<Label id="WaveCaption" class="hud-label muted" text="monsters left" />
+		</Panel>
+
+		<!-- kill feed: top-right, newest on top -->
+		<Panel id="Feed" class="kill-feed" hittest="false" />
+
+		<!-- notice: wave start, level up -->
+		<Panel id="Notice" class="hud-notice" hittest="false">
+			<Label id="NoticeTitle" class="notice-title" text="" />
+			<Label id="NoticeSub" class="notice-sub" text="" />
+		</Panel>
+
+		<!-- key prompt under the crosshair -->
+		<Panel id="Prompt" class="key-prompt" hittest="false">
+			<Panel class="key-cap"><Label id="PromptKey" class="key-text" text="E" /></Panel>
+			<Label id="PromptAction" class="prompt-action" text="" />
+		</Panel>
+
+		<!-- vitals: bottom-left -->
+		<Panel id="Vitals" class="vitals" hittest="false">
+			<Panel id="Abilities" class="abilities" hittest="false" />
+			<Panel id="HealthReadout" class="hud-readout" hittest="false">
+				<Panel class="icon-slot"><Panel class="icon-placeholder" /></Panel>
+				<Panel class="readout-text">
+					<Label class="hud-label readout-label" text="Health" />
+					<Label id="HealthValue" class="readout-value" text="100" />
+				</Panel>
+			</Panel>
+			<Panel id="ArmorBar" class="hud-bar success">
+				<Panel class="bar-top">
+					<Label id="ArmorLabel" class="hud-label muted bar-label" text="Barrier" />
+					<Label id="ArmorValue" class="hud-label bar-value" text="0" />
+				</Panel>
+				<Panel class="meter"><Panel id="ArmorFill" class="meter-fill" /></Panel>
+			</Panel>
+			<Panel id="EnergyBar" class="hud-bar accent">
+				<Panel class="bar-top">
+					<Label class="hud-label muted bar-label" text="Energy" />
+					<Label id="EnergyValue" class="hud-label bar-value" text="0 / 100" />
+				</Panel>
+				<Panel class="meter"><Panel id="EnergyFill" class="meter-fill" /></Panel>
+			</Panel>
+		</Panel>
+
+		<!-- weapons: bottom-right -->
+		<Panel id="Weapons" class="weapons" hittest="false">
+			<Panel id="Ammo" class="hud-ammo" hittest="false">
+				<Label id="WeaponName" class="hud-label muted" text="" />
+				<Panel class="ammo-counts">
+					<Label id="Clip" class="ammo-clip" text="0" />
+					<Panel id="AmmoDivider" class="ammo-divider" />
+					<Label id="Reserve" class="ammo-reserve" text="0" />
+				</Panel>
+			</Panel>
+			<Panel id="SlotStatic" class="weapon-slot static">
+				<Label class="hud-label slot-key" text="1" />
+				<Label id="SlotStaticName" class="slot-name" text="" />
+				<Label class="hud-label slot-tag" text="Own" />
+			</Panel>
+			<Panel id="SlotDynamic" class="weapon-slot dynamic">
+				<Label class="hud-label slot-key" text="2" />
+				<Label id="SlotDynamicName" class="slot-name" text="" />
+				<Label class="hud-label slot-tag" text="Pickup" />
+			</Panel>
+		</Panel>
+	</Panel>
+</root>
