@@ -5,10 +5,16 @@
      they spawn, pick a hero, shoot and are revived like anyone else; this
      file only adds what makes them teammates. Bots added by hand count
      towards the number too.
-   - They stay with the humans: a bot further than coop_survivorFollow (320)
-     from the nearest human, with no foe near it, walks back to them. One
-     further than coop_survivorWarp (2000) that no human can see is moved
-     to just behind that human, as Left 4 Dead does with stragglers.
+   - They stay with the nearest human, like Left 4 Dead's survivor bots:
+     Nuclide's bot follow mode (Input "BotFollow", src/botlib/Bot.qc)
+     keeps them within bot_followDist (180) just behind and to one side,
+     looking where the human looks. They shoot what they see from there,
+     the foe nearest the team first, all around them, and don't run off
+     after foes or items; only with a melee weapon do they go for a foe
+     within bot_followLeash (600) of the human. They step aside when the
+     human walks into them. One further than coop_survivorWarp (2000) that
+     no human can see is moved to just behind that human, as Left 4 Dead
+     does with stragglers.
    - Reviving comes first: Coop_BotThink (coop.qc) sends bots to downed
      teammates within coop_botReviveRange, and standing by the body revives.
    - Heroes: a bot engages (Z) once it has the Energy and three or more foes
@@ -16,7 +22,6 @@
    - "sv coop_survivors" lists them with their leader and distance. */
 
 var int autocvar_coop_survivorBots = 1;
-var float autocvar_coop_survivorFollow = 320;
 var float autocvar_coop_survivorWarp = 2000;
 var string autocvar_coop_survivorProfiles = "Gina,Gordon,Helmet,Barney";	/* scripts/bots.txt */
 
@@ -161,11 +166,9 @@ Survivor_BotThink(entity pl, int slot)
 		return;
 	}
 
-	/* stay with the humans, unless there's fighting to do here */
-	if (dist > autocvar_coop_survivorFollow && foes == 0i) {
-		makevectors([0, leader.angles[1], 0]);
-		ents.Input(pl, "GoToPosition", vtos(leader.origin - v_forward * 96), pl);
-	}
+	/* stay with the nearest human: Nuclide's bot follow mode (botlib) keeps
+	   it at their side, covering them, instead of roaming the map */
+	ents.Input(pl, "BotFollow", ftos(num_for_edict(leader)), pl);
 }
 
 /* every frame: keep coop_survivorBots bots in while humans play */

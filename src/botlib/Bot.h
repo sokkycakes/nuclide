@@ -85,6 +85,15 @@ public:
 	nonvirtual void ForceWeaponAttack(vector, float);
 
 	virtual void SetName(string);
+	virtual void Input(entity, string, string);
+
+	/** Follow mode (Input "BotFollow" <entity number>, "" to stop): the
+	bot stays near its leader the way Left 4 Dead's survivor bots do,
+	instead of roaming the map. It shoots what it sees from where it
+	stands, picks the foe nearest the team, and only leaves its leader's
+	side to finish a foe close to them with a melee weapon. */
+	nonvirtual bool FollowActive(void);
+	nonvirtual vector FollowSpot(void);
 #endif
 
 
@@ -118,6 +127,11 @@ private:
 	vector m_vecLastPOI;
 	float m_flForceWeaponAttack;
 	vector m_vecForceWeaponAttackPos;
+
+	/* follow mode */
+	entity m_eFollow;
+	float m_flFollowRoute;
+	vector m_vecFollowRouted;
 #endif
 };
 

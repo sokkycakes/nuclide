@@ -33,6 +33,9 @@ ncBot::ncBot(void)
 	m_vecLastPOI = g_vec_null;
 	m_flForceWeaponAttack = 0.0f;
 	m_vecForceWeaponAttackPos = g_vec_null;
+	m_eFollow = world;
+	m_flFollowRoute = 0.0f;
+	m_vecFollowRouted = g_vec_null;
 #endif
 }
 
@@ -115,6 +118,14 @@ ncBot::BrainThink(int enemyvisible, int enemydistant)
 	   guns, or out of reach of a melee weapon): plot a route to them,
 	   at most once a second. This branch used to sit under the else of
 	   the m_eTarget check and could never run. */
+	/* following someone: only a melee weapon goes after a foe, and only one
+	   close to the leader. Guns shoot from where we stand. */
+	if (FollowActive()) {
+		if (m_wtWeaponType != WPNTYPE_CLOSE || vlen(m_eTarget.origin - m_eFollow.origin) > autocvar_bot_followLeash) {
+			return;
+		}
+	}
+
 	if (enemyvisible && (enemydistant || m_flEnemyDist > 128.0f) && m_flChaseTime < time) {
 		m_flChaseTime = time + 1.0f;
 		RouteToPosition(m_eTarget.origin);
@@ -182,6 +193,10 @@ ncBot::SeeThink(void)
 		m_flSeeTime = time + 1.0f;
 	}
 
+	bool following = FollowActive();
+	entity bestFoe = world;
+	float bestScore = 2048.0f;
+
 	/* players and monsters alike: monsters take damage as DAMAGE_AIM */
 	for (entity w = world; (w = next.Actor(w));) {
 		float flDot;
@@ -208,6 +223,25 @@ ncBot::SeeThink(void)
 			continue;
 		}
 
+		/* following: aware all around, as a teammate watching your back is */
+		if (following) {
+			/* the foe nearest to us or to the leader goes first */
+			float score = min(vlen(w.origin - origin), vlen(w.origin - m_eFollow.origin));
+
+			if (score >= bestScore) {
+				continue;
+			}
+
+			traceline(GetEyePos(), w.origin + (w.mins + w.maxs) * 0.5f, MOVE_NORMAL, this);
+
+			if (trace_ent == w) {
+				bestScore = score;
+				bestFoe = w;
+			}
+
+			continue;
+		}
+
 		/* first, is the potential enemy in our field of view? */
 		flDot = vectorNormalize(w.origin - origin) * anglesToForward(v_angle);
 
@@ -223,6 +257,11 @@ ncBot::SeeThink(void)
 			SetEnemy(w);
 			return;
 		}
+	}
+
+	if (bestFoe && bestFoe != m_eTarget) {
+		BotLog("Bot %S (%d) covers against %S (%d)", netname, num_for_edict(this), bestFoe.classname, num_for_edict(bestFoe));
+		SetEnemy(bestFoe);
 	}
 }
 
@@ -335,7 +374,62 @@ ncBot::CheckRoute(void)
 void
 ncBot::CreateObjective(void)
 {
+	/* following: the only place to go is back to the leader */
+	if (FollowActive()) {
+		if (vlen(m_eFollow.origin - origin) > autocvar_bot_followDist && m_flFollowRoute < time) {
+			m_vecFollowRouted = FollowSpot();
+			m_flFollowRoute = time + 0.5f;
+			RouteToPosition(m_vecFollowRouted);
+		}
+
+		return;
+	}
+
 	RouteToPosition(Route_SelectDestination(this));
+}
+
+bool
+ncBot::FollowActive(void)
+{
+	if (!m_eFollow || wasfreed(m_eFollow) || m_eFollow == this) {
+		return (false);
+	}
+
+	return (m_eFollow.health > 0 && m_eFollow.solid != SOLID_NOT) ? true : false;
+}
+
+/* a spot just behind the leader, to one side (by entity number, so two
+   bots take both sides), pulled in where a wall is in the way */
+vector
+ncBot::FollowSpot(void)
+{
+	float side = (num_for_edict(this) & 1) ? 1.0f : -1.0f;
+	vector spot;
+
+	makevectors([0, m_eFollow.v_angle[1], 0]);
+	spot = m_eFollow.origin - (v_forward * 80.0f) + (v_right * side * 64.0f);
+	tracebox(m_eFollow.origin, mins, maxs, spot, MOVE_NORMAL, m_eFollow);
+
+	return (trace_endpos);
+}
+
+void
+ncBot::Input(entity eAct, string strInput, string strData)
+{
+	switch (strInput) {
+	case "BotFollow":
+		float followNum = stof(strData);
+		m_eFollow = (followNum > 0) ? edict_num(followNum) : world;
+		m_flFollowRoute = 0.0f;
+
+		/* drop a roaming route, and whatever we were chasing */
+		if (m_eFollow) {
+			RouteClear();
+		}
+		break;
+	default:
+		super::Input(eAct, strInput, strData);
+	}
 }
 
 void
@@ -376,8 +470,9 @@ ncBot::RunAI(void)
 		BotEntLog("%S is calculating first bot route",
 			this.netname);
 
-		/* our route probably has not been processed yet */
-		if (PathNodeCount() <= 0i) {
+		/* our route probably has not been processed yet. Following, we
+		   often need none: we're beside the leader already */
+		if (PathNodeCount() <= 0i && FollowActive() == false) {
 			return;
 		}
 	}
@@ -557,7 +652,7 @@ ncBot::RunAI(void)
 
 #if 1
 		/* duck and stand still when our enemy seems strong */
-		if (m_eTarget && enemyVisible && m_eTarget.health >= 75) {
+		if (m_eTarget && enemyVisible && m_eTarget.health >= 75 && FollowActive() == false) {
 			if (m_wtWeaponType == WPNTYPE_RANGED) {
 				input_buttons |= INPUT_CROUCH;
 				input_movevalues = [0,0,0];
@@ -575,6 +670,49 @@ ncBot::RunAI(void)
 			vector chaseDir = vectorNormalize(m_eTarget.origin - origin) * g_pmoveVars.pm_walkspeed;
 			makevectors(input_angles);
 			input_movevalues = [v_forward * chaseDir, v_right * chaseDir, 0];
+		}
+	}
+
+	if (FollowActive()) {
+		float leaderDist = vlen(m_eFollow.origin - origin);
+		bool meleeChase = (m_wtWeaponType == WPNTYPE_CLOSE && m_eTarget && enemyVisible && vlen(m_eTarget.origin - m_eFollow.origin) <= autocvar_bot_followLeash);
+
+		if (meleeChase == false) {
+			if (leaderDist <= autocvar_bot_followDist) {
+				/* close enough: stand and cover */
+				RouteClear();
+				input_movevalues = [0,0,0];
+
+				if (!m_eTarget || enemyVisible == false) {
+					/* nothing to shoot: watch the way the leader looks */
+					vector wantDir = anglesToForward([0, m_eFollow.v_angle[1], 0]);
+					vector nowDir = anglesToForward(v_angle);
+					input_angles = angles = v_angle = vectorToAngles(vectorLerp(nowDir, wantDir, bound(0.0f, frametime * 4.0f, 1.0f)));
+				}
+			} else if (m_flFollowRoute < time && vlen(FollowSpot() - m_vecFollowRouted) > 128.0f) {
+				/* the leader moved on: catch up to where they are now */
+				m_vecFollowRouted = FollowSpot();
+				m_flFollowRoute = time + 0.5f;
+				RouteToPosition(m_vecFollowRouted);
+			}
+		}
+
+		/* the leader is walking into us: step aside */
+		if (leaderDist < 80.0f && vlen(m_eFollow.velocity) > 50.0f) {
+			vector leaderDir = vectorNormalize([m_eFollow.velocity[0], m_eFollow.velocity[1], 0]);
+			vector awayDir = vectorNormalize([origin[0] - m_eFollow.origin[0], origin[1] - m_eFollow.origin[1], 0]);
+
+			if (leaderDir * awayDir > 0.3f) {
+				vector sideDir = [-leaderDir[1], leaderDir[0], 0];
+
+				if (sideDir * awayDir < 0) {
+					sideDir = -sideDir;
+				}
+
+				sideDir *= g_pmoveVars.pm_walkspeed;
+				makevectors(input_angles);
+				input_movevalues = [v_forward * sideDir, v_right * sideDir, 0];
+			}
 		}
 	}
 

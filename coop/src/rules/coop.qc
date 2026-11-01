@@ -556,6 +556,8 @@ Coop_BotThink(void)
 		}
 
 		if (best && bestDist > autocvar_coop_reviveRange * 0.5f) {
+			/* off the leader's side for this */
+			ents.Input(pl, "BotFollow", "", pl);
 			ents.Input(pl, "GoToPosition", vtos(g_coopDownOrigin[Coop_Slot(best)]), pl);
 			g_coopBotOrder[slot] = time + 2.0f;
 		} else if (!best) {
