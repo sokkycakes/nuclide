@@ -227,10 +227,6 @@ TF_Resupply(entity targetEnt)
 		thePlayer.SetHealth(thePlayer.GetMaxHealth());
 	}
 
-	if (thePlayer.GetArmor() < thePlayer.GetMaxArmor()) {
-		thePlayer.SetArmor(thePlayer.GetMaxArmor());
-	}
-
 	for (int ammoID = 1i; ammoID < 16i; ammoID++) { /* Nuclide has 16 ammo slots */
 		int maxAmmo = ammo.MaxForNum(ammoID);
 

@@ -229,6 +229,10 @@ PMoveCustom_AccelLadder(float move_time, float premove, vector wish_dir, float w
 	}
 }
 
+/* whether the player stood on the ground at the start of this frame, and
+   didn't jump */
+var bool g_pmoveGroundedBeforeMove;
+
 void
 PMoveCustom_AccelFriction(float move_time, float premove, vector wish_dir, float wish_speed)
 {
@@ -301,6 +305,14 @@ PMoveCustom_AccelFriction(float move_time, float premove, vector wish_dir, float
 
 	if (retainSpeed > 0) {
 		self.velocity += wish_dir * min(retainSpeed, (g_pmoveVars.pm_accelerate * wish_speed) * move_time);
+	}
+
+	/* not on the frames we jump or land, like Source: a jump keeps its
+	   speed, and so does a landing until the next frame, so a jump right
+	   away can carry it */
+	if (g_pmoveGroundedBeforeMove && self.flags & FL_CLIENT) {
+		ncPlayer pl = (ncPlayer)self;
+		pl.Physics_ClampWalkSpeed();
 	}
 }
 
@@ -384,6 +396,11 @@ PMoveCustom_Acceleration(float move_time, float premove)
 	makevectors(input_angles);
 
 	/* figure out where we are in the world */
+	/* a jump has already taken us off the ground by now */
+	if (premove) {
+		g_pmoveGroundedBeforeMove = (pl.flags & FL_ONGROUND) ? true : false;
+	}
+
 	PMoveCustom_Categorize();
 
 	/* everything but MOVETYPE_NOCLIP has acceleration */

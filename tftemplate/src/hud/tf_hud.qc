@@ -26,6 +26,7 @@ serverinfo keys the rules publish, so the HUD needs no networked entities:
 
 font_s FONT_TF;
 bool g_tfHUDInit;
+bool TFVGui_Active(void);
 
 vector
 TFHUD_TeamColor(float teamID)
@@ -161,7 +162,20 @@ TFHUD_Draw(void)
 		headline = (timeLeft >= 0) ? TFHUD_Clock(timeLeft) : "";
 	}
 
-	if (STRING_SET(headline)) {
+	/* a TF2 HUD draws the clocks itself (tf_vguihud.qc) */
+	bool clocksDrawn = TFVGui_Active();
+
+	if (clocksDrawn) {
+		topCenter[1] += hudSize[1] / 480 * 36;
+
+		/* it has no panel for these */
+		if (roundState == TFROUND_PREROUND || roundState == TFROUND_WIN || roundState == TFROUND_STALEMATE) {
+			TFHUD_CenteredText(topCenter, headline, [1, 1, 1]);
+		}
+
+		/* and the objectives (tf_vguiobjectives.qc) */
+		return;
+	} else if (STRING_SET(headline)) {
 		TFHUD_CenteredText(topCenter, headline, [1, 1, 1]);
 	}
 
@@ -211,7 +225,7 @@ TFHUD_Draw(void)
 	}
 
 	/* KOTH clocks either side of the point */
-	if (modeName == "koth") {
+	if (modeName == "koth" && !clocksDrawn) {
 		tokenize_console(serverinfo.GetString("tf_koth"));
 		string redClock = TFHUD_Clock(stof(argv(0)));
 		string bluClock = TFHUD_Clock(stof(argv(1)));
@@ -379,4 +393,54 @@ TFHUD_DrawCrosshair(void)
 	drawfill(crossCenter + [0, -armGap - armLength], [1, armLength], crossColor, crossAlpha, DRAWFLAG_NORMAL);
 	drawfill(crossCenter + [0, armGap + 1], [1, armLength], crossColor, crossAlpha, DRAWFLAG_NORMAL);
 	drawfill(crossCenter, [1, 1], crossColor, crossAlpha, DRAWFLAG_NORMAL);
+}
+
+/** Number keys switch straight to the weapon in that slot, as in TF2:
+slot1 primary, slot2 secondary, slot3 melee, slot4 and slot5 the PDAs.
+Pressing the key of the slot in hand again steps to the next weapon in it. */
+bool
+HUD_ConsoleCommand(string commandString)
+{
+	tokenize_console(commandString);
+
+	if (substring(argv(0), 0, 4) != "slot") {
+		return (false);
+	}
+
+	int wantedSlot = stoi(substring(argv(0), 4, -1)) - 1i;
+	entity activeWeapon = weapon.GetActiveWeapon();
+	entity firstInSlot = __NULL__;
+	entity nextInSlot = __NULL__;
+	bool pastActive = false;
+
+	if (wantedSlot < 0i || !activeWeapon) {
+		return (true);
+	}
+
+	for (entity w = weapon.GetFirstWeaponInInventory(); w; w = weapon.GetNextWeaponRelativeTo(w)) {
+		if (w == activeWeapon) {
+			pastActive = true;
+			continue;
+		}
+
+		if (weapon.IsValid(w) == false || weapon.GetSlot(w) != wantedSlot) {
+			continue;
+		}
+
+		if (!firstInSlot) {
+			firstInSlot = w;
+		}
+
+		if (pastActive && !nextInSlot) {
+			nextInSlot = w;
+		}
+	}
+
+	if (weapon.GetSlot(activeWeapon) == wantedSlot && nextInSlot) {
+		weapon.SelectWeapon(nextInSlot);
+	} else if (firstInSlot) {
+		weapon.SelectWeapon(firstInSlot);
+	}
+
+	return (true);
 }

@@ -64,6 +64,16 @@ enum
 	VOTE_PASSED
 };
 
+/** The entity that called a scripted vote, if one is running. */
+var entity g_voteScriptEntity;
+
+/** Starts a vote for an entity rather than a console command, for map
+entities such as Sven Co-op's trigger_vote. When it ends, the script
+function OnVoteEnded(yes, no, players) runs in the entity's script scope
+(the "VoteEnded" input, with "<yes> <no> <players>" as data, when the
+entity has no scripts), and it decides for itself what passing means. Returns false when a vote is already on. */
+bool Vote_ScriptStart(entity voteEntity, string voteText, float voteTime);
+
 void Vote_End(void);
 void Vote_Reset(void);
 void Vote_Passed(void);

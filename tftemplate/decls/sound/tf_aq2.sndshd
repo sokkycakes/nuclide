@@ -1,0 +1,72 @@
+// Action Quake 2 weapon sounds for the Team Fortress template. The samples
+// come from the AQ2 pack (zz_aq2.pk3), which is kept outside git.
+
+aq2.empty
+{
+	sample aq2/weapons/noammo.wav
+}
+
+aq2.m3.fire
+{
+	alerts
+	sample aq2/weapons/shotgf1b.wav
+}
+
+aq2.m3.insert
+{
+	sample aq2/weapons/m3in.wav
+}
+
+aq2.mk23.fire
+{
+	alerts
+	sample aq2/weapons/mk23fire.wav
+}
+
+aq2.mk23.reload
+{
+	sample aq2/weapons/mk23in.wav
+}
+
+aq2.mp5.fire
+{
+	alerts
+	sample aq2/weapons/mp5fire.wav
+}
+
+aq2.mp5.reload
+{
+	sample aq2/weapons/mp5in.wav
+}
+
+aq2.m4.fire
+{
+	alerts
+	sample aq2/weapons/m4a1fire.wav
+}
+
+aq2.ssg.fire
+{
+	alerts
+	sample aq2/weapons/ssgfire.wav
+}
+
+aq2.knife.swish
+{
+	sample aq2/weapons/swish.wav
+}
+
+aq2.knife.stab
+{
+	sample aq2/weapons/stab.wav
+}
+
+aq2.knife.clank
+{
+	sample aq2/weapons/clank.wav
+}
+
+aq2.m4.slide
+{
+	sample aq2/weapons/m4a1slide.wav
+}

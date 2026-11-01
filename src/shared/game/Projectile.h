@@ -65,6 +65,8 @@ in the game to spawn a projectile. Refer to ncEntity its own documentation for d
 - "thrust_end" : When to stop accel, in seconds.
 - "linear_friction" : Air friction.
 - "bounce" : Bounce to speed multiplier.
+- "bounce_factor" : How much of its speed into a surface a bouncing projectile keeps, 0.5 by default.
+- "bounce_stop" : A bouncing projectile comes to rest on a floor below this upward speed, as a fraction of its gravity (60/800 by default).
 - "gravity" : 0 means no gravity.
 - "fuse" : Fuse time in seconds.
 - "detonate_on_fuse" : When 1, will detonate when fuse runs out. 
@@ -293,6 +295,8 @@ private:
 	float m_flThrustEnd;
 	float m_flFrictionLinear;
 	float m_flBounce;
+	float m_flBounceFactor;
+	float m_flBounceStop;
 	float m_flMass;
 	float m_flGravity;
 	float m_flFuse;

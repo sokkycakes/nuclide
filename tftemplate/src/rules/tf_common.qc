@@ -207,6 +207,7 @@ TF_SpawnPlayer(entity playerEnt)
 		userinfo.SetString(playerEnt, "bottomcolor", "0x9aff");
 	}
 
+	ents.Input(playerEnt, "SetClassModel", classDef, playerEnt);
 	game.TeleportToSpawn(playerEnt);
 	TFServer_Resupply(playerEnt);
 	TF_Debug(sprintf("spawned %s as %s on %s", playerEnt.netname, classDef, TF_TeamName(playerTeam)));
@@ -478,6 +479,24 @@ CodeCallback_Precache(void)
 		precache.Entity(classNames[i]);
 		precache.Entity(strcat(classNames[i], "_bot"));
 	}
+
+	/* the Engineer's buildings (the build PDA's "tf_buildings"), which no
+	   def_ key points at */
+	precache.Entity("tf_building_sentry");
+	precache.Entity("tf_building_dispenser");
+	precache.Entity("tf_building_tele_entrance");
+	precache.Entity("tf_building_tele_exit");
+
+	/* sounds the code plays by name, which no def_ or snd_ key points at:
+	   the Medi Gun's lock-on, ÜberCharge, the sapper, building upgrades,
+	   the Spy's cloak and the teleporters */
+	precache.Sound("item_health.pickup");
+	precache.Sound("item_artifact_invulnerability.pickup");
+	precache.Sound("item_artifact_super_damage.attack");
+	precache.Sound("item_artifact_super_damage.pickup");
+	precache.Sound("item_artifact_invisibility.pickup");
+	precache.Sound("item_artifact_invisibility.expiring");
+	precache.Sound("mayhem_teleporter.teleported");
 }
 
 void
@@ -869,6 +888,8 @@ TF_PlayerFrames(void)
 void
 CodeCallback_PlayerDamage(entity playerTarget, entity attacker, entity damageDecl)
 {
+	Util_PlayerPainSound(playerTarget);
+
 	if (BWHook_NotifyInjured) {
 		BWHook_NotifyInjured(playerTarget, attacker, attacker, 0);
 	}
@@ -877,6 +898,7 @@ CodeCallback_PlayerDamage(entity playerTarget, entity attacker, entity damageDec
 void
 CodeCallback_PlayerKilled(entity playerTarget, entity inflictor, entity attacker, string weapon)
 {
+	Util_PlayerDeathSound(playerTarget);
 	combat.Obituary(playerTarget.netname, attacker.netname, weapon, "");
 	playerTarget.deaths++;
 	playerTarget.tf_deathTime = time;

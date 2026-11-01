@@ -53,6 +53,7 @@ public:
 
 #ifdef CLIENT
 	virtual void ReceiveEntity(float,float);
+	virtual void OnRemoveEntity(void);
 #endif
 
 #ifdef SERVER
@@ -76,9 +77,11 @@ private:
 #ifdef SERVER
 	string m_strAimAt;
 	string m_strMoveTo;
-	entity m_eLooker_net;
+	entity m_eLooker_net; /* who still needs to hear that the camera let go */
+	float m_flForgetTime;
 	float m_flSpeed;
 	float m_flInitialSpeed;
+	float m_flEndTime;
 #endif
 };
 
@@ -112,20 +115,28 @@ trigger_camera::ReceiveEntity(float flNew, float flFlags)
 	//}
 
 
-	if (m_eLooker == pSeat->m_ePlayer) {
+	int s = (float)getproperty(VF_ACTIVESEAT);
+	pSeat = &g_seats[s];
+
+	/* did the last update give us the view? */
+	if (m_eLooker && m_eLooker == pSeat->m_ePlayer) {
 		deactiveLocalCam = true;
 	}
 
 	//if (flFlags & OCAMFL_CHANGED_VIEWER) {
-		m_eLooker = findfloat(world, ::entnum, readentitynum());
+		float lookerNum = readentitynum();
+
+		/* entnum 0 is no looker; finding it would match some entity */
+		if (lookerNum > 0) {
+			m_eLooker = findfloat(world, ::entnum, lookerNum);
+		} else {
+			m_eLooker = __NULL__;
+		}
 	//}
 
 	//if (flFlags & OCAMFL_CHANGED_WAIT) {
 		m_flWait = readfloat();
 	//}
-
-	int s = (float)getproperty(VF_ACTIVESEAT);
-	pSeat = &g_seats[s];
 
 	if (!m_eLooker && deactiveLocalCam == true) {
 		pSeat->m_flCameraTime = 0.0;
@@ -138,17 +149,32 @@ trigger_camera::ReceiveEntity(float flNew, float flFlags)
 	pSeat->m_vecCameraOrigin = origin;
 	pSeat->m_vecCameraAngle = angles;
 
-	//if (flFlags & OCAMFL_CHANGED_WAIT) {
+	/* updates keep coming while the camera is on, so only the first one
+	   starts the timer; the server ends it by no longer sending us the
+	   camera */
+	if (deactiveLocalCam == false) {
 		if (m_flWait == -1)
 			pSeat->m_flCameraTime = -1;
 		else
 			pSeat->m_flCameraTime = time + m_flWait;
+	}
 
-		g_view.SetCameraAngle(angles);
-		g_view.SetClientAngle(angles);
-	//}
+	g_view.SetCameraAngle(angles);
+	g_view.SetClientAngle(angles);
 
 	classname = "trigger_camera";
+}
+
+void
+trigger_camera::OnRemoveEntity(void)
+{
+	/* the server stopped sending it: our view is ours again */
+	if (m_eLooker && m_eLooker == pSeat->m_ePlayer) {
+		pSeat->m_flCameraTime = 0.0f;
+		m_eLooker = __NULL__;
+	}
+
+	super::OnRemoveEntity();
 }
 #endif
 
@@ -221,7 +247,7 @@ trigger_camera::Restore(string strKey, string setValue)
 float
 trigger_camera::SendEntity(entity ePEnt, float flFlags)
 {
-	if (m_eLooker != ePEnt) {
+	if (m_eLooker != ePEnt && m_eLooker_net != ePEnt) {
 		return (0);
 	}
 
@@ -256,8 +282,19 @@ trigger_camera::EvaluateEntity(void)
 {
 	ncEntity aimingAt;
 
-	if (!m_eLooker)
+	if (!m_eLooker) {
+		if (m_eLooker_net && time >= m_flForgetTime) {
+			m_eLooker_net = __NULL__;
+		}
 		return;
+	}
+
+	/* "wait" runs out on the server. the client restarts its own timer on
+	   every update it gets, so it can't be the one to end the view. */
+	if (m_flEndTime > 0.0f && time >= m_flEndTime) {
+		DeactivateCamera();
+		return;
+	}
 
 	SendFlags = -1;
 
@@ -412,7 +449,9 @@ trigger_camera::Trigger(entity act, triggermode_t state)
 
 	m_eLooker = act;
 	m_eLooker.view2 = this;
+	m_eLooker_net = __NULL__;
 	m_flSpeed = m_flInitialSpeed;
+	m_flEndTime = (m_flWait > 0.0f) ? time + m_flWait : 0.0f;
 
 	if (!m_flSpeed) {
 		m_flSpeed = 100.0f;
@@ -443,8 +482,15 @@ trigger_camera::DeactivateCamera(void)
 		return;
 	}
 
+	m_flEndTime = 0.0f;
 	EntLog("Turning it off on %S", m_eLooker.netname);
 	m_eLooker.view2 = __NULL__;
+
+	/* keep sending to the old looker for a moment, so its client gets an
+	   update without a looker and gives the view back. the client doesn't
+	   reliably hear about an entity it stops getting. */
+	m_eLooker_net = m_eLooker;
+	m_flForgetTime = time + 1.0f;
 	m_eLooker = __NULL__;
 }
 

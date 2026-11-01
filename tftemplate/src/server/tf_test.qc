@@ -31,11 +31,17 @@ rules progs pass any tf_test_* command they don't know to TF_TestCommand.
   "-" for none). With forward,side move values the player walks instead of
   staying put, for as long as the buttons are held.
 - tf_test_speed: every player's class, ground speed and top speed
+- tf_test_push <player> <x> <y> <z>: sets the player's velocity
+- tf_test_autojump <player> 1|0: jumps again on landing while jump is held
 - tf_test_disguise <player> <team> <class def> | off: disguises a Spy
 - tf_test_projectiles [clear]: every projectile's position and velocity,
   or removes them all Bot AI is off while pinned.
+- tf_test_find <classname prefix>: every entity whose class starts with it
 - tf_test_release <player>: unpins, giving control back
 - tf_test_report: health and state of every player and building
+- tf_test_falloff <damage def or weapon def> <damage> <distance> ...: the
+  damage after range falloff and ramp-up (TF_DistanceDamage) at each
+  distance, between two player-sized boxes
 */
 
 static tfPlayer
@@ -95,7 +101,7 @@ TF_TestButtons(string buttonNames)
 bool
 TF_TestCommand(string commandLine)
 {
-	tokenize_console(commandLine);
+	int argCount = tokenize_console(commandLine);
 	string commandName = argv(0);
 	tfPlayer thePlayer;
 
@@ -196,6 +202,27 @@ TF_TestCommand(string commandLine)
 			print(sprintf("%s (%s): ground speed %d, top speed %d%s at %v\n", speedPlayer.netname, speedPlayer.tf_desiredClass, vlen([speedPlayer.velocity[0], speedPlayer.velocity[1], 0]), speedPlayer.maxspeed, speedPlayer.IsCrouching() ? ", crouching" : "", speedPlayer.origin));
 		}
 		break;
+	case "tf_test_push":
+		thePlayer = TF_TestFindPlayer(argv(1));
+
+		if (thePlayer) {
+			thePlayer.SetVelocity([stof(argv(2)), stof(argv(3)), stof(argv(4))]);
+		}
+		break;
+	case "tf_test_autojump":
+		thePlayer = TF_TestFindPlayer(argv(1));
+
+		if (thePlayer) {
+			forceinfokey(thePlayer, "autojump", argv(2));
+		}
+		break;
+	case "tf_test_find":
+		for (entity found = world; (found = nextent(found));) {
+			if (substring(found.classname, 0, strlen(argv(1))) == argv(1)) {
+				print(sprintf("%s at %v, model %S\n", found.classname, found.origin, found.model));
+			}
+		}
+		break;
 	case "tf_test_release":
 		thePlayer = TF_TestFindPlayer(argv(1));
 
@@ -214,6 +241,43 @@ TF_TestCommand(string commandLine)
 				print(sprintf("%s of %s: origin %v velocity %v\n", proj.classname, proj.owner.netname, proj.origin, proj.velocity));
 			}
 		}
+		break;
+	case "tf_test_falloff":
+		/* reading defs tokenizes, so copy our arguments first */
+		string declName = argv(1);
+		string baseDamage = argv(2);
+		string distanceList = "";
+		entity fromBox = spawn();
+		entity toBox = spawn();
+		ncDict testDecl;
+
+		for (int i = 3; i < argCount; i++) {
+			distanceList = strcat(distanceList, " ", argv(i));
+		}
+
+		/* a damage def has its "weapon" key; a weapon def becomes one */
+		if (STRING_SET(EntityDef_GetKeyValue(declName, "weapon"))) {
+			testDecl = ncDict::InitWithSpawnData(EntityDef_GetSpawnData(EntityDef_IDFromName(declName)));
+		} else {
+			testDecl = spawn(ncDict);
+			testDecl.AddKey("weapon", declName);
+		}
+
+		setsize(fromBox, [-16, -16, 0], [16, 16, 72]);
+		setsize(toBox, [-16, -16, 0], [16, 16, 72]);
+		setorigin(fromBox, [0, 0, 0]);
+
+		for (int d = 0; d < argCount - 3; d++) {
+			tokenize_console(distanceList);
+			string testDistance = argv(d);
+			setorigin(toBox, [stof(testDistance), 0, 0]);
+			print(sprintf("falloff %s %s at %s: %.2f\n", declName, baseDamage, testDistance,
+				TF_DistanceDamage(toBox, fromBox, fromBox, testDecl, stof(baseDamage))));
+		}
+
+		remove(testDecl);
+		remove(fromBox);
+		remove(toBox);
 		break;
 	case "tf_test_report":
 		for (entity e = world; (e = next.Player(e));) {

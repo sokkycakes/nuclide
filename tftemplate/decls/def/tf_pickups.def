@@ -105,3 +105,19 @@ entityDef item_ammopack_full
 	"inv_ammo_tf_revolver"	"24"
 	"inv_ammo_tf_pistol_eng"	"200"
 }
+
+// Team Fortress has no armor: Quake maps' armor spawns are left empty.
+entityDef item_armor1
+{
+	"spawnclass"	"info_null"
+}
+
+entityDef item_armor2
+{
+	"spawnclass"	"info_null"
+}
+
+entityDef item_armorInv
+{
+	"spawnclass"	"info_null"
+}

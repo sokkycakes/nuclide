@@ -8,7 +8,6 @@ var vector g_damageLocation;
 var int g_damageFlags;
 
 font_s FONT_HUD;
-var string g_ammoPic;
 
 #define KILLMESSAGE_LIMIT 5i
 #define KILLMESSAGE_TIME 4.0f
@@ -22,10 +21,12 @@ void
 HUD_Init(void)
 {
 	font.Load("fonts/font16.font", FONT_HUD);
-	g_ammoPic = 0;
 	Nameplates_IsFriendly = TFHUD_PlateIsFriendly;
 	Nameplates_Name = TFHUD_PlateName;
 }
+
+void HUD_DrawPlainStatus(string healthValue, string ammoValue);
+void HUD_DrawKillFeed(void);
 
 void
 HUD_Draw(void)
@@ -36,13 +37,7 @@ HUD_Draw(void)
 	TFHUD_DrawCrosshair();
 	TFHUD_DrawReload();
 
-	vector hud_mins = screen.HUDMins();
-	vector hudSize = screen.HUDSize();
-	vector iconPos = hud_mins + (hudSize / 2);
-	iconPos[1] = (hudSize[1] - baseIconSize) - baseIconPadding;
-
 	string healthValue = ftos(player.GetHealth());
-	string armorValue = ftos(player.GetArmor());
 	string ammoValue = ftos(weapon.GetAmmo1());
 
 	/* clip first, reserve after */
@@ -62,12 +57,32 @@ HUD_Draw(void)
 		g_damageAlpha -= clframetime;
 	}
 
-	/* health, armor icons */
+	/* weapon title and kill feed stay below; health and ammo come from the
+	   TF2 HUD when one is installed */
+	if (TFVGui_Active()) {
+		TFVGui_Draw();
+	} else {
+		HUD_DrawPlainStatus(healthValue, ammoValue);
+	}
+
+	if (!TFVGui_Active()) {
+		HUD_DrawKillFeed();
+	}
+}
+
+/** Health and ammo without a TF2 HUD. Team Fortress has no armor. */
+void
+HUD_DrawPlainStatus(string healthValue, string ammoValue)
+{
+	vector hud_mins = screen.HUDMins();
+	vector hudSize = screen.HUDSize();
+	vector iconPos = hud_mins + (hudSize / 2);
+	iconPos[1] = (hudSize[1] - baseIconSize) - baseIconPadding;
+
+	/* health; Team Fortress has no armor */
 	draw.RText(iconPos + [-((baseIconSize/2) + (baseIconPadding/2)) - baseIconPadding, 0], healthValue, FONT_HUD);
 	draw.Pic(iconPos + [-((baseIconSize/2) + (baseIconPadding/2)), 0], "gfx/hud/health", [baseIconSize, baseIconSize], [1,1,1], 1.0f, DRAWFLAG_NORMAL);
 
-	draw.Text(iconPos + [(baseIconSize/2) + (baseIconPadding/2) + baseIconSize + baseIconPadding, 0], armorValue, FONT_HUD);
-	draw.Pic(iconPos + [(baseIconSize/2) + (baseIconPadding/2), 0], "gfx/hud/armor", [baseIconSize, baseIconSize], [1,1,1], 1.0f, DRAWFLAG_NORMAL);
 
 	draw.RadarRect(hud_mins + [hudSize[0] - 127 - 16, 17], [126,126]);
 	draw.RectOutline(hud_mins + [hudSize[0] - 128 - 16, 16], [128,128], 1.0f, [0.5,0.5,0.5], 1.0f);
@@ -76,7 +91,6 @@ HUD_Draw(void)
 	if (weapon.AmmoRequired() == true) {
 		iconPos[0] = hud_mins[0] + (hudSize[0] - baseIconSize) - baseIconPadding;
 		iconPos[1] = hud_mins[1] + (hudSize[1] - baseIconSize) - baseIconPadding;
-		draw.Pic(iconPos, g_ammoPic, [baseIconSize, baseIconSize], [1,1,1], 1.0f, DRAWFLAG_NORMAL);
 		iconPos[0] -= baseIconPadding;
 		draw.RText(iconPos, ammoValue, FONT_HUD);
 		iconPos[1] += font.GetHeight(FONT_HUD);
@@ -87,6 +101,14 @@ HUD_Draw(void)
 		iconPos[1] += font.GetHeight(FONT_HUD);
 		draw.RText(iconPos, weapon.GetTitle(), FONT_HUD);
 	}
+
+}
+
+void
+HUD_DrawKillFeed(void)
+{
+	vector hud_mins = screen.HUDMins();
+	vector iconPos;
 
 	if (g_killMsgTime < time && g_killMsgCount > 0i) {
 		for (int i = 0i; i < (KILLMESSAGE_LIMIT-1i); i++) {
@@ -123,10 +145,23 @@ HUD_DamageReceived(vector damageLocation, int damagePoints, int damageFlags)
 
 }
 
+/* how far above the bottom the spectator lines go: a TF2 HUD's objective
+   panels take the bottom of the screen */
+static float
+HUD_SpectatorTextRaise(vector hudSize)
+{
+	return TFVGui_Active() ? hudSize[1] / 480 * 110 : 60;
+}
+
 void
 HUD_DrawSpectator(void)
 {
 	TFHUD_Draw();
+
+	if (TFVGui_Active()) {
+		TFVGui_DrawShared();
+	}
+
 	TFHUD_DrawMeter();
 	float palpha = 1.0f;
 	string strText;
@@ -140,7 +175,7 @@ HUD_DrawSpectator(void)
 		string killerName = spectating.Name();
 		strText = STRING_SET(killerName) ? sprintf("Killed by %s", killerName) : "You died";
 		vecPos[0] = hud_mins[0] + (hud_size[0] / 2) - (font.StringWidth(strText, true, FONT_HUD) / 2);
-		vecPos[1] = hud_mins[1] + hud_size[1] - 60;
+		vecPos[1] = hud_mins[1] + hud_size[1] - HUD_SpectatorTextRaise(hud_size);
 		draw.Text_A(vecPos, strText, 1.0f, FONT_HUD);
 		return;
 	}
@@ -151,20 +186,20 @@ HUD_DrawSpectator(void)
 
 	strText = sprintf("Spectating: %s", spectating.Name());
 	vecPos[0] = hud_mins[0] + (hud_size[0] / 2) - (font.StringWidth(strText, true, FONT_HUD) / 2);
-	vecPos[1] = hud_mins[1] + hud_size[1] - 60;
+	vecPos[1] = hud_mins[1] + hud_size[1] - HUD_SpectatorTextRaise(hud_size);
 	draw.Text_A(vecPos, strText, palpha, FONT_HUD);
 
 	strText = sprintf("Mode: %s", spectating.LocalizedMode());
 	vecPos[0] = hud_mins[0] + (hud_size[0] / 2) - (font.StringWidth(strText, true, FONT_HUD) / 2);
-	vecPos[1] = hud_mins[1] + hud_size[1] - 40;
+	vecPos[1] = hud_mins[1] + hud_size[1] - HUD_SpectatorTextRaise(hud_size) + 20;
 	draw.Text_A(vecPos, strText, palpha, FONT_HUD);
 }
 
 void
 HUD_WeaponSwitched(string weaponName)
 {
-	/* Here you could change the ammo icon based on the weapon you switched to */
-	g_ammoPic = "gfx/hud/armor";
+	/* the ammo readout has no icon: the only one the base game has is
+	   armor's, and Team Fortress has no armor */
 }
 
 
@@ -196,6 +231,8 @@ HUD_Obituary(string targetName, string attackerName, string weaponDef, string me
 			}
 		}
 	}
+
+	TFVGui_AddDeathNotice(targetName, attackerName, weaponDef, meansOfDeath);
 
 	if (g_killMsgCount < KILLMESSAGE_LIMIT) {
 		HUD_Obituary_Add(g_killMsgCount, targetName, attackerName, weaponDef, meansOfDeath);

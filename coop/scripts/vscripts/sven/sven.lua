@@ -1,0 +1,267 @@
+-- Sven Co-op map support for the co-op game, on Bulwark's script layer.
+-- Written from the maps' own entity data and Sven Co-op's public
+-- documentation of map entities and map .cfg files; no Sven Co-op or
+-- AngelScript code is used.
+
+Sven = {}
+
+-- The map's keys for a scripted entity, as a table.
+function Sven.Keys(ent)
+	local raw = ent:GetField("script_spawndata") or ""
+	local keys = {}
+	for k, v in raw:gmatch('"([^"]*)"%s+"([^"]*)"') do
+		keys[k] = v
+	end
+	return keys
+end
+
+function Sven.Number(keys, name, default)
+	return tonumber(keys[name] or "") or default
+end
+
+-- Fires a map target the way a trigger_relay would.
+function Sven.Fire(target, activator, delay)
+	if target ~= nil and target ~= "" then
+		EntFire(target, "Trigger", "", delay or 0, activator)
+	end
+end
+
+function Sven.EntityByIndex(index)
+	local e = Entities.First()
+	while e ~= nil do
+		if e:entindex() == index then
+			return e
+		end
+		e = Entities.Next(e)
+	end
+	return nil
+end
+
+-- Players are "player" until the co-op game makes them "player_mp".
+function Sven.Players()
+	local list = {}
+	for _, class in ipairs({ "player", "player_mp" }) do
+		local e = Entities.FindByClassname(nil, class)
+		while e ~= nil do
+			list[#list + 1] = e
+			e = Entities.FindByClassname(e, class)
+		end
+	end
+	return list
+end
+
+-- Reads a text file through the server's QC file builtins. QC's fgets
+-- gives "" for both an empty line and the end of the file, so reading
+-- stops after a run of empty results.
+function Sven.ReadLines(path)
+	local fh = QC.Call("fopen", path, 0)
+	if fh == nil or fh < 0 then
+		return nil
+	end
+	local lines, empty = {}, 0
+	while empty < 16 do
+		local line = QC.CallString("fgets", fh)
+		if line == nil or line == "" then
+			empty = empty + 1
+		else
+			for _ = 1, empty do lines[#lines + 1] = "" end
+			empty = 0
+			lines[#lines + 1] = line
+		end
+	end
+	QC.Call("fclose", fh)
+	return lines
+end
+
+-- Map .cfg files ---------------------------------------------------------
+--
+-- Each line is "name [value]". The ones that set up players:
+--   weapon_<x>          a weapon everyone spawns with
+--   ammo_<x> <n>        n pickups' worth of that ammo
+--   startarmor <n>      armour on spawn, starthealth <n> health
+--   player_weaponstrip  spawn with nothing but what the cfg lists
+--   nomedkit            no medkit (the co-op game doesn't hand one out)
+-- Server settings (mp_timelimit, nextmap) are left to the server's own
+-- config: setting them from a map load made Bulwark leave the map.
+-- map_script and globalmodellist name AngelScript files and model swaps,
+-- which aren't run.
+
+-- Sven names of map cfg ammo, to the co-op game's ammo type and how much
+-- one pickup gives.
+Sven.AmmoTypes = {
+	["9mm"] = { "ammo_9mm", 17 },
+	["9mmclip"] = { "ammo_9mm", 17 },
+	["9mmbox"] = { "ammo_9mm", 200 },
+	["buckshot"] = { "ammo_buckshot", 12 },
+	["357"] = { "ammo_357", 6 },
+	["ARgrenades"] = { "ammo_m203_grenade", 2 },
+	["rpgclip"] = { "ammo_rocket", 1 },
+	["gaussclip"] = { "ammo_uranium", 20 },
+	["crossbow"] = { "ammo_bolt", 5 },
+	["556"] = { "ammo_556", 100 },
+}
+
+-- Sven weapon names that the co-op game knows by another name.
+Sven.WeaponNames = {
+	weapon_glock = "weapon_9mmhandgun",
+}
+
+Sven.Loadout = nil
+
+function Sven.LoadMapConfig()
+	local map = GetMapName()
+	local lines = Sven.ReadLines("maps/" .. map .. ".cfg")
+	if lines == nil then
+		return
+	end
+
+	local loadout = { weapons = {}, ammo = {}, strip = false, armor = nil, health = nil }
+	local ignored = {}
+
+	for _, line in ipairs(lines) do
+		line = line:gsub("//.*$", "")
+		local name, value = line:match("^%s*(%S+)%s*(.-)%s*$")
+		if name ~= nil then
+			value = value:gsub('^"(.*)"$', "%1")
+			if name:sub(1, 7) == "weapon_" then
+				loadout.weapons[#loadout.weapons + 1] = Sven.WeaponNames[name] or name
+			elseif name:sub(1, 5) == "ammo_" then
+				loadout.ammo[#loadout.ammo + 1] = { name:sub(6), tonumber(value) or 1 }
+			elseif name == "player_weaponstrip" then
+				loadout.strip = true
+			elseif name == "startarmor" then
+				loadout.armor = tonumber(value)
+			elseif name == "starthealth" then
+				loadout.health = tonumber(value)
+			elseif name == "nomedkit" then
+				loadout.nomedkit = true
+			else
+				ignored[#ignored + 1] = name
+			end
+		end
+	end
+
+	-- Sven Co-op hands out a medkit unless the map says nomedkit
+	if not loadout.nomedkit then
+		loadout.weapons[#loadout.weapons + 1] = "weapon_medkit"
+	end
+
+	-- what players spawn with has to be precached while the map loads
+	for _, weapon in ipairs(loadout.weapons) do
+		QC.Call("Script_PrecacheEntity", weapon)
+	end
+
+	Sven.Loadout = loadout
+	printl(string.format("[sven] maps/%s.cfg: %d weapons, %d ammo, strip %s; not handled: %s",
+		map, #loadout.weapons, #loadout.ammo, tostring(loadout.strip), table.concat(ignored, " ")))
+end
+
+function Sven.GiveLoadout(player)
+	local loadout = Sven.Loadout
+	if loadout == nil then
+		return
+	end
+
+	-- inputs queue to the next frame, after the game's own spawn loadout
+	if loadout.strip then
+		player:FireInput("RemoveAllItems")
+		player:FireInput("GiveItem", "item_suit")
+	end
+	for _, weapon in ipairs(loadout.weapons) do
+		player:FireInput("GiveItem", weapon)
+	end
+	for _, ammo in ipairs(loadout.ammo) do
+		local kind = Sven.AmmoTypes[ammo[1]]
+		if kind ~= nil then
+			player:FireInput("GiveAmmo", string.format("%s %d", kind[1], kind[2] * ammo[2]))
+		end
+	end
+	if loadout.armor ~= nil then
+		player:FireInput("SetArmor", tostring(loadout.armor))
+	end
+	if loadout.health ~= nil then
+		player:SetHealth(loadout.health)
+	end
+end
+
+function OnGameEvent_player_spawn(params)
+	local player = Sven.EntityByIndex(tonumber(params.entindex) or -1)
+	if player ~= nil then
+		Sven.GiveLoadout(player)
+	end
+end
+
+-- Monster sides --------------------------------------------------------
+--
+-- Sven's "classify" key uses Half-Life's class numbers (1 machine,
+-- 2 player, 3 human passive, 4 human military, 5-10 aliens, 11 player
+-- ally), and respawn_as_playerally 1 makes a monster fight for the
+-- players. Nuclide's "team" key: 0 friend, 1 enemy, 2 alien.
+-- Returns nil to keep the monster's own side.
+function Sven.TeamFor(keys)
+	if Sven.Number(keys, "respawn_as_playerally", 0) == 1 then
+		return "0"
+	end
+	local class = Sven.Number(keys, "classify", 0)
+	if class == 2 or class == 3 or class == 11 then
+		return "0"
+	elseif class == 1 or class == 4 then
+		return "1"
+	elseif class >= 5 and class <= 10 then
+		return "2"
+	end
+	return nil
+end
+
+-- Prints what the Sven entities do, with developer 1.
+function Sven.Debug(fmt, ...)
+	if Convars.GetFloat("developer") > 0 then
+		printl("[sven] " .. string.format(fmt, ...))
+	end
+end
+
+-- Aiming and tracing ---------------------------------------------------
+
+function Sven.EyePos(ent)
+	return ent:GetOrigin() + (ent:GetField("view_ofs") or Vector(0, 0, 0))
+end
+
+function Sven.Forward(ent)
+	return QC.CallVector("anglesToForward", ent:GetField("v_angle") or ent:GetAngles())
+end
+
+-- Traces a line. Returns the end point, the fraction and the entity hit
+-- (nil for none or the world). noMonsters ignores monsters and players.
+function Sven.Trace(from, to, ignore, noMonsters)
+	QC.Call("traceline", from, to, noMonsters and 1 or 0, ignore)
+	local hit = QC.Get("trace_ent")
+	if hit ~= nil and hit:entindex() == 0 then
+		hit = nil
+	end
+	return QC.Get("trace_endpos"), QC.Get("trace_fraction"), hit
+end
+
+-- True if a point is in the sky.
+function Sven.IsSky(pos)
+	return QC.Call("pointcontents", pos) == -6
+end
+
+-- Whether a trace going 'dir' that ended at 'hit' hit the sky. Traces can
+-- end on either side of a sky brush, so both are checked.
+function Sven.HitSky(hit, dir)
+	return Sven.IsSky(hit + dir * 2) or Sven.IsSky(hit - dir * 4)
+end
+
+function Sven.CenterPrint(player, text)
+	QC.Call("centerprint", player, text)
+end
+
+-- Plays a sound from an entity. channel 1 is the weapon channel.
+function Sven.Sound(ent, sample, channel, volume)
+	QC.Call("sound", ent, channel or 1, sample, volume or 1, 1)
+end
+
+function Sven.IsPlayer(ent)
+	local class = ent:GetClassname()
+	return class == "player" or class == "player_mp"
+end

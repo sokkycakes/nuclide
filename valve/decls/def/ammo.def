@@ -34,6 +34,8 @@ entityDef ammo_types {
 	"ammo_hornet"			"11"
 	"ammo_m203_grenade"		"12"
 	"ammo_chumtoad"			"13"
+	"ammo_556"				"14"
+	"ammo_medkit"			"15"
 }
 
 entityDef ammo_names {
@@ -51,6 +53,8 @@ entityDef ammo_names {
 	"ammo_hornet"			"Hornets"
 	"ammo_m203_grenade"		"M203 Grenades"
 	"ammo_chumtoad"			"Chumtoads"
+	"ammo_556"				"5.56mm Rounds"
+	"ammo_medkit"			"Medical Supplies"
 }
 
 entityDef ammo_max {
@@ -68,4 +72,6 @@ entityDef ammo_max {
 	"ammo_hornet"			"8"
 	"ammo_m203_grenade"		"10"
 	"ammo_chumtoad"			"10"
+	"ammo_556"				"600"
+	"ammo_medkit"			"100"
 }

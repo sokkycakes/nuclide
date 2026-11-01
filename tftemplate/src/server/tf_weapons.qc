@@ -190,9 +190,19 @@ tfStickybombLauncher::SecondaryAttack(void)
 	ncPlayer ourOwner = (ncPlayer)GetOwner();
 	string stickyDef = GetDefString("tf_stickyDef");
 
+	float lateTime = GetDefFloat("tf_lateSplashTime");
+	string lateDef = GetDefString("tf_lateSplashDef");
+
 	for (entity e = world; (e = find(e, ::classname, stickyDef));) {
 		if (e.owner == ourOwner && e.tf_charge <= time) {
 			ncProjectile toDetonate = (ncProjectile)e;
+
+			/* tf_charge is when it armed; past "tf_lateSplashTime" seconds
+			   old, it loses range falloff (TF2) */
+			if (STRING_SET(lateDef) && lateTime > 0.0f && time - (e.tf_charge - GetDefFloat("tf_armTime")) >= lateTime) {
+				toDetonate.SpawnKey("def_splash_damage", lateDef);
+			}
+
 			toDetonate.Trigger(ourOwner, TRIG_TOGGLE);
 		}
 	}
@@ -249,7 +259,7 @@ tfMinigun::InputFrame(void)
 	super::InputFrame();
 
 	if (m_weaponSpin > 0.0f && wasSpinning == false) {
-		ourOwner.StartSoundDef("weapon_supernailgun.shoot", CHAN_ITEM, true);
+		ourOwner.StartSoundDef(GetDefString("snd_spinUp"), CHAN_ITEM, true);
 	}
 
 	ourOwner.tf_charge = SpinProgress();
@@ -661,7 +671,7 @@ tfKnife::FiredWeaponAttack(string fireInfo)
 		super::FiredWeaponAttack("");
 		victim.Damage(ourOwner, ourOwner, stabDecl, 1.0f, anglesToForward(ourOwner.GetViewAngle()), trace_endpos);
 		remove(stabDecl);
-		ourOwner.StartSoundDef("Weapon_Axe.Melee_Hit", CHAN_WEAPON, true);
+		ourOwner.StartSoundDef(GetSubDefString(fireInfo, "snd_hit"), CHAN_WEAPON, true);
 		return;
 	}
 

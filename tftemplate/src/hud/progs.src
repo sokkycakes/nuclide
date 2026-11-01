@@ -7,5 +7,8 @@
 ../shared/tf_api.h
 nameplates.qc
 tf_hud.qc
+vgui.qc
+tf_vguiobjectives.qc
+tf_vguihud.qc
 hud_base.qc
 #endlist

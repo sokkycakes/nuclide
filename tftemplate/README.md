@@ -20,6 +20,100 @@ built for that entity set work here. It also follows TF2's published game
 rules where it implements them: class health and speeds, harmonic capture
 speed, respawn waves, and KOTH clocks.
 
+### Action Quake 2 weapon and player assets
+
+The guns, the Spy's knife, their sounds, and the player's pain, death, fall,
+water and footstep sounds come from Action Quake 2
+(<https://github.com/actionquake/distrib>, `baseaq/pak0`). They are not in
+git. They ship as `tftemplate/zz_aq2.pk3`, which is kept with the project
+files and goes into the test builds. Without it those weapons have no view
+model and those sounds are silent.
+
+AQ2's distribution is GPLv2, and its README says the original Quake 2 player
+files (the `players/male` sounds used here) can only be redistributed under
+a licence from id Software. The pack is for private use only.
+
+| TF weapons | AQ2 view model | AQ2 world model |
+|---|---|---|
+| Scattergun, every Shotgun | M3 sounds only (DOX view models, below) | `g_shotg` |
+| Pistols, Revolver | Mk23 (`v_blast`) | Quake's |
+| SMG | MP5 (`v_machn`) | `g_machn` |
+| Sniper Rifle | SSG 3000 (`v_sniper`) | `g_sniper` |
+| Knife | `v_knife` | none |
+
+The weapons AQ2 has nothing for come from the Quake mod "Worldmodel to
+Viewmodel (angled)" by Schrotflinte12, which turns Quake's world models into
+view models. They ship as `tftemplate/zz_wm2vm.pk3` under `progs/wm2vm/`,
+also outside git. The models are id Software's, Rogue's, Hipnotic's and
+Arcane Dimensions' (SimonOC, dwere): private use only too.
+
+| TF weapons | View model | From |
+|---|---|---|
+| Grenade Launcher | `v_grenade` (world `g_grenade`) | Arcane Dimensions grenade launcher |
+| Stickybomb Launcher | `v_sticky` (world `g_sticky`) | Hipnotic proximity gun |
+| Flamethrower | `v_flame` | Arcane Dimensions thunderbolt |
+| Medi Gun | `v_medigun` | Rogue plasma gun |
+| Syringe Gun | `v_syringe` (world `g_syringe`) | Arcane Dimensions nailgun, QTest world model |
+| Kukri | `v_kukri` | Arcane Dimensions shadow axe |
+| Bat, Bottle, Shovel, Fists, Bonesaw | `v_axe` | Quake's axe world model |
+
+The PDAs keep base's axe.
+
+A third pack, `tftemplate/zz_dox.pk3` (also outside git, private use: its
+author only asks that nobody makes money from it), holds DOX's 1998 Team
+Fortress 1 addon "2men & a fast mofo + techboy" under `progs/dox/` and
+`sound/dox/`, so it replaces no Quake files:
+
+| TF | Model | Notes |
+|---|---|---|
+| Minigun | `v_minigun` | TF1 assault cannon, spin-up sound `asscan1` (AQ2's M4 fire sound) |
+| Sentry Gun | `sentry_gun` on `sentry_base` | skins 0 to 2 by level ("model_base", "tf_levelSkins") |
+| Dispenser | `dispenser` | |
+| Rocket | `rocket` | |
+| Pipe and sticky bombs | `pipe` | |
+| Rocket Launcher | `v_rocket` | |
+| Every Shotgun | `v_shotgun` (pump) | no reload animation; AQ2's M3 sounds |
+| Scattergun | `v_scattergun` (double barrel) | same |
+| Wrench | `v_wrench` | |
+| Fire Axe | `v_fireaxe` | two swings, 1 and 3 |
+
+A fourth pack, `tftemplate/zz_qlplayers.pk3` (outside git, private use:
+id Software's Quake Live models), gives each class a Quake Live player as
+a stand-in for its TF2 model, with the Quake Live red and blue team skins:
+
+| Class | Model | | Class | Model |
+|---|---|---|---|---|
+| Scout | Mynx | | Heavy | Tank Jr. |
+| Soldier | Grunt | | Engineer | Razor |
+| Pyro | Visor | | Medic | Janet |
+| Demoman | Bitterman | | Sniper | Orbb |
+| | | | Spy | Bones |
+
+Each Quake Live player is three models (legs, torso, head) joined by tags,
+with separate legs and torso animations. The pack bakes each one into a
+single `progs/ql/<model>_<team>.md2` with a `.framegroups` file: the legs
+and torso animations are paired into whole-body animations (idle, walk,
+run, crouch, jump, attack, melee attack, deaths, ...), and the textures go
+into one atlas per team. The class defs name them in "model_red" and
+"model_blue" and map the activities to those framegroups (see
+`tf_player_base` in `decls/def/tf_classes.def`); `tfPlayer` puts on the
+team's model when it spawns (the rules send it a `SetClassModel` input), and
+a disguised Spy wears the disguise's model. Without the pack, players keep
+`base`'s Quake player. Because the animations are paired, firing while
+running plays the standing attack for a moment.
+
+
+It has more that isn't used yet: nailgun and railgun view models, sentry
+and dispenser gibs, a hand grenade, MIRV, ammo box, armour and backpack, the
+sentry's idle sound and a "Medic!" call.
+
+Both packs add a `.framegroups` file next to each view model that splits its
+frames into animations, so the defs' `act_*` keys are animation numbers. Every
+model has 0 draw, 1 fire and 2 idle. On the AQ2 guns 4 is the reload (a
+shell for the M3), the knife's 1 is the slash, and the axes swing with 1 and
+3 and up. Draw and reload lengths are scaled to TF2's times. The sounds are in `decls/sound/tf_aq2.sndshd`, and `player.sndshd`
+and `footsteps.sndshd` here replace base's files of the same name.
+
 ## Running it
 
 The template mounts on top of `base`. Use the manifest in the repository
@@ -349,6 +443,32 @@ pusher count, BLOCKED, or `<<` while it rolls back). It reads the serverinfo key
 `tf_round`, `tf_timer`, `tf_obj`, `tf_caps`, `tf_koth` and `tf_wins`. Other
 HUDs can read the same keys.
 
+### TF2 HUD files
+
+When a pack holds a TF2 HUD's `scripts/hudlayout.res`, `hud.dat` lays out
+health, ammo, the class portrait, the round clock (with its setup and
+waiting notes), the KOTH clocks, the control point icons, the CTF scores
+and flags, the payload track and the kill feed from that HUD's own `.res`
+files, scheme colours, borders and fonts (`src/hud/vgui.qc` reads them;
+`src/hud/tf_vguihud.qc` and `tf_vguiobjectives.qc` fill in the values
+TF2's C++ panels would). Where a panel uses TF2's own pictures, which
+aren't in the pack, the HUD's octagons and icons stand in: a flag that's
+taken shows the alert sign, a dropped one blinks, and the kill feed names
+the weapon in place of a kill icon. Payload checkpoints show as small
+point icons above the track, since the rules don't publish where they are
+on it. The round result lines still use the strip. `cg_tfhud 0` goes back
+to the plain HUD.
+
+The HUD in use is SolarLightHUD REDUX, as `tftemplate/zz_solarlight.pk3`
+(outside git, kept with the project files). The pack is the HUD's
+`resource/` and `scripts/` folders with names lowercased, its VTF images
+converted to PNG under `gfx/vgui/` (Bulwark doesn't load PNGs from
+`materials/`), the character art scaled down to 512 pixels, and the CFF
+font `asimov.otf` converted to `asimov.ttf` (the font path in
+`redux_fontpaths.res` changed to match), since Bulwark's font loader
+reads TrueType outlines only. The server
+publishes the class as the `*tf_class` userinfo key for the portrait.
+
 `nameplates.qc` adds two things over friendly players:
 
 - a name and health bar floating over each teammate's head (`cl_nameplates`,
@@ -362,6 +482,10 @@ Both use three optional callbacks, `Nameplates_IsFriendly`,
 so enemy Spies disguised as your team get a plate and a borrowed teammate's
 name. Health comes from the `*hp` and `*maxhp` userinfo keys the server
 publishes, since the HUD progs can't read entity health.
+
+The number keys switch straight to a slot's weapon, as in TF2 (`slot1`
+primary, `slot2` secondary, `slot3` melee, `slot4` and `slot5` the PDAs).
+Pressing the slot in hand again steps to the next weapon in it.
 
 ## Test and debug commands (server console)
 

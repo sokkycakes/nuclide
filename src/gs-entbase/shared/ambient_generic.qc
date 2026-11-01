@@ -100,6 +100,9 @@ private:
 	PREDICTED_FLOAT(m_flRadius)
 	PREDICTED_FLOAT(m_flPitch)
 	PREDICTED_BOOL(m_bLoops)
+	/** loop the whole sample even without loop points (Sven Co-op music) */
+	bool m_bForceLoop;
+	int m_iPlayMode;
 	bool m_bToggle;
 	bool m_bIsModern;
 
@@ -117,6 +120,8 @@ ambient_generic::ambient_generic(void)
 	m_flRadius = 0.0f;
 	m_flPitch = 0.0f;
 	m_bLoops = false;
+	m_bForceLoop = false;
+	m_iPlayMode = 0i;
 	m_bToggle = false;
 	m_bIsModern = false;
 	m_strSpawnPath = __NULL__;
@@ -142,6 +147,8 @@ ambient_generic::Save(float handle)
 	SaveFloat(handle, "m_flPitch", m_flPitch);
 	SaveInt(handle, "m_bToggle", m_bToggle);
 	SaveInt(handle, "m_bLoops", m_bLoops);
+	SaveBool(handle, "m_bForceLoop", m_bForceLoop);
+	SaveInt(handle, "m_iPlayMode", m_iPlayMode);
 	SaveBool(handle, "m_bIsModern", m_bIsModern);
 }
 
@@ -151,6 +158,12 @@ ambient_generic::Restore(string strKey, string setValue)
 	switch (strKey) {
 	case "m_bLoops":
 		m_bLoops = ReadInt(setValue);
+		break;
+	case "m_bForceLoop":
+		m_bForceLoop = ReadBool(setValue);
+		break;
+	case "m_iPlayMode":
+		m_iPlayMode = ReadInt(setValue);
 		break;
 	case "m_bToggle":
 		m_bToggle = ReadInt(setValue);
@@ -191,6 +204,10 @@ ambient_generic::SpawnKey(string strKey, string setValue)
 		break;
 	case "pitch":
 		m_flSpawnPitch = stof(setValue);
+		break;
+	/* Sven Co-op: 1 plays once, 2 loops */
+	case "playmode":
+		m_iPlayMode = stoi(setValue);
 		break;
 	/* backwards compat with GoldSrc/Source */
 	case "health":
@@ -272,6 +289,12 @@ ambient_generic::Respawn(void)
 		m_bLoops = false;
 	} else {
 		m_bLoops = true;
+
+		/* GoldSrc loops a sample only through its loop points, which
+		   MP3 and Ogg music doesn't have; Sven Co-op loops those
+		   anyway unless the map's playmode says play once */
+		string sampleExt = strtolower(substring(m_strSpawnPath, strlen(m_strSpawnPath) - 4, 4));
+		m_bForceLoop = (m_iPlayMode == 2i) || (m_iPlayMode != 1i && (sampleExt == ".mp3" || sampleExt == ".ogg"));
 
 		/* set our sample up */
 		if (HasSpawnFlags(AS_SILENT)) {
@@ -413,7 +436,9 @@ ambient_generic::SendEntity(entity ePEnt, float flChanged)
 	SENDENTITY_FLOAT(m_flVolume, AMBIENT_VOLUME)
 	SENDENTITY_BYTE(m_flRadius, AMBIENT_RADIUS)
 	SENDENTITY_FLOAT(m_flPitch, AMBIENT_PITCH)
-	SENDENTITY_BYTE(m_bLoops, AMBIENT_ENABLED)
+	if (flChanged & AMBIENT_ENABLED) {
+		WriteByte(MSG_ENTITY, (float)m_bLoops + (m_bForceLoop ? 2 : 0));
+	}
 
 	return (1);
 }
@@ -449,7 +474,11 @@ ambient_generic::ReceiveEntity(float isnew, float flChanged)
 	if (flChanged & AMBIENT_PITCH)
 		m_flPitch = readfloat();
 	if (flChanged & AMBIENT_ENABLED)
-		m_bLoops = readbyte();
+	{
+		float loopByte = readbyte();
+		m_bLoops = (loopByte & 1) ? true : false;
+		m_bForceLoop = (loopByte & 2) ? true : false;
+	}
 
 	SndEntLog("Received: %S Volume: %d%%; Radius: %d units; Pitch: %d, Org: %v", m_strActivePath, m_flVolume * 100, cvar("s_nominaldistance") / m_flRadius, m_flPitch, origin);
 
@@ -458,7 +487,7 @@ ambient_generic::ReceiveEntity(float isnew, float flChanged)
 			SoundDef_Update(this, CHAN_BODY, SoundDef_GetID(m_strActivePath), m_flVolume);
 		} else {
 			soundupdate(this, CHAN_BODY, 
-				m_strActivePath, m_flVolume, m_flRadius, m_flPitch, 0, 0);
+				m_strActivePath, m_flVolume, m_flRadius, m_flPitch, m_bForceLoop ? SOUNDFLAG_FORCELOOP : 0, 0);
 		}
 	}
 }

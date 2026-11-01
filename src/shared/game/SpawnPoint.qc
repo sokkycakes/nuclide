@@ -53,4 +53,23 @@ ncSpawnPoint::Respawn(void)
 	SetSolid(SOLID_NOT);
 	SetMovetype(MOVETYPE_NONE);
 	Disappear();
+
+	spawnpoint_disabled = HasSpawnFlags(2) ? true : false;
 }
+
+#ifdef SERVER
+void
+ncSpawnPoint::Trigger(entity activatorEntity, triggermode_t triggerMode)
+{
+	switch (triggerMode) {
+	case TRIG_OFF:
+		spawnpoint_disabled = true;
+		break;
+	case TRIG_ON:
+		spawnpoint_disabled = false;
+		break;
+	default:
+		spawnpoint_disabled = spawnpoint_disabled ? false : true;
+	}
+}
+#endif

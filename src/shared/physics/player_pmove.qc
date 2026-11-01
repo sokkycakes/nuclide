@@ -284,6 +284,17 @@ ncPlayer::Physics_Jump(void)
 	} else {
 		/* standard jump here */
 		if (GetFlags() & FL_ONGROUND) {
+			/* Team Fortress 2 stops bunny hopping: every jump from the
+			   ground starts no faster than a share of the top speed */
+			if (m_pmoveVars.pm_jumpspeedcap > 0.0f) {
+				float jumpSpeedCap = m_pmoveVars.pm_jumpspeedcap * Physics_TopSpeed();
+				float jumpSpeed = vlen(velocity);
+
+				if (jumpSpeed > jumpSpeedCap) {
+					velocity *= jumpSpeedCap / jumpSpeed;
+				}
+			}
+
 			velocity[2] += m_pmoveVars.pm_jumpheight;
 #ifdef SERVER
 			/* Source pushes off with a full-volume step (CHAN_AUTO so a
@@ -533,12 +544,71 @@ ncPlayer::Physics_MaxSpeed(void)
 		wishSpeed *= m_pmoveSpeedTarget / walkSpeed;
 	}
 
-	/* slower when backing up, in games that want it */
-	if (input_movevalues[0] < 0 && m_pmoveVars.pm_backspeed > 0.0f) {
-		wishSpeed *= m_pmoveVars.pm_backspeed;
+	return wishSpeed * speedMod;
+}
+
+float
+ncPlayer::Physics_TopSpeed(void)
+{
+	/* the speed before crouching or proning slows us down */
+	float topSpeed = m_pmoveVars.pm_walkspeed;
+
+	if (m_pmoveSpeedTarget > 0.0f && topSpeed > 0.0f) {
+		topSpeed = m_pmoveSpeedTarget;
 	}
 
-	return wishSpeed * speedMod;
+	if (m_activeWeapon) {
+		topSpeed *= m_activeWeapon.PlayerSpeedMod();
+	}
+
+	return max(maxspeed, topSpeed);
+}
+
+/* Source's walking speed limits, run after accelerating on the ground */
+void
+ncPlayer::Physics_ClampWalkSpeed(void)
+{
+	float topSpeed = Physics_TopSpeed();
+	float groundCap = m_pmoveVars.pm_groundspeedcap * topSpeed;
+	float backSpeed = m_pmoveVars.pm_backspeed;
+	vector flatVelocity = [velocity[0], velocity[1], 0];
+	float flatSpeed = vlen(flatVelocity);
+
+	/* sliding along walls or turning can't push us past the top speed */
+	if (groundCap > 0.0f && flatSpeed > groundCap) {
+		flatVelocity *= groundCap / flatSpeed;
+		flatSpeed = groundCap;
+	}
+
+	/* slower when backing up, in games that want it (Team Fortress 2):
+	   only the backwards part of the movement is slowed, and not while
+	   creeping along */
+	if (backSpeed > 0.0f && backSpeed < 1.0f && flatSpeed > 100.0f) {
+		vector moveAngles = [0, input_angles[1], 0];
+		vector forwardDir = anglesToForward(moveAngles);
+		vector rightDir = anglesToRight(moveAngles);
+		float backDot = forwardDir * flatVelocity;
+
+		if (backDot < 0.0f) {
+			vector backMove = forwardDir * backDot;
+			vector sideMove = rightDir * (rightDir * flatVelocity);
+			float maxBackSpeed = topSpeed * backSpeed;
+
+			if (-backDot > maxBackSpeed) {
+				backMove *= maxBackSpeed / -backDot;
+			}
+
+			flatVelocity = backMove + sideMove;
+			flatSpeed = vlen(flatVelocity);
+
+			if (flatSpeed > topSpeed) {
+				flatVelocity *= topSpeed / flatSpeed;
+			}
+		}
+	}
+
+	velocity[0] = flatVelocity[0];
+	velocity[1] = flatVelocity[1];
 }
 
 void

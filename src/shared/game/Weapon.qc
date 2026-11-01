@@ -305,6 +305,14 @@ ncWeapon::Spawned(void)
 	SetWorldModel(model);
 	SetPlayerModel(m_weaponPlayerModelPath);
 	_isWeapon = true;
+
+#ifdef SERVER
+	/* "script": the weapon's own script, loaded into its scope. It hears
+	   OnFire(fireInfo) after each shot, OnDeploy() and OnHolster(). */
+	if (STRING_SET(m_weaponScript) && checkbuiltin(script_attach)) {
+		script_attach(this, m_weaponScript);
+	}
+#endif
 }
 
 void
@@ -333,6 +341,7 @@ ncWeapon::SpawnKey(string keyName, string setValue)
 		m_weaponPlayerModelPath = ReadString(setValue);
 		break;
 	case "weapon_scriptobject":
+	case "script":
 		m_weaponScript = ReadString(setValue);
 		break;
 	case "ammoType":
@@ -920,6 +929,12 @@ ncWeapon::_SwitchedToCallback(void)
 
 	Draw();
 
+#ifdef SERVER
+	if (STRING_SET(m_weaponScript) && checkbuiltin(script_call)) {
+		script_call(this, "OnDeploy");
+	}
+#endif
+
 #ifdef CLIENT
 	pSeat->m_iHUDWeaponSelected = GetSharedID();
 	PredictPreFrame();
@@ -933,6 +948,12 @@ ncWeapon::_SwitchedFromCallback(void)
 	//printf("Switched from %S\n", classname);
 	Holster();
 	SwitchedFromWeapon();
+
+#ifdef SERVER
+	if (STRING_SET(m_weaponScript) && checkbuiltin(script_call)) {
+		script_call(this, "OnHolster");
+	}
+#endif
 }
 
 bool
@@ -1217,6 +1238,12 @@ ncWeapon::FiredWeaponAttack(string fireInfo)
 	}
 #endif
 
+#ifdef SERVER
+	if (STRING_SET(m_weaponScript) && checkbuiltin(script_call)) {
+		script_call(this, "OnFire", fireInfo);
+	}
+#endif
+
 	if (STRING_SET(fireInfo)) {
 		vector firePos = ourOwner.m_xrInputRight.GetOrigin();
 		vector fireAng = ourOwner.m_xrInputRight.GetAngles();
@@ -1301,6 +1328,13 @@ ncWeapon::Attack(string fireInfo)
 		Idle();
 		return;
 	}
+
+#ifdef CLIENT
+	/* the server's game code decides when this one fires */
+	if (GetSubDefBool(fireInfo, "serverFire") == true) {
+		return;
+	}
+#endif
 
 	SwitchFireInfo(fireInfo);
 	ourOwner.sndindex_idle = 0;

@@ -238,7 +238,17 @@ var CoopMenu = ( function ()
 		stage.SetHasClass( "paging", true );
 		markButtons();
 	}
+	// Opened from the JTF title menu (layout/qt/jtf-menu.xml): this view
+	// shows only the page it was asked for, and leaving the page goes back
+	// to the title, which the progs opens again.
+	var fromTitle = false;
 	function closePage()
+	{
+		clearPage();
+		if ( fromTitle && !inGame )
+			Bulwark.Send( "title", "" );
+	}
+	function clearPage()
 	{
 		heroPageOff();
 		current = "";
@@ -293,6 +303,9 @@ var CoopMenu = ( function ()
 			applyPending();
 			cmd( "map " + selectedMap );
 		} );
+		// the title menu has no servers button of its own
+		if ( fromTitle )
+			button( footer, "btn", "Find servers", serversPage );
 		button( footer, "btn", "Back", closePage );
 	}
 
@@ -696,8 +709,22 @@ var CoopMenu = ( function ()
 	{
 		inGame = !!( c && c.ingame );
 		stage.SetHasClass( "ingame", inGame );
-		closePage();
+		fromTitle = !!( c && c.title ) && !inGame;
+		stage.SetHasClass( "fromtitle", fromTitle );
+		clearPage();
 		buildMain();
+	} );
+	// the title menu's buttons: play, hero, settings
+	Bulwark.On( "page", function ( name )
+	{
+		if ( name === "play" )
+			playPage();
+		else if ( name === "hero" )
+			heroPage();
+		else if ( name === "settings" )
+			optionsPage();
+		else if ( name === "servers" )
+			serversPage();
 	} );
 	Bulwark.On( "maps", showMaps );
 	Bulwark.On( "servers", showServers );
