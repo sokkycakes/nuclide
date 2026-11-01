@@ -323,7 +323,6 @@ Hero_Select(entity pl, string kit)
 }
 
 string Hero_StaticWeapon(entity pl);
-void Hero_Swap(entity pl);
 bool Hero_IsFloorGun(entity e);
 bool Hero_Holding(entity pl, string item);
 void Hero_TakeGun(entity pl, entity gun);
@@ -347,9 +346,6 @@ Hero_ClientCommand(entity pl, string command)
 		return (true);
 	case "hero":
 		Hero_Select(pl, argv(1));
-		return (true);
-	case "heroswap":
-		Hero_Swap(pl);
 		return (true);
 	case "heroguns":
 		/* tests: the guns on the floor and what pl holds */
@@ -663,13 +659,10 @@ Hero_SlotThink(entity pl)
 	}
 }
 
-/* ---- weapon slots: Q swaps them, guns on the floor are taken with Use ----
+/* ---- weapon slots: guns on the floor are taken with Use ----
 
-   - "cmd heroswap" (Q) puts a hero on the other slot: the dynamic gun when
-     they hold the static weapon, the static weapon otherwise. Which one
-     they hold is read from the player's visible-weapon model (vw_index),
-     so number keys and the wheel count too.
-     Outside hero mode it is the last weapon, like Q always was.
+   - Q stays "weaplast": with no melee slot a hero carries only the static
+     and the dynamic gun, so the last weapon is always the other slot.
    - A gun that would take the dynamic slot isn't picked up by walking over
      it: it's not solid to touch while heroes are on. Looking at one within
      HERO_TAKERANGE and pressing Use takes it, through the item's own touch,
@@ -797,28 +790,6 @@ Hero_Holding(entity pl, string item)
 {
 	string model = entityDef.GetString(item, "model_player");
 	return (model != "" && pl.vw_index == getmodelindex(model, true)) ? true : false;
-}
-
-/* "cmd heroswap" */
-void
-Hero_Swap(entity pl)
-{
-	int slot = Coop_Slot(pl);
-	string staticGun, dynamicGun;
-
-	if (!g_coopHeroes || slot < 0i || Hero_OfKit(pl.classname) < 0i) {
-		stuffcmd(pl, "weaplast\n");
-		return;
-	}
-
-	staticGun = Hero_StaticWeapon(pl);
-	dynamicGun = g_heroDynamic[slot] ? g_heroDynamic[slot] : "";
-
-	if (dynamicGun != "" && (staticGun == "" || Hero_Holding(pl, staticGun))) {
-		Hero_SelectWeapon(pl, dynamicGun);
-	} else if (staticGun != "") {
-		Hero_SelectWeapon(pl, staticGun);
-	}
 }
 
 /* ten times a second: floor guns aren't taken by touch, bots take one
