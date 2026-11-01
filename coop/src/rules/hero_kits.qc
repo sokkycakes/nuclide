@@ -2185,38 +2185,88 @@ Mantis_Status(entity pl, int slot)
 /* ==== routing ============================================================== */
 
 /* ==== MEDIC (Support kit) ==================================================
-   Patch (C): heals the teammate under the crosshair (within 512 units, in
-   sight) by coop_medicPatch (40), or the Medic by half that when no one is
-   there; 6 s. Triage (G): everyone within 400 units, the Medic too, gets
-   coop_medicTriage (30); 20 s. Neither goes over max health. Revives are
-   the shared Use-on-a-body. */
+   The Cyclone is a medigun pistol: a shot that hits a teammate (a player,
+   or an allied NPC) heals them by coop_medigunHeal (15); one that hits a
+   foe hurts it as a bullet. Friendly fire is off, so the bullet itself
+   does nothing to teammates; the rules trace the same shot. The abilities
+   hand out Barrier: Shield (C) gives the teammate under the crosshair
+   coop_medicShield (40), or the Medic half that with no one there, every
+   6 s; Barrier Field (G) gives everyone within 400 units, the Medic too,
+   coop_medicField (25), every 20 s. Barrier never goes past a hero's cap. */
 
-var float autocvar_coop_medicPatch = 40;
-var float autocvar_coop_medicTriage = 30;
+var float autocvar_coop_medigunHeal = 15;
+var float autocvar_coop_medicShield = 40;
+var float autocvar_coop_medicField = 25;
+float g_medicShotNext[COOP_MAXPLAYERS];
+
+/* allied NPCs the medigun heals */
+bool
+Medic_IsAlly(entity e)
+{
+	switch (e.classname) {
+	case "monster_hecu_ally":
+	case "monster_barney":
+	case "monster_scientist":
+	case "monster_otis":
+		return (e.health > 0) ? true : false;
+	}
+
+	return (false);
+}
 
 /* gives up to amount health, never past max; how much it gave */
 float
 Medic_Heal(entity medic, entity p, float amount)
 {
-	float maxHealth = entityDef.GetFloat(p.classname, "max_health");
+	float maxHealth;
+
+	if (is.Player(p)) {
+		maxHealth = entityDef.GetFloat(p.classname, "max_health");
+	} else {
+		maxHealth = p.max_health;
+	}
 
 	if (maxHealth <= 0) {
 		maxHealth = 100;
 	}
 
-	if (!is.Alive(p) || p.health >= maxHealth) {
+	if (p.health <= 0 || p.health >= maxHealth) {
 		return (0);
 	}
 
 	float add = min(amount, maxHealth - p.health);
 	ents.Input(p, "SetHealth", ftos(p.health + add), medic);
-	sound(p, CHAN_ITEM, "items/smallmedkit1.wav", 1, ATTN_NORM);
 
-	if (p != medic) {
+	if (is.Player(p)) {
 		Hero_Notice(p, sprintf("+%d health from %s", add, medic.netname));
 	}
 
 	return (add);
+}
+
+/* gives Barrier, up to their cap; how much it gave */
+float
+Medic_Shield(entity medic, entity p, float amount)
+{
+	int s = Coop_Slot(p);
+
+	if (s < 0i || !is.Alive(p)) {
+		return (0);
+	}
+
+	float before = g_hBarrier[s];
+	Hero_AddBarrier(p, amount);
+	float gave = g_hBarrier[s] - before;
+
+	if (gave > 0) {
+		sound(p, CHAN_ITEM, "items/suitchargeok1.wav", 1, ATTN_NORM);
+
+		if (p != medic) {
+			Hero_Notice(p, sprintf("+%d Barrier from %s", gave, medic.netname));
+		}
+	}
+
+	return (gave);
 }
 
 /* the teammate closest to the crosshair, within range and in sight */
@@ -2257,8 +2307,37 @@ Medic_AimedMate(entity pl, float range)
 	return (best);
 }
 
+/* every input frame: a Cyclone shot at a teammate heals them */
 void
-Medic_Patch(entity pl, int slot)
+Medic_GunInput(entity pl, int slot)
+{
+	if (g_hLogic[slot] != HL_MEDIC || !g_hFireHeld[slot] || g_hFirePress[slot] != time) {
+		return;
+	}
+
+	if (time < g_medicShotNext[slot] || !Hero_Holding(pl, "weapon_cyclone")) {
+		return;
+	}
+
+	g_medicShotNext[slot] = time + 0.25f;	/* fireInfo_cyclone's fireRate */
+
+	vector eye = pl.origin + pl.view_ofs;
+	makevectors(pl.v_angle);
+	traceline(eye, eye + v_forward * 2048, MOVE_NORMAL, pl);
+
+	entity hit = trace_ent;
+
+	if (!hit || hit == world) {
+		return;
+	}
+
+	if ((is.Player(hit) && is.Alive(hit) && hit.classname != "spectator") || Medic_IsAlly(hit)) {
+		Medic_Heal(pl, hit, autocvar_coop_medigunHeal);
+	}
+}
+
+void
+Medic_ShieldUse(entity pl, int slot)
 {
 	if (!Kit_Ready(pl, g_hReadyT[slot], "hero_tool")) {
 		return;
@@ -2268,22 +2347,22 @@ Medic_Patch(entity pl, int slot)
 	float gave;
 
 	if (mate) {
-		gave = Medic_Heal(pl, mate, autocvar_coop_medicPatch);
+		gave = Medic_Shield(pl, mate, autocvar_coop_medicShield);
 	} else {
-		gave = Medic_Heal(pl, pl, autocvar_coop_medicPatch * 0.5f);
+		gave = Medic_Shield(pl, pl, autocvar_coop_medicShield * 0.5f);
 	}
 
 	if (gave <= 0) {
-		Hero_Notice(pl, mate ? sprintf("%s is at full health", mate.netname) : "Aim at a hurt teammate");
+		Hero_Notice(pl, mate ? sprintf("%s's Barrier is full", mate.netname) : "Aim at a teammate");
 		return;
 	}
 
-	Hero_Notice(pl, sprintf("Patched %s: +%d", mate ? mate.netname : "yourself", gave));
+	Hero_Notice(pl, sprintf("Shielded %s: +%d Barrier", mate ? mate.netname : "yourself", gave));
 	g_hReadyT[slot] = time + 6.0f;
 }
 
 void
-Medic_Triage(entity pl, int slot)
+Medic_Field(entity pl, int slot)
 {
 	if (!Kit_Ready(pl, g_hReady1[slot], "hero_ab1")) {
 		return;
@@ -2297,7 +2376,7 @@ Medic_Triage(entity pl, int slot)
 			continue;
 		}
 
-		float gave = Medic_Heal(pl, p, autocvar_coop_medicTriage);
+		float gave = Medic_Shield(pl, p, autocvar_coop_medicField);
 
 		if (gave > 0) {
 			total += gave;
@@ -2306,19 +2385,19 @@ Medic_Triage(entity pl, int slot)
 	}
 
 	if (count == 0i) {
-		Hero_Notice(pl, "No one near is hurt");
+		Hero_Notice(pl, "Everyone near has full Barrier");
 		return;
 	}
 
-	ents.Input(pl, "Shockwave", "sprites/shockwave.spr 400 0 4 8 90 255 120 160", pl);
-	Hero_Notice(pl, sprintf("Triage: %i healed, +%d", count, total));
+	ents.Input(pl, "Shockwave", "sprites/shockwave.spr 400 0 4 8 90 200 255 160", pl);
+	Hero_Notice(pl, sprintf("Barrier Field: %i shielded, +%d", count, total));
 	g_hReady1[slot] = time + 20.0f;
 }
 
 string
 Medic_Status(entity pl, int slot)
 {
-	return (sprintf("[C] Patch %s  [G] Triage %s", Hero_Ready(g_hReadyT[slot]), Hero_Ready(g_hReady1[slot])));
+	return (sprintf("[C] Shield %s  [G] Barrier Field %s", Hero_Ready(g_hReadyT[slot]), Hero_Ready(g_hReady1[slot])));
 }
 
 void
@@ -2405,9 +2484,9 @@ Kit_Use(entity pl, int slot, int ab)
 		else if (ab == AB_EX) Longhand_Verdict(pl, slot);
 		break;
 	case HL_MEDIC:
-		if (ab == AB_TOOL) Medic_Patch(pl, slot);
-		else if (ab == AB_ONE) Medic_Triage(pl, slot);
-		else Hero_Notice(pl, "The Medic has Patch (C) and Triage (G)");
+		if (ab == AB_TOOL) Medic_ShieldUse(pl, slot);
+		else if (ab == AB_ONE) Medic_Field(pl, slot);
+		else Hero_Notice(pl, "The Medic has Shield (C) and Barrier Field (G)");
 		break;
 	case HL_MANTIS:
 		if (ab == AB_TOOL) Hero_Notice(pl, "Stand still to fade");
