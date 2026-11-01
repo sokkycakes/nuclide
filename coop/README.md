@@ -38,6 +38,12 @@ Headless test with bots (prints the wave and scores every 10 seconds):
   human walks back to them; one further than `coop_survivorWarp` (2000)
   that no human can see is moved behind them. Hero bots engage when three
   or more foes are within 512 units. `sv coop_survivors` lists them.
+- Nobody stays stuck inside a teammate (`coop_unstick`, on): two living
+  players whose boxes overlap can't move, so five times a second they're
+  pulled apart, the bot (or else the second player) moving to the nearest
+  free spot. Revives also put the revived player beside the reviver rather
+  than inside them. `sv coop_survivors stack` puts the bots inside the
+  first human, to test it.
 - `coop_survival 1`: no respawning on your own. Clearing a wave brings
   everyone back; if the whole team is down the map restarts.
 - Waves spawn at `info_monster_spawn` points (or deathmatch spawns). A map
