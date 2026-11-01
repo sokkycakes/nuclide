@@ -9,4 +9,5 @@ heroes.qc
 hero_abilities.qc
 hero_kits.qc
 survivors.qc
+hud_info.qc
 #endlist

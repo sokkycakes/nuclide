@@ -143,11 +143,19 @@ Coop_Debug(string msg)
 	}
 }
 
+float g_coopNoticeSeq;
+
 void
 Coop_Announce(string msg)
 {
+	/* the Panorama HUD (coop/src/hud) shows it from serverinfo */
+	g_coopNoticeSeq++;
+	serverinfo.SetString("coop_notice", sprintf("%d|%s", g_coopNoticeSeq, msg));
+
 	for (entity p = world; (p = next.Player(p));) {
-		centerprint(p, msg);
+		if (infokey(p, "phud") != "1") {
+			centerprint(p, msg);
+		}
 	}
 
 	print(sprintf("coop: %s\n", msg));
@@ -487,6 +495,7 @@ Coop_ReviveInput(entity pl)
 
 void Survivor_BotThink(entity pl, int slot);
 void Survivor_Frame(void);
+void Coop_HudFrame(void);
 void Survivor_List(void);
 
 /* bots: respawn on their own once allowed, and go to downed teammates */
@@ -1084,6 +1093,7 @@ CodeCallback_FrameStart(void)
 	}
 
 	Hero_AbilityFrame();
+	Coop_HudFrame();
 
 	if (autocvar_coop_weapontest) {
 		Coop_WeaponTestThink();

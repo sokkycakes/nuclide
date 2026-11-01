@@ -161,7 +161,7 @@ instead of the scoreboard (`cg_scoresWhenDead 0`, set in
   key yet: if C/G/X/Z/V are taken (radio, drop) it falls back to
   H/J/K/L/O, then MOUSE4/MOUSE5/N/M/P, then keypad keys, and prints a
   warning if all are taken. `coop_herokeys` forces C G X Z V; Options >
-  Keys lists them. A hero line on the HUD shows Energy, Barrier and cooldowns.
+  Keys lists them. The HUD shows Energy, Barrier and each ability's state.
 - Energy (0 to 100) is the shared pool and only pays for engage: it needs
   `coop_engageCost` (50) and drains `coop_engageDrain` (2.5) a second.
   In hero mode armour is Energy: any armour a hero gets turns into Energy
@@ -253,3 +253,25 @@ the chumtoad, which is a decoy.
 `tools/mkcoopmap.py` writes `maps/coop_arena.bsp` (GoldSrc BSP30, textures
 inside) and `data/coop_arena.way` (bot and monster waypoints). Two friendly
 HECU grunts (`monster_hecu_ally`, `decls/def/allies.def`) guard the start.
+
+## HUD
+
+The in-game HUD is sokky's Figma HUD (Design System page, "Example · HUD"),
+built as a Panorama view: `panorama/layout/coop/hud.xml`, `styles/coop/hud.css`
+and `scripts/coop/hud.js`. The co-op HUD progs (`src/hud`, built to `hud.dat`)
+opens it embedded and draws it with `ui_draw`, posting the health, ammo, hero,
+teammates, wave, kill feed and notices to it. It shows the squad top left, the
+wave counter top centre, the kill feed top right, the hero's abilities, health,
+Barrier and Energy bottom left, and ammo with the two weapon slots bottom right.
+Weapon selection, pickup notices, damage arrows and the crosshair are still
+Half-Life's.
+
+- `cg_hudPanorama 0` draws the Half-Life HUD instead (and FTE, which has no
+  Panorama, always does). The client's `phud` userinfo tells the server which
+  HUD it draws, so the hero text line and wave centerprints only go to clients
+  on the old one.
+- The server side is `src/rules/hud_info.qc` (teammates `*mate`, the Use
+  prompt `*prompt`, serverinfo `coop_left`) and `Hero_HudInfo` in
+  `hero_abilities.qc` (`*herohud`); `Coop_Announce` also sets serverinfo
+  `coop_notice`.
+
