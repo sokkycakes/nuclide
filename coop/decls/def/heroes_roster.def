@@ -9,7 +9,7 @@
 //   hero_tool   the tool (C), or the passive resource when it has no key
 //   hero_ab1    ability 1 (G)
 //   hero_ab2    ability 2 (X)
-//   hero_form   the henshin form (Z)
+//   hero_form   the engage form (Z)
 //   hero_ex     the form's exclusive move (V)
 // The models are the three Quake Live stand-ins by weight.
 

@@ -16,9 +16,9 @@
 
 /* Heroes: players pick a hero and one of its kits, and spawn as that kit.
 
-   - coop_heroes 0 (default) is plain co-op: everyone spawns as player_mp
-     with their own player model, and only the XP mod sets players apart.
-     1 turns heroes on. Both are read when a map starts.
+   - coop_heroes 1 (default) turns heroes on. 0 is plain co-op: everyone
+     spawns as player_mp with their own player model, and only the XP mod
+     sets players apart. It's read when a map starts.
    - The heroes and kits are defs (coop/decls/def/heroes.def). A kit
      inherits its hero, so the kit is the player class. coop_heroList names
      the heroes on offer, in menu order.
@@ -43,7 +43,7 @@
 #define HERO_MAX 16
 #define HERO_MAXKITS 32
 
-var bool autocvar_coop_heroes = false;
+var bool autocvar_coop_heroes = true;
 var string autocvar_coop_heroList = "hero_dispatch hero_choir hero_bulkhead hero_kettle hero_vector hero_stray hero_ledger hero_tripwire hero_longhand hero_mantis hero_tank hero_support hero_pointman";
 var int autocvar_coop_heroLimit = 2;
 

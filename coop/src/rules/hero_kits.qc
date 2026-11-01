@@ -15,8 +15,8 @@
  */
 
 /* The ten prototype heroes' kits (example-heroes.md, two per genre):
-   tool, two abilities, the henshin form and its exclusive move. The
-   shared parts (Energy, Barrier, henshin, placed things, stuns, taunts)
+   tool, two abilities, the engage form and its exclusive move. The
+   shared parts (Energy, Barrier, engage, placed things, stuns, taunts)
    are in hero_abilities.qc. Where the design asks for something the
    rules can't do yet (a slower turn, faster fire, seeing through walls),
    the comment says so and the kit does the nearest thing it can. */
@@ -399,7 +399,7 @@ Dispatch_Status(entity pl, int slot)
    in: the rules can't change a weapon's rate.) On Your Feet: a teammate
    who fell less than 5 s ago, near her, stands at once. Hold the Line:
    teammates in the cone can't be knocked about for 4 s. Sync: everyone in
-   the ring gets 10 s of their own henshin, 10 of her Energy each. */
+   the ring gets 10 s of their own engage, 10 of her Energy each. */
 
 #define CADENCE_RANGE 700
 #define CADENCE_DOT 0.7
@@ -547,7 +547,7 @@ Choir_Sync(entity pl, int slot)
 		g_hLiteUntil[s] = time + 10;
 		g_hExUsed[s] = false;
 		Hero_AddBarrier(p, g_hBarrierCap[s]);
-		centerprint(p, sprintf("%s synced you: henshin for 10 s", pl.netname));
+		centerprint(p, sprintf("%s synced you: engage for 10 s", pl.netname));
 		Kit_FormStarted(p, s);
 		n++;
 	}

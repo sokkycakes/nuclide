@@ -81,10 +81,11 @@ instead of the scoreboard (`cg_scoresWhenDead 0`, set in
 
 ## Heroes (`src/rules/heroes.qc`)
 
-- `coop_heroes 0` (default) is plain co-op: everyone spawns as the same
-  `player_mp`, with their own player model as a skin, and only the XP mod
-  sets players apart. `coop_heroes 1` turns heroes on. Both are read when
-  a map starts.
+- `coop_heroes 1` (default) turns heroes on. `coop_heroes 0` is plain
+  co-op: everyone spawns as the same `player_mp`, with their own player
+  model as a skin, and only the XP mod sets players apart. It's read when
+  a map starts. The title menu's Hero page lists the heroes of
+  `heroes.def` and `heroes_roster.def`.
 - Players pick a hero and one of its kits (its subclasses) on the Hero tab
   of the shop menu, which opens by itself on a player's first spawn. A
   pick takes effect at the next spawn, so it never respawns anyone or
@@ -131,18 +132,18 @@ instead of the scoreboard (`cg_scoresWhenDead 0`, set in
   like in `hero_visuals.def`. They're first in `coop_heroList`.
 - Abilities (`src/rules/hero_abilities.qc`, the shared parts, and
   `hero_kits.qc`, the ten kits): C the tool, G and X the two abilities,
-  Z henshin, V the form's exclusive move (impulses 21 to 25). The menu
+  Z engage, V the form's exclusive move (impulses 21 to 25). The menu
   binds them once the saved config has run, only for a command with no
   key yet: if C/G/X/Z/V are taken (radio, drop) it falls back to
   H/J/K/L/O, then MOUSE4/MOUSE5/N/M/P, then keypad keys, and prints a
   warning if all are taken. `coop_herokeys` forces C G X Z V; Options >
   Keys lists them. A hero line on the HUD shows Energy, Barrier and cooldowns.
-- Energy (0 to 100) is the shared pool and only pays for henshin: it needs
-  `coop_henshinCost` (50) and drains `coop_henshinDrain` (2.5) a second.
+- Energy (0 to 100) is the shared pool and only pays for engage: it needs
+  `coop_engageCost` (50) and drains `coop_engageDrain` (2.5) a second.
   In hero mode armour is Energy: any armour a hero gets turns into Energy
   one for one (`coop_energyPerKill` adds some per kill, 0 by default).
 - Barrier is the armour stat now and takes all damage before health, up to
-  75, 50 or 25 by weight. Only Commanders, henshin and Planner emitters
+  75, 50 or 25 by weight. Only Commanders, engage and Planner emitters
   give it.
 - Swap at checkpoints: between waves a new pick applies at once, on the
   spot. Everything a player placed goes when they change hero; Energy

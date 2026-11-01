@@ -20,14 +20,14 @@
    guesses.
 
    - Keys: impulse 21 the tool (C), 22 ability 1 (G), 23 ability 2 (X),
-     24 henshin (Z), 25 the form's exclusive move (V). config.cfg binds them.
-   - Energy (0 to 100) is the shared pool and only pays for henshin.
+     24 engage (Z), 25 the form's exclusive move (V). config.cfg binds them.
+   - Energy (0 to 100) is the shared pool and only pays for engage.
      Armour is Energy in hero mode: any armour a hero gets (batteries, the
      shop, the XP mod's armour skills) turns into Energy one for one.
    - Barrier is the armour stat now: it takes all damage before health
      (coop_hero_base sets armorProtection near 0), up to 75, 50 or 25 by
-     hero_weight. Only Commanders, henshin and Planner emitters give it.
-   - Henshin needs coop_henshinCost Energy, then drains coop_henshinDrain a
+     hero_weight. Only Commanders, engage and Planner emitters give it.
+   - Engage needs coop_engageCost Energy, then drains coop_engageDrain a
      second until it runs out or Z is pressed again. It fills Barrier, and
      the form's exclusive move (V) can be used once per transformation.
    - Swap at checkpoints: between waves a new pick applies at once, where
@@ -39,8 +39,8 @@
    indexes that way) */
 #pragma flag enable lo
 
-var float autocvar_coop_henshinCost = 50;
-var float autocvar_coop_henshinDrain = 2.5;	/* Energy a second while transformed */
+var float autocvar_coop_engageCost = 50;
+var float autocvar_coop_engageDrain = 2.5;	/* Energy a second while transformed */
 var float autocvar_coop_energyPerKill = 0;	/* Energy for each kill, 0: pickups only */
 var bool autocvar_coop_heroAimTest = false;	/* tests, with sv_cheats: human players' view follows the nearest foe */
 
@@ -72,7 +72,7 @@ enum
 	AB_TOOL,
 	AB_ONE,
 	AB_TWO,
-	AB_HENSHIN,
+	AB_ENGAGE,
 	AB_EX
 };
 
@@ -82,8 +82,8 @@ string g_hClass[COOP_MAXPLAYERS];	/* the class they last spawned as, zoned */
 float g_hEnergy[COOP_MAXPLAYERS];
 float g_hBarrier[COOP_MAXPLAYERS];	/* the armour we gave: more than this is a pickup */
 float g_hBarrierCap[COOP_MAXPLAYERS];
-bool g_hHenshin[COOP_MAXPLAYERS];
-float g_hLiteUntil[COOP_MAXPLAYERS];	/* a partial henshin given by Choir's Sync */
+bool g_hEngage[COOP_MAXPLAYERS];
+float g_hLiteUntil[COOP_MAXPLAYERS];	/* a partial engage given by Choir's Sync */
 bool g_hExUsed[COOP_MAXPLAYERS];
 float g_hReady1[COOP_MAXPLAYERS];	/* when ability 1 is ready */
 float g_hReady2[COOP_MAXPLAYERS];
@@ -134,7 +134,7 @@ Hero_Active(entity pl)
 bool
 Hero_InForm(int slot)
 {
-	return (g_hHenshin[slot] || time < g_hLiteUntil[slot]) ? true : false;
+	return (g_hEngage[slot] || time < g_hLiteUntil[slot]) ? true : false;
 }
 
 void
@@ -682,7 +682,7 @@ void Kit_FieldReviveInput(entity pl);
 void
 Hero_ResetState(int slot)
 {
-	g_hHenshin[slot] = false;
+	g_hEngage[slot] = false;
 	g_hLiteUntil[slot] = 0;
 	g_hExUsed[slot] = false;
 	g_hReady1[slot] = 0;
@@ -746,33 +746,33 @@ Hero_AbilitySpawned(entity pl)
 }
 
 void
-Hero_HenshinEnd(entity pl, int slot)
+Hero_EngageEnd(entity pl, int slot)
 {
-	if (!g_hHenshin[slot]) {
+	if (!g_hEngage[slot]) {
 		return;
 	}
 
-	g_hHenshin[slot] = false;
+	g_hEngage[slot] = false;
 	Kit_FormEnded(pl, slot);
-	Hero_Notice(pl, "Henshin over");
+	Hero_Notice(pl, "Engage over");
 	sound(pl, CHAN_ITEM, "debris/beamstart4.wav", 1, ATTN_NORM);
 }
 
 void
-Hero_HenshinStart(entity pl, int slot)
+Hero_EngageStart(entity pl, int slot)
 {
-	if (g_hEnergy[slot] < autocvar_coop_henshinCost) {
-		Hero_Notice(pl, sprintf("Henshin needs %d Energy", autocvar_coop_henshinCost));
+	if (g_hEnergy[slot] < autocvar_coop_engageCost) {
+		Hero_Notice(pl, sprintf("Engage needs %d Energy", autocvar_coop_engageCost));
 		return;
 	}
 
-	g_hHenshin[slot] = true;
+	g_hEngage[slot] = true;
 	g_hExUsed[slot] = false;
-	g_hEnergy[slot] -= autocvar_coop_henshinCost * 0.5f;
+	g_hEnergy[slot] -= autocvar_coop_engageCost * 0.5f;
 	Hero_AddBarrier(pl, g_hBarrierCap[slot]);
 	ents.Input(pl, "Shockwave", "sprites/shockwave.spr 120 0 4 12 255 163 26 200", pl);
 	sound(pl, CHAN_ITEM, "debris/beamstart1.wav", 1, ATTN_NORM);
-	Hero_Notice(pl, sprintf("HENSHIN: %s form", entityDef.GetString(pl.classname, "hero_form")));
+	Hero_Notice(pl, sprintf("ENGAGE: %s form", entityDef.GetString(pl.classname, "hero_form")));
 	Kit_FormStarted(pl, slot);
 }
 
@@ -801,10 +801,10 @@ Hero_AbilityImpulse(entity pl, float num)
 		Kit_Use(pl, slot, AB_TWO);
 		break;
 	case 24:
-		if (g_hHenshin[slot]) {
-			Hero_HenshinEnd(pl, slot);
+		if (g_hEngage[slot]) {
+			Hero_EngageEnd(pl, slot);
 		} else {
-			Hero_HenshinStart(pl, slot);
+			Hero_EngageStart(pl, slot);
 		}
 		break;
 	case 25:
@@ -812,7 +812,7 @@ Hero_AbilityImpulse(entity pl, float num)
 			Hero_Notice(pl, sprintf("%s only works in %s form", entityDef.GetString(pl.classname, "hero_ex"),
 				entityDef.GetString(pl.classname, "hero_form")));
 		} else if (g_hExUsed[slot]) {
-			Hero_Notice(pl, "Once per henshin");
+			Hero_Notice(pl, "Once per engage");
 		} else {
 			Kit_Use(pl, slot, AB_EX);
 		}
@@ -875,16 +875,16 @@ Hero_Hud(entity pl, int slot)
 		g_hEnergy[slot], g_hBarrier[slot], g_hBarrierCap[slot]);
 	text = strcat(text, Kit_Status(pl, slot));
 
-	if (g_hHenshin[slot]) {
+	if (g_hEngage[slot]) {
 		text = strcat(text, sprintf("\n[Z] %s form  [V] %s %s", form, entityDef.GetString(pl.classname, "hero_ex"),
 			g_hExUsed[slot] ? "used" : "ready"));
 	} else if (time < g_hLiteUntil[slot]) {
 		text = strcat(text, sprintf("\nSynced: %s form %ds", form, ceil(g_hLiteUntil[slot] - time)));
 	} else {
-		text = strcat(text, sprintf("\n[Z] Henshin: %s (%d)", form, autocvar_coop_henshinCost));
+		text = strcat(text, sprintf("\n[Z] Engage: %s (%d)", form, autocvar_coop_engageCost));
 	}
 
-	Hero_HudText(pl, HERO_HUDCHANNEL, text, 0.02, 0.62, g_hHenshin[slot] ? [255, 200, 80] : [255, 163, 26], 0.4f);
+	Hero_HudText(pl, HERO_HUDCHANNEL, text, 0.02, 0.62, g_hEngage[slot] ? [255, 200, 80] : [255, 163, 26], 0.4f);
 }
 
 /* every frame, for every player */
@@ -899,8 +899,8 @@ Hero_AbilityThink(entity pl)
 	}
 
 	if (!is.Alive(pl)) {
-		if (g_hHenshin[slot]) {
-			g_hHenshin[slot] = false;
+		if (g_hEngage[slot]) {
+			g_hEngage[slot] = false;
 			Kit_FormEnded(pl, slot);
 		}
 
@@ -911,11 +911,11 @@ Hero_AbilityThink(entity pl)
 	Hero_ArmorThink(pl, slot);
 	Kit_AnyThink(pl, slot);
 
-	/* a partial henshin from Choir's Sync runs out */
+	/* a partial engage from Choir's Sync runs out */
 	if (g_hLiteUntil[slot] > 0 && time >= g_hLiteUntil[slot]) {
 		g_hLiteUntil[slot] = 0;
 
-		if (!g_hHenshin[slot]) {
+		if (!g_hEngage[slot]) {
 			Kit_FormEnded(pl, slot);
 		}
 	}
@@ -926,12 +926,12 @@ Hero_AbilityThink(entity pl)
 		g_hHurtTime[slot] = time;
 	}
 
-	if (g_hHenshin[slot]) {
-		g_hEnergy[slot] -= autocvar_coop_henshinDrain * frametime;
+	if (g_hEngage[slot]) {
+		g_hEnergy[slot] -= autocvar_coop_engageDrain * frametime;
 
 		if (g_hEnergy[slot] <= 0) {
 			g_hEnergy[slot] = 0;
-			Hero_HenshinEnd(pl, slot);
+			Hero_EngageEnd(pl, slot);
 		}
 	}
 
@@ -1022,8 +1022,8 @@ Hero_AbilityKilled(entity pl)
 		return;
 	}
 
-	if (g_hHenshin[slot]) {
-		g_hHenshin[slot] = false;
+	if (g_hEngage[slot]) {
+		g_hEngage[slot] = false;
 		Kit_FormEnded(pl, slot);
 	}
 
@@ -1075,7 +1075,7 @@ Hero_AbilityDisconnect(entity pl)
 	}
 }
 
-/* "cmd energy [n]", with sv_cheats: Energy to test henshin with */
+/* "cmd energy [n]", with sv_cheats: Energy to test engage with */
 bool
 Hero_AbilityCommand(entity pl, string command)
 {
