@@ -518,6 +518,33 @@ Hero_SlotThink(entity pl)
 		return;
 	}
 
+	/* heroes have no melee slot: a melee weapon (hudSlot 0) from a kit, the
+	   shop or the floor is taken away again. Static weapons that hit up
+	   close, like Kettle's gauntlets, are the hero's primary instead */
+	string melee = "";
+
+	n = (int)tokenize(actor.GetInventory(pl));
+
+	for (int i = 0i; i < n; i++) {
+		string item = argv(i);
+
+		if (substring(item, 0, 7) == "weapon_" && !entityDef.GetBool(item, "hero_static")
+			&& entityDef.GetFloat(item, "hudSlot") == 0) {
+			melee = strcat(melee, " ", item);
+		}
+	}
+
+	/* ents.Input runs the game's code, which may tokenize too */
+	if (melee != "") {
+		n = (int)tokenize(melee);
+
+		for (int i = 0i; i < n; i++) {
+			string item = argv(i);
+			ents.Input(pl, "RemoveItem", item, pl);
+			n = (int)tokenize(melee);
+		}
+	}
+
 	n = (int)tokenize(actor.GetInventory(pl));
 
 	/* just after spawning, once the kit's items are in: the kit's gun is
@@ -538,8 +565,10 @@ Hero_SlotThink(entity pl)
 
 		Hero_SetDynamic(slot, picked);
 
-		/* the ten example heroes start with their primary, the static one */
-		if ((picked == "" || entityDef.GetString(pl.classname, "hero_logic") != "") && Hero_StaticWeapon(pl) != "") {
+		/* every hero starts with the static weapon out: its own (for the
+		   Tank, Support and Pointman, Counter-Strike Online's), not the
+		   kit's Half-Life gun */
+		if (Hero_StaticWeapon(pl) != "") {
 			Hero_SelectWeapon(pl, Hero_StaticWeapon(pl));
 		}
 

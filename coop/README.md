@@ -31,9 +31,19 @@ Headless test with bots (prints the wave and scores every 10 seconds):
   for `coop_reviveTime` seconds. Bots walk to downed teammates within
   `coop_botReviveRange` and revive them by standing there, and respawn on
   their own once the delay is over.
+- Survivor bots (`src/rules/survivors.qc`), like Left 4 Dead's: the server
+  keeps `coop_survivorBots` (1) bots in while a human plays, using the
+  `coop_survivorProfiles` bot profiles in turn. With no one to revive and no
+  foe near, a bot further than `coop_survivorFollow` (320) from the nearest
+  human walks back to them; one further than `coop_survivorWarp` (2000)
+  that no human can see is moved behind them. Hero bots engage when three
+  or more foes are within 512 units. `sv coop_survivors` lists them.
 - `coop_survival 1`: no respawning on your own. Clearing a wave brings
   everyone back; if the whole team is down the map restarts.
-- Waves spawn at `info_monster_spawn` points (or deathmatch spawns).
+- Waves spawn at `info_monster_spawn` points (or deathmatch spawns). A map
+  that places hostile monsters or monster makers of its own and has no
+  `info_monster_spawn` gets no waves unless `coop_mapWaves 1`; allies
+  (Barney, `monster_hecu_ally`, scientists) don't count.
   Size is `coop_waveBase + coop_wavePerPlayer * players + coop_wavePerWave * (wave - 1)`,
   with at most `coop_maxMonsters` alive at once. `coop_waveMonsters` lists
   monster tiers separated by `;`; later waves mix in higher tiers.
@@ -86,6 +96,9 @@ instead of the scoreboard (`cg_scoresWhenDead 0`, set in
   model as a skin, and only the XP mod sets players apart. It's read when
   a map starts. The title menu's Hero page lists the heroes of
   `heroes.def` and `heroes_roster.def`.
+- Heroes have no melee slot: a melee weapon (HUD slot 0) from a kit, the
+  shop or the floor is taken away, and every hero spawns with its static
+  weapon out.
 - Players pick a hero and one of its kits (its subclasses) on the Hero tab
   of the shop menu, which opens by itself on a player's first spawn. A
   pick takes effect at the next spawn, so it never respawns anyone or
@@ -227,4 +240,5 @@ the chumtoad, which is a decoy.
 ## Test map
 
 `tools/mkcoopmap.py` writes `maps/coop_arena.bsp` (GoldSrc BSP30, textures
-inside) and `data/coop_arena.way` (bot and monster waypoints).
+inside) and `data/coop_arena.way` (bot and monster waypoints). Two friendly
+HECU grunts (`monster_hecu_ally`, `decls/def/allies.def`) guard the start.

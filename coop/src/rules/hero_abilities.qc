@@ -186,6 +186,7 @@ Hero_IsFoe(entity e)
 
 	switch (e.classname) {
 	case "monster_barney":
+	case "monster_hecu_ally":
 	case "monster_scientist":
 	case "monster_sitting_scientist":
 	case "monster_gman":

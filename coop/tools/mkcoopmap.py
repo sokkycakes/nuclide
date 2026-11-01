@@ -274,7 +274,7 @@ for i in range(16):  # players: a 4x4 block in the south-west corner
         ents.append(dict(classname=cls, origin=f"{x} {y} 40", angle="45"))
 ents.append(dict(classname="info_player_start", origin="96 96 40", angle="45"))
 for x, y in ((448, 160), (160, 448)):  # allies guarding the start
-    ents.append(dict(classname="monster_barney", origin=f"{x} {y} 0", angle="45"))
+    ents.append(dict(classname="monster_hecu_ally", origin=f"{x} {y} 0", angle="45"))
 for i, (x, y) in enumerate(((1024, 1920), (1600, 1920), (1920, 1920), (1920, 1600), (1920, 1024), (448, 1920),
                             (1920, 448), (1024, 1600))):
     ents.append(dict(classname="info_monster_spawn", origin=f"{x} {y} 40", angle="225"))

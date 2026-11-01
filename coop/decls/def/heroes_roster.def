@@ -41,7 +41,7 @@ entityDef kit_dispatch
 	"inherit"		"hero_dispatch"
 	"kit_name"		"Standard"
 	"kit_desc"		"A burst PDW that's never the answer."
-	"weapon"		"weapon_crowbar"
+	"weapon"		"weapon_jtf_pdw"
 	"current_weapon"	"0"
 }
 
@@ -73,7 +73,7 @@ entityDef kit_choir
 	"inherit"		"hero_choir"
 	"kit_name"		"Standard"
 	"kit_desc"		"A pump shotgun for the front and nowhere else."
-	"weapon"		"weapon_crowbar"
+	"weapon"		"weapon_jtf_pump"
 	"current_weapon"	"0"
 }
 
@@ -105,7 +105,7 @@ entityDef kit_bulkhead
 	"inherit"		"hero_bulkhead"
 	"kit_name"		"Standard"
 	"kit_desc"		"A heavy revolver in one hand, the door in the other."
-	"weapon"		"weapon_crowbar"
+	"weapon"		"weapon_jtf_revolver"
 	"current_weapon"	"0"
 }
 
@@ -170,7 +170,7 @@ entityDef kit_vector
 	"inherit"		"hero_vector"
 	"kit_name"		"Standard"
 	"kit_desc"		"A light SMG, fired while swinging."
-	"weapon"		"weapon_crowbar"
+	"weapon"		"weapon_jtf_smg"
 	"current_weapon"	"0"
 }
 
@@ -202,7 +202,7 @@ entityDef kit_stray
 	"inherit"		"hero_stray"
 	"kit_name"		"Standard"
 	"kit_desc"		"Two machine pistols, fired on the move."
-	"weapon"		"weapon_crowbar"
+	"weapon"		"weapon_jtf_machinepistols"
 	"current_weapon"	"0"
 }
 
@@ -234,7 +234,7 @@ entityDef kit_ledger
 	"inherit"		"hero_ledger"
 	"kit_name"		"Standard"
 	"kit_desc"		"A battle rifle. Firing it stops stock coming in."
-	"weapon"		"weapon_crowbar"
+	"weapon"		"weapon_jtf_battlerifle"
 	"current_weapon"	"0"
 }
 
@@ -266,7 +266,7 @@ entityDef kit_tripwire
 	"inherit"		"hero_tripwire"
 	"kit_name"		"Standard"
 	"kit_desc"		"A silenced carbine. Firing it costs prep."
-	"weapon"		"weapon_crowbar"
+	"weapon"		"weapon_jtf_silenced"
 	"current_weapon"	"0"
 }
 
@@ -298,7 +298,7 @@ entityDef kit_longhand
 	"inherit"		"hero_longhand"
 	"kit_name"		"Standard"
 	"kit_desc"		"A charge rifle: the longer since the last shot, the harder the next."
-	"weapon"		"weapon_crowbar"
+	"weapon"		"weapon_jtf_chargerifle"
 	"current_weapon"	"0"
 }
 

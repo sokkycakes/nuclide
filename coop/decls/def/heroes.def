@@ -12,7 +12,7 @@
 //   hero_kits   its kits, comma separated, the first is the default
 //   hero_weight heavy, mid or light: sets the Barrier size (75, 50, 25)
 //   hero_weapon the static weapon (hero_weapons.def); the kits' "weapon"
-//               lists hold the rest: melee, one gun for the dynamic slot,
+//               lists hold the rest: one gun for the dynamic slot,
 //               throwables
 // Kit keys:
 //   kit_name    the name shown
@@ -146,8 +146,8 @@ entityDef kit_tank_gunner
 	"inherit"			"hero_tank"
 	"kit_name"			"Gunner"
 	"kit_desc"			"MP5 and grenades for holding a line."
-	"weapon"			"weapon_crowbar,weapon_9mmAR,weapon_handgrenade"
-	"current_weapon"	"1"
+	"weapon"			"weapon_9mmAR,weapon_handgrenade"
+	"current_weapon"	"0"
 	"ammo_9mm"			"150"
 	"ammo_m203_grenade"	"2"
 }
@@ -157,8 +157,8 @@ entityDef kit_tank_breacher
 	"inherit"			"hero_tank"
 	"kit_name"			"Breacher"
 	"kit_desc"			"Shotgun and satchel charges for close fights."
-	"weapon"			"weapon_crowbar,weapon_shotgun,weapon_satchel"
-	"current_weapon"	"1"
+	"weapon"			"weapon_shotgun,weapon_satchel"
+	"current_weapon"	"0"
 	"ammo_buckshot"		"36"
 }
 
@@ -183,8 +183,8 @@ entityDef kit_support_medic
 	"inherit"			"hero_support"
 	"kit_name"			"Medic"
 	"kit_desc"			"The Hivehand never runs dry."
-	"weapon"			"weapon_crowbar,weapon_hornetgun"
-	"current_weapon"	"1"
+	"weapon"			"weapon_hornetgun"
+	"current_weapon"	"0"
 }
 
 entityDef kit_support_quartermaster
@@ -192,7 +192,7 @@ entityDef kit_support_quartermaster
 	"inherit"			"hero_support"
 	"kit_name"			"Quartermaster"
 	"kit_desc"			"Tripmines and grenades to lock down a room."
-	"weapon"			"weapon_crowbar,weapon_tripmine,weapon_handgrenade"
+	"weapon"			"weapon_tripmine,weapon_handgrenade"
 	"current_weapon"	"0"
 }
 
@@ -219,8 +219,8 @@ entityDef kit_pointman_scout
 	"inherit"			"hero_pointman"
 	"kit_name"			"Scout"
 	"kit_desc"			"A .357 for picking off what's ahead."
-	"weapon"			"weapon_crowbar,weapon_357"
-	"current_weapon"	"1"
+	"weapon"			"weapon_357"
+	"current_weapon"	"0"
 	"ammo_357"			"24"
 }
 
@@ -229,7 +229,7 @@ entityDef kit_pointman_marksman
 	"inherit"			"hero_pointman"
 	"kit_name"			"Marksman"
 	"kit_desc"			"The crossbow, for long shots and quiet ones."
-	"weapon"			"weapon_crowbar,weapon_crossbow"
-	"current_weapon"	"1"
+	"weapon"			"weapon_crossbow"
+	"current_weapon"	"0"
 	"ammo_bolt"			"15"
 }

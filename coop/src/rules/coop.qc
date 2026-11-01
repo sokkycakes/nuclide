@@ -483,6 +483,10 @@ Coop_ReviveInput(entity pl)
 	}
 }
 
+void Survivor_BotThink(entity pl, int slot);
+void Survivor_Frame(void);
+void Survivor_List(void);
+
 /* bots: respawn on their own once allowed, and go to downed teammates */
 void
 Coop_BotThink(void)
@@ -507,7 +511,12 @@ Coop_BotThink(void)
 			continue;
 		}
 
-		if (!autocvar_coop_botsRevive || time < g_coopBotOrder[slot]) {
+		if (time < g_coopBotOrder[slot]) {
+			continue;
+		}
+
+		if (!autocvar_coop_botsRevive) {
+			Survivor_BotThink(pl, slot);
 			continue;
 		}
 
@@ -533,6 +542,9 @@ Coop_BotThink(void)
 		if (best && bestDist > autocvar_coop_reviveRange * 0.5f) {
 			ents.Input(pl, "GoToPosition", vtos(g_coopDownOrigin[Coop_Slot(best)]), pl);
 			g_coopBotOrder[slot] = time + 2.0f;
+		} else if (!best) {
+			/* nobody to revive: stay with the humans (survivors.qc) */
+			Survivor_BotThink(pl, slot);
 		}
 	}
 }
@@ -604,12 +616,29 @@ CodeCallback_Precache(void)
    progs define SERVER only after the common headers */
 void(string name, string keyvalues) script_event = #0:script_event;
 
-/* true when the map places monsters or something that makes them */
+/* true when the map places hostile monsters or something that makes them.
+   A map with info_monster_spawn points is built for waves, and allies
+   (Barney, the friendly HECU, scientists) aren't the map's monsters */
 bool
 Coop_MapHasMonsters(void)
 {
+	if (exists.InMap("info_monster_spawn")) {
+		return (false);
+	}
+
 	for (entity e = world; (e = nextent(e));) {
-		if (substring(e.classname, 0, 8) == "monster_" && e.classname != "monster_furniture") {
+		if (substring(e.classname, 0, 8) == "monster_") {
+			switch (e.classname) {
+			case "monster_furniture":
+			case "monster_barney":
+			case "monster_hecu_ally":
+			case "monster_scientist":
+			case "monster_sitting_scientist":
+			case "monster_gman":
+			case "monster_otis":
+				continue;
+			}
+
 			return (true);
 		}
 
@@ -864,7 +893,7 @@ CodeCallback_NPCKilled(entity npcEntity, entity inflictor, entity attacker, stri
 	}
 
 	/* allies are on the player's side */
-	if (npcEntity.team == COOP_PLAYERTEAM || npcEntity.classname == "monster_barney" || npcEntity.classname == "monster_scientist") {
+	if (npcEntity.team == COOP_PLAYERTEAM || npcEntity.classname == "monster_barney" || npcEntity.classname == "monster_hecu_ally" || npcEntity.classname == "monster_scientist") {
 		Coop_AddPoints(attacker, -(int)autocvar_coop_allyKillPenalty);
 		return;
 	}
@@ -1045,6 +1074,7 @@ CodeCallback_FrameStart(void)
 
 	Coop_WaveThink();
 	Coop_BotThink();
+	Survivor_Frame();
 
 	for (entity p = world; (p = next.Player(p));) {
 		Hero_SlotThink(p);
@@ -1185,6 +1215,9 @@ CodeCallback_ConsoleCommand(entity playerEntity, string command)
 
 			CodeCallback_PlayerSpawn(p);
 		}
+		break;
+	case "coop_survivors":
+		Survivor_List();
 		break;
 	case "coop_nextwave":
 		g_coopWaveNext = time;
