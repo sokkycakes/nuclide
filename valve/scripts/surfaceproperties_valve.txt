@@ -50,7 +50,7 @@ gs_material_flesh
 {
 	gamematerial F
 	part_bulletimpact "flesh.bulletimpact"
-	bulletimpact "sfx_impact.flesh"
+	bulletimpact "damage_bullet.hit"
 	stepleft "Flesh.StepLeft"
 	stepright "Flesh.StepRight"
 	break "func_breakable.break_flesh"
@@ -137,7 +137,7 @@ gs_material_alien
 {
 	gamematerial H
 	part_bulletimpact "alien.bulletimpact"
-	bulletimpact "sfx_impact.alien"
+	bulletimpact "damage_bullet.hit"
 	stepleft "Alien.StepLeft"
 	stepright "Alien.StepRight"
 	break "func_breakable.break_flesh"
