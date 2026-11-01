@@ -763,6 +763,19 @@ ncPlayer::predraw(void)
 	/* apply any necessary filters from ncRenderableEntity */
 	RenderFXPass();
 
+	/* Counter-Strike Online's teammate outline (cl_outline_tdm): another
+	   player on our team gets a green outline, seen through walls. Bulwark
+	   draws it (RF_OUTLINE); other engines ignore the flag. */
+	renderflags &= ~RF_OUTLINE;
+	if (autocvar(cg_teamOutline, 0) && !localplayer && entnum != player_localentnum) {
+		string ourTeam = getplayerkeyvalue(cl.entnum - 1, "*team");
+
+		if (getplayerkeyvalue(entnum - 1, "*team") == ourTeam) {
+			renderflags |= RF_OUTLINE;
+			outlinecolor = [76, 208, 113] / 255;
+		}
+	}
+
 	/* apply any fire effects, if we're burning (we're of type ncSurfacePropEntity that can burn) */
 	RenderFire();
 
