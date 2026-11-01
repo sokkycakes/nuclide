@@ -14,6 +14,7 @@
 entityDef weapon_jtf_pdw
 {
 	"inherit"			"weapon_9mmhandgun"
+	"crosshair"			"weapon_9mmar.crosshair"
 	"inv_name"			"Burst PDW"
 	"def_fireInfo"		"fireInfo_jtf_pdw"
 	"def_altFireInfo"	""
@@ -223,6 +224,7 @@ entityDef projectile_jtf_smg
 entityDef weapon_jtf_machinepistols
 {
 	"inherit"			"weapon_9mmhandgun"
+	"crosshair"			"weapon_9mmhandgun.crosshair"
 	"inv_name"			"Machine Pistols"
 	"def_fireInfo"		"fireInfo_jtf_machinepistols"
 	"def_altFireInfo"	""
@@ -310,6 +312,7 @@ entityDef projectile_jtf_battlerifle
 entityDef weapon_jtf_silenced
 {
 	"inherit"			"weapon_9mmhandgun"
+	"crosshair"			"weapon_9mmhandgun.crosshair"
 	"inv_name"			"Silenced Carbine"
 	"def_fireInfo"		"fireInfo_jtf_silenced"
 	"def_altFireInfo"	""
