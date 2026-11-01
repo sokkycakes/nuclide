@@ -57,6 +57,8 @@ void Hero_AbilityFrame(void);
 void Hero_AbilityInput(entity pl);
 void Hero_SlotInput(entity pl);
 void Hero_GunsFrame(void);
+vector Coop_FreeSpot(entity who, vector org);
+void Coop_Unstick(void);
 bool Hero_AbilityImpulse(entity pl, float num);
 void Hero_AbilityKilled(entity pl);
 void Hero_AbilityNPCKilled(entity npc, entity attacker);
@@ -238,7 +240,7 @@ Coop_PickMonster(void)
 bool
 Coop_SpotClear(vector spot)
 {
-	for (entity e = world; (e = findradius(spot, 64));) {
+	for (entity e = findradius(spot, 64); e; e = e.chain) {
 		if (e.solid == SOLID_SLIDEBOX || e.solid == SOLID_BBOX) {
 			if (is.Sentient(e) || is.Player(e)) {
 				return (false);
@@ -398,7 +400,8 @@ Coop_Revive(entity reviver, entity target)
 	vector downOrigin = g_coopDownOrigin[slot];
 
 	CodeCallback_PlayerSpawn(target);
-	ents.Input(target, "SetOrigin", vtos(downOrigin + [0, 0, 8]), reviver);
+	/* the reviver is usually standing on the body: come back beside them */
+	ents.Input(target, "SetOrigin", vtos(Coop_FreeSpot(target, downOrigin + [0, 0, 8])), reviver);
 	ents.Input(target, "SetHealth", ftos(autocvar_coop_reviveHealth), reviver);
 
 	Coop_AddPoints(reviver, autocvar_coop_revivePoints);
@@ -1077,6 +1080,7 @@ CodeCallback_FrameStart(void)
 	Coop_WaveThink();
 	Coop_BotThink();
 	Survivor_Frame();
+	Coop_Unstick();
 	Hero_GunsFrame();
 
 	for (entity p = world; (p = next.Player(p));) {
