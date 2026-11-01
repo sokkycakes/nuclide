@@ -115,32 +115,40 @@ ncIO::Destroy(void)
 		return;
 	}
 
+	/* OnRemoveEntity may destroy other entities (a projectile's timer, a
+	   player's weapons), which runs this function again. The compiler keeps
+	   the copy of 'self' it saves around that call in a temp, and the nested
+	   call overwrites it, so we would come back as the other entity and
+	   never remove ourselves. A local is saved across the nested call, so
+	   everything after it goes through one. */
+	ncIO removing = this;
+
 	if (OnRemoveEntity) {
 		OnRemoveEntity();
 	}
 
 #ifdef SERVER
-	UseOutput(this, m_outputOnKilled);
+	removing.UseOutput(removing, removing.m_outputOnKilled);
 #endif
 
-	_isActor = false;
-	_isItem = false;
-	_isPlayer = false;
-	_isWeapon = false;
-	chain =
-	owner = __NULL__;
-	spawnclass =
-	classname =
-	declclass = __NULL__;
-	identity = 0;
-	modelindex = 0;
-	movetype = 0;
-	solid = 0;
-	removed = true;
-	customphysics =
-	think = __NULL__;
-	nextthink = 0.0f;
-	remove(this);
+	removing._isActor = false;
+	removing._isItem = false;
+	removing._isPlayer = false;
+	removing._isWeapon = false;
+	removing.chain =
+	removing.owner = __NULL__;
+	removing.spawnclass =
+	removing.classname =
+	removing.declclass = __NULL__;
+	removing.identity = 0;
+	removing.modelindex = 0;
+	removing.movetype = 0;
+	removing.solid = 0;
+	removing.removed = true;
+	removing.customphysics =
+	removing.think = __NULL__;
+	removing.nextthink = 0.0f;
+	remove(removing);
 }
 
 string

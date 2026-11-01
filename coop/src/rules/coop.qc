@@ -1164,6 +1164,20 @@ Coop_PrintStatus(void)
 		Coop_AlivePlayerCount(), Coop_PlayerCount()));
 	print(sprintf(" scale %f skill %d\n", Coop_HealthScale(), cvar("skill")));
 
+	/* entity load, for performance reports */
+	int ents = 0i, hornets = 0i;
+
+	for (entity e = world; (e = nextent(e));) {
+		ents++;
+
+		if (substring(e.classname, 0, 18) == "ranged_agrunt_shot" || substring(e.classname, 0, 17) == "projectile_hornet") {
+			hornets++;
+
+		}
+	}
+
+	print(sprintf("  entities %i, hornets %i\n", ents, hornets));
+
 	for (entity p = world; (p = next.Player(p));) {
 		int slot = Coop_Slot(p);
 		print(sprintf("  %s: score %d points %i deaths %d health %d %s\n", p.netname, p.frags, Coop_Points(p),
