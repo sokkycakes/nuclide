@@ -65,12 +65,13 @@
 
 /* ---- text styles ------------------------------------------------------- */
 
-/* no drop shadows (sokky) */
+/* no drop shadows (sokky). Tahoma text is regular weight with no letter
+   spacing: the Tahoma Bold we have (Wine's) has thin outlines on bold
+   advances above 12 ppem, and fractional spacing makes uneven gaps */
 .hud-label
 {
 	font-family: "Tahoma", "Nimbus";
 	font-size: 17px;
-	letter-spacing: 1px;
 	text-transform: uppercase;
 	color: var(--window-text);
 }
@@ -97,7 +98,7 @@
 }
 .mate-top { width: 100%; height: fit-children; flow-children: right; margin-bottom: 4px; }
 .mate-name { font-size: 18px; color: var(--window-text); width: fill-parent-flow( 1.0 ); }
-.mate-status { font-family: "Tahoma", "Nimbus"; font-size: 16px; letter-spacing: 1px; text-transform: uppercase; color: var(--disabled-text); vertical-align: center; }
+.mate-status { font-family: "Tahoma", "Nimbus"; font-size: 16px; text-transform: uppercase; color: var(--disabled-text); vertical-align: center; }
 .mate.low .mate-status { color: #e0503a; }
 .mate.low .meter-fill { background-color: gradient( linear, 0% 0%, 0% 100%, from( #f86a52 ), color-stop( 0.4, #c43c26 ), to( #e4462c ) ); background-image: url( "file://{images}/coop/progress-stripes-red.png" ); border-color: #7c1f10; }
 .mate.down { border-color: #ffa31a; }
@@ -138,7 +139,6 @@
 	horizontal-align: right;
 	font-family: "Tahoma", "Nimbus";
 	font-size: 20px;
-	font-weight: bold;
 	text-transform: uppercase;
 	color: var(--window-text);
 	margin-bottom: 2px;
@@ -149,7 +149,6 @@
 	width: fill-parent-flow( 1.0 );
 	font-family: "Tahoma", "Nimbus";
 	font-size: 16px;
-	font-weight: bold;
 	text-transform: uppercase;
 	color: var(--window-text);
 }
@@ -335,7 +334,6 @@
 	vertical-align: center;
 	font-family: "Tahoma", "Nimbus";
 	font-size: 26px;
-	font-weight: bold;
 	color: var(--window-text);
 }
 /* ENG and EX: squeezed to fit */
