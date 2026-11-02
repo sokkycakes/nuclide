@@ -69,7 +69,17 @@ Weapon_JTF.Revolver
 Weapon_JTF.Gauntlets
 {
 	alerts
-	sample weapons/laserfist_shootb_shoot.wav
+	sample weapons/balrog9_slash1.wav
+	sample weapons/balrog9_slash2.wav
+	sample weapons/balrog9_slash3.wav
+	sample weapons/balrog9_slash4.wav
+	sample weapons/balrog9_slash5.wav
+}
+
+Weapon_JTF.GauntletsHit
+{
+	sample weapons/balrog9_hit1.wav
+	sample weapons/balrog9_hit2.wav
 }
 
 Weapon_JTF.SMG
