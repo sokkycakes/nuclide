@@ -14,10 +14,19 @@
  * damage, which is read back from its health and taken off the brain's.
  * The body's owner is the brain, so the brain's movement passes through it.
  *
- * Behaviour follows the framework's own L4D test (tests/bots/bottest.qc):
- * the Hunter chases, crouches, leaps at where its target will be, and pins
- * it (the player can't move) clawing until one of them dies; the Tank
- * chases and punches, knocking the player away. */
+ * The Hunter runs at the survivors, stalks crouched once it is close and
+ * in sight, charges crouched and still for coop_l4dHunterCharge seconds,
+ * then leaps at where its target will be and pins it (the player can't
+ * move) clawing until one of them dies. A player hitting it from within
+ * coop_l4dShoveRange, other than the one it holds, knocks it off or out of
+ * its charge; it is stunned for coop_l4dHunterStun seconds, then runs to a
+ * waypoint out of the survivors' sight and comes again. After a missed
+ * pounce it does that half the time. The Tank chases and punches, knocking
+ * the player away.
+ *
+ * Some of the models' sequences are delta layers that only make sense on
+ * top of another (pounce_idle_01, the Tank's Attack): played alone they are
+ * the bind pose, so the bodies use full-body sequences instead. */
 
 #define L4DI_MAX	16
 #define L4DI_HUNTER	1
@@ -28,6 +37,11 @@ var float autocvar_coop_l4dHunterHealth = 250;
 var float autocvar_coop_l4dTankHealth = 1500;
 var float autocvar_coop_l4dHunterPinDamage = 5;	/* each half second */
 var float autocvar_coop_l4dTankPunchDamage = 24;
+var float autocvar_coop_l4dHunterCharge = 1.0;	/* crouched before a pounce */
+var float autocvar_coop_l4dHunterPounceRange = 500;
+var float autocvar_coop_l4dHunterStalkRange = 900;
+var float autocvar_coop_l4dHunterStun = 1.5;	/* after a shove */
+var float autocvar_coop_l4dShoveRange = 100;
 
 class L4DInfected : BWBot {
 	float m_kind;
@@ -38,6 +52,9 @@ class L4DInfected : BWBot {
 	string m_anim;		/* sequence an action asked for... */
 	float m_anim_until;	/* ...and until when */
 	float m_remove_at;
+	float m_shoved;		/* a close hit landed: the action reacts */
+	vector m_shoved_from;
+	float m_retreat;	/* wants to run off and come again */
 	virtual BWAction InitialAction(void);
 	virtual float IsEnemy(entity e);
 	virtual float IsFriend(entity e);
@@ -124,6 +141,40 @@ L4DInfected::IsFriend(entity e)
 
 /* --- Hunter ----------------------------------------------------------------------- */
 
+/* knocked off a survivor (or out of its crouch) by a close hit: reels back,
+ * is stunned for a moment, then runs off to try again from somewhere else */
+class L4DHunterShoved : BWAction {
+	vector m_from;
+	float m_until;
+	virtual string GetName(void) { return "Shoved"; };
+	virtual float OnStart(BWAction prior)
+	{
+		L4DInfected b = (L4DInfected)m_bot;
+		vector away = normalize(bw_flat(m_bot.origin - m_from));
+
+		b.m_shoved = 0;
+		L4DI_Release(b);
+		m_bot.m_body.SetDesiredPosture(BWPOSTURE_STAND);
+		m_bot.m_loco.Leap(away * 220 + [0, 0, 180]);
+		L4DI_Play(b, "Melee_pounce_Knockoff_Backward", autocvar_coop_l4dHunterStun);
+		m_until = time + autocvar_coop_l4dHunterStun;
+		return Continue();
+	};
+	virtual float Update(float interval)
+	{
+		if (m_bot.m_loco.IsOnGround()) {
+			m_bot.m_loco.Stop();
+		}
+
+		if (time < m_until) {
+			return Continue();
+		}
+
+		((L4DInfected)m_bot).m_retreat = TRUE;
+		return Done("recovered");
+	};
+};
+
 class L4DHunterPinned : BWAction {
 	entity m_target;
 	float m_next_hit;
@@ -132,6 +183,7 @@ class L4DHunterPinned : BWAction {
 	{
 		L4DInfected b = (L4DInfected)m_bot;
 		b.m_pinned = m_target;
+		b.m_shoved = 0;
 		m_target.movetype = MOVETYPE_NONE;
 		m_target.velocity = [0, 0, 0];
 		m_bot.m_loco.Stop();
@@ -143,7 +195,12 @@ class L4DHunterPinned : BWAction {
 	{
 		L4DInfected b = (L4DInfected)m_bot;
 
+		if (b.m_shoved) {
+			return ChangeTo(spawn(L4DHunterShoved, m_from: b.m_shoved_from), "shoved off");
+		}
+
 		if (!L4DI_Valid(m_target)) {
+			b.m_retreat = TRUE;
 			return Done("victim gone");
 		}
 
@@ -162,6 +219,8 @@ class L4DHunterPinned : BWAction {
 	virtual void OnEnd(BWAction next) { L4DI_Release((L4DInfected)m_bot); };
 };
 
+/* crouches still to charge the pounce, then leaps at where the target
+ * will be; a close hit while charging knocks it out of the crouch */
 class L4DHunterPounce : BWAction {
 	entity m_target;
 	float m_phase, m_until, m_touched;
@@ -170,7 +229,7 @@ class L4DHunterPounce : BWAction {
 	{
 		m_bot.m_loco.Stop();
 		m_bot.m_body.SetDesiredPosture(BWPOSTURE_CROUCH);
-		m_until = time + 0.6;
+		m_until = time + autocvar_coop_l4dHunterCharge;
 		return Continue();
 	};
 	virtual float Update(float interval)
@@ -179,16 +238,25 @@ class L4DHunterPounce : BWAction {
 		vector pred, v;
 		float d, t, g = cvar("sv_gravity");
 
+		if (b.m_shoved && m_phase != 1) {
+			return ChangeTo(spawn(L4DHunterShoved, m_from: b.m_shoved_from), "shoved while charging");
+		}
+
 		if (!L4DI_Valid(m_target)) {
 			return Done("target gone");
 		}
 
 		switch (m_phase) {
-		case 0:	/* crouch, then leap at where the target will be */
+		case 0:	/* charge, crouched and still */
 			m_bot.m_loco.Stop();
 			m_bot.m_loco.FaceTowards(m_target.origin);
 			m_bot.m_body.AimHeadTowardsEntity(m_target, BWLOOK_IMPORTANT, 0.3, __NULL__, "pounce");
-			L4DI_Play(b, "pounce_idle_01", 0.2);
+
+			/* the shot is gone: back to stalking */
+			if (vlen(m_target.origin - m_bot.origin) > autocvar_coop_l4dHunterPounceRange * 1.4 ||
+				!m_bot.m_vision.IsAbleToSee(m_target, FALSE) || L4DI_PinnedBy(m_target)) {
+				return Done("lost the shot");
+			}
 
 			if (time < m_until) {
 				return Continue();
@@ -209,11 +277,13 @@ class L4DHunterPounce : BWAction {
 			m_bot.m_loco.m_air_goal = pred;
 			m_bot.m_loco.m_air_speed = 700;
 			m_bot.m_loco.m_air_accel = 400;
-			L4DI_Play(b, "Lunge_While_Running_01", 0.4);
+			L4DI_Play(b, "Lunge_nav_01", 0.4);
 			m_phase = 1;
 			m_until = time + 3;
 			return Continue();
 		case 1:	/* in the air */
+			b.m_shoved = 0;
+
 			if (!m_bot.m_loco.IsOnGround()) {
 				m_bot.m_loco.m_air_goal = m_target.origin;
 			}
@@ -227,15 +297,23 @@ class L4DHunterPounce : BWAction {
 
 			if (m_bot.m_loco.IsOnGround() || time > m_until) {
 				m_phase = 2;
-				m_until = time + 1.5;
+				m_until = time + 1.0;
 				L4DI_Play(b, "Lunge_Land_low_nav_01", 0.7);
 			}
 			return Continue();
 		}
 
-		/* missed: wait before trying again */
+		/* missed: land, then half the time go and find a better spot */
 		if (time < m_until) {
+			m_bot.m_loco.Stop();
 			return Continue();
+		}
+
+		b.m_retreat = (random() < 0.5) ? TRUE : FALSE;
+
+		if (cvar("coop_l4dDebug")) {
+			print(sprintf("%.2f %s: missed %s, %.0f away (%s)\n", time, b.netname, m_target.netname,
+				vlen(m_target.origin - m_bot.origin), b.m_retreat ? "repositioning" : "trying again"));
 		}
 
 		return Done("missed");
@@ -250,6 +328,114 @@ class L4DHunterPounce : BWAction {
 	virtual void OnEnd(BWAction next) { m_bot.m_body.SetDesiredPosture(BWPOSTURE_STAND); };
 };
 
+/* the eye height of a player, for sight checks from waypoints */
+static bool
+L4DI_SeenBy(vector spot, entity pl)
+{
+	traceline(pl.origin + pl.view_ofs, spot + [0, 0, 32], MOVE_NOMONSTERS, pl);
+	return (trace_fraction >= 1.0f) ? true : false;
+}
+
+/* runs to a spot out of the players' sight, some way off, then waits a
+ * moment before hunting again */
+class L4DHunterRetreat : BWAction {
+	entity m_from;
+	BWPathFollower m_path;
+	float m_until, m_phase;
+	virtual string GetName(void) { return "Retreat"; };
+	virtual float OnStart(BWAction prior)
+	{
+		float i, best = -1, bestScore = 0, dt, dh, score;
+		vector spot;
+
+		m_path = spawn(BWPathFollower);
+		Own(m_path);
+		m_bot.m_body.SetDesiredPosture(BWPOSTURE_STAND);
+		m_bot.m_loco.m_run_speed = 250;
+
+		if (!bw_wp_load()) {
+			return Done("no waypoints on this map");
+		}
+
+		/* a waypoint hidden from the threat, ideally 500-1400 units from
+		 * it, and not far from the Hunter; on a small map, the best there is */
+		for (i = 0; i < bw_wp_count; i++) {
+			spot = bw_snap_down(bw_wps[i].pos, world);
+			dt = vlen(spot - m_from.origin);
+
+			if (dt < 250) {
+				continue;
+			}
+
+			dh = vlen(spot - m_bot.origin);
+			score = dh - dt * 0.5;
+
+			if (dt < 500 || dt > 1400) {
+				score += 1000;
+			}
+
+			if (L4DI_SeenBy(spot, m_from)) {
+				score += 2000;
+			}
+
+			if (best < 0 || score < bestScore) {
+				best = i;
+				bestScore = score;
+			}
+		}
+
+		if (best < 0) {
+			return Done("nowhere to go");
+		}
+
+		m_path.Compute(m_bot, bw_snap_down(bw_wps[best].pos, world), 0);
+
+		if (cvar("coop_l4dDebug")) {
+			print(sprintf("%.2f %s: retreats to waypoint %g, %.0f from the threat%s\n", time, m_bot.netname, best,
+				vlen(bw_wps[best].pos - m_from.origin), (bestScore >= 2000) ? " (in its sight)" : ""));
+		}
+
+		m_until = time + 8;
+		return Continue();
+	};
+	virtual float Update(float interval)
+	{
+		L4DInfected b = (L4DInfected)m_bot;
+
+		if (m_phase == 0) {
+			if (m_path.IsValid() && time < m_until && !m_bot.m_loco.IsStuck()) {
+				m_path.Follow(m_bot);
+
+				if (m_path.IsValid()) {
+					return Continue();
+				}
+			}
+
+			/* there (or as far as it gets): crouch and gather itself */
+			m_phase = 1;
+			m_until = time + 1.0 + random();
+			m_bot.m_loco.Stop();
+			m_bot.m_body.SetDesiredPosture(BWPOSTURE_CROUCH);
+			return Continue();
+		}
+
+		m_bot.m_loco.Stop();
+
+		if (time < m_until) {
+			return Continue();
+		}
+
+		return Done("ready again");
+	};
+	virtual void OnEnd(BWAction next)
+	{
+		((L4DInfected)m_bot).m_retreat = FALSE;
+		m_bot.m_body.SetDesiredPosture(BWPOSTURE_STAND);
+	};
+};
+
+/* runs at the survivors from afar, stalks crouched when close, and pounces
+ * from range */
 class L4DHunterMain : BWAction {
 	BWChasePath m_chase;
 	virtual string GetName(void) { return "HunterAttack"; };
@@ -261,19 +447,40 @@ class L4DHunterMain : BWAction {
 	};
 	virtual float Update(float interval)
 	{
+		L4DInfected b = (L4DInfected)m_bot;
 		BWKnown k = m_bot.m_vision.GetPrimaryKnownThreat(FALSE);
 		entity t;
+		float d;
 
 		if (!k) {
 			m_bot.m_loco.Stop();
+			m_bot.m_body.SetDesiredPosture(BWPOSTURE_STAND);
 			return Continue();
 		}
 
 		t = k.m_subject;
+		d = vlen(t.origin - m_bot.origin);
 
-		if (k.m_visible && vlen(t.origin - m_bot.origin) < 600 && m_bot.m_loco.IsOnGround() &&
+		if (b.m_retreat) {
+			return SuspendFor(spawn(L4DHunterRetreat, m_from: t), "repositioning");
+		}
+
+		if (b.m_shoved) {
+			b.m_shoved = 0;	/* hit while stalking: it just carries on */
+		}
+
+		if (k.m_visible && d < autocvar_coop_l4dHunterPounceRange && m_bot.m_loco.IsOnGround() &&
 			!L4DI_PinnedBy(t) && (t.flags & FL_ONGROUND)) {
 			return SuspendFor(spawn(L4DHunterPounce, m_target: t), "target in range");
+		}
+
+		/* close and in sight: stalk crouched; otherwise run */
+		if (k.m_visible && d < autocvar_coop_l4dHunterStalkRange) {
+			m_bot.m_body.SetDesiredPosture(BWPOSTURE_CROUCH);
+			m_bot.m_loco.m_run_speed = 130;
+		} else {
+			m_bot.m_body.SetDesiredPosture(BWPOSTURE_STAND);
+			m_bot.m_loco.m_run_speed = 250;
 		}
 
 		m_chase.Chase(m_bot, t);
@@ -291,7 +498,7 @@ class L4DTankPunch : BWAction {
 	virtual float OnStart(BWAction prior)
 	{
 		m_hit_at = time + 0.4;
-		L4DI_Play((L4DInfected)m_bot, "Attack", 1.0);
+		L4DI_Play((L4DInfected)m_bot, "Melee", 1.0);
 		return Continue();
 	};
 	virtual float Update(float interval)
@@ -396,9 +603,9 @@ L4DI_PickAnim(L4DInfected b)
 
 	if (b.m_body.GetPosture() == BWPOSTURE_CROUCH) {
 		if (speed > 20) {
-			return hunter ? "Crouch_Walk_Upper_KNIFE:a_Crouch_Walk_Upper_KNIFEN" : "Crouch_Walk:a_CrouchWalkN";
+			return hunter ? "crouchWalkN_raw" : "Crouch_Walk:a_CrouchWalkN";
 		}
-		return hunter ? "pounce_idle_01" : "Crouch_Idle";
+		return hunter ? "Idle_Crouching_01" : "Crouch_Idle";
 	}
 
 	if (speed > 150) {
@@ -450,6 +657,22 @@ L4DI_BodyFrame(int slot)
 		b.m_hp -= dmg;
 		b.health = max(1, b.m_hp);
 		bw_notify_injured(b, world, world, dmg);
+
+		/* a Hunter hit from close by a player it isn't holding (a melee
+		 * swing, or a shotgun to the face) is knocked off */
+		if (b.m_kind == L4DI_HUNTER) {
+			for (entity p = world; (p = next.Player(p));) {
+				if (p != b.m_pinned && L4DI_Valid(p) && bw_dist2d(p.origin, b.origin) < autocvar_coop_l4dShoveRange &&
+					fabs(p.origin[2] - (b.origin[2] + 32)) < 80) {
+					b.m_shoved = 1;
+					b.m_shoved_from = p.origin;
+
+					if (cvar("coop_l4dDebug")) {
+						print(sprintf("%.2f %s: shoved by %s (%g damage)\n", time, b.netname, p.netname, dmg));
+					}
+				}
+			}
+		}
 
 		if (b.m_hp <= 0) {
 			L4DI_Release(b);
