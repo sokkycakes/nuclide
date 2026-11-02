@@ -38,6 +38,30 @@
 		var k = KEY_GLYPHS[ key ] || ( /^([A-Z0-9]|F[1-9]|F1[0-2])$/.test( key ) ? key : "" );
 		return k ? "file://{images}/xelu/keyboard/" + k + "_Key_Dark.png" : "";
 	}
+	// a short label for a key with no glyph, so a long name such as
+	// KP_DOWNARROW doesn't push the ability's name onto two lines
+	// the keypad by its digits (the HUD font has no arrows)
+	var SHORT = {
+		END: "1", DOWNARROW: "2", PGDN: "3", LEFTARROW: "4", "5": "5", RIGHTARROW: "6", HOME: "7",
+		UPARROW: "8", PGUP: "9", INS: "0", DEL: ".", ENTER: "Ent", SLASH: "/", STAR: "*", MINUS: "-", PLUS: "+"
+	};
+	function shortKey( key )
+	{
+		key = String( key || "" ).toUpperCase();
+		var m = /^MOUSE(\d+)$/.exec( key );
+		if ( m )
+			return "M" + m[ 1 ];
+		m = /^MWHEEL(UP|DOWN)$/.exec( key );
+		if ( m )
+			return m[ 1 ] === "UP" ? "WhU" : "WhD";
+		m = /^KP_(.+)$/.exec( key );
+		if ( m )
+			return "KP" + ( SHORT[ m[ 1 ] ] || m[ 1 ] );
+		m = /^GP_(.+)$/.exec( key );
+		if ( m )
+			return m[ 1 ];
+		return key.length > 5 ? key.substr( 0, 4 ) : key;
+	}
 	// glyphs for "KEY" or a chord "KEY+KEY" into parent, or the text when a
 	// key has no glyph
 	function keyGlyphs( parent, cls, keys )
@@ -51,7 +75,7 @@
 			if ( src )
 				$.CreatePanel( "Image", parent, "", { "class": cls + "-glyph", src: src, hittest: "false" } );
 			else
-				label( parent, cls + "-text", k );
+				label( parent, cls + "-text", shortKey( k ) );
 		} );
 	}
 
