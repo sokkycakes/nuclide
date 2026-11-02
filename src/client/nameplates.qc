@@ -67,6 +67,28 @@ Nameplates_TargetIDInfo(void)
 		g_targetIDMaxHealth, g_targetIDName));
 }
 
+/** For a HUD progs that lists teammates by how close they are: each
+player we can see the entity of, as "slot distance" pairs separated by
+spaces (slot is the player number from 0, distance from our camera).
+Players out of view aren't listed. Look it up with
+externvalue(0, "Nameplates_PlayerDistances"). */
+string
+Nameplates_PlayerDistances(void)
+{
+	entity localPlayer = pSeat->m_ePlayer;
+	vector camPos = g_view.GetCameraOrigin();
+	string out = "";
+
+	for (entity pl = world; (pl = next.Player(pl));) {
+		if (pl == localPlayer)
+			continue;
+
+		out = strcat(out, (out == "") ? "" : " ", sprintf("%d %d", pl.entnum - 1, rint(vlen(pl.origin - camPos))));
+	}
+
+	return (out);
+}
+
 static void
 Nameplates_DrawOne(entity target, string nameText, float healthFrac, vector camPos, vector camFwd)
 {

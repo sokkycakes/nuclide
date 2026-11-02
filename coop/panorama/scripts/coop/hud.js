@@ -79,11 +79,35 @@
 		} );
 	}
 
+	// ---- big numbers: text, and the same as digit panels (#<id>Dg) ----
+	// hud-wtdigits.css (private) draws the digits from WolfTeam's strip and
+	// hides the text; without it the digit boxes stay hidden
+
+	function bigNum( id, text )
+	{
+		text = String( text );
+		$id( id ).text = text;
+		var box = $id( id + "Dg" );
+		if ( !box )
+			return;
+		var kids = box.Children();
+		while ( kids.length > text.length )
+			kids.pop().DeleteAsync( 0 );
+		while ( kids.length < text.length )
+			kids.push( $.CreatePanel( "Panel", box, "", { "class": "dg", hittest: "false" } ) );
+		for ( var i = 0; i < text.length; i++ )
+		{
+			var c = text.charAt( i );
+			for ( var d = 0; d < 10; d++ )
+				kids[ i ].SetHasClass( "d" + d, c === String( d ) );
+		}
+	}
+
 	// ---- vitals --------------------------------------------------------
 
 	function vitals( s )
 	{
-		$id( "HealthValue" ).text = String( s.hp );
+		bigNum( "HealthValue", s.hp );
 		$id( "HealthReadout" ).SetHasClass( "low", s.hp < 25 );
 
 		var hero = s.hero;
@@ -97,7 +121,7 @@
 		// while there is some; the bar is only for plain armour
 		armor.SetHasClass( "hidden", !!hero || ar <= 0 );
 		$id( "BarrierReadout" ).SetHasClass( "hidden", !hero || ar <= 0 );
-		$id( "BarrierValue" ).text = String( ar );
+		bigNum( "BarrierValue", ar );
 		cadence( s );
 
 		var energy = $id( "EnergyBar" );
@@ -114,12 +138,16 @@
 		abilities( hero );
 	}
 
-	// one row per part of the kit's status line: "[G] Courier ready"
+	// one rounded square per kit ability, in a row: T (tool), 1, 2, ENG
+	// (engage), and in form the form's move (EX). The status line's key
+	// letters are the keyboard defaults (C G X Z V); a kit without one has
+	// no square for it. Passives (no key) aren't shown.
+	var SQUARES = [ [ "C", "T" ], [ "G", "1" ], [ "X", "2" ], [ "Z", "ENG" ], [ "V", "EX" ] ];
+
 	function abilities( hero )
 	{
 		var box = $id( "Abilities" );
-		var keys = hero && hero.keys ? hero.keys : {};
-		var key = hero ? hero.status + "\n" + hero.form + hero.formLine + JSON.stringify( keys ) : "";
+		var key = hero ? hero.status + "\n" + hero.form + hero.formLine : "";
 		box.SetHasClass( "hidden", !hero );
 		if ( key === last.abilities )
 			return;
@@ -131,36 +159,38 @@
 		var formFrom = parts.length;
 		if ( hero.formLine )
 			parts = parts.concat( hero.formLine.split( /\s{2,}/ ) );
+		var byKey = {};
 		parts.forEach( function ( p, i )
 		{
-			p = p.trim();
-			if ( !p )
+			var m = /^\[(\w+)\]\s*(.*)$/.exec( p.trim() );
+			if ( !m )
 				return;
-			var m = /^\[(\w+)\]\s*(.*)$/.exec( p );
-			var k = m ? m[ 1 ] : "", text = m ? m[ 2 ] : p, state = "";
-			// passives (no key) aren't listed
-			if ( !k )
-				return;
+			var text = m[ 2 ], state = "";
 			var w = /^(.*?)\s+(ready|used|\d+s|\d+\/\d+|\d+%|\d+)$/i.exec( text );
 			if ( w )
 			{
 				text = w[ 1 ];
 				state = w[ 2 ];
 			}
-			var row = $.CreatePanel( "Panel", box, "", { "class": "ability" } );
-			var ready = /^ready$/i.test( state ), engaged = i >= formFrom && hero.form > 0;
-			row.SetHasClass( "ready", ready );
-			row.SetHasClass( "engaged", engaged );
-			// a keyed ability that can't be used now (cooling down, used,
-			// out of charges, not enough energy): greyed and darkened
-			row.SetHasClass( "unavailable", !!k && !ready && !engaged && !/^[1-9]\d*\/\d+$/.test( state ) );
-			// the letter in the status line is the keyboard default: show
-			// what this player presses for it, as a glyph
-			var keyBox = $.CreatePanel( "Panel", row, "", { "class": "ability-key", hittest: "false" } );
-			keyGlyphs( keyBox, "ability-key", keys[ k ] || k );
-			label( row, "ability-name", text );
-			// ready shows as the corner triangle, not as text
-			label( row, "ability-state", ready ? "" : state );
+			byKey[ m[ 1 ] ] = { state: state, engaged: i >= formFrom && hero.form > 0 };
+		} );
+		SQUARES.forEach( function ( sq )
+		{
+			var a = byKey[ sq[ 0 ] ];
+			if ( !a )
+				return;
+			var ready = /^ready$/i.test( a.state );
+			var cell = $.CreatePanel( "Panel", box, "", { "class": "ability", hittest: "false" } );
+			cell.SetHasClass( "ready", ready );
+			cell.SetHasClass( "engaged", a.engaged );
+			// can't be used now (cooling down, used, out of charges, not
+			// enough energy): greyed and darkened
+			cell.SetHasClass( "unavailable", !ready && !a.engaged && !/^[1-9]\d*\/\d+$/.test( a.state ) );
+			$.CreatePanel( "Panel", cell, "", { "class": "ability-tri", hittest: "false" } );
+			label( cell, "ability-glyph" + ( sq[ 1 ].length > 2 ? " condensed" : "" ), sq[ 1 ] );
+			// a cooldown or a count, small under the glyph; ready is the
+			// corner triangle
+			label( cell, "ability-state", ready ? "" : a.state );
 		} );
 	}
 
@@ -175,8 +205,8 @@
 		ammo.SetHasClass( "empty", !s.weapon );
 		ammo.SetHasClass( "noclip", s.clipSize <= 0 );
 		ammo.SetHasClass( "low", s.clipSize > 0 && s.clip <= Math.max( 1, s.clipSize / 4 ) );
-		$id( "Clip" ).text = String( s.clip );
-		$id( "Reserve" ).text = s.noAmmo ? "" : String( s.reserve );
+		bigNum( "Clip", s.clip );
+		bigNum( "Reserve", s.noAmmo ? "" : s.reserve );
 		$id( "Reserve" ).SetHasClass( "hidden", !!s.noAmmo );
 		// the hero's own weapon never runs dry: no reserve count (sokky)
 		ammo.SetHasClass( "noreserve", !!s.hero && s.held === 1 );
@@ -184,6 +214,20 @@
 		var hero = s.hero;
 		slot( "SlotStatic", "SlotStaticName", hero ? hero.staticName : "", hero, s.held === 1 );
 		slot( "SlotDynamic", "SlotDynamicName", hero ? hero.dynamicName : "", hero, s.held === 2 );
+
+		// show the slots on a weapon switch or pickup, fade them after 2 s
+		var wkey = [ s.weapon, s.held, hero ? hero.staticName : "", hero ? hero.dynamicName : "" ].join( "|" );
+		if ( last.weaponKey !== undefined && wkey !== last.weaponKey )
+		{
+			$id( "Weapons" ).AddClass( "slots-shown" );
+			var seq = last.slotSeq = ( last.slotSeq || 0 ) + 1;
+			$.Schedule( 2.0, function ()
+			{
+				if ( last.slotSeq === seq )
+					$id( "Weapons" ).RemoveClass( "slots-shown" );
+			} );
+		}
+		last.weaponKey = wkey;
 	}
 
 	function slot( id, nameId, name, show, active )
@@ -223,21 +267,22 @@
 		( team || [] ).forEach( function ( m )
 		{
 			var card = $.CreatePanel( "Panel", box, "", { "class": "mate" } );
-			var st = m.st === "d" ? "Down" : m.st === "x" ? "Dead" : m.hp < 25 ? "Low" : "Alive";
-			card.SetHasClass( "low", st === "Low" );
-			card.SetHasClass( "down", st === "Down" );
-			card.SetHasClass( "dead", st === "Dead" );
+			// status text only for a downed or dead teammate (sokky 2026-11-02)
+			var out = m.st === "d" || m.st === "x";
+			card.SetHasClass( "low", !out && m.hp < 25 );
+			card.SetHasClass( "down", m.st === "d" );
+			card.SetHasClass( "dead", m.st === "x" );
 			var top = $.CreatePanel( "Panel", card, "", { "class": "mate-top" } );
 			label( top, "mate-name", m.name );
-			// in a Choir's Cadence: a gold up arrow in place of "Alive"
-			if ( m.cad > 0 && st === "Alive" )
+			if ( out )
+				label( top, "mate-status", "Down" );
+			// in a Choir's Cadence: a gold up arrow
+			else if ( m.cad > 0 )
 				$.CreatePanel( "Image", top, "", { "class": "mate-up", src: "file://{images}/coop/buff_up.png", hittest: "false" } );
-			else
-				label( top, "mate-status", st );
 			card.SetHasClass( "mate-cadence", m.cad > 0 );
 			var meter = $.CreatePanel( "Panel", card, "", { "class": "meter" } );
 			var fill = $.CreatePanel( "Panel", meter, "", { "class": "meter-fill" } );
-			fill.style.width = pct( st === "Alive" || st === "Low" ? m.hp : 0, 100 );
+			fill.style.width = pct( out ? 0 : m.hp, 100 );
 		} );
 	}
 
@@ -249,13 +294,13 @@
 		card.SetHasClass( "hidden", !t );
 		if ( !t )
 			return;
-		var low = t.hp * 4 < t.max, up = t.cad > 0 && !low;
+		var low = t.hp * 4 < t.max, up = t.cad > 0;
 		card.SetHasClass( "low", low );
 		card.SetHasClass( "mate-cadence", t.cad > 0 );
 		card.style.opacity = String( t.a );
 		$id( "TargetName" ).text = t.name;
-		$id( "TargetStatus" ).text = low ? "Low" : "Alive";
-		$id( "TargetStatus" ).SetHasClass( "hidden", up );
+		// no Alive/Low text, like the squad cards (the target is never down)
+		$id( "TargetStatus" ).SetHasClass( "hidden", true );
 		$id( "TargetUp" ).SetHasClass( "hidden", !up );
 		$id( "TargetFill" ).style.width = pct( t.hp, t.max );
 	}
