@@ -93,8 +93,11 @@
 		$id( "ArmorLabel" ).text = hero ? "Barrier" : "Armor";
 		$id( "ArmorValue" ).text = hero ? ar + " / " + cap : String( ar );
 		$id( "ArmorFill" ).style.width = pct( ar, cap );
-		armor.SetHasClass( "hidden", !hero && ar <= 0 );
-		armor.SetHasClass( "cadence-up", s.cadence > 0 );
+		// a hero's Barrier is a blue number beside the health, shown only
+		// while there is some; the bar is only for plain armour
+		armor.SetHasClass( "hidden", !!hero || ar <= 0 );
+		$id( "BarrierReadout" ).SetHasClass( "hidden", !hero || ar <= 0 );
+		$id( "BarrierValue" ).text = String( ar );
 		cadence( s );
 
 		var energy = $id( "EnergyBar" );
@@ -103,6 +106,10 @@
 		{
 			$id( "EnergyValue" ).text = hero.energy + " / " + hero.emax;
 			$id( "EnergyFill" ).style.width = pct( hero.energy, hero.emax );
+			// a tick at Engage's cost, once there's enough for it
+			var canEngage = hero.ecost > 0 && hero.energy >= hero.ecost && !( hero.form > 0 );
+			$id( "EngageTickRow" ).SetHasClass( "hidden", !canEngage );
+			$id( "EngageTickGap" ).style.width = pct( hero.ecost, hero.emax );
 		}
 		abilities( hero );
 	}
@@ -179,22 +186,18 @@
 	}
 
 	// ---- Choir's Cadence ------------------------------------------------
-	// buffing us: "Cadence" and 1-3 pips; on a Choir: how many it buffs
+	// buffing us: "Cadence" and 1-3 pips. A Choir's own count is in her
+	// ability line already ("Cadence: N backed"), so she gets no chip.
 
 	function cadence( s )
 	{
-		var box = $id( "Cadence" );
-		var mine = s.cadenceN >= 0;
 		var on = s.cadence > 0;
-		box.SetHasClass( "hidden", !on && !mine );
-		if ( !on && !mine )
+		$id( "Cadence" ).SetHasClass( "hidden", !on );
+		if ( !on )
 			return;
-		$id( "CadenceLabel" ).text = on ? "Cadence" : "Your cadence";
-		$id( "CadencePips" ).SetHasClass( "hidden", !on );
 		var pips = $id( "CadencePips" ).Children();
 		for ( var i = 0; i < pips.length; i++ )
 			pips[ i ].SetHasClass( "on", i < s.cadence );
-		$id( "CadenceCount" ).text = mine ? ( s.cadenceN === 1 ? "1 mate" : s.cadenceN + " mates" ) : "";
 	}
 
 	// ---- squad ---------------------------------------------------------
@@ -216,9 +219,11 @@
 			card.SetHasClass( "dead", st === "Dead" );
 			var top = $.CreatePanel( "Panel", card, "", { "class": "mate-top" } );
 			label( top, "mate-name", m.name );
-			// in a Choir's Cadence: says so in gold in place of "Alive"
-			var cad = m.cad > 0 && st === "Alive";
-			label( top, "mate-status" + ( cad ? " mate-cad" : "" ), cad ? "Cadence" : st );
+			// in a Choir's Cadence: a gold up arrow in place of "Alive"
+			if ( m.cad > 0 && st === "Alive" )
+				$.CreatePanel( "Image", top, "", { "class": "mate-up", src: "file://{images}/coop/buff_up.png", hittest: "false" } );
+			else
+				label( top, "mate-status", st );
 			card.SetHasClass( "mate-cadence", m.cad > 0 );
 			var meter = $.CreatePanel( "Panel", card, "", { "class": "meter" } );
 			var fill = $.CreatePanel( "Panel", meter, "", { "class": "meter-fill" } );

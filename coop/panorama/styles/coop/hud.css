@@ -212,13 +212,18 @@ Label { text-shadow: 0px 2px 3px 1.0 #000000cc; }
 /* readout: icon slot, then label over value */
 .hud-readout { width: fit-children; height: fit-children; flow-children: right; }
 .icon-slot { width: 32px; height: 32px; margin-right: 10px; vertical-align: center; }
-.icon-placeholder { x: 4px; y: 4px; width: 24px; height: 24px; background-color: #ffa31a; }
+.plus-h { x: 2px; y: 12px; width: 28px; height: 8px; background-color: #ffa31a; }
+.plus-v { x: 12px; y: 2px; width: 8px; height: 28px; background-color: #ffa31a; }
 .readout-text { width: fit-children; height: fit-children; flow-children: down; }
 .readout-label { color: #9a9a9a; }
 .readout-value { font-size: 48px; font-weight: bold; color: #ffffff; }
-.hud-readout.low .icon-placeholder { background-color: #e0503a; }
+.hud-readout.low .plus-h,
+.hud-readout.low .plus-v { background-color: #e0503a; }
 .hud-readout.low .readout-label,
 .hud-readout.low .readout-value { color: #e0503a; }
+.barrier-readout { margin-left: 26px; }
+.barrier-readout.hidden { visibility: collapse; }
+.hud-readout .barrier-value { color: #5aa8ff; }
 
 /* bar: label and value, then a 10px meter */
 .hud-bar { width: 280px; height: fit-children; flow-children: down; }
@@ -330,6 +335,13 @@ Label.hidden { visibility: collapse; }
 }
 .cadence-pip.on { background-color: #ffc440; }
 .cadence-count { vertical-align: center; color: #ffc440; }
-.hud-bar.cadence-up .meter-fill { background-color: #ffc440; }
 .mate.mate-cadence { background-color: #3a2c0ab0; }
 .mate .mate-cad { color: #ffc440; }
+
+/* Engage's cost on the energy meter, shown once there's enough */
+.engage-tick-row { width: 100%; height: 100%; flow-children: right; }
+.engage-tick-row.hidden { visibility: collapse; }
+.engage-tick-gap { height: 100%; width: 0%; }
+.engage-tick { width: 3px; height: 100%; background-color: #ffffff; }
+/* in a Cadence: an up arrow in place of the squad card's status */
+.mate-up { width: 16px; height: 16px; vertical-align: center; }

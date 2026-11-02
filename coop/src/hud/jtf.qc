@@ -197,8 +197,8 @@ Jtf_Hero(__out string staticName, __out string dynamicName)
 		Jtf_Str(argv(7))));
 	staticName = (argv(8) != "") ? Jtf_WeaponName(argv(8)) : "";
 	dynamicName = (argv(9) != "") ? Jtf_WeaponName(argv(9)) : "";
-	return (strcat(json, sprintf("\"staticName\":%s,\"dynamicName\":%s}", Jtf_Str(staticName),
-		Jtf_Str(dynamicName))));
+	return (strcat(json, sprintf("\"staticName\":%s,\"dynamicName\":%s,\"ecost\":%d}", Jtf_Str(staticName),
+		Jtf_Str(dynamicName), stof(serverkey("coop_engageCost")))));
 }
 
 /* everyone else on the server: "*mate" is "health|state", state a alive,
