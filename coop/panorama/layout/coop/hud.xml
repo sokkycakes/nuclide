@@ -7,13 +7,15 @@
 -->
 <root>
 	<styles>
+		<!-- the title menu's theme: only the variant's variables (see hud.css) -->
+		<include src="file://{resources}/styles/qt/qtcurve-sokky-dark.css" />
 		<include src="file://{resources}/styles/coop/hud.css" />
 	</styles>
 	<scripts>
 		<include src="file://{resources}/scripts/coop/hud.js" />
 	</scripts>
 
-	<Panel id="Hud" class="hud" hittest="false" bwdesignheight="1080">
+	<Panel id="Hud" class="hud QtCurve SokkyDark" hittest="false" bwdesignheight="1080">
 		<!-- squad: top-left, one Teammate card per other player -->
 		<Panel id="Squad" class="squad" hittest="false" />
 

@@ -1,41 +1,80 @@
 /* Justice Task Force in-game HUD, built from sokky's Figma kit
-   (Design System page, "HUD" components and the "Example · HUD" frame).
-   Sizes are the Figma ones on a 1920x1080 frame (the layout sets
-   bwdesignheight 1080, so 1px here is 1px there at 1080p).
+   (Design System page, "HUD" components and the "Example · HUD" frame) and
+   drawn in the title menu's theme: QtCurve variant SokkyDark (engine
+   data/panorama/styles/qt/qtcurve-sokky-dark.css, included by hud.xml; the
+   HUD root carries class "QtCurve SokkyDark", so var(--...) reads the
+   variant's colours, gradients and textures). qtcurve.css itself is NOT
+   included: its rules would restyle every label and fill the screen.
 
-   Tokens (Figma variables):
-     accent #ffa31a  accent-soft #ffd27a  success #7aa36a  danger #e0503a
-     text strong #fff  primary #e6e6e6  secondary #d0d0d0  muted #9a9a9a
-     subtle #8a8a8a  dim #555
-     bg/scrim #000000a6  bg/accent-current #ffa31a33  bg/meter-track #262626
-     border/accent #ffa31a  accent-soft #ffa31a88  panel #ffa31a55  subtle #2c2c2c
-   Text styles (Figma line-height 120% is the font default here; shadow 0 2px 3px #000c):
-     Numeral XL 48 bold, Numeral 32 bold, Label 16 bold +2 upper,
-     Feed 18 regular, Notice 24 bold +1 upper. */
+   Sizes are the Figma ones on a 1920x1080 frame (bwdesignheight 1080). The
+   title menu is laid out at 540 and drawn 2x, so the theme's 1px lines and
+   32px window tile are drawn 2px and 64px here to match it on screen.
+
+   Panels are QtCurve windows: the window colour and striped tile, a frame
+   border. Selected things (current weapon, engaged form) use the highlight
+   colour, ready things the hover ring, meters are QtCurve progress bars.
+   Game colours stay where they carry meaning: red low, amber down, gold
+   Cadence, blue Barrier. */
 
 .hud
 {
 	width: 100%;
 	height: 100%;
 	font-family: "Tahoma", "Nimbus";
-	color: #e6e6e6;
+	color: var(--window-text);
 	font-size: 18px;
+	/* the root carries .QtCurve for the variables only */
+	background-color: none;
+	background-image: none;
+}
+
+/* ---- QtCurve pieces ---------------------------------------------------- */
+
+/* a window: colour, striped tile, frame */
+.mate, .abilities, .wave-counter, .feed-entry, .weapon-slot, .respawn, .cadence
+{
+	background-color: var(--window);
+	background-image: var(--window-image);
+	background-size: 64px 64px;
+	background-repeat: repeat;
+	border: 2px solid var(--frame-border);
+	border-radius: 6px;
+}
+
+/* a progress bar: trough and striped fill */
+.meter
+{
+	width: 100%;
+	height: 14px;
+	background-color: var(--trough-bg);
+	border: 2px solid var(--trough-bs);
+	border-radius: 6px;
+}
+.meter-fill
+{
+	background-color: var(--pfill-bg);
+	border: 2px solid var(--pfill-bs);
+	border-radius: 6px;
+	background-image: var(--pfill-image);
+	background-size: 40px 100%;
+	background-repeat: repeat-x;
 }
 
 /* ---- text styles ------------------------------------------------------- */
 
+/* text over the world keeps a shadow; text on panels doesn't need one */
 Label { text-shadow: 0px 2px 3px 1.0 #000000cc; }
 .hud-label
 {
-	font-size: 16px;
-	font-weight: bold;
-	letter-spacing: 2px;
+	font-family: "Kode Mono";
+	font-size: 17px;
+	letter-spacing: 1px;
 	text-transform: uppercase;
-	color: #e6e6e6;
+	color: var(--window-text);
 }
-.hud-numeral { font-size: 32px; font-weight: bold; color: #ffffff; }
-.accent { color: #ffa31a; }
-.muted { color: #9a9a9a; }
+.hud-numeral { font-family: "Kode Mono"; font-size: 34px; color: var(--window-text); }
+.accent { color: #3396d4; }
+.muted { color: var(--disabled-text); }
 
 /* ---- squad: top-left --------------------------------------------------- */
 
@@ -53,20 +92,17 @@ Label { text-shadow: 0px 2px 3px 1.0 #000000cc; }
 	height: fit-children;
 	margin-bottom: 8px;
 	padding: 6px 10px 8px 10px;
-	background-color: #000000a6;
 	flow-children: down;
 }
 .mate-top { width: 100%; height: fit-children; flow-children: right; margin-bottom: 4px; }
-.mate-name { font-size: 18px; color: #e6e6e6; width: fill-parent-flow( 1.0 ); }
-.mate-status { font-size: 16px; font-weight: bold; letter-spacing: 2px; text-transform: uppercase; color: #7aa36a; vertical-align: center; }
-.mate .meter-fill { background-color: #7aa36a; }
+.mate-name { font-size: 18px; color: var(--window-text); width: fill-parent-flow( 1.0 ); }
+.mate-status { font-family: "Kode Mono"; font-size: 16px; letter-spacing: 1px; text-transform: uppercase; color: var(--disabled-text); vertical-align: center; }
 .mate.low .mate-status { color: #e0503a; }
-.mate.low .meter-fill { background-color: #e0503a; }
-.mate.down { border: 1px solid #ffa31a; }
+.mate.low .meter-fill { background-color: gradient( linear, 0% 0%, 0% 100%, from( #f86a52 ), color-stop( 0.4, #c43c26 ), to( #e4462c ) ); border-color: #7c1f10; }
+.mate.down { border-color: #ffa31a; }
 .mate.down .mate-status { color: #ffa31a; }
-.mate.down .meter-fill { background-color: #ffa31a; }
+.mate.down .meter-fill { background-color: gradient( linear, 0% 0%, 0% 100%, from( #ffc14d ), color-stop( 0.4, #d98306 ), to( #f29a12 ) ); border-color: #7a4a05; }
 .mate.dead { opacity: 0.4; }
-.mate.dead .mate-status { color: #9a9a9a; }
 
 /* ---- wave counter: top centre ------------------------------------------ */
 
@@ -77,11 +113,9 @@ Label { text-shadow: 0px 2px 3px 1.0 #000000cc; }
 	width: fit-children;
 	height: fit-children;
 	padding: 6px 18px 8px 18px;
-	background-color: #000000a6;
-	border: 1px solid #ffa31a55;
 	flow-children: down;
 }
-.wave-counter Label { horizontal-align: center; }
+.wave-counter Label { horizontal-align: center; text-shadow: none; }
 .wave-counter.hidden { visibility: collapse; }
 
 /* ---- kill feed: top-right ---------------------------------------------- */
@@ -98,19 +132,18 @@ Label { text-shadow: 0px 2px 3px 1.0 #000000cc; }
 .feed-entry
 {
 	horizontal-align: right;
-	height: 32px;
+	height: 34px;
 	width: fit-children;
 	margin-bottom: 6px;
 	padding: 0px 10px;
-	background-color: #000000a6;
 	flow-children: right;
 }
-.feed-entry.you { border: 1px solid #ffa31a; }
-.feed-entry Label { font-size: 18px; vertical-align: center; margin-right: 10px; }
+.feed-entry.you { box-shadow: inset 0px 0px 0px 2px #3396d4; }
+.feed-entry Label { font-size: 18px; vertical-align: center; margin-right: 10px; text-shadow: none; }
 .feed-entry Label.last { margin-right: 0px; }
-.feed-attacker { color: #ffa31a; }
-.feed-weapon { color: #8a8a8a; }
-.feed-victim { color: #e6e6e6; }
+.feed-attacker { color: #3396d4; }
+.feed-weapon { color: var(--disabled-text); }
+.feed-victim { color: var(--window-text); }
 
 /* ---- notice ------------------------------------------------------------ */
 
@@ -121,7 +154,7 @@ Label { text-shadow: 0px 2px 3px 1.0 #000000cc; }
 	width: 720px;
 	height: fit-children;
 	padding: 12px 0px;
-	background-color: gradient( linear, 0% 0%, 100% 0%, from( #ffa31a00 ), color-stop( 0.5, #ffa31a40 ), to( #ffa31a00 ) );
+	background-color: gradient( linear, 0% 0%, 100% 0%, from( #35353500 ), color-stop( 0.5, #353535e6 ), to( #35353500 ) );
 	flow-children: down;
 	opacity: 1;
 	transition-property: opacity;
@@ -131,13 +164,13 @@ Label { text-shadow: 0px 2px 3px 1.0 #000000cc; }
 .notice-title
 {
 	horizontal-align: center;
-	font-size: 24px;
-	font-weight: bold;
-	letter-spacing: 1px;
+	font-family: "Kode Mono";
+	font-size: 28px;
+	letter-spacing: 2px;
 	text-transform: uppercase;
-	color: #ffa31a;
+	color: var(--window-text);
 }
-.notice-sub { horizontal-align: center; font-size: 18px; color: #e6e6e6; }
+.notice-sub { horizontal-align: center; font-size: 18px; color: var(--window-text); }
 
 /* ---- key prompt -------------------------------------------------------- */
 
@@ -150,14 +183,16 @@ Label { text-shadow: 0px 2px 3px 1.0 #000000cc; }
 	flow-children: right;
 }
 .key-prompt.hidden { visibility: collapse; }
+/* a QtCurve push button */
 .key-cap
 {
-	min-width: 32px;
-	height: 32px;
+	min-width: 34px;
+	height: 34px;
 	width: fit-children;
 	padding: 0px 8px;
-	background-color: #1c1c1c;
-	border: 1px solid #ffa31a;
+	background-color: var(--btn-bg);
+	border: 2px solid var(--btn-bs);
+	border-radius: 6px;
 	margin-right: 10px;
 	vertical-align: center;
 }
@@ -165,13 +200,13 @@ Label { text-shadow: 0px 2px 3px 1.0 #000000cc; }
 {
 	horizontal-align: center;
 	vertical-align: center;
+	font-family: "Kode Mono";
 	font-size: 16px;
-	font-weight: bold;
-	letter-spacing: 2px;
 	text-transform: uppercase;
-	color: #ffffff;
+	color: var(--button-text);
+	text-shadow: none;
 }
-.prompt-action { font-size: 18px; color: #e6e6e6; vertical-align: center; }
+.prompt-action { font-size: 18px; color: var(--window-text); vertical-align: center; }
 
 /* ---- vitals: bottom-left ----------------------------------------------- */
 
@@ -187,14 +222,12 @@ Label { text-shadow: 0px 2px 3px 1.0 #000000cc; }
 .vitals > Panel { margin-top: 14px; }
 
 /* hero abilities: one row per kit ability, above the readout, all in one
-   contiguous panel with a thin slit between rows */
+   window with a frame-coloured slit between rows */
 .abilities
 {
 	width: 100%;
 	height: fit-children;
 	flow-children: down;
-	background-color: #000000a6;
-	border: 1px solid #2c2c2c;
 }
 .abilities.hidden { visibility: collapse; }
 .ability
@@ -202,28 +235,30 @@ Label { text-shadow: 0px 2px 3px 1.0 #000000cc; }
 	width: 100%;
 	height: 36px;
 	padding: 0px 10px;
-	border-top: 1px solid #ffffff1a;
+	border-top: 2px solid var(--frame-border);
 	flow-children: right;
 }
 .ability:first-child { border-top: 0px solid #00000000; }
-.ability.ready { background-color: #ffa31a14; }
-.ability.engaged { background-color: #ffa31a33; }
-.ability Label { vertical-align: center; }
+/* ready: the hover ring; engaged: selected, in the highlight */
+.ability.ready { box-shadow: inset 0px 0px 0px 2px #3396d4; }
+.ability.engaged { background-color: var(--highlight); }
+.ability Label { vertical-align: center; text-shadow: none; }
 .ability-key { width: fit-children; min-width: 32px; height: 32px; margin-right: 6px; vertical-align: center; flow-children: right; }
 .ability-key-glyph { width: 32px; height: 32px; vertical-align: center; }
-.ability-key-text { font-size: 16px; font-weight: bold; color: #ffa31a; vertical-align: center; }
-.ability-name { font-size: 19px; color: #e6e6e6; width: fill-parent-flow( 1.0 ); }
-.ability-state { font-size: 16px; font-weight: bold; letter-spacing: 2px; text-transform: uppercase; color: #9a9a9a; }
-.ability.ready .ability-state { color: #ffd27a; }
+.ability-key-text { font-family: "Kode Mono"; font-size: 16px; color: #3396d4; vertical-align: center; }
+.ability-name { font-size: 19px; color: var(--window-text); width: fill-parent-flow( 1.0 ); }
+.ability-state { font-family: "Kode Mono"; font-size: 16px; letter-spacing: 1px; text-transform: uppercase; color: var(--disabled-text); }
+.ability.ready .ability-state { color: #6cbcf0; }
+.ability.engaged Label { color: var(--highlighted-text); }
 
 /* readout: icon slot, then label over value */
 .hud-readout { width: fit-children; height: fit-children; flow-children: right; }
 .icon-slot { width: 32px; height: 32px; margin-right: 10px; vertical-align: center; }
-.plus-h { x: 2px; y: 12px; width: 28px; height: 8px; background-color: #ffa31a; }
-.plus-v { x: 12px; y: 2px; width: 8px; height: 28px; background-color: #ffa31a; }
+.plus-h { x: 2px; y: 12px; width: 28px; height: 8px; background-color: var(--window-text); }
+.plus-v { x: 12px; y: 2px; width: 8px; height: 28px; background-color: var(--window-text); }
 .readout-text { width: fit-children; height: fit-children; flow-children: down; }
-.readout-label { color: #9a9a9a; }
-.readout-value { font-size: 48px; font-weight: bold; color: #ffffff; }
+.readout-label { color: var(--disabled-text); }
+.readout-value { font-family: "Kode Mono"; font-size: 52px; color: var(--window-text); }
 .hud-readout.low .plus-h,
 .hud-readout.low .plus-v { background-color: #e0503a; }
 .hud-readout.low .readout-label,
@@ -232,17 +267,14 @@ Label { text-shadow: 0px 2px 3px 1.0 #000000cc; }
 .barrier-readout.hidden { visibility: collapse; }
 .hud-readout .barrier-value { color: #5aa8ff; }
 
-/* bar: label and value, then a 10px meter */
+/* bar: label and value, then a progress bar */
 .hud-bar { width: 280px; height: fit-children; flow-children: down; }
 .hud-bar.hidden { visibility: collapse; }
 .bar-top { width: 100%; height: fit-children; flow-children: right; margin-bottom: 6px; }
 .bar-label { width: fill-parent-flow( 1.0 ); }
 .bar-value { horizontal-align: right; }
-.meter { width: 100%; height: 10px; background-color: #262626; }
-.meter-fill { height: 100%; width: 0%; background-color: #ffa31a; }
-.hud-bar.success .meter-fill { background-color: #7aa36a; }
-.hud-bar.accent .meter-fill { background-color: #ffa31a; }
-.hud-bar.low .meter-fill { background-color: #e0503a; }
+.meter-fill { height: 100%; width: 0%; }
+.hud-bar.low .meter-fill { background-color: gradient( linear, 0% 0%, 0% 100%, from( #f86a52 ), color-stop( 0.4, #c43c26 ), to( #e4462c ) ); border-color: #7c1f10; }
 .hud-bar.low .bar-value { color: #e0503a; }
 
 /* ---- weapons: bottom-right --------------------------------------------- */
@@ -262,9 +294,9 @@ Label { text-shadow: 0px 2px 3px 1.0 #000000cc; }
 .hud-ammo { width: fit-children; height: fit-children; flow-children: down; }
 .hud-ammo > Label { horizontal-align: right; }
 .ammo-counts { width: fit-children; height: fit-children; flow-children: right; horizontal-align: right; }
-.ammo-clip { font-size: 48px; font-weight: bold; color: #ffa31a; vertical-align: bottom; }
-.ammo-divider { width: 2px; height: 40px; margin: 0px 10px 8px 10px; background-color: #ffd27a; vertical-align: bottom; }
-.ammo-reserve { font-size: 32px; font-weight: bold; color: #e6e6e6; vertical-align: bottom; margin-bottom: 2px; }
+.ammo-clip { font-family: "Kode Mono"; font-size: 52px; color: var(--window-text); vertical-align: bottom; }
+.ammo-divider { width: 2px; height: 40px; margin: 0px 10px 8px 10px; background-color: var(--disabled-text); vertical-align: bottom; }
+.ammo-reserve { font-family: "Kode Mono"; font-size: 34px; color: var(--disabled-text); vertical-align: bottom; margin-bottom: 2px; }
 .hud-ammo.noclip .ammo-clip,
 .hud-ammo.noclip .ammo-divider { visibility: collapse; }
 .hud-ammo.noreserve .ammo-divider,
@@ -277,17 +309,17 @@ Label { text-shadow: 0px 2px 3px 1.0 #000000cc; }
 	width: 220px;
 	height: 40px;
 	padding: 0px 12px;
-	background-color: #000000a6;
-	border: 1px solid #2c2c2c;
 	flow-children: right;
 }
-.weapon-slot Label { vertical-align: center; margin-right: 10px; }
-.slot-key { color: #8a8a8a; }
-.slot-name { font-size: 18px; color: #d0d0d0; width: fill-parent-flow( 1.0 ); }
-.weapon-slot.active { background-color: #ffa31a33; border: 1px solid #ffa31a; }
-.weapon-slot.active .slot-key { color: #ffa31a; }
-.weapon-slot.active .slot-name { color: #ffffff; }
-.weapon-slot.empty .slot-name { color: #555555; }
+.weapon-slot Label { vertical-align: center; margin-right: 10px; text-shadow: none; }
+.slot-key { color: var(--disabled-text); }
+.slot-name { font-size: 18px; color: var(--window-text); width: fill-parent-flow( 1.0 ); }
+/* the weapon in hand: selected, in the highlight */
+/* (the window tile can't be switched off here, so the highlight is an
+   inset shadow over it; #15539e is SokkyDark's --highlight) */
+.weapon-slot.active { background-color: var(--highlight); box-shadow: inset 0px 0px 0px 40px #15539e; border-color: #326a8e; }
+.weapon-slot.active Label { color: var(--highlighted-text); }
+.weapon-slot.empty .slot-name { color: var(--disabled-text); }
 .weapon-slot.hidden { visibility: collapse; }
 Label.hidden { visibility: collapse; }
 
@@ -295,7 +327,7 @@ Label.hidden { visibility: collapse; }
 .key-cap { flow-children: right; }
 .key-cap.glyph { padding: 0px; border: 0px solid #00000000; background-color: #00000000; }
 .prompt-key-glyph { width: 32px; height: 32px; }
-.prompt-key-text { horizontal-align: center; vertical-align: center; font-weight: bold; color: #ffa31a; margin: 0px 8px; }
+.prompt-key-text { horizontal-align: center; vertical-align: center; font-family: "Kode Mono"; color: var(--button-text); margin: 0px 8px; text-shadow: none; }
 
 /* ---- respawn: centre, below the crosshair, while down ------------------ */
 .respawn
@@ -305,28 +337,25 @@ Label.hidden { visibility: collapse; }
 	width: 420px;
 	height: fit-children;
 	padding: 12px 16px;
-	background-color: #000000a6;
-	border: 1px solid #2c2c2c;
 	flow-children: down;
 }
+.respawn Label { text-shadow: none; }
 .respawn.hidden { visibility: collapse; }
-.respawn .meter { height: 12px; }
-.respawn.ready { border: 1px solid #ffa31a; }
-.respawn.ready .meter-fill { background-color: #ffd27a; }
-.respawn-hint { horizontal-align: center; margin-top: 8px; font-size: 16px; color: #9a9a9a; }
+.respawn .meter { height: 16px; }
+.respawn.ready { box-shadow: inset 0px 0px 0px 2px #3396d4; }
+.respawn-hint { horizontal-align: center; margin-top: 8px; font-size: 16px; color: var(--disabled-text); }
 
 /* ---- Choir's Cadence (above the Barrier bar) --------------------------- */
 .cadence
 {
 	width: 100%;
-	height: 30px;
+	height: 32px;
 	padding: 0px 10px;
 	flow-children: right;
-	background-color: #ffc4401f;
-	border: 1px solid #ffc44099;
+	border-color: #ffc44099;
 }
 .cadence.hidden { visibility: collapse; }
-.cadence-label { vertical-align: center; color: #ffc440; width: fill-parent-flow( 1.0 ); }
+.cadence-label { vertical-align: center; color: #ffc440; width: fill-parent-flow( 1.0 ); text-shadow: none; }
 .cadence-pips { height: 100%; flow-children: right; }
 .cadence-pips.hidden { visibility: collapse; }
 .cadence-pip
@@ -339,8 +368,8 @@ Label.hidden { visibility: collapse; }
 }
 .cadence-pip.on { background-color: #ffc440; }
 .cadence-count { vertical-align: center; color: #ffc440; }
-.mate.mate-cadence { background-color: #3a2c0ab0; }
-.mate .mate-cad { color: #ffc440; }
+/* a teammate in a Cadence: a gold frame */
+.mate.mate-cadence { border-color: #ffc440aa; }
 
 /* Engage's cost on the energy meter, shown once there's enough */
 .engage-tick-row { width: 100%; height: 100%; flow-children: right; }
@@ -349,6 +378,7 @@ Label.hidden { visibility: collapse; }
 .engage-tick { width: 3px; height: 100%; background-color: #ffffff; }
 /* in a Cadence: an up arrow in place of the squad card's status */
 .mate-up { width: 16px; height: 16px; vertical-align: center; }
+.mate Label { text-shadow: none; }
 
 /* target ID: a squad card under the crosshair, below the key prompt */
 .mate.target-id { horizontal-align: center; y: 648px; margin-bottom: 0px; }
