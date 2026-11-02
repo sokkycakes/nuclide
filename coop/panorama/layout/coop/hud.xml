@@ -26,7 +26,7 @@
 		<Panel id="Objective" class="objective" hittest="false">
 			<Panel class="obj-body">
 				<Label id="WaveTitle" class="obj-title" text="Wave 1" />
-				<Panel class="obj-row"><Label id="ObjLeftKey" class="obj-key" text="Monsters" /><Label id="ObjLeft" class="obj-val danger" text="0" /></Panel>
+				<Panel class="obj-row"><Label id="ObjLeftKey" class="obj-key" text="Left" /><Label id="ObjLeft" class="obj-val danger" text="0" /></Panel>
 				<Panel class="obj-row"><Label class="obj-key" text="Score" /><Label id="ObjScore" class="obj-val" text="0" /></Panel>
 				<!-- a line, then the shop points with no label: "p300" -->
 				<Panel class="obj-sep" />
