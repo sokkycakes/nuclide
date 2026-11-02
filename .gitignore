@@ -105,3 +105,6 @@ zp/
 # co-op HUD: WolfTeam digit strip and its rules, private (never commit)
 coop/panorama/images/coop/wt-private/
 coop/panorama/styles/coop/hud-wtdigits.css
+
+# co-op: Microsoft Arial (corefonts), private (never commit)
+coop/fonts/arial*.ttf

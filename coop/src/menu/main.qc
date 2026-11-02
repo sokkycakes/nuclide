@@ -892,6 +892,14 @@ m_init(void)
 	localcmd("ui_font Nimbus fonts/nimbus/NimbusSanL-Reg.otf 400\n");
 	localcmd("ui_font Nimbus fonts/nimbus/NimbusSanL-Bol.otf 700\n");
 
+	/* Arial first (sokky 2026-11-02): Microsoft's file, kept private in
+	   coop/fonts/ (not in git); Tahoma and Nimbus stay as fallbacks */
+	if (whichpack("fonts/arial.ttf") != "")
+		localcmd("ui_font Arial fonts/arial.ttf 400\n");
+
+	if (whichpack("fonts/arialbd.ttf") != "")
+		localcmd("ui_font Arial fonts/arialbd.ttf 700\n");
+
 	if (whichpack("fonts/tahoma.ttf") != "")
 		localcmd("ui_font Tahoma fonts/tahoma.ttf 400\n");
 
