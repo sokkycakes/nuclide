@@ -830,7 +830,8 @@ Hero_GunsFrame(void)
 			continue;
 		}
 
-		if (time >= g_heroTakeHint[slot]) {
+		/* the Panorama HUD shows it as its Use prompt (hud_info.qc) */
+		if (time >= g_heroTakeHint[slot] && infokey(p, "phud") != "1") {
 			entity gun = Hero_AimedGun(p, HERO_TAKERANGE);
 
 			if (gun) {
