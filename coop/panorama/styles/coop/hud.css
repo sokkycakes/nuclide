@@ -160,6 +160,9 @@
 .obj-xpm.hidden, .obj-row.hidden { visibility: collapse; }
 
 #ObjLevel { text-transform: none; }
+.obj-medals { width: fit-children; height: fit-children; flow-children: right; margin-left: 8px; }
+.obj-medals.hidden { visibility: collapse; }
+.obj-medal { width: 16px; height: 16px; margin-right: 3px; vertical-align: center; wash-color: #ffc440; }
 /* a sunken line between the wave and the player's own progress */
 .obj-sep { width: 100%; height: 2px; margin: 5px 0px; background-color: var(--frame-border); }
 .objective Label { text-shadow: none; }
