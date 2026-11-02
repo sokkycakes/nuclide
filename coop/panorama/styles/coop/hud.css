@@ -62,8 +62,7 @@
 
 /* ---- text styles ------------------------------------------------------- */
 
-/* text over the world keeps a shadow; text on panels doesn't need one */
-Label { text-shadow: 0px 2px 3px 1.0 #000000cc; }
+/* no drop shadows (sokky) */
 .hud-label
 {
 	font-family: "Tahoma", "Nimbus";
