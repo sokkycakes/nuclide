@@ -96,8 +96,8 @@ instead of the scoreboard (`cg_scoresWhenDead 0`, set in
   price and the name shown. It's read when a map starts. Health and
   armour stop at `coop_shopMaxHealth` and `coop_shopMaxArmor` (100),
   or at the player's own maximum health when that is higher.
-- `cmd shop` opens the shop menu (B, when B is free, or Shop and skills
-  in the pause menu). It has a Shop tab and, with the XP mod, a Skills
+- `cmd shop` opens the Requisition menu (B, when B is free, d-pad up on a
+  controller, or Requisition in the pause menu). It has a Shop tab and, with the XP mod, a Skills
   tab; Tab switches between them. The server sends its own list, so clients always see the
   server's prices. Keys work like Counter-Strike's buy menu: a number picks
   a category, a number buys, 8 and 9 turn the page, 0 goes back.

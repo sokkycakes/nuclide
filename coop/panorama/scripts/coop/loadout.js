@@ -289,13 +289,37 @@ var CoopLoadout = ( function ()
 		Bulwark.Send( "preview", shown ? shown.def + " center " + HERO_PREVIEW + " dim" : "" );
 	}
 
+	var heroRows = [];	// the kit lines as built, and the list they were built from
+	var heroSig = "";
+
+	// the Playing / Next spawn marks of a kit line
+	function markKit( row, k )
+	{
+		var now = k.def === heroes.current;
+		var next = k.def === heroes.picked && !now;
+		row.SetHasClass( "current", now );
+		row.SetHasClass( "picked", next );
+		row.stateLabel.text = now ? "Playing" : ( next ? "Next spawn" : "" );
+	}
+
 	function renderHeroes()
 	{
 		var list = $( "#Heroes" );
-		list.RemoveAndDeleteChildren();
-		$( "#HeroMessage" ).text = heroes.message || "";
-
 		var all = kits();
+		$( "#HeroMessage" ).text = heroes.message || "";
+		$( "#Keys" ).text = "1-" + all.length + "  Pick a kit      0  Close      Tab  Shop";
+
+		// the same roster (a pick only moves the marks): keep the lines, so
+		// the list keeps where it was scrolled to
+		var sig = JSON.stringify( heroes.items );
+		if ( sig === heroSig && heroRows.length )
+		{
+			heroRows.forEach( function ( r ) { markKit( r, r.kit ); lines.push( r ); } );
+			return;
+		}
+		heroSig = sig;
+		heroRows = [];
+		list.RemoveAndDeleteChildren();
 		var key = 0;
 		heroes.items.filter( function ( it ) { return it.type === "hero"; } ).forEach( function ( h )
 		{
@@ -310,15 +334,15 @@ var CoopLoadout = ( function ()
 			all.filter( function ( k ) { return k.hero === h.id; } ).forEach( function ( k )
 			{
 				key++;
-				var now = k.def === heroes.current;
-				var next = k.def === heroes.picked && !now;
-				var row = make( "Button", card, "skill kit" + ( now ? " current" : "" ) + ( next ? " picked" : "" ),
-					{ hittest: "true" } );
+				var row = make( "Button", card, "skill kit", { hittest: "true" } );
 				label( row, "shop-key", String( key ) );
 				var text = make( "Panel", row, "skill-text", { hittest: "false" } );
 				label( text, "skill-name", k.name );
 				label( text, "skill-desc", k.desc || "" );
-				label( row, "kit-state", now ? "Playing" : ( next ? "Next spawn" : "" ) );
+				row.stateLabel = label( row, "kit-state", "" );
+				row.kit = k;
+				markKit( row, k );
+				heroRows.push( row );
 				row.act = function () { pickKit( k ); };
 				row.SetPanelEvent( "onactivate", function ()
 				{
@@ -328,8 +352,6 @@ var CoopLoadout = ( function ()
 				lines.push( row );
 			} );
 		} );
-
-		$( "#Keys" ).text = "1-" + all.length + "  Pick a kit      0  Close      Tab  Shop";
 	}
 
 	// ---- both ----
@@ -413,7 +435,13 @@ var CoopLoadout = ( function ()
 		var i = pad ? onScreen() : -1;
 		lines.forEach( function ( b, n ) { b.SetHasClass( "focus", n === i ); } );
 		if ( i >= 0 && lines[ i ] )
-			lines[ i ].ScrollParentToMakePanelFit( 1, false );
+		{
+			// a rebuilt list starts back at the top and its new lines have no
+			// place to scroll to until they're laid out: jump there a moment later
+			var shown = lines[ i ];
+			shown.ScrollParentToMakePanelFit( 1, false );
+			$.Schedule( 0.05, function () { shown.ScrollParentToMakePanelFit( 1, true ); } );
+		}
 
 		$( "#Keys" ).SetHasClass( "hidden", pad );
 		$( "#PadKeys" ).SetHasClass( "hidden", !pad );
@@ -435,9 +463,15 @@ var CoopLoadout = ( function ()
 		if ( l[ 1 ] <= 0 )
 			return;
 		sel[ l[ 0 ] ] = ( sel[ l[ 0 ] ] + d + l[ 1 ] ) % l[ 1 ];
-		if ( l[ 0 ] === "items" )
+		if ( l[ 0 ] === "items" && pageNum !== Math.floor( sel.items / PER_PAGE ) )
+		{
 			pageNum = Math.floor( sel.items / PER_PAGE );
-		render();
+			render();
+			return;
+		}
+		// only the highlight moves: rebuilding the list would lose its scroll
+		highlight();
+		preview();
 	}
 	function turnPage( d )
 	{
