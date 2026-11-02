@@ -21,6 +21,10 @@ enum
 	ANIMATIONMODEL_HLMDL_GOOSE,
 };
 
+#ifdef CLIENT
+.float aura_next;	/* when a player's "*aura" next puffs */
+#endif
+
 void
 ncPlayer::ncPlayer(void)
 {
@@ -773,6 +777,25 @@ ncPlayer::predraw(void)
 		if (getplayerkeyvalue(entnum - 1, "*team") == ourTeam) {
 			renderflags |= RF_OUTLINE;
 			outlinecolor = [76, 208, 113] / 255;
+		}
+	}
+
+	/* a game can mark a player in the world, for everyone (co-op marks
+	   whoever a Choir's Cadence buffs this way):
+	   "*tint"  "r g b" (0-255): the model glows that colour, pulsing
+	   "*aura"  a particle effect, "file.effect", kept going around them */
+	{
+		string tint = getplayerkeyvalue(entnum - 1, "*tint");
+		string aura = getplayerkeyvalue(entnum - 1, "*aura");
+
+		if (tint != "") {
+			float pulse = 0.75f + 0.25f * sin(time * 6);
+			colormod = [1, 1, 1] + (stov(tint) / 255) * pulse;
+		}
+
+		if (aura != "" && time >= aura_next) {
+			aura_next = time + 0.06f;
+			pointparticles(particleeffectnum(aura), origin + [0, 0, mins[2] + 8], [0, 0, 0], 1);
 		}
 	}
 
