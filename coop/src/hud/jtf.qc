@@ -354,9 +354,9 @@ Jtf_DrawFeedback(vector hud_mins, vector hud_size)
 	HLHUD_DamageNotifyDraw(hud_mins, hud_size);
 
 	/* pickup notices stack up from just above the Panorama weapon slots
-	   (hud.css .weapons: about 270 of the layout's 1080 rows) */
+	   (hud.css .weapons: about 270 of the layout's 900 rows) */
 	pos = g_hudMins + [g_hudRes[0] - 192, 0];
-	pos[1] = screen.Mins()[1] + screen.Size()[1] * (1 - 270 / 1080);
+	pos[1] = screen.Mins()[1] + screen.Size()[1] * (1 - 270 / 900);
 	HLHUD_ItemNotify_Draw(pos);
 	HLHUD_AmmoNotify_Draw(pos);
 

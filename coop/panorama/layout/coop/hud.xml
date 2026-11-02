@@ -15,7 +15,7 @@
 		<include src="file://{resources}/scripts/coop/hud.js" />
 	</scripts>
 
-	<Panel id="Hud" class="hud QtCurve SokkyDark" hittest="false" bwdesignheight="1080">
+	<Panel id="Hud" class="hud QtCurve SokkyDark" hittest="false" bwdesignheight="900">
 		<!-- squad: top-left, one Teammate card per other player -->
 		<Panel id="Squad" class="squad" hittest="false" />
 
