@@ -140,7 +140,7 @@ Coop_HudFrame(void)
 
 		Coop_HudSet(p, "*mate", sprintf("%d|%s", max(0, p.health), state));
 		/* for the objective panel: score and shop points */
-		Coop_HudSet(p, "*stats", sprintf("%d|%d", p.frags, Coop_Points(p)));
+		Coop_HudSet(p, "*stats", sprintf("%d|%i", p.frags, Coop_Points(p)));	/* %i: points are an int */
 
 		if (slot >= 0i && !is.Alive(p) && g_coopDown[slot]) {
 			Coop_HudSet(p, "*respawn", autocvar_coop_survival ? "survival" :
