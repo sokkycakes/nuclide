@@ -267,21 +267,22 @@
 		( team || [] ).forEach( function ( m )
 		{
 			var card = $.CreatePanel( "Panel", box, "", { "class": "mate" } );
-			var st = m.st === "d" ? "Down" : m.st === "x" ? "Dead" : m.hp < 25 ? "Low" : "Alive";
-			card.SetHasClass( "low", st === "Low" );
-			card.SetHasClass( "down", st === "Down" );
-			card.SetHasClass( "dead", st === "Dead" );
+			// status text only for a downed or dead teammate (sokky 2026-11-02)
+			var out = m.st === "d" || m.st === "x";
+			card.SetHasClass( "low", !out && m.hp < 25 );
+			card.SetHasClass( "down", m.st === "d" );
+			card.SetHasClass( "dead", m.st === "x" );
 			var top = $.CreatePanel( "Panel", card, "", { "class": "mate-top" } );
 			label( top, "mate-name", m.name );
-			// in a Choir's Cadence: a gold up arrow in place of "Alive"
-			if ( m.cad > 0 && st === "Alive" )
+			if ( out )
+				label( top, "mate-status", "Down" );
+			// in a Choir's Cadence: a gold up arrow
+			else if ( m.cad > 0 )
 				$.CreatePanel( "Image", top, "", { "class": "mate-up", src: "file://{images}/coop/buff_up.png", hittest: "false" } );
-			else
-				label( top, "mate-status", st );
 			card.SetHasClass( "mate-cadence", m.cad > 0 );
 			var meter = $.CreatePanel( "Panel", card, "", { "class": "meter" } );
 			var fill = $.CreatePanel( "Panel", meter, "", { "class": "meter-fill" } );
-			fill.style.width = pct( st === "Alive" || st === "Low" ? m.hp : 0, 100 );
+			fill.style.width = pct( out ? 0 : m.hp, 100 );
 		} );
 	}
 
@@ -293,13 +294,13 @@
 		card.SetHasClass( "hidden", !t );
 		if ( !t )
 			return;
-		var low = t.hp * 4 < t.max, up = t.cad > 0 && !low;
+		var low = t.hp * 4 < t.max, up = t.cad > 0;
 		card.SetHasClass( "low", low );
 		card.SetHasClass( "mate-cadence", t.cad > 0 );
 		card.style.opacity = String( t.a );
 		$id( "TargetName" ).text = t.name;
-		$id( "TargetStatus" ).text = low ? "Low" : "Alive";
-		$id( "TargetStatus" ).SetHasClass( "hidden", up );
+		// no Alive/Low text, like the squad cards (the target is never down)
+		$id( "TargetStatus" ).SetHasClass( "hidden", true );
 		$id( "TargetUp" ).SetHasClass( "hidden", !up );
 		$id( "TargetFill" ).style.width = pct( t.hp, t.max );
 	}

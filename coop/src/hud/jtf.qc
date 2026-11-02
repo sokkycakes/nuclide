@@ -201,28 +201,72 @@ Jtf_Hero(__out string staticName, __out string dynamicName)
 		Jtf_Str(dynamicName), stof(serverkey("coop_engageCost")))));
 }
 
-/* everyone else on the server: "*mate" is "health|state", state a alive,
+var string(void) Jtf_PlayerDistances;
+bool g_jtfDistancesLinked;
+float g_jtfMateDist[32];
+bool g_jtfMateUsed[32];
+
+/* the three closest of everyone else: "*mate" is "health|state", state a alive,
    d down, x dead or spectating */
 string
 Jtf_Team(void)
 {
-	string json = "";
+	/* only the three closest teammates (sokky 2026-11-02): distances from
+	   the client (src/client/nameplates.qc), for the ones we can see; the
+	   rest count as far away, in player order */
+	if (!g_jtfDistancesLinked) {
+		g_jtfDistancesLinked = true;
+		Jtf_PlayerDistances = externvalue(0, "Nameplates_PlayerDistances");
+	}
 
 	for (float i = 0; i < 32; i++) {
-		if (i == player_localnum) {
-			continue;
+		g_jtfMateDist[i] = 1000000 + i;
+		g_jtfMateUsed[i] = false;
+	}
+
+	if (Jtf_PlayerDistances) {
+		float n = tokenize(Jtf_PlayerDistances());
+
+		for (float t = 0; t + 1 < n; t += 2) {
+			float slot = stof(argv(t));
+
+			if (slot >= 0 && slot < 32) {
+				g_jtfMateDist[slot] = stof(argv(t + 1));
+			}
+		}
+	}
+
+	string json = "";
+
+	for (float shown = 0; shown < 3; shown++) {
+		float best = -1;
+
+		for (float i = 0; i < 32; i++) {
+			if (i == player_localnum || g_jtfMateUsed[i]) {
+				continue;
+			}
+
+			if (getplayerkeyvalue(i, "name") == "" || getplayerkeyvalue(i, "*mate") == "") {
+				continue;
+			}
+
+			/* (QC's || evaluates both sides: no [best] while it's -1) */
+			if (best < 0) {
+				best = i;
+			} else if (g_jtfMateDist[i] < g_jtfMateDist[best]) {
+				best = i;
+			}
 		}
 
-		string name = getplayerkeyvalue(i, "name");
-		string mate = getplayerkeyvalue(i, "*mate");
-
-		if (name == "" || mate == "") {
-			continue;
+		if (best < 0) {
+			break;
 		}
 
-		tokenizebyseparator(mate, "|");
+		g_jtfMateUsed[best] = true;
+		tokenizebyseparator(getplayerkeyvalue(best, "*mate"), "|");
 		json = strcat(json, (json == "") ? "" : ",", sprintf("{\"name\":%s,\"hp\":%d,\"st\":%s,\"cad\":%d}",
-			Jtf_Str(name), stof(argv(0)), Jtf_Str(argv(1)), stof(getplayerkeyvalue(i, "*cadence"))));
+			Jtf_Str(getplayerkeyvalue(best, "name")), stof(argv(0)), Jtf_Str(argv(1)),
+			stof(getplayerkeyvalue(best, "*cadence"))));
 	}
 
 	return (strcat("[", json, "]"));
