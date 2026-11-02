@@ -129,10 +129,9 @@
 	y: 32px;
 	width: fit-children;
 	height: fit-children;
-	padding: 8px 12px 8px 10px;
+	padding: 8px 12px;
 	flow-children: right;
 }
-.obj-emblem { width: 56px; height: 56px; margin-right: 12px; wash-color: var(--window-text); }
 .obj-body { width: 210px; height: fit-children; flow-children: down; }
 .obj-title
 {
