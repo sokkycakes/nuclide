@@ -202,7 +202,9 @@ Label { text-shadow: 0px 2px 3px 1.0 #000000cc; }
 .ability.ready { border: 1px solid #ffa31a88; }
 .ability.engaged { background-color: #ffa31a33; border: 1px solid #ffa31a; }
 .ability Label { vertical-align: center; }
-.ability-key { font-size: 16px; font-weight: bold; color: #ffa31a; width: 24px; }
+.ability-key { width: fit-children; min-width: 32px; height: 32px; margin-right: 6px; vertical-align: center; flow-children: right; }
+.ability-key-glyph { width: 32px; height: 32px; vertical-align: center; }
+.ability-key-text { font-size: 16px; font-weight: bold; color: #ffa31a; vertical-align: center; }
 .ability-name { font-size: 19px; color: #e6e6e6; width: fill-parent-flow( 1.0 ); }
 .ability-state { font-size: 16px; font-weight: bold; letter-spacing: 2px; text-transform: uppercase; color: #9a9a9a; }
 .ability.ready .ability-state { color: #ffd27a; }
@@ -277,3 +279,9 @@ Label { text-shadow: 0px 2px 3px 1.0 #000000cc; }
 .weapon-slot.empty .slot-name { color: #555555; }
 .weapon-slot.hidden { visibility: collapse; }
 Label.hidden { visibility: collapse; }
+
+/* the Use prompt's key, as a glyph (images/xelu) */
+.key-cap { flow-children: right; }
+.key-cap.glyph { padding: 0px; border: 0px solid #00000000; background-color: #00000000; }
+.prompt-key-glyph { width: 32px; height: 32px; }
+.prompt-key-text { horizontal-align: center; vertical-align: center; font-weight: bold; color: #ffa31a; margin: 0px 8px; }

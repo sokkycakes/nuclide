@@ -35,7 +35,7 @@
 
 		<!-- key prompt under the crosshair -->
 		<Panel id="Prompt" class="key-prompt" hittest="false">
-			<Panel class="key-cap"><Label id="PromptKey" class="key-text" text="E" /></Panel>
+			<Panel id="PromptKeyBox" class="key-cap"><Label id="PromptKey" class="key-text" text="E" /></Panel>
 			<Label id="PromptAction" class="prompt-action" text="" />
 		</Panel>
 
