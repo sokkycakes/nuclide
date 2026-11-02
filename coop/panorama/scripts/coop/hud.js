@@ -138,12 +138,16 @@
 		abilities( hero );
 	}
 
-	// one row per part of the kit's status line: "[G] Courier ready"
+	// one rounded square per kit ability, in a row: T (tool), 1, 2, ENG
+	// (engage), and in form the form's move (EX). The status line's key
+	// letters are the keyboard defaults (C G X Z V); a kit without one has
+	// no square for it. Passives (no key) aren't shown.
+	var SQUARES = [ [ "C", "T" ], [ "G", "1" ], [ "X", "2" ], [ "Z", "ENG" ], [ "V", "EX" ] ];
+
 	function abilities( hero )
 	{
 		var box = $id( "Abilities" );
-		var keys = hero && hero.keys ? hero.keys : {};
-		var key = hero ? hero.status + "\n" + hero.form + hero.formLine + JSON.stringify( keys ) : "";
+		var key = hero ? hero.status + "\n" + hero.form + hero.formLine : "";
 		box.SetHasClass( "hidden", !hero );
 		if ( key === last.abilities )
 			return;
@@ -155,36 +159,38 @@
 		var formFrom = parts.length;
 		if ( hero.formLine )
 			parts = parts.concat( hero.formLine.split( /\s{2,}/ ) );
+		var byKey = {};
 		parts.forEach( function ( p, i )
 		{
-			p = p.trim();
-			if ( !p )
+			var m = /^\[(\w+)\]\s*(.*)$/.exec( p.trim() );
+			if ( !m )
 				return;
-			var m = /^\[(\w+)\]\s*(.*)$/.exec( p );
-			var k = m ? m[ 1 ] : "", text = m ? m[ 2 ] : p, state = "";
-			// passives (no key) aren't listed
-			if ( !k )
-				return;
+			var text = m[ 2 ], state = "";
 			var w = /^(.*?)\s+(ready|used|\d+s|\d+\/\d+|\d+%|\d+)$/i.exec( text );
 			if ( w )
 			{
 				text = w[ 1 ];
 				state = w[ 2 ];
 			}
-			var row = $.CreatePanel( "Panel", box, "", { "class": "ability" } );
-			var ready = /^ready$/i.test( state ), engaged = i >= formFrom && hero.form > 0;
-			row.SetHasClass( "ready", ready );
-			row.SetHasClass( "engaged", engaged );
-			// a keyed ability that can't be used now (cooling down, used,
-			// out of charges, not enough energy): greyed and darkened
-			row.SetHasClass( "unavailable", !!k && !ready && !engaged && !/^[1-9]\d*\/\d+$/.test( state ) );
-			// the letter in the status line is the keyboard default: show
-			// what this player presses for it, as a glyph
-			var keyBox = $.CreatePanel( "Panel", row, "", { "class": "ability-key", hittest: "false" } );
-			keyGlyphs( keyBox, "ability-key", keys[ k ] || k );
-			label( row, "ability-name", text );
-			// ready shows as the corner triangle, not as text
-			label( row, "ability-state", ready ? "" : state );
+			byKey[ m[ 1 ] ] = { state: state, engaged: i >= formFrom && hero.form > 0 };
+		} );
+		SQUARES.forEach( function ( sq )
+		{
+			var a = byKey[ sq[ 0 ] ];
+			if ( !a )
+				return;
+			var ready = /^ready$/i.test( a.state );
+			var cell = $.CreatePanel( "Panel", box, "", { "class": "ability", hittest: "false" } );
+			cell.SetHasClass( "ready", ready );
+			cell.SetHasClass( "engaged", a.engaged );
+			// can't be used now (cooling down, used, out of charges, not
+			// enough energy): greyed and darkened
+			cell.SetHasClass( "unavailable", !ready && !a.engaged && !/^[1-9]\d*\/\d+$/.test( a.state ) );
+			$.CreatePanel( "Panel", cell, "", { "class": "ability-tri", hittest: "false" } );
+			label( cell, "ability-glyph" + ( sq[ 1 ].length > 2 ? " condensed" : "" ), sq[ 1 ] );
+			// a cooldown or a count, small under the glyph; ready is the
+			// corner triangle
+			label( cell, "ability-state", ready ? "" : a.state );
 		} );
 	}
 
@@ -208,6 +214,20 @@
 		var hero = s.hero;
 		slot( "SlotStatic", "SlotStaticName", hero ? hero.staticName : "", hero, s.held === 1 );
 		slot( "SlotDynamic", "SlotDynamicName", hero ? hero.dynamicName : "", hero, s.held === 2 );
+
+		// show the slots on a weapon switch or pickup, fade them after 2 s
+		var wkey = [ s.weapon, s.held, hero ? hero.staticName : "", hero ? hero.dynamicName : "" ].join( "|" );
+		if ( last.weaponKey !== undefined && wkey !== last.weaponKey )
+		{
+			$id( "Weapons" ).AddClass( "slots-shown" );
+			var seq = last.slotSeq = ( last.slotSeq || 0 ) + 1;
+			$.Schedule( 2.0, function ()
+			{
+				if ( last.slotSeq === seq )
+					$id( "Weapons" ).RemoveClass( "slots-shown" );
+			} );
+		}
+		last.weaponKey = wkey;
 	}
 
 	function slot( id, nameId, name, show, active )

@@ -34,7 +34,7 @@
 /* ---- QtCurve pieces ---------------------------------------------------- */
 
 /* a window: colour, striped tile, frame */
-.mate, .abilities, .wave-counter, .feed-entry, .slot-body, .respawn, .cadence
+.mate, .wave-counter, .feed-entry, .respawn, .cadence
 {
 	background-color: var(--window);
 	background-image: var(--window-image);
@@ -223,45 +223,67 @@
 }
 .vitals > Panel { margin-top: 14px; }
 
-/* hero abilities: one row per kit ability, above the readout, all in one
-   window with a frame-coloured slit between rows */
+/* hero abilities: a row of rounded squares (QtCurve windows), one per
+   ability: T, 1, 2, ENG (and EX in form) */
 .abilities
 {
-	width: 100%;
+	width: fit-children;
 	height: fit-children;
-	flow-children: down;
+	flow-children: right;
 }
 .abilities.hidden { visibility: collapse; }
 .ability
 {
-	width: 100%;
-	height: 36px;
-	padding: 0px 10px;
-	border-top: 2px solid var(--frame-border);
-	flow-children: right;
+	width: 54px;
+	height: 54px;
+	margin-right: 8px;
+	flow-children: none;
+	background-color: var(--window);
+	background-image: var(--window-image);
+	background-size: 64px 64px;
+	background-repeat: repeat;
+	border: 2px solid var(--frame-border);
+	border-radius: 8px;
 }
-.ability:first-child { border-top: 0px solid #00000000; }
 /* ready: a triangle in the top-right corner (like QtCurve's default
-   button corner, mirrored); engaged: selected, in the highlight */
-.ability.ready
+   button corner, mirrored); engaged: selected, in the highlight (an inset
+   shadow over the tile; #15539e is SokkyDark's --highlight) */
+.ability-tri
 {
+	horizontal-align: right;
+	vertical-align: top;
+	width: 14px;
+	height: 14px;
+	visibility: collapse;
 	background-image: url( "file://{images}/coop/ready_corner.png" );
 	background-size: 14px 14px;
-	background-position: 100% 0%;
 	background-repeat: no-repeat;
 }
-.ability.engaged { background-color: var(--highlight); }
-.ability Label { vertical-align: center; text-shadow: none; }
-.ability-key { width: fit-children; min-width: 32px; height: 32px; margin-right: 6px; vertical-align: center; flow-children: right; }
-.ability-key-glyph { width: 32px; height: 32px; vertical-align: center; }
-.ability-key-text { font-family: "Tahoma", "Nimbus"; font-size: 16px; color: #3396d4; vertical-align: center; }
-.ability-name { font-size: 19px; color: var(--window-text); width: fill-parent-flow( 1.0 ); }
-.ability-state { font-family: "Tahoma", "Nimbus"; font-size: 16px; letter-spacing: 1px; text-transform: uppercase; color: var(--disabled-text); }
+.ability.ready .ability-tri { visibility: visible; }
+.ability.engaged { box-shadow: inset 0px 0px 0px 40px #15539e; border-color: #326a8e; }
+.ability Label { text-shadow: none; horizontal-align: center; }
+.ability-glyph
+{
+	vertical-align: center;
+	font-family: "Tahoma", "Nimbus";
+	font-size: 26px;
+	font-weight: bold;
+	color: var(--window-text);
+}
+/* ENG and EX: squeezed to fit */
+.ability-glyph.condensed { font-size: 18px; letter-spacing: -1px; }
+.ability-state
+{
+	vertical-align: bottom;
+	margin-bottom: 1px;
+	font-family: "Tahoma", "Nimbus";
+	font-size: 12px;
+	color: var(--disabled-text);
+}
 .ability.engaged Label { color: var(--highlighted-text); }
-/* can't be used now: greyed (Qt's disabled text) and darkened */
-.ability.unavailable { background-color: #00000059; }
+/* can't be used now: greyed and darkened */
+.ability.unavailable { box-shadow: inset 0px 0px 0px 40px #00000066; }
 .ability.unavailable Label { color: #6e6e6d; }
-.ability.unavailable .ability-key { opacity: 0.45; }
 
 /* readout: icon slot, then label over value */
 .hud-readout { width: fit-children; height: fit-children; flow-children: right; }
@@ -316,42 +338,49 @@
 .hud-ammo.empty { visibility: collapse; }
 .hud-ammo.low .ammo-clip { color: #e0503a; }
 
-.weapon-slot { width: fit-children; height: 40px; flow-children: right; }
+/* weapon slots: outlines only, faint, the one in hand brighter; they show
+   when the weapon changes or one is picked up, then fade after 2 s
+   (hud.js weaponSlots adds .slots-shown to #Weapons) */
+.weapon-slot
+{
+	width: fit-children;
+	height: 40px;
+	flow-children: right;
+	opacity: 0;
+	transition-property: opacity;
+	transition-duration: 0.5s;
+}
+#Weapons.slots-shown .weapon-slot { opacity: 0.35; transition-duration: 0.1s; }
+#Weapons.slots-shown .weapon-slot.active { opacity: 0.9; }
 .slot-body
 {
 	width: 220px;
 	height: 40px;
 	padding: 0px 12px;
 	flow-children: right;
+	border: 2px solid var(--window-text);
+	border-radius: 6px;
 }
-.weapon-slot Label { vertical-align: center; margin-right: 10px; text-shadow: none; }
-.slot-key { color: var(--disabled-text); }
-.slot-name { font-size: 18px; color: var(--window-text); width: fill-parent-flow( 1.0 ); }
-/* the weapon in hand: selected, in the highlight, its left end an arrow
-   (slot_tip.png, drawn for this in the highlight and its frame colour).
-   The window tile can't be switched off, so the highlight is an inset
-   shadow over it; #15539e is SokkyDark's --highlight. */
+.weapon-slot Label { vertical-align: center; margin-right: 10px; text-shadow: none; color: var(--window-text); }
+.slot-name { font-size: 18px; width: fill-parent-flow( 1.0 ); }
+/* the weapon in hand: its left end an arrow, outlined like the rest
+   (slot_tip_outline.png, drawn for this) */
 .slot-tip
 {
 	width: 20px;
 	height: 40px;
 	visibility: collapse;
-	background-image: url( "file://{images}/coop/slot_tip.png" );
+	background-image: url( "file://{images}/coop/slot_tip_outline.png" );
 	background-size: 20px 40px;
 	background-repeat: no-repeat;
 }
 .weapon-slot.active .slot-tip { visibility: visible; }
 .weapon-slot.active .slot-body
 {
-	background-color: var(--highlight);
-	box-shadow: inset 0px 0px 0px 40px #15539e;
-	border-color: #326a8e;
 	border-left: 0px solid #00000000;
 	border-top-left-radius: 0px;
 	border-bottom-left-radius: 0px;
 }
-.weapon-slot.active Label { color: var(--highlighted-text); }
-.weapon-slot.empty .slot-name { color: var(--disabled-text); }
 .weapon-slot.hidden { visibility: collapse; }
 Label.hidden { visibility: collapse; }
 
