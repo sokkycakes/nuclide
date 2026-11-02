@@ -344,8 +344,12 @@ Jtf_Post(void)
 	/* Choir's Cadence: how strongly it buffs us (0-3), and on a Choir how
 	   many teammates it buffs (-1 when we aren't one) */
 	string cadN = player.GetString("*cadenceN");
-	json = strcat(json, sprintf("\"cadence\":%d,\"cadenceN\":%d,\"tid\":%s}", stof(player.GetString("*cadence")),
+	json = strcat(json, sprintf("\"cadence\":%d,\"cadenceN\":%d,\"tid\":%s,", stof(player.GetString("*cadence")),
 		(cadN == "") ? -1 : stof(cadN), Jtf_TargetID()));
+	/* the objective panel: "score|points" (hud_info.qc) and the XPM
+	   plugin's "xp|need|level|max|rank|medals|max medals" */
+	json = strcat(json, sprintf("\"stats\":%s,\"xpm\":%s}", Jtf_Str(player.GetString("*stats")),
+		Jtf_Str(player.GetString("*xpm"))));
 
 	if (json != g_jtfLast) {
 		if (g_jtfLast) {
