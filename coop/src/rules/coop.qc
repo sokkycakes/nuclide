@@ -508,7 +508,10 @@ Coop_ReviveInput(entity pl)
 		float filled = floor(progress * 10);
 		string bar = strcat(substring("##########", 0, filled), substring("----------", 0, 10 - filled));
 		centerprint(pl, sprintf("Reviving %s\n[%s]", target.netname, bar));
-		centerprint(target, sprintf("%s is reviving you\n[%s]", pl.netname, bar));
+		/* the Panorama HUD draws its own bar from "*revive" (hud_info.qc) */
+		if (infokey(target, "phud") != "1") {
+			centerprint(target, sprintf("%s is reviving you\n[%s]", pl.netname, bar));
+		}
 	}
 }
 
@@ -899,7 +902,8 @@ CodeCallback_PlayerKilled(entity playerEntity, entity inflictor, entity attacker
 	Hero_AbilityKilled(playerEntity);
 	Coop_BodyFade(playerEntity, slot);
 
-	if (!autocvar_coop_survival) {
+	/* the Panorama HUD says it in its respawn box */
+	if (!autocvar_coop_survival && infokey(playerEntity, "phud") != "1") {
 		centerprint(playerEntity, sprintf("You are down. A teammate can revive you, or respawn in %d seconds", autocvar_coop_respawnDelay));
 	}
 

@@ -467,10 +467,9 @@ Label.hidden { visibility: collapse; }
 .prompt-key-text { horizontal-align: center; vertical-align: center; font-family: "Tahoma", "Nimbus"; color: var(--button-text); margin: 0px 8px; text-shadow: none; }
 
 /* ---- respawn: centre, below the crosshair, while down ------------------ */
+.down-box { horizontal-align: center; y: 540px; width: 420px; height: fit-children; flow-children: down; }
 .respawn
 {
-	horizontal-align: center;
-	y: 570px;
 	width: 420px;
 	height: fit-children;
 	padding: 12px 16px;
@@ -478,6 +477,15 @@ Label.hidden { visibility: collapse; }
 }
 .respawn Label { text-shadow: none; }
 .respawn.hidden { visibility: collapse; }
+/* a teammate reviving us: plain white, no panel */
+.revive { width: 100%; height: fit-children; flow-children: down; margin-bottom: 10px; }
+.revive.hidden { visibility: collapse; }
+.revive-label { horizontal-align: center; font-family: "Tahoma", "Nimbus"; font-size: 12px; color: #ffffff; margin-bottom: 4px; text-shadow: 1px 1px 0px 1 #000000c0; }
+.revive-meter { width: 100%; height: 6px; background-color: #ffffff40; }
+.revive-fill { width: 0%; height: 100%; background-color: #ffffff; }
+/* down or dead: everything but the objective panel and the respawn box */
+.hud.down #Feed, .hud.down #Notice, .hud.down #Prompt, .hud.down #TargetID,
+.hud.down #Vitals, .hud.down #Weapons { visibility: collapse; }
 .respawn .meter { height: 16px; }
 .respawn.ready { box-shadow: inset 0px 0px 0px 2px #3396d4; }
 .respawn-hint { horizontal-align: center; margin-top: 8px; font-size: 12px; color: var(--disabled-text); }

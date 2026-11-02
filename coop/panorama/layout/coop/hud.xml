@@ -43,6 +43,13 @@
 			<Label id="NoticeSub" class="notice-sub" text="" />
 		</Panel>
 
+		<!-- while down: a teammate's revive as a plain white bar, then the
+		     respawn box (sokky 2026-11-02) -->
+		<Panel id="DownBox" class="down-box" hittest="false">
+		<Panel id="Revive" class="revive hidden" hittest="false">
+			<Label id="ReviveLabel" class="revive-label" text="" />
+			<Panel class="revive-meter"><Panel id="ReviveFill" class="revive-fill" /></Panel>
+		</Panel>
 		<!-- respawn: while down, how long until fire brings you back -->
 		<Panel id="Respawn" class="respawn hidden" hittest="false">
 			<Panel class="bar-top">
@@ -51,6 +58,7 @@
 			</Panel>
 			<Panel class="meter"><Panel id="RespawnFill" class="meter-fill" /></Panel>
 			<Label id="RespawnHint" class="respawn-hint" text="A teammate can revive you" />
+		</Panel>
 		</Panel>
 
 		<!-- key prompt under the crosshair; for a pickup, a callout on the
