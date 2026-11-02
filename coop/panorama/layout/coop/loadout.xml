@@ -57,6 +57,8 @@
 			</Panel>
 			<Panel class="page-footer" hittest="false">
 				<Label id="Keys" class="shop-keys" text="" hittest="false" />
+				<!-- button prompts in place of the keys while a pad drives it -->
+				<Panel id="PadKeys" class="pad-keys hidden" hittest="false" />
 				<Panel class="shop-footer-fill" hittest="false" />
 				<Button id="Close" class="btn" hittest="true">
 					<Label text="Close" hittest="false" />

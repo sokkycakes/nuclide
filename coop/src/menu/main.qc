@@ -965,12 +965,13 @@ Menu_DefaultBind(string command, string keys)
    West is Use where there's something to use, else reload (+coop_x, in
    the HUD progs coop/src/hud/jtf.qc); north swaps to the last weapon,
    east ducks, south jumps; LT is secondary fire, R3 the engage move and
-   L3 the hero tool (layout 4).
-   Look is inverted. The rest is the engine's pad layout (RT fires, d-pad
-   slots), bound here too. Applied once
+   L3 the hero tool (layout 4). D-pad up opens the shop menu, which the
+   pad can then drive (layout 5, scripts/coop/loadout.js).
+   Look is inverted. The rest is the engine's pad layout (RT fires, the
+   other d-pad directions are slots 2-4), bound here too. Applied once
    per config (coop_padLayout remembers it) after the saved config has run,
    so later changes stick; "coop_padlayout" puts it back. */
-#define COOP_PADLAYOUT 4	/* raise to apply a changed layout over the old one */
+#define COOP_PADLAYOUT 5	/* raise to apply a changed layout over the old one */
 bool g_padLB, g_padRB, g_padChord;
 
 void
@@ -981,7 +982,7 @@ Menu_PadLayout(void)
 	/* the rest as the engine's own pad layout, which it applies only to a
 	   pad with nothing bound, so after the binds above it never would */
 	localcmd("bind GP_RTRIGGER +attack\nbind GP_LTRIGGER +attack2\nbind GP_LTHUMB \"impulse 21\"\nbind GP_VIEW +showscores\n");
-	localcmd("bind GP_MENU togglemenu\nbind GP_DPAD_UP slot1\nbind GP_DPAD_RIGHT slot2\nbind GP_DPAD_DOWN slot3\nbind GP_DPAD_LEFT slot4\n");
+	localcmd("bind GP_MENU togglemenu\nbind GP_DPAD_UP \"cmd shop\"\nbind GP_DPAD_RIGHT slot2\nbind GP_DPAD_DOWN slot3\nbind GP_DPAD_LEFT slot4\n");
 	localcmd("seta joy_invert 1\n");
 	localcmd(sprintf("seta coop_padLayout %d\n", COOP_PADLAYOUT));
 }
