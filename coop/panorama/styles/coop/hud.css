@@ -6,7 +6,10 @@
    variant's colours, gradients and textures). qtcurve.css itself is NOT
    included: its rules would restyle every label and fill the screen.
 
-   Sizes are the Figma ones on a 1920x1080 frame (bwdesignheight 1080). The
+   Sizes are the Figma ones on a 1920x1080 frame, but the view is laid out
+   at bwdesignheight 900 so the whole HUD is 20% bigger (sokky); things
+   placed against the crosshair (key prompt, target ID, respawn, notice)
+   keep their Figma distance from the screen centre (450 here). The
    title menu is laid out at 540 and drawn 2x, so the theme's 1px lines and
    32px window tile are drawn 2px and 64px here to match it on screen.
 
@@ -148,8 +151,8 @@
 
 .hud-notice
 {
-	x: 600px;
-	y: 230px;
+	horizontal-align: center;
+	y: 140px;
 	width: 720px;
 	height: fit-children;
 	padding: 12px 0px;
@@ -176,7 +179,7 @@
 .key-prompt
 {
 	horizontal-align: center;
-	y: 600px;
+	y: 510px;
 	width: fit-children;
 	height: fit-children;
 	flow-children: right;
@@ -362,7 +365,7 @@ Label.hidden { visibility: collapse; }
 .respawn
 {
 	horizontal-align: center;
-	y: 660px;
+	y: 570px;
 	width: 420px;
 	height: fit-children;
 	padding: 12px 16px;
@@ -410,6 +413,6 @@ Label.hidden { visibility: collapse; }
 .mate Label { text-shadow: none; }
 
 /* target ID: a squad card under the crosshair, below the key prompt */
-.mate.target-id { horizontal-align: center; y: 648px; margin-bottom: 0px; }
+.mate.target-id { horizontal-align: center; y: 558px; margin-bottom: 0px; }
 .mate.target-id.hidden { visibility: collapse; }
 .mate-up.hidden, .mate-status.hidden { visibility: collapse; }
