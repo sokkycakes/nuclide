@@ -357,7 +357,11 @@
 .icon-slot { width: 32px; height: 32px; margin-right: 10px; vertical-align: center; }
 .plus-h { x: 2px; y: 12px; width: 28px; height: 8px; background-color: var(--window-text); }
 .plus-v { x: 12px; y: 2px; width: 8px; height: 28px; background-color: var(--window-text); }
-.readout-text { width: fit-children; height: fit-children; flow-children: down; }
+/* the big numbers are fixed-width displays: the value sits right-aligned
+   over a faint row of 8s (text here, digit cells in .wtnum) */
+.readout-text { width: fit-children; height: fit-children; }
+.readout-text .readout-value { horizontal-align: right; vertical-align: center; }
+.readout-ghost { opacity: 0.08; }
 .readout-label { color: var(--disabled-text); }
 .readout-value { font-family: "Kode Mono"; font-size: 52px; color: var(--window-text); }
 .hud-readout.low .plus-h,
@@ -523,3 +527,7 @@ Label.hidden { visibility: collapse; }
    so it and its rules live in styles/coop/hud-wtdigits.css and
    images/coop/wt-private/, outside git; here the digit boxes stay hidden */
 .wtnum { visibility: collapse; width: fit-children; height: fit-children; flow-children: right; }
+/* a digit cell: a faint 8 with the digit (or nothing) over it */
+.wtnum .dgcell { width: fit-children; height: fit-children; }
+.wtnum .dg.ghost { opacity: 0.08; }
+.wtnum .dg.blank { visibility: collapse; }
