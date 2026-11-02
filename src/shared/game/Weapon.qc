@@ -1600,6 +1600,20 @@ ncWeapon::TestFireAbility(string fireInfo)
 			fiTestDistance = fabs(fiTestDistance);
 		}
 
+		/* a melee sweep (the def it fires has "sweepAngle"): a swing hits
+		   when anything is in the cone, aimed at or not */
+		if (invertCheck && STRING_SET(m_fiOnFire)) {
+			float sweepAngle = stof(EntityDef_GetKeyValue(m_fiOnFire, "sweepAngle"));
+
+			if (sweepAngle > 0.0f) {
+				float sweepRange = stof(EntityDef_GetKeyValue(m_fiOnFire, "range"));
+
+				if (Melee_Sweep(ourOwner, traceStart, eyeAngles, sweepRange, sweepAngle, 1i) > 0i) {
+					return (true);
+				}
+			}
+		}
+
 		vector traceEnd = traceStart + (anglesToForward(eyeAngles) * fiTestDistance);
 		ourOwner.hitcontentsmaski = (CONTENTBITS_POINTSOLID | CONTENTBIT_CORPSE);
 		traceline(traceStart, traceEnd, MOVE_NORMAL, ourOwner);

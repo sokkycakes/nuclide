@@ -274,6 +274,12 @@ ncProjectile::SpawnKey(string keyName, string setValue)
 	case "range":
 		m_flRange = ReadFloat(setValue);
 		break;
+	case "sweepAngle":
+		m_flSweepAngle = ReadFloat(setValue);
+		break;
+	case "sweepMax":
+		m_iSweepMax = ReadInt(setValue);
+		break;
 	/* Nuclide additions */
 	case "stick_to_world":
 		m_bStickToWorld = ReadBool(setValue);
@@ -998,11 +1004,52 @@ ncProjectile::_LaunchHitscan(vector startPos, vector launchDir, float dmgMultipl
 			owner.stat_shotsHit++;
 	}
 
+	entity aimedTarget = m_eMultiTarget;
+
 	if (m_eMultiTarget) {
 		angles = launchDir;
 		_ApplyDamage();
 	}
+
+	/* a melee sweep: everything else in the cone takes the hit too */
+	if (m_flSweepAngle > 0.0f) {
+		_LaunchSweep(startPos, launchDir, aimedTarget);
+	}
 	Destroy();
+}
+
+void
+ncProjectile::_LaunchSweep(vector startPos, vector launchDir, entity aimedTarget)
+{
+	int maxTargets = (int)MELEE_SWEEP_MAX;
+
+	if (m_iSweepMax > 0i) {
+		maxTargets = m_iSweepMax;
+	}
+
+	int found = Melee_Sweep(owner, startPos, launchDir, m_flRange, m_flSweepAngle, maxTargets);
+
+	for (int i = 0i; i < found; i++) {
+		ncSurfacePropEntity target = (ncSurfacePropEntity)g_meleeSweep[i];
+
+		/* the aimed trace already hit it */
+		if (target == aimedTarget) {
+			continue;
+		}
+
+		m_hitLocation = g_meleeSweepPos[i];
+		m_lastPlaneNormal = vectorNormalize(startPos - m_hitLocation);
+		m_eMultiTarget = target;
+		m_iMultiValue = (int)m_flDamage;
+		m_iMultiBody = 0;
+		angles = vectorToAngles(m_hitLocation - startPos);
+
+		if (STRING_SET(m_sndHitActor)) {
+			SoundDef_Play(target, CHAN_BODY, m_sndHitActor);
+		}
+
+		_ApplyDamage();
+	}
 }
 
 var float autocvar_projectile_pushForceMultiplier = 1.0f;
@@ -1615,6 +1662,119 @@ ncProjectile::SendEntity(entity ePEnt, float flChanged)
 #endif
 
 .float emiteffectnum;
+/* shared: the client predicts whether a swing connects */
+int
+Melee_Sweep(entity attacker, vector start, vector angles, float range, float coneDeg, int maxTargets)
+{
+	vector forward = anglesToForward(angles);
+	float minDot = cos(bound(0, coneDeg, 89) * (M_PI / 180));
+	float score[MELEE_SWEEP_MAX];
+	int count = 0i;
+
+	/* fteqcc: keep int and float apart, a mixed ?: or compare misreads */
+	if (maxTargets > (int)MELEE_SWEEP_MAX) {
+		maxTargets = (int)MELEE_SWEEP_MAX;
+	}
+
+	for (entity e = findradius(start, range + 128.0f); e; e = e.chain) {
+		vector nearest, aimPoint, center;
+		float along, dot;
+
+		if (e == attacker || e == world) {
+			continue;
+		}
+
+		/* things a swing connects with: no corpses, triggers or items */
+		if (e.solid != SOLID_BBOX && e.solid != SOLID_SLIDEBOX) {
+			continue;
+		}
+
+#ifdef SERVER
+		if (e.takedamage == DAMAGE_NO || e.health <= 0) {
+			continue;
+		}
+
+		if (is.Player(attacker) && is.Player(e) && Util_IsTeamplay()) {
+			if (e.team == attacker.team && autocvar_sv_friendlyFire == false) {
+				continue;
+			}
+		}
+
+		if (autocvar_sv_allyDamage == false && is.Player(attacker) && is.AI(e)) {
+			ncMonster ally = (ncMonster)e;
+
+			if (ally.m_iAlliance == MAL_FRIEND && ally.GetSpawnBool("player_damage") == false) {
+				continue;
+			}
+		}
+#endif
+
+		/* within reach: the nearest point of its box */
+		nearest[0] = bound(e.absmin[0], start[0], e.absmax[0]);
+		nearest[1] = bound(e.absmin[1], start[1], e.absmax[1]);
+		nearest[2] = bound(e.absmin[2], start[2], e.absmax[2]);
+
+		if (vlen(nearest - start) > range) {
+			continue;
+		}
+
+		/* the point of its box nearest the aim line, inside the cone? */
+		center = (e.absmin + e.absmax) * 0.5f;
+		along = bound(0, (center - start) * forward, range);
+		aimPoint = start + (forward * along);
+		aimPoint[0] = bound(e.absmin[0], aimPoint[0], e.absmax[0]);
+		aimPoint[1] = bound(e.absmin[1], aimPoint[1], e.absmax[1]);
+		aimPoint[2] = bound(e.absmin[2], aimPoint[2], e.absmax[2]);
+
+		if (aimPoint == start) {
+			dot = 1.0f; /* we're inside its box */
+		} else {
+			dot = vectorNormalize(aimPoint - start) * forward;
+		}
+
+		if (dot < minDot) {
+			continue;
+		}
+
+		/* not through walls */
+		traceline(start, aimPoint, MOVE_NOMONSTERS, attacker);
+
+		if (trace_fraction < 1.0f) {
+			traceline(start, center, MOVE_NOMONSTERS, attacker);
+
+			if (trace_fraction < 1.0f) {
+				continue;
+			}
+
+			aimPoint = center;
+		}
+
+		/* keep the ones nearest the aim */
+		if (count < maxTargets) {
+			g_meleeSweep[count] = e;
+			g_meleeSweepPos[count] = aimPoint;
+			score[count] = dot;
+			count++;
+		} else {
+			int worst = 0i;
+
+			for (int i = 1i; i < count; i++) {
+				if (score[i] < score[worst]) {
+					worst = i;
+				}
+			}
+
+			if (dot > score[worst]) {
+				g_meleeSweep[worst] = e;
+				g_meleeSweepPos[worst] = aimPoint;
+				score[worst] = dot;
+			}
+		}
+	}
+
+	return (count);
+}
+
 #ifdef CLIENT
 void
 ncProjectile::ReceiveEntity(float flNew, float flChanged)
