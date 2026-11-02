@@ -105,13 +105,20 @@
 
 		<!-- weapons: bottom-right -->
 		<Panel id="Weapons" class="weapons" hittest="false">
+			<!-- a slot: the body, and on the weapon in hand an arrow tip on its left -->
 			<Panel id="SlotStatic" class="weapon-slot static">
-				<Label class="hud-label slot-key" text="1" />
-				<Label id="SlotStaticName" class="slot-name" text="" />
+				<Panel class="slot-tip" />
+				<Panel class="slot-body">
+					<Label class="hud-label slot-key" text="1" />
+					<Label id="SlotStaticName" class="slot-name" text="" />
+				</Panel>
 			</Panel>
 			<Panel id="SlotDynamic" class="weapon-slot dynamic">
-				<Label class="hud-label slot-key" text="2" />
-				<Label id="SlotDynamicName" class="slot-name" text="" />
+				<Panel class="slot-tip" />
+				<Panel class="slot-body">
+					<Label class="hud-label slot-key" text="2" />
+					<Label id="SlotDynamicName" class="slot-name" text="" />
+				</Panel>
 			</Panel>
 			<!-- the ammo at the bottom, level with the health; slots above -->
 			<Panel id="Ammo" class="hud-ammo" hittest="false">

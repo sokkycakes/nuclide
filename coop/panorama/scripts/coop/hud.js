@@ -138,6 +138,9 @@
 				return;
 			var m = /^\[(\w+)\]\s*(.*)$/.exec( p );
 			var k = m ? m[ 1 ] : "", text = m ? m[ 2 ] : p, state = "";
+			// passives (no key) aren't listed
+			if ( !k )
+				return;
 			var w = /^(.*?)\s+(ready|used|\d+s|\d+\/\d+|\d+%|\d+)$/i.exec( text );
 			if ( w )
 			{
@@ -145,14 +148,19 @@
 				state = w[ 2 ];
 			}
 			var row = $.CreatePanel( "Panel", box, "", { "class": "ability" } );
-			row.SetHasClass( "ready", /^ready$/i.test( state ) );
-			row.SetHasClass( "engaged", i >= formFrom && hero.form > 0 );
+			var ready = /^ready$/i.test( state ), engaged = i >= formFrom && hero.form > 0;
+			row.SetHasClass( "ready", ready );
+			row.SetHasClass( "engaged", engaged );
+			// a keyed ability that can't be used now (cooling down, used,
+			// out of charges, not enough energy): greyed and darkened
+			row.SetHasClass( "unavailable", !!k && !ready && !engaged && !/^[1-9]\d*\/\d+$/.test( state ) );
 			// the letter in the status line is the keyboard default: show
 			// what this player presses for it, as a glyph
 			var keyBox = $.CreatePanel( "Panel", row, "", { "class": "ability-key", hittest: "false" } );
 			keyGlyphs( keyBox, "ability-key", keys[ k ] || k );
 			label( row, "ability-name", text );
-			label( row, "ability-state", state );
+			// ready shows as the corner triangle, not as text
+			label( row, "ability-state", ready ? "" : state );
 		} );
 	}
 
