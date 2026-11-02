@@ -132,7 +132,7 @@
 	padding: 8px 12px;
 	flow-children: right;
 }
-.obj-body { width: 210px; height: fit-children; flow-children: down; }
+.obj-body { width: 140px; height: fit-children; flow-children: down; }
 .obj-title
 {
 	horizontal-align: right;
