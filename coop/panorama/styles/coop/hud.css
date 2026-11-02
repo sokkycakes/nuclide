@@ -66,7 +66,7 @@
 Label { text-shadow: 0px 2px 3px 1.0 #000000cc; }
 .hud-label
 {
-	font-family: "Kode Mono";
+	font-family: "Tahoma", "Nimbus";
 	font-size: 17px;
 	letter-spacing: 1px;
 	text-transform: uppercase;
@@ -96,7 +96,7 @@ Label { text-shadow: 0px 2px 3px 1.0 #000000cc; }
 }
 .mate-top { width: 100%; height: fit-children; flow-children: right; margin-bottom: 4px; }
 .mate-name { font-size: 18px; color: var(--window-text); width: fill-parent-flow( 1.0 ); }
-.mate-status { font-family: "Kode Mono"; font-size: 16px; letter-spacing: 1px; text-transform: uppercase; color: var(--disabled-text); vertical-align: center; }
+.mate-status { font-family: "Tahoma", "Nimbus"; font-size: 16px; letter-spacing: 1px; text-transform: uppercase; color: var(--disabled-text); vertical-align: center; }
 .mate.low .mate-status { color: #e0503a; }
 .mate.low .meter-fill { background-color: gradient( linear, 0% 0%, 0% 100%, from( #f86a52 ), color-stop( 0.4, #c43c26 ), to( #e4462c ) ); border-color: #7c1f10; }
 .mate.down { border-color: #ffa31a; }
@@ -200,7 +200,7 @@ Label { text-shadow: 0px 2px 3px 1.0 #000000cc; }
 {
 	horizontal-align: center;
 	vertical-align: center;
-	font-family: "Kode Mono";
+	font-family: "Tahoma", "Nimbus";
 	font-size: 16px;
 	text-transform: uppercase;
 	color: var(--button-text);
@@ -239,17 +239,27 @@ Label { text-shadow: 0px 2px 3px 1.0 #000000cc; }
 	flow-children: right;
 }
 .ability:first-child { border-top: 0px solid #00000000; }
-/* ready: the hover ring; engaged: selected, in the highlight */
-.ability.ready { box-shadow: inset 0px 0px 0px 2px #3396d4; }
+/* ready: a triangle in the top-right corner (like QtCurve's default
+   button corner, mirrored); engaged: selected, in the highlight */
+.ability.ready
+{
+	background-image: url( "file://{images}/coop/ready_corner.png" );
+	background-size: 14px 14px;
+	background-position: 100% 0%;
+	background-repeat: no-repeat;
+}
 .ability.engaged { background-color: var(--highlight); }
 .ability Label { vertical-align: center; text-shadow: none; }
 .ability-key { width: fit-children; min-width: 32px; height: 32px; margin-right: 6px; vertical-align: center; flow-children: right; }
 .ability-key-glyph { width: 32px; height: 32px; vertical-align: center; }
-.ability-key-text { font-family: "Kode Mono"; font-size: 16px; color: #3396d4; vertical-align: center; }
+.ability-key-text { font-family: "Tahoma", "Nimbus"; font-size: 16px; color: #3396d4; vertical-align: center; }
 .ability-name { font-size: 19px; color: var(--window-text); width: fill-parent-flow( 1.0 ); }
-.ability-state { font-family: "Kode Mono"; font-size: 16px; letter-spacing: 1px; text-transform: uppercase; color: var(--disabled-text); }
-.ability.ready .ability-state { color: #6cbcf0; }
+.ability-state { font-family: "Tahoma", "Nimbus"; font-size: 16px; letter-spacing: 1px; text-transform: uppercase; color: var(--disabled-text); }
 .ability.engaged Label { color: var(--highlighted-text); }
+/* can't be used now: greyed (Qt's disabled text) and darkened */
+.ability.unavailable { background-color: #00000059; }
+.ability.unavailable Label { color: #6e6e6d; }
+.ability.unavailable .ability-key { opacity: 0.45; }
 
 /* readout: icon slot, then label over value */
 .hud-readout { width: fit-children; height: fit-children; flow-children: right; }
@@ -327,7 +337,7 @@ Label.hidden { visibility: collapse; }
 .key-cap { flow-children: right; }
 .key-cap.glyph { padding: 0px; border: 0px solid #00000000; background-color: #00000000; }
 .prompt-key-glyph { width: 32px; height: 32px; }
-.prompt-key-text { horizontal-align: center; vertical-align: center; font-family: "Kode Mono"; color: var(--button-text); margin: 0px 8px; text-shadow: none; }
+.prompt-key-text { horizontal-align: center; vertical-align: center; font-family: "Tahoma", "Nimbus"; color: var(--button-text); margin: 0px 8px; text-shadow: none; }
 
 /* ---- respawn: centre, below the crosshair, while down ------------------ */
 .respawn
