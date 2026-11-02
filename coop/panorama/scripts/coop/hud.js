@@ -214,6 +214,24 @@
 		$id( "WaveCaption" ).text = fighting ? "monsters left" : "next wave soon";
 	}
 
+	// ---- respawn bar: fills while down, then fire respawns -------------
+
+	function respawn( s )
+	{
+		var r = s.respawn;
+		var p = $id( "Respawn" );
+		p.SetHasClass( "hidden", !r );
+		if ( !r )
+			return;
+		var ready = !r.survival && r.frac >= 1;
+		p.SetHasClass( "ready", ready );
+		$id( "RespawnFill" ).style.width = ( r.survival ? 0 : Math.round( r.frac * 100 ) ) + "%";
+		$id( "RespawnLabel" ).text = r.survival ? "Down" : ready ? "Ready to respawn" : "Respawning";
+		$id( "RespawnValue" ).text = r.survival || ready ? "" : r.left + "s";
+		$id( "RespawnHint" ).text = r.survival ? "Survival: wait for a teammate to revive you" :
+			ready ? "Press " + shortKey( s.fireKey || "MOUSE1" ) + " to respawn" : "A teammate can revive you";
+	}
+
 	// ---- prompt --------------------------------------------------------
 
 	function prompt( s )
@@ -240,6 +258,7 @@
 		squad( s.team );
 		wave( s );
 		prompt( s );
+		respawn( s );
 	} );
 
 	// ---- kill feed: five lines, each for six seconds -------------------

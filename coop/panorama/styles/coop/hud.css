@@ -285,3 +285,21 @@ Label.hidden { visibility: collapse; }
 .key-cap.glyph { padding: 0px; border: 0px solid #00000000; background-color: #00000000; }
 .prompt-key-glyph { width: 32px; height: 32px; }
 .prompt-key-text { horizontal-align: center; vertical-align: center; font-weight: bold; color: #ffa31a; margin: 0px 8px; }
+
+/* ---- respawn: centre, below the crosshair, while down ------------------ */
+.respawn
+{
+	horizontal-align: center;
+	y: 660px;
+	width: 420px;
+	height: fit-children;
+	padding: 12px 16px;
+	background-color: #000000a6;
+	border: 1px solid #2c2c2c;
+	flow-children: down;
+}
+.respawn.hidden { visibility: collapse; }
+.respawn .meter { height: 12px; }
+.respawn.ready { border: 1px solid #ffa31a; }
+.respawn.ready .meter-fill { background-color: #ffd27a; }
+.respawn-hint { horizontal-align: center; margin-top: 8px; font-size: 16px; color: #9a9a9a; }
