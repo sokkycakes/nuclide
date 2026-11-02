@@ -206,7 +206,15 @@ Hero_Notice(entity pl, string text)
 	Hero_HudText(pl, HERO_NOTICECHANNEL, text, -1, 0.68, [255, 163, 26], 1.5f);
 }
 
-/* friendly monsters (scientists, guards) are left alone by abilities */
+/* the monster's alliance (ncMonster::m_iAlliance), from its "team" key:
+   0 friend, 1 enemy (HL's military), 2 alien, 3 rogue, 4 neutral */
+.int m_iAlliance;
+
+/* friendly monsters (scientists, guards) are left alone by abilities.
+   Their side is the monster's own alliance: comparing .team with the
+   players' team (1) left out HL's whole military, whose "team" is 1, so
+   no ability touched grunts, assassins or turrets (sokky's Racket report,
+   2026-11-02). */
 bool
 Hero_IsFoe(entity e)
 {
@@ -214,7 +222,7 @@ Hero_IsFoe(entity e)
 		return (false);
 	}
 
-	if (e.team == COOP_PLAYERTEAM) {
+	if (e.m_iAlliance == 0i || e.m_iAlliance == 4i) {
 		return (false);
 	}
 
