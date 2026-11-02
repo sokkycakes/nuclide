@@ -324,10 +324,10 @@
 		$id( "ObjXpm" ).SetHasClass( "hidden", x.length < 7 );
 		if ( x.length < 7 )
 			return;
-		$id( "ObjLevel" ).text = x[2] + " / " + x[3];
+		$id( "ObjLevel" ).text = "Lv" + x[2];
 		$id( "ObjRank" ).text = x[4];
-		$id( "ObjExpRow" ).SetHasClass( "hidden", x[1] === "0" );
-		$id( "ObjExp" ).text = x[0] + " / " + x[1];
+		// need is 0 at the top level: a full gauge
+		$id( "ObjExpFill" ).style.width = x[1] === "0" ? "100%" : pct( Number( x[0] ), Number( x[1] ) );
 		$id( "ObjMedals" ).text = x[5] + " / " + x[6];
 	}
 
