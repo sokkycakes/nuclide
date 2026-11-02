@@ -275,11 +275,8 @@ Label { text-shadow: 0px 2px 3px 1.0 #000000cc; }
 	flow-children: right;
 }
 .weapon-slot Label { vertical-align: center; margin-right: 10px; }
-.weapon-slot Label.slot-tag { margin-right: 0px; }
 .slot-key { color: #8a8a8a; }
 .slot-name { font-size: 18px; color: #d0d0d0; width: fill-parent-flow( 1.0 ); }
-.slot-tag { color: #8a8a8a; }
-.weapon-slot.static .slot-tag { color: #ffd27a; }
 .weapon-slot.active { background-color: #ffa31a33; border: 1px solid #ffa31a; }
 .weapon-slot.active .slot-key { color: #ffa31a; }
 .weapon-slot.active .slot-name { color: #ffffff; }
