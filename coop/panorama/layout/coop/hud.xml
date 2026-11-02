@@ -19,9 +19,6 @@
 	</scripts>
 
 	<Panel id="Hud" class="hud QtCurve SokkyDark" hittest="false" bwdesignheight="900">
-		<!-- squad: top-left, one Teammate card per other player -->
-		<Panel id="Squad" class="squad" hittest="false" />
-
 		<!-- wave counter: top centre -->
 		<Panel id="Wave" class="wave-counter" hittest="false">
 			<Label id="WaveTitle" class="hud-label accent" text="Wave 1" />
@@ -71,6 +68,8 @@
 
 		<!-- vitals: bottom-left -->
 		<Panel id="Vitals" class="vitals" hittest="false">
+			<!-- squad: the three closest teammates, above the abilities -->
+			<Panel id="Squad" class="squad" hittest="false" />
 			<Panel id="Abilities" class="abilities" hittest="false" />
 			<!-- Choir's Cadence buffing us (pips: how close to her cone's middle) -->
 			<Panel id="Cadence" class="cadence hidden" hittest="false">
