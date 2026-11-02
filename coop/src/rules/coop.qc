@@ -1103,6 +1103,7 @@ CodeCallback_FrameStart(void)
 	}
 
 	Hero_AbilityFrame();
+	L4DInfected_Frame();
 	Coop_HudFrame();
 
 	if (autocvar_coop_weapontest) {
@@ -1203,6 +1204,10 @@ Coop_PrintStatus(void)
 bool
 CodeCallback_ConsoleCommand(entity playerEntity, string command)
 {
+	if (L4DInfected_Command(playerEntity, command)) {
+		return (true);
+	}
+
 	tokenize(command);
 
 	if (L4DTest_Command(playerEntity, argv(0))) {

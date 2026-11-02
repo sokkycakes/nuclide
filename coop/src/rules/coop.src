@@ -4,6 +4,8 @@
 #includelist
 ../../../src/rules.src
 l4dtest.qc
+bwbots/bots.qc
+l4dinfected.qc
 coop.qc
 shop.qc
 heroes.qc
