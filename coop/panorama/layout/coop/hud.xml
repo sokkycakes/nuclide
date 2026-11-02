@@ -26,7 +26,9 @@
 				<Label id="WaveTitle" class="obj-title" text="Wave 1" />
 				<Panel class="obj-row"><Label id="ObjLeftKey" class="obj-key" text="Monsters" /><Label id="ObjLeft" class="obj-val danger" text="0" /></Panel>
 				<Panel class="obj-row"><Label class="obj-key" text="Score" /><Label id="ObjScore" class="obj-val" text="0" /></Panel>
-				<Panel class="obj-row"><Label class="obj-key" text="Points" /><Label id="ObjPoints" class="obj-val" text="0" /></Panel>
+				<!-- a line, then the shop points with no label: "P300" -->
+				<Panel class="obj-sep" />
+				<Panel class="obj-row"><Label id="ObjPoints" class="obj-val obj-points" text="P0" /></Panel>
 			</Panel>
 		</Panel>
 
