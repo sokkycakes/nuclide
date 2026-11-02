@@ -247,6 +247,7 @@ public:
 	virtual void HasExploded(void);
 
 	virtual void _LaunchHitscan(vector, vector, float);
+	nonvirtual void _LaunchSweep(vector, vector, entity);
 
 	/* launch the projectile into the world */
 	virtual void Launch(vector, vector, float, float, float);
@@ -352,6 +353,8 @@ private:
 	float m_flDamage;
 	string m_strDecalGroup;
 	float m_flRange;
+	float m_flSweepAngle;
+	int m_iSweepMax;
 
 	/* Nuclide additions */
 	bool m_bStickToWorld;
@@ -391,3 +394,16 @@ ncProjectile ncProjectile_SpawnDef(string entityDef, ncActor theOwner);
 ncProjectile ncProjectile_SpawnDefAtPosition(string entityDef, ncActor theOwner, vector vecOrigin, vector vecAngles);
 ncProjectile ncProjectile_SpawnDefAttachment(string entityDef, ncActor theOwner, int attachmentID);
 #endif
+
+/** Melee sweep: what a swing aimed along angles from start can reach. Every
+vulnerable thing whose box is within range, inside a cone of coneDeg degrees
+around the aim (a half-angle) and not behind world geometry, up to maxTargets,
+nearest to the aim first. Teammates (teamplay without sv_friendlyFire) and,
+with sv_allyDamage 0, allied characters of a player are left out. The
+results are in g_meleeSweep[] and g_meleeSweepPos[] (where each is hit).
+Projectile defs use it with "sweepAngle" (and "sweepMax"); weapons whose
+def_onFire has it count a swing as hitting when it finds anything. */
+#define MELEE_SWEEP_MAX 16
+entity g_meleeSweep[MELEE_SWEEP_MAX];
+vector g_meleeSweepPos[MELEE_SWEEP_MAX];
+int Melee_Sweep(entity attacker, vector start, vector angles, float range, float coneDeg, int maxTargets);

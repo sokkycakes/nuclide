@@ -139,6 +139,38 @@ Hero_InForm(int slot)
 	return (g_hEngage[slot] || time < g_hLiteUntil[slot]) ? true : false;
 }
 
+/* the houndeye's blast ring (HL houndeye.cpp SonicAttack, the same values
+   valve/decls/def/monsters/houndeye.def sends): a white 16-unit band,
+   0.2 s, at the feet + 16 rather than the player's middle, where it
+   would be nearly edge-on to his own eyes */
+void
+Hero_Ring(entity pl, float radius)
+{
+	vector at = [pl.origin[0], pl.origin[1], pl.absmin[2] + 16];
+
+	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
+	WriteByte(MSG_MULTICAST, EV_BEAMCYLINDER);
+	WriteCoord(MSG_MULTICAST, at[0]);
+	WriteCoord(MSG_MULTICAST, at[1]);
+	WriteCoord(MSG_MULTICAST, at[2]);
+	WriteCoord(MSG_MULTICAST, 0);	/* angles */
+	WriteCoord(MSG_MULTICAST, radius);
+	WriteCoord(MSG_MULTICAST, 0);
+	WriteShort(MSG_MULTICAST, getmodelindex("sprites/shockwave.spr"));
+	WriteByte(MSG_MULTICAST, 0);	/* start frame */
+	WriteByte(MSG_MULTICAST, 0);	/* frame rate */
+	WriteByte(MSG_MULTICAST, 2);	/* life, tenths */
+	WriteByte(MSG_MULTICAST, 16);	/* width */
+	WriteByte(MSG_MULTICAST, 0);	/* noise */
+	WriteByte(MSG_MULTICAST, 255);
+	WriteByte(MSG_MULTICAST, 255);
+	WriteByte(MSG_MULTICAST, 255);
+	WriteByte(MSG_MULTICAST, 255);	/* brightness */
+	WriteByte(MSG_MULTICAST, 0);	/* scroll speed */
+	msg_entity = pl;
+	multicast(at, MULTICAST_PVS);
+}
+
 void
 Hero_HudText(entity pl, int channel, string text, float x, float y, vector col, float hold)
 {
@@ -344,6 +376,7 @@ Hero_Taunt(entity foe, entity pl)
 
 entity g_stunEnt[HERO_MAXSTUNS];
 float g_stunUntil[HERO_MAXSTUNS];
+float g_stunLanding[HERO_MAXSTUNS];	/* >0: thrown, stun this long once landed */
 
 bool
 Hero_IsStunned(entity e)
@@ -383,8 +416,44 @@ Hero_Stun(entity e, float secs)
 
 	g_stunEnt[free] = e;
 	g_stunUntil[free] = time + secs;
+	g_stunLanding[free] = 0;
 	e.velocity = [0, 0, 0];
 	ents.Input(e, "Sleep", "", world);
+}
+
+/* a stun for something just thrown: it flies first (a sleeping monster
+   doesn't move), and the stun starts when it lands, or after a second */
+void
+Hero_StunLanded(entity e, float secs)
+{
+	int free = -1i;
+
+	if (!Hero_IsFoe(e)) {
+		return;
+	}
+
+	for (int i = 0i; i < HERO_MAXSTUNS; i++) {
+		if (g_stunEnt[i] == e) {
+			if (g_stunLanding[i] > 0) {
+				g_stunLanding[i] = max(g_stunLanding[i], secs);
+			} else {
+				g_stunUntil[i] = max(g_stunUntil[i], time + secs);
+			}
+			return;
+		}
+
+		if (!g_stunEnt[i] && free < 0i) {
+			free = i;
+		}
+	}
+
+	if (free < 0i) {
+		return;
+	}
+
+	g_stunEnt[free] = e;
+	g_stunLanding[free] = secs;
+	g_stunUntil[free] = time + 1.0f;	/* the latest it may stay airborne */
 }
 
 void
@@ -400,6 +469,16 @@ Hero_StunThink(void)
 		/* a dead monster's own death code owns it now */
 		if (e.health <= 0 || !(e.flags & FL_MONSTER)) {
 			g_stunEnt[i] = world;
+			continue;
+		}
+
+		if (g_stunLanding[i] > 0) {
+			if ((e.flags & FL_ONGROUND) || time >= g_stunUntil[i]) {
+				g_stunUntil[i] = time + g_stunLanding[i];
+				g_stunLanding[i] = 0;
+				e.velocity = [0, 0, 0];
+				ents.Input(e, "Sleep", "", world);
+			}
 			continue;
 		}
 
@@ -779,7 +858,7 @@ Hero_EngageStart(entity pl, int slot)
 	g_hExUsed[slot] = false;
 	g_hEnergy[slot] -= autocvar_coop_engageCost * 0.5f;
 	Hero_AddBarrier(pl, g_hBarrierCap[slot]);
-	ents.Input(pl, "Shockwave", "sprites/shockwave.spr 120 0 4 12 255 163 26 200", pl);
+	ents.Input(pl, "Shockwave", "sprites/shockwave.spr 120 0 0 4 12 0 255 163 26 200 0", pl);
 	sound(pl, CHAN_ITEM, "debris/beamstart1.wav", 1, ATTN_NORM);
 	Hero_Notice(pl, sprintf("ENGAGE: %s form", entityDef.GetString(pl.classname, "hero_form")));
 	Kit_FormStarted(pl, slot);

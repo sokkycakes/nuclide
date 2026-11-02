@@ -820,7 +820,7 @@ Bulkhead_Status(entity pl, int slot)
    Pressure: damage he takes builds it (and his own swings, in Boiler
    form). He regenerates while it's under half. Vent: lets it all out,
    knocking everything around him back by how much there was (aimed down
-   a corridor in Boiler form). Something already in the air flies less,
+   a corridor in Boiler form), and stunning it for 2 seconds. Something already in the air flies less,
    so many Kettles venting on one spot don't stack. Come Here: foes
    nearby turn on him. Charge: he runs through the pack and drags it into
    a clump. (The slower turn while roaring isn't in.) */
@@ -912,10 +912,14 @@ Kettle_Vent(entity pl, int slot)
 		}
 
 		Hero_Knock(e, normalize(to) * f + [0, 0, 220]);
+		Hero_StunLanded(e, 2.0f);	/* sokky 2026-11-02: venting stuns for 2 s */
 		n++;
 	}
 
-	ents.Input(pl, "Shockwave", "sprites/shockwave.spr 240 0 4 8 220 220 220 255", pl);
+	/* the houndeye's two blast rings, as its sonic attack draws them,
+	   out to the vent's reach and half of it */
+	Hero_Ring(pl, Hero_InForm(slot) ? 520 : 240);
+	Hero_Ring(pl, Hero_InForm(slot) ? 260 : 120);
 	sound(pl, CHAN_ITEM, "ambience/steamburst1.wav", 1, ATTN_NORM);
 	Hero_Notice(pl, sprintf("VENT: %d pressure, %i thrown", g_hRes[slot], n));
 	g_hRes[slot] = 0;
@@ -2389,7 +2393,7 @@ Medic_Field(entity pl, int slot)
 		return;
 	}
 
-	ents.Input(pl, "Shockwave", "sprites/shockwave.spr 400 0 4 8 90 200 255 160", pl);
+	ents.Input(pl, "Shockwave", "sprites/shockwave.spr 400 0 0 4 8 0 90 200 255 160 0", pl);
 	Hero_Notice(pl, sprintf("Barrier Field: %i shielded, +%d", count, total));
 	g_hReady1[slot] = time + 20.0f;
 }

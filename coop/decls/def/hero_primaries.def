@@ -154,16 +154,18 @@ entityDef weapon_jtf_gauntlets
 	"hudSlot"			"1"
 	"hudSlotPos"		"4"
 	"hero_static"		"1"
-	// CSO laserfist (zz_coopguns.pk3, private): Laser Fist (its arms are the weapon, kept)
-	"model"				"models/w_laserfist.mdl"
-	"model_player"		"models/p_laserfist.mdl"
-	"model_view"			"models/v_laserfist.mdl"
+	// CSO balrog9 (zz_coopguns.pk3, private): Balrog-IX, a melee
+	// gauntlet (sokky 2026-11-02; it replaced the Laser Fist). It has no
+	// world model, so the third-person one stands in.
+	"model"				"models/p_balrog9.mdl"
+	"model_player"		"models/p_balrog9.mdl"
+	"model_view"			"models/v_balrog9.mdl"
 	"model_viewMirror"	"1"
 	"act_holster"		""
 	"act_idle"			"0"
-	"act_fire"		"7"
-	"act_fireFailed"		"7"
-	"act_draw"		"9"
+	"act_fire"		"1,2,3,4,5"
+	"act_fireFailed"		"1,2,3,4,5"
+	"act_draw"		"6"
 	"snd_fire"			"Weapon_JTF.Gauntlets"
 	"snd_fireFailed"		"Weapon_JTF.Gauntlets"
 }
@@ -172,7 +174,8 @@ entityDef projectile_jtf_gauntlets
 {
 	"inherit"		"projectile_crowbar"
 	"damage"		"22"
-	"range"			"64"
+	"range"			"112"
+	"snd_hitBody"	"Weapon_JTF.GauntletsHit"
 	"knockback"		"350"
 	"push"			"35000"
 }
@@ -425,5 +428,5 @@ entityDef projectile_jtf_blades
 {
 	"inherit"		"projectile_crowbar"
 	"damage"		"18"
-	"range"			"56"
+	"range"			"104"
 }
