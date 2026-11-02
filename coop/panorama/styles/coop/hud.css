@@ -158,7 +158,7 @@
 .obj-val.muted { color: var(--disabled-text); }
 .obj-xpm { width: 100%; height: fit-children; flow-children: down; }
 .obj-xpm.hidden, .obj-row.hidden { visibility: collapse; }
-.obj-exp { margin: 3px 0px 5px 0px; }
+
 #ObjLevel { text-transform: none; }
 /* a sunken line between the wave and the player's own progress */
 .obj-sep { width: 100%; height: 2px; margin: 5px 0px; background-color: var(--frame-border); }
@@ -363,6 +363,8 @@
 .barrier-readout { margin-left: 26px; }
 .barrier-readout.hidden { visibility: collapse; }
 .hud-readout .barrier-value { color: #5aa8ff; }
+.hud-exp { width: 110px; margin-left: 22px; vertical-align: center; }
+.hud-exp.hidden { visibility: collapse; }
 
 /* bar: label and value, then a progress bar */
 .hud-bar { width: 280px; height: fit-children; flow-children: down; }

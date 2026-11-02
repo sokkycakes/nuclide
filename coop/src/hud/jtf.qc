@@ -6,7 +6,8 @@
                the rules set), teammates ("*mate"), the wave (serverinfo
                coop_wave, coop_left) and a key prompt ("*prompt"); posted
                only when it changed
-     "feed"    one kill, from HUD_Obituary
+     "feed"    a player's death (HUD_Obituary) or a team event such as a
+               revive (serverinfo coop_feed, "seq|who|verb|whom")
      "notice"  wave news, from serverinfo coop_notice ("seq|text")
 
    Weapon selection, pickup notices, damage arrows and the crosshair are
@@ -31,6 +32,8 @@ bool g_jtfTried;
 string g_jtfLast;
 float g_jtfNoticeSeq;
 bool g_jtfNoticeInit;
+float g_jtfFeedSeq;
+bool g_jtfFeedInit;
 string g_jtfPhud;
 
 string
@@ -415,6 +418,26 @@ Jtf_Post(void)
 			g_jtfNoticeSeq = seq;
 		}
 	}
+
+	/* team events for the feed: "seq|who|verb|whom" (Coop_Feed) */
+	string feed = serverkey("coop_feed");
+
+	if (feed != "") {
+		float n = tokenizebyseparator(feed, "|");
+		float feedSeq = stof(argv(0));
+
+		if (!g_jtfFeedInit) {
+			g_jtfFeedInit = true;
+			g_jtfFeedSeq = feedSeq;
+		} else if (n >= 4 && feedSeq != g_jtfFeedSeq) {
+			string me = getplayerkeyvalue(player_localnum, "name");
+			g_jtfFeedSeq = feedSeq;
+			ui_post(g_jtfView, "feed", sprintf("{\"a\":%s,\"w\":%s,\"v\":%s,\"you\":%s}", Jtf_Str(argv(1)),
+				Jtf_Str(argv(2)), Jtf_Str(argv(3)), (argv(1) == me || argv(3) == me) ? "true" : "false"));
+		}
+	} else {
+		g_jtfFeedInit = true;
+	}
 }
 
 /* the Half-Life feedback kept on top of the Panorama HUD: damage arrows and
@@ -504,13 +527,35 @@ HUD_Obituary(string targetName, string attackerName, string weaponDef, string me
 		return;
 	}
 
+	/* only players' deaths: not the monsters players kill (sokky) */
+	bool victimIsPlayer = false;
+
+	for (float i = 0; i < 32; i++) {
+		if (targetName != "" && getplayerkeyvalue(i, "name") == targetName) {
+			victimIsPlayer = true;
+			break;
+		}
+	}
+
+	if (!victimIsPlayer) {
+		return;
+	}
+
 	string me = getplayerkeyvalue(player_localnum, "name");
 	bool self = wordInString(meansOfDeath, "self");
 	string attacker = self ? "" : attackerName;
 	string weaponName = (weaponDef != "") ? Jtf_WeaponName(weaponDef) : "";
+	bool you = (attacker == me || targetName == me);
+
+	/* nobody to blame: "<name> died" */
+	if (attacker == "") {
+		ui_post(g_jtfView, "feed", sprintf("{\"a\":%s,\"w\":%s,\"v\":%s,\"you\":%s}", Jtf_Str(targetName),
+			Jtf_Str("died"), Jtf_Str(""), you ? "true" : "false"));
+		return;
+	}
 
 	ui_post(g_jtfView, "feed", sprintf("{\"a\":%s,\"w\":%s,\"v\":%s,\"you\":%s}", Jtf_Str(attacker),
-		Jtf_Str(weaponName), Jtf_Str(targetName), (attacker == me || targetName == me) ? "true" : "false"));
+		Jtf_Str(weaponName), Jtf_Str(targetName), you ? "true" : "false"));
 }
 
 /* ---- the controller's west button: Use or reload, by what's ahead --------

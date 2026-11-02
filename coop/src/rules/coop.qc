@@ -165,6 +165,19 @@ Coop_Announce(string msg)
 	print(sprintf("coop: %s\n", msg));
 }
 
+float g_coopFeedSeq;
+
+/* a line for the Panorama HUD's feed (coop/src/hud): "who verb whom", for
+   the team events the feed reports besides deaths (sokky 2026-11-02:
+   deaths, revives and objectives, no kills of monsters) */
+void
+Coop_Feed(string who, string verb, string whom)
+{
+	g_coopFeedSeq++;
+	serverinfo.SetString("coop_feed", sprintf("%d|%s|%s|%s", g_coopFeedSeq, strreplace("|", "/", who), verb,
+		strreplace("|", "/", whom)));
+}
+
 int
 Coop_PlayerCount(void)
 {
@@ -417,6 +430,7 @@ Coop_Revive(entity reviver, entity target)
 	Coop_AddPoints(reviver, autocvar_coop_revivePoints);
 	centerprint(target, sprintf("Revived by %s", reviver.netname));
 	centerprint(reviver, sprintf("You revived %s", target.netname));
+	Coop_Feed(reviver.netname, "revived", target.netname);
 	print(sprintf("coop: %s revived %s\n", reviver.netname, target.netname));
 }
 
