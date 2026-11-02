@@ -1107,7 +1107,7 @@ ncWeapon::UseAmmo(string fireInfo)
 		}
 
 		if (failRate) {
-			SetAttackNext(failRate);
+			SetAttackNext(failRate * _FireScale());
 		}
 		SetIdleNext(failDuration);
 
@@ -1512,7 +1512,7 @@ ncWeapon::Attack(string fireInfo)
 	float animTime = frameduration(m_viewModel, shotAnim);
 
 	if (m_fiFireRate) {
-		SetAttackNext(m_fiFireRate + burstDelay);
+		SetAttackNext((m_fiFireRate * _FireScale()) + burstDelay);
 	} else {
 		SetAttackNext(animTime + burstDelay);
 	}
@@ -2567,6 +2567,32 @@ ncWeapon::SetWeaponFrame(float newSequence)
 		ourOwner.m_weaponAnimSequence = newSequence;
 		ourOwner.m_weaponAnimTime = 0.0f;
 	}
+}
+
+/* a game can slow or speed one player's swings and shots with the
+   "*fireScale" player key: it multiplies the def's fireRate and failRate.
+   Read on both sides so prediction agrees. */
+float
+ncWeapon::_FireScale(void)
+{
+	ncPlayer ourOwner = (ncPlayer)GetOwner();
+	string scaleKey;
+
+	if (!ourOwner) {
+		return (1.0f);
+	}
+
+#ifdef SERVER
+	scaleKey = infokey(ourOwner, "*fireScale");
+#else
+	scaleKey = getplayerkeyvalue(ourOwner.entnum - 1, "*fireScale");
+#endif
+
+	if (STRING_SET(scaleKey) && stof(scaleKey) > 0.0f) {
+		return (stof(scaleKey));
+	}
+
+	return (1.0f);
 }
 
 void
