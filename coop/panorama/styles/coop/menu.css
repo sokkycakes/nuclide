@@ -434,3 +434,12 @@
 	vertical-align: center;
 	margin-right: 12px;
 }
+
+/* Options > Controller: the button layout, two columns of glyph + action
+   (glyphs: images/xelu, Xelu's prompts, CC0) */
+.pad-layout { width: 100%; height: fit-children; flow-children: right-wrap; }
+.pad-row { width: 33%; height: 28px; flow-children: right; }
+.pad-glyphs { width: 58px; height: 26px; flow-children: right; vertical-align: center; }
+.pad-glyph { width: 26px; height: 26px; margin-right: 2px; }
+.pad-key { font-size: 13px; vertical-align: center; margin-right: 6px; }
+.pad-action { font-size: 14px; vertical-align: center; }

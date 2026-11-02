@@ -475,7 +475,35 @@ var CoopMenu = ( function ()
 		serverList.status.text = servers.length ? "" : "No servers found yet.";
 	}
 
-	// Options: Player, Video, Audio, Mouse, Keys
+	// ---- button glyphs: Xelu's prompts (CC0, images/xelu) ---------------
+	// an engine key name ("G", "MOUSE2", "GP_LSHOULDER") to its glyph image,
+	// "" when there's none (the key's name is shown instead)
+	var PAD_GLYPHS = {
+		GP_A: "A", GP_B: "B", GP_X: "X", GP_Y: "Y", GP_LSHOULDER: "LB", GP_RSHOULDER: "RB",
+		GP_LTRIGGER: "LT", GP_RTRIGGER: "RT", GP_LTHUMB: "Left_Stick_Click", GP_RTHUMB: "Right_Stick_Click",
+		GP_START: "Menu", GP_MENU: "Menu", GP_BACK: "View", GP_VIEW: "View", GP_DPAD_UP: "Dpad_Up",
+		GP_DPAD_DOWN: "Dpad_Down", GP_DPAD_LEFT: "Dpad_Left", GP_DPAD_RIGHT: "Dpad_Right"
+	};
+	var KEY_GLYPHS = {
+		MOUSE1: "Mouse_Left", MOUSE2: "Mouse_Right", MOUSE3: "Mouse_Middle", SPACE: "Space", SHIFT: "Shift",
+		LSHIFT: "Shift", RSHIFT: "Shift", CTRL: "Ctrl", LCTRL: "Ctrl", RCTRL: "Ctrl", ALT: "Alt", LALT: "Alt",
+		RALT: "Alt", TAB: "Tab", ENTER: "Enter", ESCAPE: "Esc", BACKSPACE: "Backspace", UPARROW: "Arrow_Up",
+		DOWNARROW: "Arrow_Down", LEFTARROW: "Arrow_Left", RIGHTARROW: "Arrow_Right", INS: "Insert", DEL: "Del",
+		HOME: "Home", END: "End", PGUP: "Page_Up", PGDN: "Page_Down", CAPSLOCK: "Caps_Lock", TILDE: "Tilda",
+		BACKQUOTE: "Tilda", SEMICOLON: "Semicolon", MINUS: "Minus", SLASH: "Slash", "[": "Bracket_Left",
+		"]": "Bracket_Right", "'": "Quote", ";": "Semicolon", "-": "Minus", "/": "Slash", "`": "Tilda"
+	};
+	function glyph( key )
+	{
+		key = String( key || "" ).toUpperCase();
+		if ( PAD_GLYPHS[ key ] )
+			return "file://{images}/xelu/xbox/XboxSeriesX_" + PAD_GLYPHS[ key ] + ".png";
+		var k = KEY_GLYPHS[ key ] || ( /^([A-Z0-9]|F[1-9]|F1[0-2])$/.test( key ) ? key : "" );
+		return k ? "file://{images}/xelu/keyboard/" + k + "_Key_Dark.png" : "";
+	}
+	// glyphs for "KEY" or a chord "KEY+KEY" into parent, or the text when a
+	// key has no glyph
+	// Options: Player, Video, Audio, Mouse, Controller, Keys
 	var optionsTab = "player";
 	var bindsList = null;
 	var capture = null;	// the command waiting for a key
@@ -496,12 +524,62 @@ var CoopMenu = ( function ()
 	];
 	var binds = {};
 
+	// the controller's actions, as Justice Task Force lays them out
+	// (coop/src/menu/main.qc Menu_PadLayout); "+coop_lb"/"+coop_rb" are
+	// the shoulders, whose release is an ability and both together engage
+	var PAD = [
+		[ "+attack", "Fire" ], [ "+attack2", "Secondary fire" ], [ "+coop_lb", "Ability 1 (on release)" ],
+		[ "+coop_rb", "Ability 2 (on release)" ], [ "+coop_lb+coop_rb", "Engage (both shoulders)" ],
+		[ "+jump", "Jump" ], [ "+duck", "Crouch" ], [ "+reload", "Reload" ], [ "weaplast", "Swap weapon" ],
+		[ "+use", "Use / revive" ], [ "+sprint", "Sprint" ], [ "slot1", "Weapon slot 1" ], [ "slot2", "Weapon slot 2" ],
+		[ "slot3", "Weapon slot 3" ], [ "slot4", "Weapon slot 4" ], [ "+showscores", "Scores" ], [ "togglemenu", "Menu" ]
+	];
+	var padList = null;
+
+	// the pad buttons bound to a command, from the binds answer
+	function padKeys( command )
+	{
+		return ( binds[ command ] || "" ).trim().split( /\s+/ ).filter( function ( k )
+		{
+			return /^GP_/i.test( k );
+		} );
+	}
+
+	function drawPad()
+	{
+		if ( !padList )
+			return;
+		padList.RemoveAndDeleteChildren();
+		PAD.forEach( function ( a )
+		{
+			var keys = a[ 0 ] === "+coop_lb+coop_rb" ?
+				( padKeys( "+coop_lb" ).length && padKeys( "+coop_rb" ).length ? [ padKeys( "+coop_lb" )[ 0 ] + "+" + padKeys( "+coop_rb" )[ 0 ] ] : [] ) :
+				padKeys( a[ 0 ] );
+			if ( !keys.length )
+				return;
+			var r = make( "Panel", padList, "pad-row", { hittest: "false" } );
+			var g = make( "Panel", r, "pad-glyphs", { hittest: "false" } );
+			keys.forEach( function ( k )
+			{
+				k.split( "+" ).forEach( function ( one )
+				{
+					var src = glyph( one );
+					if ( src )
+						make( "Image", g, "pad-glyph", { src: src, hittest: "false" } );
+					else
+						label( g, "pad-key", one );
+				} );
+			} );
+			label( r, "pad-action", a[ 1 ] );
+		} );
+	}
+
 	function optionsPage( tab )
 	{
 		optionsTab = tab || optionsTab;
 		openPage( "options", "Options" );
 		var tabs = make( "Panel", body, "tabs", { hittest: "false" } );
-		[ [ "player", "Player" ], [ "video", "Video" ], [ "audio", "Audio" ], [ "mouse", "Mouse" ], [ "keys", "Keys" ] ]
+		[ [ "player", "Player" ], [ "video", "Video" ], [ "audio", "Audio" ], [ "mouse", "Mouse" ], [ "pad", "Controller" ], [ "keys", "Keys" ] ]
 			.forEach( function ( t )
 			{
 				var b = button( tabs, "tab" + ( t[ 0 ] === optionsTab ? " current" : "" ), t[ 1 ], function ()
@@ -549,6 +627,24 @@ var CoopMenu = ( function ()
 			pending[ "coop_invertmouse" ] = pending[ "coop_invertmouse" ] || ( pitch < 0 ? "1" : "0" );
 			toggleRow( area, "Invert mouse", "coop_invertmouse", "0" );
 			toggleRow( area, "Mouse smoothing", "m_filter", "0" );
+		}
+		else if ( optionsTab === "pad" )
+		{
+			toggleRow( area, "Use controller", "joy_enable", "1" );
+			toggleRow( area, "Invert look", "joy_invert", "1" );
+			sliderRow( area, "Turn speed", "joy_yawspeed", 60, 600, 10, 220 );
+			sliderRow( area, "Look up and down speed", "joy_pitchspeed", 60, 600, 10, 160 );
+			sliderRow( area, "Stick dead zone", "joy_deadzone", 0, 0.5, 0.05, 0.2 );
+			sliderRow( area, "Stick response curve", "joy_curve", 1, 4, 0.25, 2 );
+			section( area, "Buttons" );
+			padList = make( "Panel", area, "pad-layout", { hittest: "false" } );
+			drawPad();
+			Bulwark.Send( "binds", PAD.map( function ( k ) { return "\"" + k[ 0 ] + "\""; } ).join( " " ) );
+			button( footer, "btn", "Restore layout", function ()
+			{
+				cmd( "coop_padlayout" );
+				Bulwark.Send( "binds", PAD.map( function ( k ) { return "\"" + k[ 0 ] + "\""; } ).join( " " ) );
+			} );
 		}
 		else if ( optionsTab === "keys" )
 		{
@@ -734,6 +830,8 @@ var CoopMenu = ( function ()
 		binds = b || {};
 		if ( bindsList && current === "options" && optionsTab === "keys" )
 			drawBinds();
+		if ( current === "options" && optionsTab === "pad" )
+			drawPad();
 	} );
 	Bulwark.On( "key", function ( e )
 	{

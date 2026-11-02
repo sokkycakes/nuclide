@@ -909,6 +909,11 @@ m_init(void)
 	   a bind made now would overwrite the player's own */
 	registercommand("coop_defaultbinds");
 	registercommand("coop_herokeys");
+	registercommand("coop_padlayout");
+	registercommand("+coop_lb");
+	registercommand("-coop_lb");
+	registercommand("+coop_rb");
+	registercommand("-coop_rb");
 	localcmd("coop_defaultbinds\n");
 
 	Hero_SendSaved();
@@ -952,6 +957,67 @@ Menu_DefaultBind(string command, string keys)
 	}
 
 	print(sprintf("^3coop: no free key for \"%s\" (tried %s); bind one in Options or run coop_herokeys\n", command, keys));
+}
+
+/* ---- the controller (sokky 2026-11-02) -------------------------------------
+   LB is ability 1 and RB ability 2, each on release, so that holding both
+   is engage without either ability going off. West reloads, north swaps
+   to the last weapon, east ducks, south jumps; Use moves to the right
+   stick click. Look is inverted. The rest is the engine's pad layout
+   (triggers fire, d-pad slots, left stick click sprints), bound here too. Applied once
+   per config (coop_padLayout remembers it) after the saved config has run,
+   so later changes stick; "coop_padlayout" puts it back. */
+#define COOP_PADLAYOUT 1
+bool g_padLB, g_padRB, g_padChord;
+
+void
+Menu_PadLayout(void)
+{
+	localcmd("bind GP_LSHOULDER +coop_lb\nbind GP_RSHOULDER +coop_rb\n");
+	localcmd("bind GP_X +reload\nbind GP_Y weaplast\nbind GP_B +duck\nbind GP_A +jump\nbind GP_RTHUMB +use\n");
+	/* the rest as the engine's own pad layout, which it applies only to a
+	   pad with nothing bound, so after the binds above it never would */
+	localcmd("bind GP_RTRIGGER +attack\nbind GP_LTRIGGER +attack2\nbind GP_LTHUMB +sprint\nbind GP_VIEW +showscores\n");
+	localcmd("bind GP_MENU togglemenu\nbind GP_DPAD_UP slot1\nbind GP_DPAD_RIGHT slot2\nbind GP_DPAD_DOWN slot3\nbind GP_DPAD_LEFT slot4\n");
+	localcmd("seta joy_invert 1\n");
+	localcmd(sprintf("seta coop_padLayout %d\n", COOP_PADLAYOUT));
+}
+
+void
+Menu_PadShoulder(bool left, bool down)
+{
+	if (down) {
+		if (left) {
+			g_padLB = true;
+		} else {
+			g_padRB = true;
+		}
+
+		/* both held: engage, and neither release fires its ability */
+		if (g_padLB && g_padRB && !g_padChord) {
+			g_padChord = true;
+			localcmd("impulse 24\n");
+		}
+		return;
+	}
+
+	if (left) {
+		if (!g_padLB) {
+			return;
+		}
+		g_padLB = false;
+	} else {
+		if (!g_padRB) {
+			return;
+		}
+		g_padRB = false;
+	}
+
+	if (!g_padChord) {
+		localcmd(left ? "impulse 22\n" : "impulse 23\n");
+	} else if (!g_padLB && !g_padRB) {
+		g_padChord = false;
+	}
 }
 
 /* coop_herokeys: puts the hero keys on C G X Z V, over whatever is there */
@@ -1072,6 +1138,26 @@ m_consolecommand(string cmd)
 	case "coop_defaultbinds":
 		g_fontsReady = true;
 		Menu_DefaultBinds();
+
+		if (cvar("coop_padLayout") < COOP_PADLAYOUT) {
+			Menu_PadLayout();
+		}
+		return TRUE;
+	case "coop_padlayout":
+		Menu_PadLayout();
+		print("coop: controller layout restored\n");
+		return TRUE;
+	case "+coop_lb":
+		Menu_PadShoulder(true, true);
+		return TRUE;
+	case "-coop_lb":
+		Menu_PadShoulder(true, false);
+		return TRUE;
+	case "+coop_rb":
+		Menu_PadShoulder(false, true);
+		return TRUE;
+	case "-coop_rb":
+		Menu_PadShoulder(false, false);
 		return TRUE;
 	case "coop_herokeys":
 		Menu_ForceHeroKeys();

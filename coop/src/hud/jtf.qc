@@ -98,14 +98,45 @@ Jtf_WeaponName(string def)
 string
 Jtf_KeyFor(string command)
 {
-	tokenize(findkeysforcommandex(command));
-	float key = stof(argv(0));
+	/* the controller's button when it was used last (the engine's
+	   in_lastdevice), else the first keyboard or mouse key */
+	bool pad = cvar("in_lastdevice") ? true : false;
+	float c = tokenize(findkeysforcommandex(command));
 
-	if (key <= 0) {
-		return ("");
+	/* the engine answers with key names ("E MOUSE2 GP_Y") */
+	for (float i = 0; i < c; i++) {
+		string name = argv(i);
+		float key = stringtokeynum(name);
+		bool padKey = (key >= 768 && key <= 831) ? true : false;
+
+		if (key > 0 && padKey == pad) {
+			return (strtoupper(name));
+		}
 	}
 
-	return (strtoupper(keynumtostring(key)));
+	return ("");
+}
+
+/* the keys for the letters in the hero status line ("[G] Vent"): what the
+   player presses for each, by what it runs. On a controller ability 1 and
+   2 are the shoulders and engage both (coop/src/menu/main.qc) */
+string
+Jtf_HeroKeys(void)
+{
+	bool pad = cvar("in_lastdevice") ? true : false;
+	string g = Jtf_KeyFor("impulse 22"), x = Jtf_KeyFor("impulse 23"), z = Jtf_KeyFor("impulse 24");
+
+	if (pad) {
+		string lb = Jtf_KeyFor("+coop_lb"), rb = Jtf_KeyFor("+coop_rb");
+
+		if (g == "") g = lb;
+		if (x == "") x = rb;
+		if (z == "" && lb != "" && rb != "") z = strcat(lb, "+", rb);
+	}
+
+	return (sprintf("{\"C\":%s,\"G\":%s,\"X\":%s,\"Z\":%s,\"V\":%s,\"pad\":%s}",
+		Jtf_Str(Jtf_KeyFor("impulse 21")), Jtf_Str(g), Jtf_Str(x), Jtf_Str(z),
+		Jtf_Str(Jtf_KeyFor("impulse 25")), pad ? "true" : "false"));
 }
 
 /* "name|energy|energymax|barrier|cap|form|status|formline|static|dynamic"
@@ -183,9 +214,9 @@ Jtf_Post(void)
 		max(0, player.GetHealth()), player.GetArmor(), Jtf_Str(title), weapon.GetClip(), weapon.GetClipSize(),
 		weapon.GetAmmo1());
 	json = strcat(json, sprintf("\"noAmmo\":%s,\"held\":%d,\"hero\":%s,", noAmmo ? "true" : "false", held, hero));
-	json = strcat(json, sprintf("\"wave\":%d,\"left\":%d,\"team\":%s,\"prompt\":%s,\"promptKey\":%s}",
+	json = strcat(json, sprintf("\"wave\":%d,\"left\":%d,\"team\":%s,\"prompt\":%s,\"promptKey\":%s,\"keys\":%s}",
 		stof(serverkey("coop_wave")), (left == "") ? -1 : stof(left), Jtf_Team(), Jtf_Str(prompt),
-		Jtf_Str(Jtf_KeyFor("+use"))));
+		Jtf_Str(Jtf_KeyFor("+use")), Jtf_HeroKeys()));
 
 	if (json != g_jtfLast) {
 		if (g_jtfLast) {
