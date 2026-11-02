@@ -522,12 +522,15 @@ XPM_DrawHud(entity pl, int s)
 	}
 
 	/* the Panorama HUD shows it in its objective panel: "xp|need|level|
-	   max level|rank|medals|max medals" (need 0 at the top level) */
+	   max level|rank|medals|max medals|level start" (need 0 at the top
+	   level; level start is the XP this level began at) */
 	if (infokey(pl, "phud") == "1") {
 		bool top = (g_xpm[s].level >= XPM_MAXLEVEL);
 		string stats = sprintf("%i|%i|%i|%i|", g_xpm[s].xp, top ? 0i : XPM_NeededXP(g_xpm[s].level), g_xpm[s].level,
 			XPM_MAXLEVEL);
-		stats = strcat(stats, sprintf("%s|%i|%i", XPM_Rank(g_xpm[s].level), g_xpm[s].medals, XPM_MAXMEDALS));
+		stats = strcat(stats, sprintf("%s|%i|%i|", XPM_Rank(g_xpm[s].level), g_xpm[s].medals, XPM_MAXMEDALS));
+		/* XP is a running total, so the gauge needs where this level began */
+		stats = strcat(stats, sprintf("%i", (g_xpm[s].level > 0i) ? XPM_NeededXP(g_xpm[s].level - 1i) : 0i));
 
 		if (infokey(pl, "*xpm") != stats) {
 			forceinfokey(pl, "*xpm", stats);

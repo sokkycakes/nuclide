@@ -319,7 +319,7 @@
 		var st = ( s.stats || "0|0" ).split( "|" );
 		$id( "ObjScore" ).text = st[0] || "0";
 		$id( "ObjPoints" ).text = "p" + ( st[1] || "0" );
-		// the XPM plugin: "xp|need|level|max level|rank|medals|max medals"
+		// the XPM plugin: "xp|need|level|max level|rank|medals|max medals|level start"
 		var x = ( s.xpm || "" ).split( "|" );
 		$id( "ObjXpm" ).SetHasClass( "hidden", x.length < 7 );
 		if ( x.length < 7 )
@@ -327,7 +327,9 @@
 		$id( "ObjLevel" ).text = "Lv" + x[2];
 		$id( "ObjRank" ).text = x[4];
 		// need is 0 at the top level: a full gauge
-		$id( "ObjExpFill" ).style.width = x[1] === "0" ? "100%" : pct( Number( x[0] ), Number( x[1] ) );
+		// XP is a running total: fill from where this level began
+		var from = x.length > 7 ? Number( x[7] ) : 0;
+		$id( "ObjExpFill" ).style.width = x[1] === "0" ? "100%" : pct( Number( x[0] ) - from, Number( x[1] ) - from );
 		$id( "ObjMedals" ).text = "x" + x[5];
 		$id( "ObjMedalBox" ).SetHasClass( "hidden", Number( x[5] ) <= 0 );
 	}
