@@ -17,3 +17,19 @@ entityDef l4d_tank
 	"targetname"	"l4d_tank"
 	"solid"			"0"
 }
+
+// Bodies for the AI versions (coop_l4dbot in coop/src/rules/l4dinfected.qc).
+// The health only makes them take damage; the rules read it back each frame.
+entityDef l4d_hunter_ai
+{
+	"spawnclass"	"prop_dynamic"
+	"model"			"models/infected/hunter.mdl"
+	"health"		"100000"
+}
+
+entityDef l4d_tank_ai
+{
+	"spawnclass"	"prop_dynamic"
+	"model"			"models/infected/hulk.mdl"
+	"health"		"100000"
+}
