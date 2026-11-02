@@ -106,7 +106,13 @@
 .mate.dead { opacity: 0.4; }
 /* squad cards: no panel behind them (sokky); teammates' health gauges
    are green, with the theme's stripes recoloured to match */
-.squad .mate { padding: 0px; margin-bottom: 6px; }
+.squad .mate { width: fit-children; padding: 0px; margin-bottom: 6px; }
+/* gauges end about 180 units in (sokky); the name runs on, with the
+   Cadence arrow or "Down" right after it */
+.squad .meter { width: 136px; }
+.squad .mate-top { width: fit-children; }
+.squad .mate-name { width: fit-children; }
+.squad .mate-status, .squad .mate-up { margin-left: 8px; }
 .mate .meter-fill
 {
 	background-color: gradient( linear, 0% 0%, 0% 100%, from( #8ae234 ), color-stop( 0.4, #4e9a06 ), to( #73d216 ) );
