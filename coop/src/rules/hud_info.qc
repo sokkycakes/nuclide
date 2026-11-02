@@ -15,7 +15,15 @@
                             A controller's west button uses then, else it
                             reloads (coop/src/hud/jtf.qc, +coop_x)
 
-   The hero's own line is "*herohud", from Hero_HudInfo. */
+   The hero's own line is "*herohud", from Hero_HudInfo.
+
+     "*cadence"             "1" to "3" while a Choir's Cadence buffs this
+                            player (3 = the middle of her cone), else ""
+     "*cadenceN"            on a Choir: how many teammates her Cadence
+                            buffs right now
+     "*outline"             "r g b" (0-255): other players draw this player
+                            outlined in that colour (gold in a Cadence;
+                            src/shared/game/Player.qc) */
 
 float g_coopHudNext;
 
@@ -64,6 +72,28 @@ Coop_HudSet(entity p, string key, string value)
 	}
 }
 
+/* Choir's Cadence: whether p is in one, and on a Choir how many she buffs */
+void
+Coop_HudCadence(entity p, int slot)
+{
+	bool buffed = (slot >= 0i && is.Alive(p) && time < g_cadenceUntil[slot]) ? true : false;
+	int count = 0i;
+
+	Coop_HudSet(p, "*cadence", buffed ? ftos(ceil(g_cadenceAmt[slot] * 3)) : "");
+	Coop_HudSet(p, "*outline", buffed ? "255 196 64" : "");
+
+	if (slot >= 0i && g_hLogic[slot] == HL_CHOIR) {
+		for (int i = 0i; i < COOP_MAXPLAYERS; i++) {
+			if (i != slot && time < g_cadenceUntil[i] && g_cadenceBy[i] == slot) {
+				count++;
+			}
+		}
+		Coop_HudSet(p, "*cadenceN", itos(count));
+	} else {
+		Coop_HudSet(p, "*cadenceN", "");
+	}
+}
+
 void
 Coop_HudFrame(void)
 {
@@ -87,6 +117,8 @@ Coop_HudFrame(void)
 		int slot = Coop_Slot(p);
 		string state = "a";
 		string prompt = "";
+
+		Coop_HudCadence(p, slot);	/* bots too: the outline is for everyone */
 
 		if (p.classname == "spectator") {
 			Coop_HudSet(p, "*mate", "");

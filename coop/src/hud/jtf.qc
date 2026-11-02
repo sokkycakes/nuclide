@@ -221,8 +221,8 @@ Jtf_Team(void)
 		}
 
 		tokenizebyseparator(mate, "|");
-		json = strcat(json, (json == "") ? "" : ",", sprintf("{\"name\":%s,\"hp\":%d,\"st\":%s}",
-			Jtf_Str(name), stof(argv(0)), Jtf_Str(argv(1))));
+		json = strcat(json, (json == "") ? "" : ",", sprintf("{\"name\":%s,\"hp\":%d,\"st\":%s,\"cad\":%d}",
+			Jtf_Str(name), stof(argv(0)), Jtf_Str(argv(1)), stof(getplayerkeyvalue(i, "*cadence"))));
 	}
 
 	return (strcat("[", json, "]"));
@@ -257,8 +257,13 @@ Jtf_Post(void)
 	json = strcat(json, sprintf("\"wave\":%d,\"left\":%d,\"team\":%s,\"prompt\":%s,\"promptKey\":%s,\"keys\":%s}",
 		stof(serverkey("coop_wave")), (left == "") ? -1 : stof(left), Jtf_Team(), Jtf_Str(prompt),
 		Jtf_Str(Jtf_UseKey()), Jtf_HeroKeys()));
-	json = strcat(substring(json, 0, strlen(json) - 1), sprintf(",\"respawn\":%s,\"fireKey\":%s}", Jtf_Respawn(),
+	json = strcat(substring(json, 0, strlen(json) - 1), sprintf(",\"respawn\":%s,\"fireKey\":%s,", Jtf_Respawn(),
 		Jtf_Str(Jtf_KeyFor("+attack"))));
+	/* Choir's Cadence: how strongly it buffs us (0-3), and on a Choir how
+	   many teammates it buffs (-1 when we aren't one) */
+	string cadN = player.GetString("*cadenceN");
+	json = strcat(json, sprintf("\"cadence\":%d,\"cadenceN\":%d}", stof(player.GetString("*cadence")),
+		(cadN == "") ? -1 : stof(cadN)));
 
 	if (json != g_jtfLast) {
 		if (g_jtfLast) {

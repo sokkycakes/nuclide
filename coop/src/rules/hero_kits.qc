@@ -404,6 +404,13 @@ Dispatch_Status(entity pl, int slot)
 #define CADENCE_RANGE 700
 #define CADENCE_DOT 0.7
 
+/* who is in a cadence right now, for the HUD and the gold outline
+   (hud_info.qc): until when, how close to the middle (0-1), and the slot
+   of the Choir giving it */
+float g_cadenceUntil[COOP_MAXPLAYERS];
+float g_cadenceAmt[COOP_MAXPLAYERS];
+int g_cadenceBy[COOP_MAXPLAYERS];
+
 /* 0 outside her cone, up to 1 in the middle */
 float
 Choir_Centrality(entity choir, int cslot, entity p)
@@ -463,7 +470,15 @@ Choir_Think(entity pl, int slot)
 		float c = Choir_Centrality(pl, slot, p);
 
 		if (c > 0) {
+			int ps = Coop_Slot(p);
+
 			Hero_AddBarrier(p, (2 + 8 * c) * frametime);
+
+			if (ps >= 0i) {
+				g_cadenceUntil[ps] = time + 0.3f;
+				g_cadenceAmt[ps] = c;
+				g_cadenceBy[ps] = slot;
+			}
 		}
 	}
 }

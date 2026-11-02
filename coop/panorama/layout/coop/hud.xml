@@ -59,6 +59,15 @@
 					<Label id="HealthValue" class="readout-value" text="100" />
 				</Panel>
 			</Panel>
+			<!-- Choir's Cadence: buffing us (pips: how close to her cone's middle),
+			     or on a Choir, how many teammates she buffs -->
+			<Panel id="Cadence" class="cadence hidden" hittest="false">
+				<Label id="CadenceLabel" class="hud-label cadence-label" text="Cadence" />
+				<Panel id="CadencePips" class="cadence-pips">
+					<Panel class="cadence-pip" /><Panel class="cadence-pip" /><Panel class="cadence-pip" />
+				</Panel>
+				<Label id="CadenceCount" class="hud-label cadence-count" text="" />
+			</Panel>
 			<Panel id="ArmorBar" class="hud-bar success">
 				<Panel class="bar-top">
 					<Label id="ArmorLabel" class="hud-label muted bar-label" text="Barrier" />

@@ -776,6 +776,18 @@ ncPlayer::predraw(void)
 		}
 	}
 
+	/* a game can outline a player in a colour of its own, for everyone:
+	   the "*outline" key, "r g b" from 0 to 255 (co-op marks players a
+	   Choir's Cadence buffs with it) */
+	if (!localplayer && entnum != player_localentnum) {
+		string ol = getplayerkeyvalue(entnum - 1, "*outline");
+
+		if (ol != "") {
+			renderflags |= RF_OUTLINE;
+			outlinecolor = stov(ol) / 255;
+		}
+	}
+
 	/* apply any fire effects, if we're burning (we're of type ncSurfacePropEntity that can burn) */
 	RenderFire();
 
