@@ -531,7 +531,7 @@ var CoopMenu = ( function ()
 		[ "+attack", "Fire" ], [ "impulse 21", "Hero tool" ], [ "+coop_lb", "Ability 1 (on release)" ],
 		[ "+coop_rb", "Ability 2 (on release)" ], [ "+coop_lb+coop_rb", "Engage (both shoulders)" ],
 		[ "impulse 24", "Engage" ], [ "+jump", "Jump" ], [ "+duck", "Crouch" ], [ "+coop_x", "Use / reload" ], [ "weaplast", "Swap weapon" ],
-		[ "impulse 25", "Engage move" ], [ "+attack2", "Secondary fire" ], [ "slot1", "Weapon slot 1" ], [ "slot2", "Weapon slot 2" ],
+		[ "impulse 25", "Engage move" ], [ "+attack2", "Secondary fire" ], [ "cmd shop", "Shop and skills" ], [ "slot2", "Weapon slot 2" ],
 		[ "slot3", "Weapon slot 3" ], [ "slot4", "Weapon slot 4" ], [ "+showscores", "Scores" ], [ "togglemenu", "Menu" ]
 	];
 	var padList = null;

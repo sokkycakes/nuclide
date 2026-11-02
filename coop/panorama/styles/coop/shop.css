@@ -133,3 +133,33 @@
 	font-size: 26px;
 	color: #d0d0d0;
 }
+
+/* the controller's highlight and button prompts (scripts/coop/loadout.js) */
+.shop-line.focus,
+.skill.focus
+{
+	background-color: #ffa31a40;
+	border: 2px solid #ffd27a;
+}
+.pad-keys
+{
+	height: 100%;
+	flow-children: right;
+}
+.pad-glyph
+{
+	width: 34px;
+	height: 34px;
+	vertical-align: center;
+	margin-right: 2px;
+}
+.pad-text
+{
+	vertical-align: center;
+	margin-left: 4px;
+	margin-right: 22px;
+	font-size: 19px;
+	color: #c8c8c8;
+}
+.shop-keys.hidden,
+.pad-keys.hidden { visibility: collapse; }
