@@ -7,6 +7,9 @@
      "*mate"                each player's "health|state" for their
                             teammates' cards: a alive, d down, x dead
      "*prompt"              the key prompt under the crosshair (Use)
+     "*respawn"             while down: "<time downed> <delay>" for the
+                            respawn bar, "survival" when only a revive
+                            brings them back, else ""
      "*usable"              "1" when Use would do something: a teammate to
                             revive, a gun to take, a button or door ahead.
                             A controller's west button uses then, else it
@@ -95,6 +98,13 @@ Coop_HudFrame(void)
 		}
 
 		Coop_HudSet(p, "*mate", sprintf("%d|%s", max(0, p.health), state));
+
+		if (slot >= 0i && !is.Alive(p) && g_coopDown[slot]) {
+			Coop_HudSet(p, "*respawn", autocvar_coop_survival ? "survival" :
+				sprintf("%.2f %.2f", g_coopDownTime[slot], autocvar_coop_respawnDelay));
+		} else {
+			Coop_HudSet(p, "*respawn", "");
+		}
 
 		if (is.Bot(p)) {
 			continue;

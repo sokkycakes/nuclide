@@ -33,6 +33,16 @@
 			<Label id="NoticeSub" class="notice-sub" text="" />
 		</Panel>
 
+		<!-- respawn: while down, how long until fire brings you back -->
+		<Panel id="Respawn" class="respawn hidden" hittest="false">
+			<Panel class="bar-top">
+				<Label id="RespawnLabel" class="hud-label bar-label" text="Respawning" />
+				<Label id="RespawnValue" class="hud-label bar-value" text="" />
+			</Panel>
+			<Panel class="meter"><Panel id="RespawnFill" class="meter-fill" /></Panel>
+			<Label id="RespawnHint" class="respawn-hint" text="A teammate can revive you" />
+		</Panel>
+
 		<!-- key prompt under the crosshair -->
 		<Panel id="Prompt" class="key-prompt" hittest="false">
 			<Panel id="PromptKeyBox" class="key-cap"><Label id="PromptKey" class="key-text" text="E" /></Panel>

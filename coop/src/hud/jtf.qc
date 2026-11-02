@@ -117,6 +117,33 @@ Jtf_KeyFor(string command)
 	return ("");
 }
 
+/* the respawn bar: {"frac":0..1,"left":seconds,"survival":bool}, or null
+   when alive. From "*respawn" (coop/src/rules/hud_info.qc); the progress
+   is worked out here each frame against the client's clock, in 1% steps
+   so the state is posted at most a hundred times a respawn */
+string
+Jtf_Respawn(void)
+{
+	string r = getplayerkeyvalue(player_localnum, "*respawn");
+
+	if (r == "") {
+		return ("null");
+	}
+
+	if (r == "survival") {
+		return ("{\"frac\":0,\"left\":0,\"survival\":true}");
+	}
+
+	tokenize(r);
+	float down = stof(argv(0));
+	float delay = max(0.01f, stof(argv(1)));
+	float frac = bound(0, (time - down) / delay, 1);
+
+	frac = floor(frac * 100) / 100;
+	return (sprintf("{\"frac\":%s,\"left\":%d,\"survival\":false}", ftos(frac),
+		ceil(max(0, delay - (time - down)))));
+}
+
 /* the Use key; on a controller that's the west button, "+coop_x" */
 string
 Jtf_UseKey(void)
@@ -230,6 +257,8 @@ Jtf_Post(void)
 	json = strcat(json, sprintf("\"wave\":%d,\"left\":%d,\"team\":%s,\"prompt\":%s,\"promptKey\":%s,\"keys\":%s}",
 		stof(serverkey("coop_wave")), (left == "") ? -1 : stof(left), Jtf_Team(), Jtf_Str(prompt),
 		Jtf_Str(Jtf_UseKey()), Jtf_HeroKeys()));
+	json = strcat(substring(json, 0, strlen(json) - 1), sprintf(",\"respawn\":%s,\"fireKey\":%s}", Jtf_Respawn(),
+		Jtf_Str(Jtf_KeyFor("+attack"))));
 
 	if (json != g_jtfLast) {
 		if (g_jtfLast) {
