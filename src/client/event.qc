@@ -30,10 +30,7 @@ EV_Damage(void)
 	CSQC_Parse_Damage_New(vecDmgPos, iDmgTake, iDmgFlags);
 
 	if (autocvar_cg_damageShake) {
-		pSeat->m_flShakeDuration += 1.25f;
-		pSeat->m_flShakeAmp += iDmgTake / 16;
-		pSeat->m_flShakeFreq += 0.1;
-		pSeat->m_flShakeTime += pSeat->m_flShakeDuration;
+		Shake_Start((float)iDmgTake / 16, 0.1f, 1.25f);
 	}
 }
 
@@ -142,10 +139,7 @@ EV_Shake(void)
 	if (me.classname == "spectator")
 			return;
 
-	pSeat->m_flShakeDuration = duration;
-	pSeat->m_flShakeAmp = amplitude;
-	pSeat->m_flShakeFreq = frequency;
-	pSeat->m_flShakeTime = pSeat->m_flShakeDuration;
+	Shake_Start(amplitude, frequency, duration);
 }
 
 void

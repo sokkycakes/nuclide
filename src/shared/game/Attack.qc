@@ -89,9 +89,18 @@ ncAttack::Launch(vector startPos, vector launchDir, float fuseOffset, float powe
 	} else if (willDrop) {
 		string classToDrop = GetSpawnString("def_drop");
 		float dropDistance = GetSpawnFloat("dropDistance");
+		vector dropVelocity = GetSpawnVector("dropVelocity");
 		plantedEntity = spawnClass(classToDrop, startPos + (anglesToForward(launchDir) * dropDistance));
+		/* spawnClass() has spawned it already; spawning it again would
+		   put it back at the spawn data's origin, '0 0 0' */
 		plantedEntity.SetAngles([0, launchDir[1], 0]);
-		plantedEntity.Spawn();
+
+		/* tossed: forward, right, up, relative to where we aim */
+		if (dropVelocity != g_vec_null) {
+			plantedEntity.SetVelocity((anglesToForward(launchDir) * dropVelocity[0])
+				+ (anglesToRight(launchDir) * dropVelocity[1])
+				+ (anglesToUp(launchDir) * dropVelocity[2]));
+		}
 	}
 
 	if (grappleHook) {

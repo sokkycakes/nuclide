@@ -1,0 +1,112 @@
+// Team Fortress template: base's player sounds with Action Quake 2 samples
+// (from zz_aq2.pk3, kept outside git). This file replaces base's, so it
+// keeps every entry; the jump and weapon-selection sounds are base's.
+
+Player.FallDamage
+{
+	sample aq2/male/fall1.wav
+	sample aq2/male/fall2.wav
+}
+SprayCan.Paint
+{
+	sample common/null.wav
+}
+Player.LightFall
+{
+	sample aq2/player/land1.wav
+}
+Player.Death
+{
+	sample aq2/male/death1.wav
+	sample aq2/male/death2.wav
+	sample aq2/male/death3.wav
+	sample aq2/male/death4.wav
+}
+
+Player.GaspLight
+{
+	sample aq2/player/gasp1.wav
+}
+
+Player.GaspHeavy
+{
+	sample aq2/player/gasp2.wav
+}
+
+Player.WaterExit
+{
+	sample aq2/player/watr_out.wav
+}
+
+Player.WaterEnter
+{
+	sample aq2/player/watr_in.wav
+}
+
+Player.DenyWeaponSelection
+{
+	follow
+	omnidirectional
+	attenuation none
+	volume 0.5
+	sample misc/menu3.wav
+}
+
+Player.WeaponSelected
+{
+	follow
+	omnidirectional
+	attenuation none
+	volume 0.5
+	sample misc/menu2.wav
+}
+
+Player.WeaponSelectionMoveSlot
+{
+	follow
+	omnidirectional
+	attenuation none
+	volume 0.5
+	sample misc/menu1.wav
+}
+
+Player.WeaponSelectionOpen
+{
+	follow
+	omnidirectional
+	attenuation none
+	volume 0.5
+	sample misc/menu1.wav
+}
+
+Player.WeaponSelectionClose
+{
+	follow
+	omnidirectional
+	attenuation none
+	volume 0.5
+	sample misc/menu3.wav
+}
+
+Player.Pain
+{
+	sample aq2/male/pain25_1.wav
+	sample aq2/male/pain25_2.wav
+	sample aq2/male/pain50_1.wav
+	sample aq2/male/pain50_2.wav
+	sample aq2/male/pain75_1.wav
+	sample aq2/male/pain75_2.wav
+	sample aq2/male/pain100_1.wav
+	sample aq2/male/pain100_2.wav
+}
+
+Player.Jump
+{
+	sample player/plyrjmp8.wav
+}
+
+
+Player.Gib
+{
+	sample aq2/misc/udeath.wav
+}

@@ -84,11 +84,7 @@ void vguiTextBox::Draw(void)
 	vector pos = m_parent.m_vecOrigin + m_vecOrigin;
 	drawsetcliparea(pos[0], pos[1], m_vecSize[0], m_vecSize[1]);
 
-	drawfill(pos, m_vecSize, [0,0,0], 0.25f);
-	drawfill(pos, [m_vecSize[0], 1], [0,0,0], 0.5f);
-	drawfill(pos + [0, m_vecSize[1] - 1], [m_vecSize[0], 1], [1,1,1], 0.5f);
-	drawfill(pos + [0, 1], [1, m_vecSize[1] - 2], [0,0,0], 0.5f);
-	drawfill(pos + [m_vecSize[0] - 1, 1], [1, m_vecSize[1] - 2], [1,1,1], 0.5f);
+	theme.DrawTextEntry(pos, m_vecSize, (m_iFlags & TEXTBOX_FOCUS) ? VGUI_STATE_FOCUSED : VGUI_STATE_NORMAL);
 
 	m_flTime += frametime * 2;
 
@@ -99,14 +95,14 @@ void vguiTextBox::Draw(void)
 	// blinking cursor
 	if (m_iFlags & TEXTBOX_FOCUS) {
 		if (rint(m_flTime) & 1) {
-			theme.DrawText(pos + [8 - ofs, 8], sprintf("%s|", m_strText), m_vecSize, g_fntDefault);
+			theme.DrawTextEntryText(pos + [8 - ofs, 8], sprintf("%s|", m_strText), m_vecSize, g_fntDefault);
 			drawresetcliparea();
 			return;
 		}
 	}
 
 	if (m_strText) {
-		theme.DrawText(pos + [8 - ofs, 8], m_strText, m_vecSize, g_fntDefault);
+		theme.DrawTextEntryText(pos + [8 - ofs, 8], m_strText, m_vecSize, g_fntDefault);
 	}
 
 	drawresetcliparea();
@@ -139,8 +135,10 @@ bool vguiTextBox::Input (float flEVType, float flKey, float flChar, float flDevI
 					m_strText = substring(m_strText, 0, strlen(m_strText) - 1);
 		break;
 	case K_ENTER:
-		if (tmpvguiTextBox1) {
+		/* only the focused box answers, once per press */
+		if (flEVType == IE_KEYDOWN && m_iFlags & TEXTBOX_FOCUS && tmpvguiTextBox1) {
 			tmpvguiTextBox1();
+			ret = true;
 		}
 		break;
 	default:

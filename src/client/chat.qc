@@ -46,7 +46,7 @@ Chat_Draw(void)
 		string tempstr;
 		vector temppos = [0.0f, 0.0f, 0.0f];
 		tempstr = sprintf("^3Vote: %s", serverkey("vote_cmd"));
-		temppos[0] = (g_hudres[0]/2) - (stringwidth(tempstr, TRUE, [12,12]) / 2);
+		temppos[0] = (g_hudres[0]/2) - (Font_StringWidth(tempstr, TRUE, g_fntChat) / 2);
 		temppos[1] = 96;
 		Font_DrawText(temppos, tempstr, g_fntChat);
 

@@ -30,6 +30,7 @@ ncView::ncView(void)
 	m_client = __NULL__;
 	m_flSensitivity = 1.0f;
 	m_bDrawEntities = true;
+	m_deathCamActive = false;
 }
 
 string Sky_GetMaterial(void);
@@ -337,10 +338,7 @@ ncView::UpdateView(void)
 				pSeat->m_flDamageAlpha = 0.0f;
 				pSeat->m_vecDamagePos = g_vec_null;
 				pSeat->m_iDamageFlags = 0i;
-				pSeat->m_flShakeFreq = 0.0f;
-				pSeat->m_flShakeDuration = 0.0f;
-				pSeat->m_flShakeTime = 0.0f;
-				pSeat->m_flShakeAmp = 0.0f;
+				Shake_Stop();
 			}
 			_m_bWasAlive = false;
 		} else {
@@ -357,6 +355,8 @@ ncView::UpdateView(void)
 	if (cl) {
 	switch (GetViewMode()) {
 	case VIEWMODE_FPS:
+		m_deathCamActive = false;
+
 		if (Client_InIntermission()) {
 			cl.UpdateIntermissionCam();
 		} else {
@@ -392,40 +392,69 @@ ncView::UpdateView(void)
 
 		drawfill(m_vecPosition, m_vecSize, [0.1, 0.1, 0.15], 1.0f, 0);
 
+		if (spec.m_spectatingMode != SPECMODE_DEATHCAM) {
+			m_deathCamActive = false;
+		}
+
 		switch (spec.m_spectatingMode) {
 		case SPECMODE_DEATHCAM:
-			vector vecCamEnd;
-			c = findfloat(world, ::entnum, spec.m_spectatingEntity);
-#if 0
-			vector deathAngle;
-			vector vecCamStart = c.origin;
-			float progression = time - spec.m_flLastSpecTargetChange;
+			/* we stay where we died. the camera pulls back from there and
+			   looks at whoever we're tracking (our killer), then after
+			   cl_freezecam_delay seconds moves in on them and holds the
+			   shot, like Team Fortress 2's death and freeze cams. with
+			   nobody to track it looks back at where we fell. */
+			if (m_deathCamActive == false) {
+				m_deathCamActive = true;
+				m_deathCamStart = time;
+				m_deathCamFrozen = false;
+			}
 
-			vecCamStart[2] += 16;
-			vecCamStart += (v_right * 4);
+			float camTime = time - m_deathCamStart;
+			vector bodyPos = spec.origin + [0, 0, 16];
+			vector lookAt = bodyPos;
+			vector awayDir;
+			c = __NULL__;
 
-			deathAngle[0] = bound(0, progression * 15.0f, 90.0f);
-			deathAngle[1] = c.angles[1] + (progression * 22.5f);
-			deathAngle[2] = 0.0f;
+			if (spec.m_spectatingEntity > 0 && spec.m_spectatingEntity != spec.entnum) {
+				c = findfloat(world, ::entnum, spec.m_spectatingEntity);
+			}
 
-			makevectors(deathAngle);
+			if (c) {
+				lookAt = ((c.absmin + c.absmax) * 0.5f) + [0, 0, 16];
+				awayDir = normalize(bodyPos - lookAt);
+			} else {
+				awayDir = anglesToForward(view_angles) * -1.0f;
+			}
 
-			vecCamEnd = vecCamStart + (v_forward * -48) + [0,0,16] + (v_right * 4);
-			traceline(vecCamStart, vecCamEnd, FALSE, m_viewTarget);
+			/* pull back from the body over half a second */
+			float pullBack = bound(0.0f, camTime / 0.5f, 1.0f);
+			vector camPos = bodyPos + (awayDir * (96.0f * pullBack)) + [0, 0, 32.0f * pullBack];
+			traceline(bodyPos, camPos, MOVE_NOMONSTERS, spec);
+			camPos = trace_endpos + (normalize(bodyPos - trace_endpos) * 4.0f * (trace_fraction < 1.0f));
 
-			SetCameraOrigin(trace_endpos + (v_forward * 5));
-			SetCameraAngle(deathAngle);
-			SetClientAngle(deathAngle);
-#else
-			vector vecCamStart = c.origin + [0,0,16];
-			float tag = gettagindex(c, "ValveBiped.Bip01");
-			vecCamStart = gettaginfo(c, tag);
-			vecCamEnd = vecCamStart + (anglesToForward(GetCameraAngle()) * -128);
-			other = world;
-			traceline(vecCamStart, vecCamEnd, MOVE_OTHERONLY, m_viewTarget);
-			SetCameraOrigin(trace_endpos);
-			SetCameraAngle(view_angles);
-#endif
+			if (c && camTime >= autocvar(cl_freezecam_delay, 2.0f)) {
+				if (m_deathCamFrozen == false) {
+					m_deathCamFrozen = true;
+					m_deathCamFreezeFrom = camPos;
+					m_deathCamFreezeAt = lookAt;
+				}
+
+				vector freezePos = m_deathCamFreezeAt + (normalize(m_deathCamFreezeFrom - m_deathCamFreezeAt) * 96.0f);
+				traceline(m_deathCamFreezeAt, freezePos, MOVE_NOMONSTERS, spec);
+				freezePos = trace_endpos + (normalize(m_deathCamFreezeAt - trace_endpos) * 4.0f * (trace_fraction < 1.0f));
+
+				float travel = bound(0.0f, (camTime - autocvar(cl_freezecam_delay, 2.0f)) / 0.4f, 1.0f);
+				camPos = m_deathCamFreezeFrom + ((freezePos - m_deathCamFreezeFrom) * travel);
+				lookAt = m_deathCamFreezeAt;
+			}
+
+			SetCameraOrigin(camPos);
+
+			if (vlen(lookAt - camPos) > 1.0f) {
+				SetCameraAngle(vectoangles(lookAt - camPos));
+			} else {
+				SetCameraAngle(view_angles);
+			}
 			break;
 		case SPECMODE_LOCKEDCHASE:
 			view_angles = [0, spec.v_angle[1], 0];

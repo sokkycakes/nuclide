@@ -1,0 +1,13 @@
+#pragma target fte_5768
+#pragma PROGS_DAT  "../../progs/coop.dat"
+
+#includelist
+../../../src/rules.src
+coop.qc
+shop.qc
+heroes.qc
+hero_abilities.qc
+hero_kits.qc
+survivors.qc
+hud_info.qc
+#endlist

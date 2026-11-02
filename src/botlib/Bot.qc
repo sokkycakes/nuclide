@@ -33,6 +33,9 @@ ncBot::ncBot(void)
 	m_vecLastPOI = g_vec_null;
 	m_flForceWeaponAttack = 0.0f;
 	m_vecForceWeaponAttackPos = g_vec_null;
+	m_eFollow = world;
+	m_flFollowRoute = 0.0f;
+	m_vecFollowRouted = g_vec_null;
 #endif
 }
 
@@ -102,13 +105,29 @@ void
 ncBot::BrainThink(int enemyvisible, int enemydistant)
 {
 	/* we had a target and it's now dead. now what? */
-	if (m_eTarget) {
-		if (m_eTarget.health <= 0) {
-			SetEnemy(__NULL__);
-			RouteClear();
+	if (!m_eTarget)
+		return;
+
+	if (m_eTarget.health <= 0) {
+		SetEnemy(__NULL__);
+		RouteClear();
+		return;
+	}
+
+	/* we can see them but can't reach them from here (too far for most
+	   guns, or out of reach of a melee weapon): plot a route to them,
+	   at most once a second. This branch used to sit under the else of
+	   the m_eTarget check and could never run. */
+	/* following someone: only a melee weapon goes after a foe, and only one
+	   close to the leader. Guns shoot from where we stand. */
+	if (FollowActive()) {
+		if (m_wtWeaponType != WPNTYPE_CLOSE || vlen(m_eTarget.origin - m_eFollow.origin) > autocvar_bot_followLeash) {
+			return;
 		}
-	} else if (m_eTarget && enemyvisible && enemydistant) {
-		/* we can see the player, but are too far away, plot a route */
+	}
+
+	if (enemyvisible && (enemydistant || m_flEnemyDist > 128.0f) && m_flChaseTime < time) {
+		m_flChaseTime = time + 1.0f;
 		RouteToPosition(m_eTarget.origin);
 	}
 }
@@ -174,21 +193,54 @@ ncBot::SeeThink(void)
 		m_flSeeTime = time + 1.0f;
 	}
 
-	for (entity w = world; (w = findfloat(w, ::takedamage, DAMAGE_YES));) {
+	bool following = FollowActive();
+	entity bestFoe = world;
+	float bestScore = 2048.0f;
+
+	/* players and monsters alike: monsters take damage as DAMAGE_AIM */
+	for (entity w = world; (w = next.Actor(w));) {
 		float flDot;
 
-		/* is w a client? */
-		if (!(w.flags & FL_CLIENT))
+		if (w == this || w.takedamage == DAMAGE_NO)
 			continue;
 
 		/* is w alive? */
 		if (w.health <= 0)
 			continue;
 
-		/* ain't go hurt our brothers and sisters */
-		if (teams.TeamCount() > 1)
-			if (team == w.team)
+		if (w.flags & FL_CLIENT) {
+			/* ain't go hurt our brothers and sisters */
+			if (teams.TeamCount() > 0)
+				if (team == w.team)
+					continue;
+		} else if (is.AI(w)) {
+			/* monsters are fair game, unless they're on the players' side */
+			ncMonster m = (ncMonster)w;
+
+			if (m.m_iAlliance == MAL_FRIEND || m.m_iAlliance == MAL_NEUTRAL)
 				continue;
+		} else {
+			continue;
+		}
+
+		/* following: aware all around, as a teammate watching your back is */
+		if (following) {
+			/* the foe nearest to us or to the leader goes first */
+			float score = min(vlen(w.origin - origin), vlen(w.origin - m_eFollow.origin));
+
+			if (score >= bestScore) {
+				continue;
+			}
+
+			traceline(GetEyePos(), w.origin + (w.mins + w.maxs) * 0.5f, MOVE_NORMAL, this);
+
+			if (trace_ent == w) {
+				bestScore = score;
+				bestFoe = w;
+			}
+
+			continue;
+		}
 
 		/* first, is the potential enemy in our field of view? */
 		flDot = vectorNormalize(w.origin - origin) * anglesToForward(v_angle);
@@ -201,9 +253,15 @@ ncBot::SeeThink(void)
 
 		/* break out if at all a valid trace */
 		if (trace_ent == w) {
+			BotLog("Bot %S (%d) sees enemy %S (%d)", netname, num_for_edict(this), w.classname, num_for_edict(w));
 			SetEnemy(w);
 			return;
 		}
+	}
+
+	if (bestFoe && bestFoe != m_eTarget) {
+		BotLog("Bot %S (%d) covers against %S (%d)", netname, num_for_edict(this), bestFoe.classname, num_for_edict(bestFoe));
+		SetEnemy(bestFoe);
 	}
 }
 
@@ -301,16 +359,77 @@ ncBot::CheckRoute(void)
 			input_buttons |= INPUT_JUMP;
 		}
 	} else {
-		/* entire way-link needs to be crouched. that's the law of the land */
-		if (Route_GetNodeFlags(&m_pathfindingGraph[m_pathfindingCurrentNode]) & LF_CROUCH || autocvar_bot_crouch)
+		/* entire way-link needs to be crouched. that's the law of the land.
+		   heading for the destination itself (node -1) there is no link,
+		   and with a direct route the graph may not exist at all */
+		if (autocvar_bot_crouch) {
 			input_buttons |= INPUT_CROUCH;
+		} else if (m_pathfindingCurrentNode >= 0) {
+			if (Route_GetNodeFlags(&m_pathfindingGraph[m_pathfindingCurrentNode]) & LF_CROUCH)
+				input_buttons |= INPUT_CROUCH;
+		}
 	}
 }
 
 void
 ncBot::CreateObjective(void)
 {
+	/* following: the only place to go is back to the leader */
+	if (FollowActive()) {
+		if (vlen(m_eFollow.origin - origin) > autocvar_bot_followDist && m_flFollowRoute < time) {
+			m_vecFollowRouted = FollowSpot();
+			m_flFollowRoute = time + 0.5f;
+			RouteToPosition(m_vecFollowRouted);
+		}
+
+		return;
+	}
+
 	RouteToPosition(Route_SelectDestination(this));
+}
+
+bool
+ncBot::FollowActive(void)
+{
+	if (!m_eFollow || wasfreed(m_eFollow) || m_eFollow == this) {
+		return (false);
+	}
+
+	return (m_eFollow.health > 0 && m_eFollow.solid != SOLID_NOT) ? true : false;
+}
+
+/* a spot just behind the leader, to one side (by entity number, so two
+   bots take both sides), pulled in where a wall is in the way */
+vector
+ncBot::FollowSpot(void)
+{
+	float side = (num_for_edict(this) & 1) ? 1.0f : -1.0f;
+	vector spot;
+
+	makevectors([0, m_eFollow.v_angle[1], 0]);
+	spot = m_eFollow.origin - (v_forward * 80.0f) + (v_right * side * 64.0f);
+	tracebox(m_eFollow.origin, mins, maxs, spot, MOVE_NORMAL, m_eFollow);
+
+	return (trace_endpos);
+}
+
+void
+ncBot::Input(entity eAct, string strInput, string strData)
+{
+	switch (strInput) {
+	case "BotFollow":
+		float followNum = stof(strData);
+		m_eFollow = (followNum > 0) ? edict_num(followNum) : world;
+		m_flFollowRoute = 0.0f;
+
+		/* drop a roaming route, and whatever we were chasing */
+		if (m_eFollow) {
+			RouteClear();
+		}
+		break;
+	default:
+		super::Input(eAct, strInput, strData);
+	}
 }
 
 void
@@ -333,6 +452,13 @@ ncBot::RunAI(void)
 		return;
 	}
 
+	/* DEVELOPER CVAR: press an attack button. 1 and 2 tap primary and
+	   secondary (released every other tenth of a second, so
+	   semi-automatic weapons fire too), 3 and 4 hold them down */
+	if (autocvar_bot_forceAttack >= 3i || (autocvar_bot_forceAttack && ((int)(time * 10.0f) & 1i))) {
+		input_buttons |= (autocvar_bot_forceAttack & 1i) ? INPUT_PRIMARY : INPUT_SECONDARY;
+	}
+
 	/* DEVELOPER CVAR: freeze the bot */
 	if (autocvar_bot_pause)
 		return;
@@ -344,8 +470,9 @@ ncBot::RunAI(void)
 		BotEntLog("%S is calculating first bot route",
 			this.netname);
 
-		/* our route probably has not been processed yet */
-		if (PathNodeCount() <= 0i) {
+		/* our route probably has not been processed yet. Following, we
+		   often need none: we're beside the leader already */
+		if (PathNodeCount() <= 0i && FollowActive() == false) {
 			return;
 		}
 	}
@@ -402,14 +529,24 @@ ncBot::RunAI(void)
 			if (m_pathfindingCurrentNode == BOTROUTE_DESTINATION)
 				aimPos = PathDestination();
 			else {
-				if (m_pathfindingCurrentNode > 0 && !(Route_GetNodeFlags(&m_pathfindingGraph[m_pathfindingCurrentNode]) & LF_AIM))
+				/* QC's && evaluates both sides, so test the index before
+				   reading the node: a negative one points before the list */
+				bool aimAhead = false;
+
+				if (m_pathfindingCurrentNode > 0)
+					aimAhead = (Route_GetNodeFlags(&m_pathfindingGraph[m_pathfindingCurrentNode]) & LF_AIM) ? false : true;
+
+				if (aimAhead)
 					aimPos = m_pathfindingGraph[m_pathfindingCurrentNode - 1].dest;
-				else
+				else if (m_pathfindingCurrentNode >= 0)
 					aimPos = m_pathfindingGraph[m_pathfindingCurrentNode].dest;
+				else
+					aimPos = PathDestination();
 			}
 		} else {
-			/* aim towards the enemy */
-			aimPos = m_eTarget.origin;
+			/* aim towards the middle of the enemy: a monster's origin is
+			   at its feet, so aiming at it shot over its head */
+			aimPos = m_eTarget.origin + (m_eTarget.mins + m_eTarget.maxs) * 0.5f;
 		}
 
 		/* force bot to fire at a position if desired */
@@ -498,7 +635,11 @@ ncBot::RunAI(void)
 		}
 
 		/* make them walk when they need to. */
-		if ((m_pathfindingCurrentNode >= 0 && Route_GetNodeFlags(&m_pathfindingGraph[m_pathfindingCurrentNode]) & LF_WALK) || shouldWalk)
+		if (m_pathfindingCurrentNode >= 0)
+			if (Route_GetNodeFlags(&m_pathfindingGraph[m_pathfindingCurrentNode]) & LF_WALK)
+				shouldWalk = true;
+
+		if (shouldWalk)
 			SetMoveSpeedScale(0.5f);
 		else
 			SetMoveSpeedScale(1.0f);
@@ -511,13 +652,68 @@ ncBot::RunAI(void)
 
 #if 1
 		/* duck and stand still when our enemy seems strong */
-		if (m_eTarget && enemyVisible && m_eTarget.health >= 75) {
+		if (m_eTarget && enemyVisible && m_eTarget.health >= 75 && FollowActive() == false) {
 			if (m_wtWeaponType == WPNTYPE_RANGED) {
 				input_buttons |= INPUT_CROUCH;
 				input_movevalues = [0,0,0];
 			}
 		}
 #endif
+	} else if (m_eTarget && enemyVisible) {
+		/* no route (it ends when we reach the enemy), but we can see them:
+		   face them, and keep closing in with a melee weapon. Without this
+		   the bot froze in place facing wherever it last looked, and melee
+		   swings went into the air. */
+		input_angles = angles = v_angle = vectorToAngles(m_eTarget.origin + (m_eTarget.mins + m_eTarget.maxs) * 0.5f - GetEyePos());
+
+		if (m_wtWeaponType == WPNTYPE_CLOSE) {
+			vector chaseDir = vectorNormalize(m_eTarget.origin - origin) * g_pmoveVars.pm_walkspeed;
+			makevectors(input_angles);
+			input_movevalues = [v_forward * chaseDir, v_right * chaseDir, 0];
+		}
+	}
+
+	if (FollowActive()) {
+		float leaderDist = vlen(m_eFollow.origin - origin);
+		bool meleeChase = (m_wtWeaponType == WPNTYPE_CLOSE && m_eTarget && enemyVisible && vlen(m_eTarget.origin - m_eFollow.origin) <= autocvar_bot_followLeash);
+
+		if (meleeChase == false) {
+			if (leaderDist <= autocvar_bot_followDist) {
+				/* close enough: stand and cover */
+				RouteClear();
+				input_movevalues = [0,0,0];
+
+				if (!m_eTarget || enemyVisible == false) {
+					/* nothing to shoot: watch the way the leader looks */
+					vector wantDir = anglesToForward([0, m_eFollow.v_angle[1], 0]);
+					vector nowDir = anglesToForward(v_angle);
+					input_angles = angles = v_angle = vectorToAngles(vectorLerp(nowDir, wantDir, bound(0.0f, frametime * 4.0f, 1.0f)));
+				}
+			} else if (m_flFollowRoute < time && vlen(FollowSpot() - m_vecFollowRouted) > 128.0f) {
+				/* the leader moved on: catch up to where they are now */
+				m_vecFollowRouted = FollowSpot();
+				m_flFollowRoute = time + 0.5f;
+				RouteToPosition(m_vecFollowRouted);
+			}
+		}
+
+		/* the leader is walking into us: step aside */
+		if (leaderDist < 80.0f && vlen(m_eFollow.velocity) > 50.0f) {
+			vector leaderDir = vectorNormalize([m_eFollow.velocity[0], m_eFollow.velocity[1], 0]);
+			vector awayDir = vectorNormalize([origin[0] - m_eFollow.origin[0], origin[1] - m_eFollow.origin[1], 0]);
+
+			if (leaderDir * awayDir > 0.3f) {
+				vector sideDir = [-leaderDir[1], leaderDir[0], 0];
+
+				if (sideDir * awayDir < 0) {
+					sideDir = -sideDir;
+				}
+
+				sideDir *= g_pmoveVars.pm_walkspeed;
+				makevectors(input_angles);
+				input_movevalues = [v_forward * sideDir, v_right * sideDir, 0];
+			}
+		}
 	}
 
 	/* press any buttons needed */

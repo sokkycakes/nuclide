@@ -1,0 +1,18 @@
+// Sounds from DOX's TF1 addon for the Team Fortress template. The samples
+// come from zz_dox.pk3, which is kept outside git.
+
+tf_dox.sentry.built
+{
+	sample dox/weapons/turrset.wav
+}
+
+tf_dox.sentry.spot
+{
+	alerts
+	sample dox/weapons/turrspot.wav
+}
+
+tf_dox.minigun.spinup
+{
+	sample dox/weapons/asscan1.wav
+}

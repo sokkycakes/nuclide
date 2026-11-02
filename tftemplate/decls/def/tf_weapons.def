@@ -1,0 +1,13 @@
+// Team Fortress template: weapons, one file per class.
+
+#include "tfweapons/base.def"
+#include "tfweapons/shared.def"
+#include "tfweapons/scout.def"
+#include "tfweapons/soldier.def"
+#include "tfweapons/pyro.def"
+#include "tfweapons/demoman.def"
+#include "tfweapons/heavy.def"
+#include "tfweapons/engineer.def"
+#include "tfweapons/medic.def"
+#include "tfweapons/sniper.def"
+#include "tfweapons/spy.def"

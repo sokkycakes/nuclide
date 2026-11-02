@@ -56,9 +56,62 @@ Vote_Passed
 Called whenever enough people agreed, or time has run out with enougn YES's
 =================
 */
+/* hands a finished scripted vote back to its entity */
+static bool
+Vote_ScriptEnd(void)
+{
+	entity voteEntity = g_voteScriptEntity;
+	float playerCount = 0;
+	string voteResult;
+
+	if (!g_voteScriptEntity) {
+		return (false);
+	}
+
+	for (entity e = world; (e = next.Player(e));) {
+		playerCount++;
+	}
+
+	voteResult = sprintf("%d %d %d", serverinfo.GetFloat("votes_y"), serverinfo.GetFloat("votes_n"), playerCount);
+	g_voteScriptEntity = world;
+	g_flVoteTime = 0.0f;
+	g_iVoteState = VOTE_INACTIVE;
+	Vote_Reset();
+
+	if (!wasfreed(voteEntity)) {
+		if (checkbuiltin(script_call)) {
+			tokenize(voteResult);
+			script_call(voteEntity, "OnVoteEnded", argv(0), argv(1), argv(2));
+		} else {
+			sendInput(voteEntity, "VoteEnded", voteResult, world);
+		}
+	}
+
+	return (true);
+}
+
+bool
+Vote_ScriptStart(entity voteEntity, string voteText, float voteTime)
+{
+	if (g_iVoteState != VOTE_INACTIVE) {
+		return (false);
+	}
+
+	Vote_Reset();
+	serverinfo.SetString("vote_cmd", voteText);
+	g_voteScriptEntity = voteEntity;
+	g_flVoteTime = time + ((voteTime > 0.0f) ? voteTime : 30.0f);
+	g_iVoteState = VOTE_INPROGRESS;
+	return (true);
+}
+
 void
 Vote_Passed(void)
 {
+	if (Vote_ScriptEnd()) {
+		return;
+	}
+
 	g_flVoteTime = time + 5.0f;
 	g_iVoteState = VOTE_PASSED;
 	bprint(PRINT_CHAT, "Vote passed.\n");
@@ -76,6 +129,10 @@ Called whenever enough people disagreed, or time has run out below the limit
 void
 Vote_Failed(void)
 {
+	if (Vote_ScriptEnd()) {
+		return;
+	}
+
 	g_flVoteTime = 0.0;
 	g_iVoteState = VOTE_INACTIVE;
 	bprint(PRINT_CHAT, "Vote failed.\n");
@@ -123,7 +180,7 @@ CSEv_VoteY(void)
 		return;
 	}
 
-	if (is.Player(self)) {
+	if (!is.Player(self)) {
 		return;
 	}
 
@@ -168,7 +225,7 @@ CSEv_VoteN(void)
 		return;
 	}
 
-	if (is.Player(self)) {
+	if (!is.Player(self)) {
 		return;
 	}
 
@@ -212,7 +269,7 @@ Vote_InitiateVote(string votemsg)
 		return;
 	}
 
-	if (is.Player(self)) {
+	if (!is.Player(self)) {
 		return;
 	}
 
@@ -245,6 +302,14 @@ CSEv_CallVote_s(string text)
 
 	tokenize(text);
 	switch (argv(0)) {
+	case "skill":
+		if (stof(argv(1)) < 1 || stof(argv(1)) > 3) {
+			sprint(self, PRINT_CHAT, "Skill must be 1 (easy), 2 (medium) or 3 (hard).\n");
+			break;
+		}
+		Vote_InitiateVote(sprintf("skill %d", stof(argv(1))));
+		CSEv_VoteY();
+		break;
 	case "map":
 		if (fileExists(sprintf("maps/%s.bsp", argv(1))) == false) {
 			sprint(self, PRINT_CHAT, sprintf("Map '%s' not available on server.\n", argv(1)));

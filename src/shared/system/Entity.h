@@ -458,3 +458,7 @@ bool changeClass(entity target, string className)
 #endif
 
 void sendInput(entity target, string inputName, string dataString, entity activator);
+
+/** Offers an input to the engine's script layer (see c_script.h) before the entity sees it.
+   Returns true when a script consumed it. Without script support it always returns false. */
+bool scriptInput(entity target, entity activator, string inputName, string dataString, entity caller);

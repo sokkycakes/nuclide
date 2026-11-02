@@ -57,7 +57,8 @@ Bot_InsertIntoGame(entity targetBot)
 		activeRules.PlayerRequestTeam(newBot, wishTeam);
 
 		if (totalClasses > 0i) {
-			string playerClass = teams.ClassForIndex(wishTeam, rint(random(0, totalClasses)));
+			/* floor, not rint: rint can land one past the last class */
+			string playerClass = teams.ClassForIndex(wishTeam, (int)floor(random(0, totalClasses)));
 			activeRules.ClientCommand(newBot, strcat("join ", playerClass));
 		}
 	}

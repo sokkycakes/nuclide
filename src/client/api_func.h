@@ -511,6 +511,14 @@ typedef struct
 
 	@param weaponRef is the weapon entity to switch to. */
 	void SelectWeapon(entity);
+	/** Returns how far the current/active weapon's timed reload step is (see "reloadTimed").
+
+	@return 0.0 to 1.0 while reloading, -1.0 when not reloading.*/
+	float GetReloadProgress(entity weaponRef = __NULL__);
+	/** Returns which round a shotgun-style timed reload is loading, counted from 1.
+
+	@return the round being loaded, 0 for a magazine reload or when not reloading.*/
+	int GetReloadRound(entity weaponRef = __NULL__);
 } weaponAPI_t;
 var weaponAPI_t weapon; /**< Access weaponAPI_t functions using this variable. */
 
@@ -646,6 +654,8 @@ _client_main(void)
 	weapon.GetNextWeaponRelativeTo = linkToClientProgs("CLPF_weapon_GetNextWeaponRelativeTo");
 	weapon.GetPreviousWeaponRelativeTo = linkToClientProgs("CLPF_weapon_GetPreviousWeaponRelativeTo");
 	weapon.SelectWeapon = linkToClientProgs("CLPF_weapon_SelectWeapon");
+	weapon.GetReloadProgress = linkToClientProgs("CLPF_weapon_GetReloadProgress");
+	weapon.GetReloadRound = linkToClientProgs("CLPF_weapon_GetReloadRound");
 
 	draw.Rect = linkToClientProgs("CLPF_draw_Rect");
 	draw.RectOutline = linkToClientProgs("CLPF_draw_RectOutline");

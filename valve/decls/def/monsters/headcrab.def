@@ -1,0 +1,35 @@
+entityDef monster_headcrab
+{
+	"spawnclass"		"ncMonster"
+	"model"				"models/headcrab.mdl"
+	"netname"			"Headcrab"
+	"health"			"skill:headcrab_health"
+	"mins"				"-12 -12 0"
+	"maxs"				"12 12 24"
+	"eye_height"		"20"
+	"team"				"2"
+	"propdata"			"actor_alien"
+	"speed_walk"		"32"
+	"speed_run"			"72"
+
+	// HL headcrab.cpp CheckRangeAttack1
+	"attack_ranged_range"	"256"
+	"attack_ranged_dot"		"0.65"
+	"attack_ranged_onground"	"1"
+
+	"snd_idle"				"Headcrab.Idle"
+	"snd_pain"				"Headcrab.Pain"
+	"snd_death"				"Headcrab.Die"
+	"snd_melee_attack_hit"	"Headcrab.Bite"
+	"leap_damage"			"skill:headcrab_dmg_bite"
+
+	"mindset_idle"			"headcrab_idle"
+	"mindset_combat"		"headcrab_combatFace"
+	"mindset_hunt"			"headcrab_searchPlayer"
+
+	events {
+		// HC_AE_JUMPATTACK: a ballistic leap at the enemy's eyes, 650 at most
+		2 "LeapAtEnemy" "650"
+		2 "StartSoundDef" "Headcrab.Attack"
+	}
+}

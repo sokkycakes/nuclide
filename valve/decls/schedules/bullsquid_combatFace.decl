@@ -1,0 +1,11 @@
+typeInfo bullsquid_combatFace
+{
+	"task_1"					"StopMovement"
+	"task_2"					"TurnToEnemy"
+	"task_3"					"PlayActivity idleAngry"
+	"task_4"					"PerformSchedule bullsquid_chase"
+	"fail_onDeadEnemy"			"1"
+	"CanMeleeAttack1"			"PerformSchedule bullsquid_meleeAttack"
+	"CanRangedAttack1"			"PerformSchedule bullsquid_rangedAttack"
+	"DeadEnemy"					"PerformSchedule bullsquid_idle"
+}

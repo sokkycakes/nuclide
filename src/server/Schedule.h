@@ -110,8 +110,11 @@ private:
 	bool m_inProgress;
 	bool m_bProgressOnMovement;
 	string m_failSchedule;
+	ncTimer m_advanceTimer;
+	float m_advanceTimerSpawn;
 
 	nonvirtual bool AssignActor(ncActor targetActor);
+	nonvirtual void StopAdvanceTimer(void);
 	nonvirtual void Advance(void);
 	nonvirtual void AdvanceLater(float timeDelta);
 	nonvirtual void Cancel(void);

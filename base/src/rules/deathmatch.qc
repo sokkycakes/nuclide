@@ -27,7 +27,7 @@ DM_PlayerSpawn(entity playerTarget)
 
 /* rule callbacks, called by Nuclide if present */
 void
-CodeCallback_Precaches(void)
+CodeCallback_Precache(void)
 {
 	Util_SharedPrecaches();
 }
@@ -57,8 +57,16 @@ CodeCallback_PlayerRequestRespawn(entity playerTarget)
 }
 
 void
+CodeCallback_PlayerDamage(entity playerTarget, entity attacker, entity damageDecl)
+{
+	Util_PlayerPainSound(playerTarget);
+}
+
+void
 CodeCallback_PlayerKilled(entity playerTarget, entity inflictor, entity attacker, string weapon)
 {
+	Util_PlayerDeathSound(playerTarget);
+
 	if (playerTarget == attacker)
 		combat.Obituary(playerTarget.netname, attacker.netname, weapon, "self");
 	else

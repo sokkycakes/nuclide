@@ -1,0 +1,44 @@
+<!--
+	Co-op menu: the title menu out of a game and the pause menu in one.
+	coop/src/menu/main.qc opens it and posts "context" ({ingame}). Pages
+	are built by scripts/coop/menu.js; this file holds the frame.
+	Positions are percentages of the view; sizes are at the 1080-line
+	design height.
+-->
+<root>
+	<styles>
+		<include src="file://{resources}/styles/coop/menu.css" />
+		<include src="file://{resources}/styles/coop/shop.css" />
+		<include src="file://{resources}/styles/coop/skills.css" />
+	</styles>
+	<scripts>
+		<include src="file://{resources}/scripts/coop/menu.js" />
+	</scripts>
+
+	<Panel id="Stage" class="stage">
+		<Panel id="Backdrop" class="backdrop" hittest="false">
+			<Panel class="backdrop-glow" hittest="false" />
+			<Panel class="backdrop-line" hittest="false" />
+		</Panel>
+
+		<Panel class="brand" hittest="false">
+			<Label class="brand-big" text="JUSTICE" hittest="false" />
+			<Label class="brand-big" text="TASK FORCE" hittest="false" />
+		</Panel>
+
+		<Panel id="MainButtons" class="main-buttons" />
+
+		<Panel id="Page" class="page">
+			<Panel class="page-header" hittest="false">
+				<Label id="PageTitle" class="page-title" text="" hittest="false" />
+			</Panel>
+			<Panel id="PageBody" class="page-body" />
+			<Panel id="PageFooter" class="page-footer" />
+		</Panel>
+
+		<!-- the Hero page's 3D preview: the menu progs draws the model under
+		     the view, so this only frames it -->
+		<Panel id="HeroWindow" class="hero-window" hittest="false" />
+
+	</Panel>
+</root>

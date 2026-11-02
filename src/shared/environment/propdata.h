@@ -277,12 +277,16 @@ var hashtable g_hashbreakmodel;
 
 
 #ifdef CLIENT
-void BreakModel_SpawnID(vector smins, vector smaxs, vector dir, float speed, int count, int index);
+void BreakModel_SpawnID(vector smins, vector smaxs, vector dir, float speed, int count, int index, float gibHealth);
 void BreakModel_Receive(void);
 void BreakModel_ReceiveClientData(void);
 #else
 void BreakModel_Spawn(vector pos, vector dir, vector spread, float speed, int count, string type);
 void BreakModel_Entity(ncSurfacePropEntity target, vector dir, float speed);
+/** Throws a body's gibs the way Quake does, faster the lower bodyHealth is
+    (below -50 and below -200), and fades them out like GoldSrc. */
+void BreakModel_Gib(vector smins, vector smaxs, int count, string type, float bodyHealth);
+void BreakModel_GibEntity(ncSurfacePropEntity target);
 void BreakModel_SendClientData(entity);
 #endif
 

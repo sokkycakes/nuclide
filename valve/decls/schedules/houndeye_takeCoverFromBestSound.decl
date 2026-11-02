@@ -1,0 +1,10 @@
+typeInfo houndeye_takeCoverFromBestSound
+{
+	"task_1"			"SetFailSchedule houndeye_combatFace"
+	"task_2"			"StopMovement"
+	"task_3"			"FindCoverFromBestSound"
+	"task_4"			"RunToTarget"
+	"task_5"			"WaitForMovement"
+	"task_6"			"Remember inCover"
+	"task_7"			"TurnLeft 179"
+}

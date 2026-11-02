@@ -1,0 +1,7 @@
+color "255 170 0"
+alpha 255
+rendersize "12 19"
+path_bitmap fonts/tahoma.png
+path_ttf fonts/tahoma.ttf
+size_ttf 12
+size_bitmap "6 12"

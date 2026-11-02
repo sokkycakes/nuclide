@@ -1,0 +1,46 @@
+// Prop clip table: stand-in collision for Source props whose models
+// (and so their .phy collision) are not installed. Bulwark reads it when it
+// loads a Source BSP; a real models/<name>.phy always wins over it, and a
+// maps/<map>.propclip file wins over this one for the models it names.
+//
+// One line per box, in the model's own space (x forward, y left, z up,
+// origin at the model origin, Source units):
+//   "<model>" box <min x> <min y> <min z> <max x> <max y> <max z>
+// Repeat the line for more boxes. "<model>" none means no collision.
+//
+// Every size below is an estimate, not measured from the model. How each
+// one was judged is in the comment above it (see also the Bulwark docs,
+// docs/spec/vbsp.md, "Prop collision").
+
+// Firewood pile. Its top is put at 58: pl_circle_a9a stacks a crate on it
+// at that height. The width keeps a 48-unit player gap to both walls of
+// the alley it stands in.
+"models/props_forest/wood_pile.mdl" box -56 -40 0 56 40 58
+
+// Shipping pallet, origin at its middle: crates sit 5 units above it.
+"models/props_farm/pallet001.mdl" box -28 -22 -5 28 22 5
+
+// Large mining crate. 41 tall: miningcrate002 stacks on it at that height.
+"models/props_2fort/miningcrate001.mdl" box -24 -22 0 24 22 41
+
+// Small mining crate.
+"models/props_2fort/miningcrate002.mdl" box -18 -18 0 18 18 32
+
+// Granary conveyor: a long, narrow belt, mounted high in pl_circle_a9a.
+"models/props_granary/conveyer_belt1.mdl" box -128 -20 -16 128 20 8
+
+// Wall sink, sitting on a shelf; origin at its back.
+"models/props_2fort/sink001.mdl" box 0 -14 0 22 14 26
+
+// Large sliding door frame, origin in the middle of a 192 x 116 opening.
+// Two posts and a lintel, kept outside the opening so the doorway's width
+// is unchanged.
+"models/props_gameplay/door_slide_large_frame.mdl" box -112 -10 -64 -96 10 72
+"models/props_gameplay/door_slide_large_frame.mdl" box 96 -10 -64 112 10 72
+"models/props_gameplay/door_slide_large_frame.mdl" box -112 -10 52 112 10 72
+
+// Farm vent grille: a thin plate on its front face (x).
+"models/props_farm/vent001.mdl" box 0 -28 -28 3 28 28
+
+// Resupply locker, standing against a wall, facing +x.
+"models/props_gameplay/resupply_locker.mdl" box -5 -20 0 25 20 96

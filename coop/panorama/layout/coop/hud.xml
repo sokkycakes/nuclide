@@ -1,0 +1,176 @@
+<!--
+	Justice Task Force in-game HUD, from sokky's Figma kit ("Example · HUD"
+	on the Design System page; the components are described in
+	styles/coop/hud.css). The co-op HUD progs (coop/src/hud/) opens this view
+	embedded and draws it each frame it draws the HUD, posting "state" with
+	everything shown. Positions are the Figma ones on the 1920x1080 frame.
+-->
+<root>
+	<styles>
+		<!-- the title menu's theme: only the variant's variables (see hud.css) -->
+		<include src="file://{resources}/styles/qt/qtcurve-sokky-dark.css" />
+		<include src="file://{resources}/styles/coop/hud.css" />
+		<!-- WolfTeam's digit strip for the big numbers: a private file (not in
+		     git, see hud.css "digits"); without it the numbers stay text -->
+		<include src="file://{resources}/styles/coop/hud-wtdigits.css" />
+	</styles>
+	<scripts>
+		<include src="file://{resources}/scripts/coop/hud.js" />
+	</scripts>
+
+	<!-- bwexacttext: text up to 13px keeps its own pixel size (Tahoma 12's
+	     hinted bitmap look) while the rest scales with the HUD -->
+	<Panel id="Hud" class="hud QtCurve SokkyDark" hittest="false" bwdesignheight="900" bwexacttext="13">
+		<!-- objective: top-left, the wave and our stats in one panel (sokky
+		     2026-11-02, laid out like a horde-mode scoreboard) -->
+		<Panel id="Objective" class="objective" hittest="false">
+			<Panel class="obj-body">
+				<Label id="WaveTitle" class="obj-title" text="Wave 1" />
+				<Panel class="obj-row"><Label id="ObjLeftKey" class="obj-key" text="Left" /><Label id="ObjLeft" class="obj-val danger" text="0" /></Panel>
+				<Panel class="obj-row"><Label class="obj-key" text="Score" /><Label id="ObjScore" class="obj-val" text="0" /></Panel>
+				<!-- a line, then the shop points with no label: "p300" -->
+				<Panel class="obj-sep" />
+				<Panel class="obj-row"><Label id="ObjPoints" class="obj-val obj-points" text="p0" /></Panel>
+			</Panel>
+		</Panel>
+
+		<!-- kill feed: top-right, newest on top -->
+		<Panel id="Feed" class="kill-feed" hittest="false" />
+
+		<!-- notice: wave start, level up -->
+		<Panel id="Notice" class="hud-notice" hittest="false">
+			<Label id="NoticeTitle" class="notice-title" text="" />
+			<Label id="NoticeSub" class="notice-sub" text="" />
+		</Panel>
+
+		<!-- while down: a teammate's revive as a plain white bar, then the
+		     respawn box (sokky 2026-11-02) -->
+		<Panel id="DownBox" class="down-box" hittest="false">
+		<Panel id="Revive" class="revive hidden" hittest="false">
+			<Label id="ReviveLabel" class="revive-label" text="" />
+			<Panel class="revive-meter"><Panel id="ReviveFill" class="revive-fill" /></Panel>
+		</Panel>
+		<!-- respawn: while down, how long until fire brings you back -->
+		<Panel id="Respawn" class="respawn hidden" hittest="false">
+			<Panel class="bar-top">
+				<Label id="RespawnLabel" class="hud-label bar-label" text="Respawning" />
+				<Label id="RespawnValue" class="hud-label bar-value" text="" />
+			</Panel>
+			<Panel class="meter"><Panel id="RespawnFill" class="meter-fill" /></Panel>
+			<Label id="RespawnHint" class="respawn-hint" text="A teammate can revive you" />
+		</Panel>
+		</Panel>
+
+		<!-- key prompt under the crosshair; for a pickup, a callout on the
+		     item: a leader line from it up to the prompt, underlined -->
+		<Panel id="Prompt" class="key-prompt" hittest="false">
+			<Image id="PromptLeader" class="prompt-leader" src="file://{images}/coop/callout_leader.png" hittest="false" />
+			<Panel id="PromptRow" class="prompt-row" hittest="false">
+				<Panel id="PromptKeyBox" class="key-cap"><Label id="PromptKey" class="key-text" text="E" /></Panel>
+				<Label id="PromptAction" class="prompt-action" text="" />
+			</Panel>
+		</Panel>
+
+		<!-- target ID: the teammate or friendly under the crosshair, as a
+		     squad card (src/client/nameplates.qc finds it) -->
+		<Panel id="TargetID" class="mate target-id hidden" hittest="false">
+			<Panel class="mate-top">
+				<Label id="TargetName" class="mate-name" text="" />
+				<Label id="TargetStatus" class="mate-status" text="Alive" />
+				<Image id="TargetUp" class="mate-up hidden" src="file://{images}/coop/buff_up.png" hittest="false" />
+			</Panel>
+			<Panel class="meter"><Panel id="TargetFill" class="meter-fill" /></Panel>
+		</Panel>
+
+		<!-- vitals: bottom-left -->
+		<Panel id="Vitals" class="vitals" hittest="false">
+			<!-- squad: the three closest teammates, above the abilities -->
+			<Panel id="Squad" class="squad" hittest="false" />
+			<Panel id="Abilities" class="abilities" hittest="false" />
+			<!-- Choir's Cadence buffing us (pips: how close to her cone's middle) -->
+			<Panel id="Cadence" class="cadence hidden" hittest="false">
+				<Label id="CadenceLabel" class="hud-label cadence-label" text="Cadence" />
+				<Panel id="CadencePips" class="cadence-pips">
+					<Panel class="cadence-pip" /><Panel class="cadence-pip" /><Panel class="cadence-pip" />
+				</Panel>
+			</Panel>
+			<Panel id="ArmorBar" class="hud-bar success">
+				<Panel class="bar-top">
+					<Label id="ArmorLabel" class="hud-label muted bar-label" text="Barrier" />
+					<Label id="ArmorValue" class="hud-label bar-value" text="0" />
+				</Panel>
+				<Panel class="meter"><Panel id="ArmorFill" class="meter-fill" /></Panel>
+			</Panel>
+			<Panel id="EnergyBar" class="hud-bar accent">
+				<Panel class="bar-top">
+					<Label class="hud-label muted bar-label" text="Energy" />
+					<Label id="EnergyValue" class="hud-label bar-value" text="0 / 100" />
+				</Panel>
+				<!-- a tick at Engage's cost, shown once there's enough for it -->
+				<Panel class="meter energy-meter"><Panel id="EnergyFill" class="meter-fill" /><Panel id="EngageTickRow" class="engage-tick-row hidden"><Panel id="EngageTickGap" class="engage-tick-gap" /><Panel class="engage-tick" /></Panel></Panel>
+			</Panel>
+			<!-- health at the bottom, level with the ammo (sokky 2026-11-02) -->
+			<Panel id="HealthReadout" class="hud-readout" hittest="false">
+				<!-- a plus for health (sokky 2026-11-02), two bars so it takes the
+				     low-health colour -->
+				<Panel class="icon-slot"><Panel class="plus-h" /><Panel class="plus-v" /></Panel>
+				<Panel class="readout-text">
+					<Label id="HealthValueGhost" class="readout-value readout-ghost" text="888" />
+					<Label id="HealthValue" class="readout-value" text="100" />
+					<Panel id="HealthValueDg" class="wtnum readout-value" hittest="false" />
+				</Panel>
+				<!-- a hero's Barrier: a blue two-digit display beside the health,
+				     empty when there's none (sokky 2026-11-02) -->
+				<Panel id="BarrierReadout" class="readout-text barrier-readout hidden">
+					<Label id="BarrierValueGhost" class="readout-value readout-ghost barrier-value" text="88" />
+					<Label id="BarrierValue" class="readout-value barrier-value" text="0" />
+					<Panel id="BarrierValueDg" class="wtnum readout-value barrier-value" hittest="false" />
+				</Panel>
+				<!-- level, rank and medals over the experience gauge, beside the
+				     health and barrier (sokky 2026-11-02) -->
+				<Panel id="ObjXpm" class="hud-xpm" hittest="false">
+					<Panel class="obj-row">
+						<Label id="ObjLevel" class="obj-key" text="" />
+						<Label id="ObjRank" class="obj-val" text="" />
+						<!-- medals after the rank: a medal (star in a ring) and "x3" -->
+						<Panel id="ObjMedalBox" class="obj-medals">
+							<Image class="obj-medal" src="file://{images}/coop/medal.png" hittest="false" />
+							<Label id="ObjMedals" class="obj-val" text="" />
+						</Panel>
+					</Panel>
+					<Panel id="ObjExp" class="meter hud-exp"><Panel id="ObjExpFill" class="meter-fill" /></Panel>
+				</Panel>
+			</Panel>
+		</Panel>
+
+		<!-- weapons: bottom-right -->
+		<Panel id="Weapons" class="weapons" hittest="false">
+			<!-- a slot: the body, and on the weapon in hand an arrow tip on its left -->
+			<Panel id="SlotStatic" class="weapon-slot static">
+				<Panel class="slot-tip" />
+				<Panel class="slot-body">
+					<Label class="hud-label slot-key" text="1" />
+					<Label id="SlotStaticName" class="slot-name" text="" />
+				</Panel>
+			</Panel>
+			<Panel id="SlotDynamic" class="weapon-slot dynamic">
+				<Panel class="slot-tip" />
+				<Panel class="slot-body">
+					<Label class="hud-label slot-key" text="2" />
+					<Label id="SlotDynamicName" class="slot-name" text="" />
+				</Panel>
+			</Panel>
+			<!-- the ammo at the bottom, level with the health; slots above -->
+			<Panel id="Ammo" class="hud-ammo" hittest="false">
+				<Label id="WeaponName" class="hud-label muted" text="" />
+				<Panel class="ammo-counts">
+					<Label id="Clip" class="ammo-clip" text="0" />
+					<Panel id="ClipDg" class="wtnum ammo-clip" hittest="false" />
+					<Panel id="AmmoDivider" class="ammo-divider" />
+					<Label id="Reserve" class="ammo-reserve" text="0" />
+					<Panel id="ReserveDg" class="wtnum ammo-reserve" hittest="false" />
+				</Panel>
+			</Panel>
+		</Panel>
+	</Panel>
+</root>

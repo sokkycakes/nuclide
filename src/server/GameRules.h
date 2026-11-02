@@ -79,7 +79,7 @@ player frag:
 #include "../../../src/server/api.h"
 
 void
-CodeCallback_Precaches(void)
+CodeCallback_Precache(void)
 {
 	precache.Entity("player");	// Precache everything associated with the player decl
 }

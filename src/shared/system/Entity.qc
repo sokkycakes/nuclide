@@ -49,8 +49,9 @@ ncEntity::Spawn(void)
 		return;
 	}
 
-	/* only precache at start time... */
-	if (time == 0.0f) {
+	/* only precache at start time. map entities spawn while
+	   g_ents_initialized is false; Bulwark's clock reads 1 then, not 0 */
+	if (time == 0.0f || g_ents_initialized == false) {
 		Precache();
 	}
 
