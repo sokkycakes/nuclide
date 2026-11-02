@@ -117,6 +117,11 @@ Coop_HudFrame(void)
 		serverinfo.SetString("coop_left", left);
 	}
 
+	/* Engage's cost, for the tick on the HUD's energy meter */
+	if (serverkey("coop_engageCost") != ftos(autocvar_coop_engageCost)) {
+		serverinfo.SetString("coop_engageCost", ftos(autocvar_coop_engageCost));
+	}
+
 	for (entity p = world; (p = next.Player(p));) {
 		int slot = Coop_Slot(p);
 		string state = "a";

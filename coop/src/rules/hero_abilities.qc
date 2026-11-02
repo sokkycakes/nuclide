@@ -969,8 +969,8 @@ Hero_HudInfo(entity pl, int slot, string form)
 	} else if (form == "") {
 		line = "";	/* no engage form for this kit: no row */
 	} else {
-		line = sprintf("[Z] Engage: %s %s", form, (g_hEnergy[slot] >= autocvar_coop_engageCost) ? "ready" :
-			ftos(autocvar_coop_engageCost));
+		/* no cost here: the HUD marks it on the energy meter (sokky) */
+		line = sprintf("[Z] Engage: %s%s", form, (g_hEnergy[slot] >= autocvar_coop_engageCost) ? " ready" : "");
 	}
 
 	string info = sprintf("%s|%d|%d|%d|%d|%i|", entityDef.GetString(pl.classname, "hero_name"),

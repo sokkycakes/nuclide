@@ -53,20 +53,24 @@
 		<Panel id="Vitals" class="vitals" hittest="false">
 			<Panel id="Abilities" class="abilities" hittest="false" />
 			<Panel id="HealthReadout" class="hud-readout" hittest="false">
-				<Panel class="icon-slot"><Panel class="icon-placeholder" /></Panel>
+				<!-- a plus for health (sokky 2026-11-02), two bars so it takes the
+				     low-health colour -->
+				<Panel class="icon-slot"><Panel class="plus-h" /><Panel class="plus-v" /></Panel>
 				<Panel class="readout-text">
-					<Label class="hud-label readout-label" text="Health" />
 					<Label id="HealthValue" class="readout-value" text="100" />
 				</Panel>
+				<!-- a hero's Barrier: a blue number beside the health, only while
+				     there is some (sokky 2026-11-02) -->
+				<Panel id="BarrierReadout" class="readout-text barrier-readout hidden">
+					<Label id="BarrierValue" class="readout-value barrier-value" text="0" />
+				</Panel>
 			</Panel>
-			<!-- Choir's Cadence: buffing us (pips: how close to her cone's middle),
-			     or on a Choir, how many teammates she buffs -->
+			<!-- Choir's Cadence buffing us (pips: how close to her cone's middle) -->
 			<Panel id="Cadence" class="cadence hidden" hittest="false">
 				<Label id="CadenceLabel" class="hud-label cadence-label" text="Cadence" />
 				<Panel id="CadencePips" class="cadence-pips">
 					<Panel class="cadence-pip" /><Panel class="cadence-pip" /><Panel class="cadence-pip" />
 				</Panel>
-				<Label id="CadenceCount" class="hud-label cadence-count" text="" />
 			</Panel>
 			<Panel id="ArmorBar" class="hud-bar success">
 				<Panel class="bar-top">
@@ -80,7 +84,8 @@
 					<Label class="hud-label muted bar-label" text="Energy" />
 					<Label id="EnergyValue" class="hud-label bar-value" text="0 / 100" />
 				</Panel>
-				<Panel class="meter"><Panel id="EnergyFill" class="meter-fill" /></Panel>
+				<!-- a tick at Engage's cost, shown once there's enough for it -->
+				<Panel class="meter energy-meter"><Panel id="EnergyFill" class="meter-fill" /><Panel id="EngageTickRow" class="engage-tick-row hidden"><Panel id="EngageTickGap" class="engage-tick-gap" /><Panel class="engage-tick" /></Panel></Panel>
 			</Panel>
 		</Panel>
 
@@ -97,7 +102,6 @@
 			<Panel id="SlotStatic" class="weapon-slot static">
 				<Label class="hud-label slot-key" text="1" />
 				<Label id="SlotStaticName" class="slot-name" text="" />
-				<Label class="hud-label slot-tag" text="Own" />
 			</Panel>
 			<Panel id="SlotDynamic" class="weapon-slot dynamic">
 				<Label class="hud-label slot-key" text="2" />
