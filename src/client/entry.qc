@@ -512,6 +512,10 @@ CSQC_InputEvent(float fEventType, float fKey, float fCharacter, float fDeviceID)
 	vgui_pressed = HUDProgs_InputEvent(fEventType, fKey, fCharacter, fDeviceID);
 
 	if (!vgui_pressed) {
+		vgui_pressed = VGUI_MOTDInput(fEventType, fKey);
+	}
+
+	if (!vgui_pressed) {
 		vgui_pressed = Commandmenu_Input(fEventType, fKey, fCharacter, fDeviceID);
 	}
 

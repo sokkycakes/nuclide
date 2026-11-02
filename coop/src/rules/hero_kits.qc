@@ -27,6 +27,7 @@ float g_boostUntil[COOP_MAXPLAYERS];	/* Vector's Trace on this player */
 bool g_fieldKit[COOP_MAXPLAYERS];	/* carries a Ledger revive kit */
 float g_windReady[COOP_MAXPLAYERS];	/* Stray's Second Wind, kept through respawns */
 float g_riseAt[COOP_MAXPLAYERS];	/* Stray gets back up at this time */
+float g_riseSafe[COOP_MAXPLAYERS];	/* and can't be hurt until this time */
 vector g_riseOrigin[COOP_MAXPLAYERS];
 float g_prevShot[COOP_MAXPLAYERS];	/* Longhand: the shot before the last one */
 float g_lastShot[COOP_MAXPLAYERS];
@@ -404,6 +405,13 @@ Dispatch_Status(entity pl, int slot)
 #define CADENCE_RANGE 700
 #define CADENCE_DOT 0.7
 
+/* who is in a cadence right now, for the HUD and the gold outline
+   (hud_info.qc): until when, how close to the middle (0-1), and the slot
+   of the Choir giving it */
+float g_cadenceUntil[COOP_MAXPLAYERS];
+float g_cadenceAmt[COOP_MAXPLAYERS];
+int g_cadenceBy[COOP_MAXPLAYERS];
+
 /* 0 outside her cone, up to 1 in the middle */
 float
 Choir_Centrality(entity choir, int cslot, entity p)
@@ -463,7 +471,15 @@ Choir_Think(entity pl, int slot)
 		float c = Choir_Centrality(pl, slot, p);
 
 		if (c > 0) {
+			int ps = Coop_Slot(p);
+
 			Hero_AddBarrier(p, (2 + 8 * c) * frametime);
+
+			if (ps >= 0i) {
+				g_cadenceUntil[ps] = time + 0.3f;
+				g_cadenceAmt[ps] = c;
+				g_cadenceBy[ps] = slot;
+			}
 		}
 	}
 }
@@ -1227,6 +1243,13 @@ Stray_SlideKey(entity pl, int slot)
 	Stray_Slide(pl, slot, 0.55f, 700);
 }
 
+/* the monster's enemy (ncMonster::m_eEnemy): a horde monster walks to
+   its enemy and attacks it, and only looks for another once it's dead */
+.entity m_eEnemy;
+
+#define RACKET_LIFE 6
+#define RACKET_TICK 0.75f
+
 void
 Stray_Racket(entity pl, int slot)
 {
@@ -1237,62 +1260,99 @@ Stray_Racket(entity pl, int slot)
 		return;
 	}
 
-	i = Hero_Place(pl, PK_RACKET, "jtf_vis_racket", Hero_Eye(pl) + fwd * 16, 6);
+	i = Hero_Place(pl, PK_RACKET, "jtf_vis_racket", Hero_Eye(pl) + fwd * 16, RACKET_LIFE);
 
 	if (i < 0i) {
 		return;
 	}
 
+	/* alive to the monsters it draws, so they keep it as their enemy, but
+	   nothing they do to it can break it */
 	g_placeEnt[i].movetype = MOVETYPE_TOSS;
 	g_placeEnt[i].velocity = fwd * 600 + [0, 0, 200];
-	g_placeData[i] = 0;	/* next draw */
+	g_placeEnt[i].health = 1000;
+	g_placeEnt[i].takedamage = DAMAGE_NO;
+	g_placeData[i] = time + 1.0f;	/* first draw: once it lands, or after 1 s */
+	g_placeData2[i] = 0;	/* 1 once it has let go of what it drew */
 	g_hReady1[slot] = time + 12;
 	sound(pl, CHAN_ITEM, "squeek/sqk_deploy1.wav", 1, ATTN_NORM);
 }
 
+/* foes drawn to racket r go back to the nearest player (to r: that's the
+   Wall it was thrown at), or to into, a racket r merged into */
+void
+Stray_RacketLetGo(entity r, entity into)
+{
+	for (entity e = world; (e = nextent(e));) {
+		if (e.m_eEnemy == r && Hero_IsFoe(e)) {
+			e.m_eEnemy = into;
+		}
+	}
+}
+
+/* Racket (sokky's design): "a noise-maker that draws every nearby enemy to
+   it for a few seconds". Every tick it rings and turns the foes in reach
+   on it, as horde monsters: they walk to it and attack it. When it runs
+   out they go for the nearest player, so at the Wall's feet he has the
+   pack. */
 void
 Stray_RacketThink(int i)
 {
 	entity r = g_placeEnt[i];
-	entity owner = g_placeOwner[i];
-	int os = Coop_Slot(owner);
-	entity bait = world;
-	float bestDist = 400;
+	int os = Coop_Slot(g_placeOwner[i]);
 	float reach;
 
-	if (time < g_placeData[i]) {
+	if (g_placeData2[i] > 0) {
 		return;
+	}
+
+	/* about to go: let go of what it drew (the place is freed before the
+	   next frame's think) */
+	if (g_placeExpire[i] > 0 && time >= g_placeExpire[i] - 0.2f) {
+		g_placeData2[i] = 1;
+		Stray_RacketLetGo(r, world);
+		return;
+	}
+
+	/* the next draw; a thrown one draws as soon as it lands */
+	bool landing = (r.movetype != MOVETYPE_NONE && (r.flags & FL_ONGROUND)) ? true : false;
+
+	if (time < g_placeData[i] && !landing) {
+		return;
+	}
+
+	/* the first draw stops it where it landed */
+	if (r.movetype != MOVETYPE_NONE) {
+		r.movetype = MOVETYPE_NONE;
+		r.velocity = [0, 0, 0];
 	}
 
 	/* a racket next to one already going joins it */
 	for (int k = 0i; k < HERO_MAXPLACE; k++) {
-		if (k != i && g_placeKind[k] == PK_RACKET && g_placeData[k] > 0 && vlen(g_placeEnt[k].origin - r.origin) < 300) {
+		if (k != i && g_placeKind[k] == PK_RACKET && g_placeEnt[k].movetype == MOVETYPE_NONE &&
+			g_placeData2[k] <= 0 && vlen(g_placeEnt[k].origin - r.origin) < 300) {
 			g_placeExpire[k] = max(g_placeExpire[k], g_placeExpire[i]);
+			Stray_RacketLetGo(r, g_placeEnt[k]);
+			g_placeData2[i] = 1;
 			Hero_Unplace(i);
 			return;
 		}
 	}
 
-	g_placeData[i] = time + 1.5f;
+	g_placeData[i] = time + RACKET_TICK;
 	sound(r, CHAN_AUTO, "buttons/button9.wav", 1, ATTN_IDLE);
-
-	for (entity p = world; (p = next.Player(p));) {
-		if (is.Alive(p) && vlen(p.origin - r.origin) < bestDist) {
-			bestDist = vlen(p.origin - r.origin);
-			bait = p;
-		}
-	}
-
-	if (!bait) {
-		bait = owner;
-	}
+	Hero_Ring(r, 160);
 
 	reach = (os >= 0i && Hero_InForm(os)) ? 1000 : 600;
 
 	for (entity e = findradius(r.origin, reach); e; e = e.chain) {
-		if (Hero_IsFoe(e)) {
-			Hero_Taunt(e, bait);
+		if (!Hero_IsFoe(e) || e.m_eEnemy == r || Hero_IsStunned(e)) {
+			continue;
 		}
+
+		ents.Input(e, "HordeOn", "", g_placeOwner[i]);
+		e.m_eEnemy = r;
+		ents.Input(e, "RunToEnemyWithinRadius", "64", g_placeOwner[i]);	/* drops the old route */
 	}
 }
 
@@ -1331,8 +1391,17 @@ Stray_Think(entity pl, int slot)
 		}
 	} else if (g_hRes[slot] > 0) {
 		g_hRes[slot] = 0;
-		Hero_Untouchable(pl, false);
 		pl.flags &= ~FL_NOTARGET;
+		if (time >= g_riseSafe[slot]) {
+			Hero_Untouchable(pl, false);
+		}
+	}
+
+	if (g_riseSafe[slot] > 0 && time >= g_riseSafe[slot]) {
+		g_riseSafe[slot] = 0;
+		if (g_hRes[slot] <= 0) {
+			Hero_Untouchable(pl, false);
+		}
 	}
 }
 
@@ -1344,7 +1413,7 @@ Stray_Killed(entity pl, int slot)
 	}
 
 	g_windReady[slot] = time + 45;
-	g_riseAt[slot] = time + 0.5f;
+	g_riseAt[slot] = time + 0.2f;
 	g_riseOrigin[slot] = pl.origin;
 }
 
@@ -1359,6 +1428,11 @@ Stray_DeadThink(entity pl, int slot)
 	CodeCallback_PlayerSpawn(pl);
 	ents.Input(pl, "SetOrigin", vtos(g_riseOrigin[slot] + [0, 0, 8]), pl);
 	ents.Input(pl, "SetHealth", "30", pl);
+	/* a moment to get clear: the pack that downed her is still there */
+	Hero_Untouchable(pl, true);
+	g_riseSafe[slot] = time + 2.0f;
+	centerprint(pl, "");	/* the "You are down" line */
+	Hero_Ring(pl, 200);
 	sound(pl, CHAN_VOICE, "items/smallmedkit1.wav", 1, ATTN_NORM);
 	Hero_Notice(pl, "SECOND WIND");
 }

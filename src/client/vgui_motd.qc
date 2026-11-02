@@ -24,6 +24,28 @@ var bool g_motdSuspended;
 var string g_motdPendingMenu;
 var vguiWindow g_motdWindow;
 
+var void(void) g_motdCloseFunc;
+
+void
+VGUI_MOTDClose(void)
+{
+	if (g_motdCloseFunc) {
+		g_motdCloseFunc();
+	}
+}
+
+/** A controller's A presses the MOTD's OK button. True when it did. */
+bool
+VGUI_MOTDInput(float eventType, float key)
+{
+	if (g_motdVisible == false || eventType != IE_KEYDOWN || key != K_GP_A) {
+		return (false);
+	}
+
+	VGUI_MOTDClose();
+	return (true);
+}
+
 /** Returns true (and remembers the command) when a server-pushed team or
 class menu must wait for the MOTD. */
 bool
@@ -96,6 +118,8 @@ VGUI_ShowMOTD(void)
 			winMotd.Hide();
 		}
 	}
+
+	g_motdCloseFunc = VGUI_ShowMOTD_Close;
 
 	if (MOTD_GetLineCount() < 1i) {
 		VGUI_ShowMOTD_Close();

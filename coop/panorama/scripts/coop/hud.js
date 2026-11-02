@@ -94,6 +94,8 @@
 		$id( "ArmorValue" ).text = hero ? ar + " / " + cap : String( ar );
 		$id( "ArmorFill" ).style.width = pct( ar, cap );
 		armor.SetHasClass( "hidden", !hero && ar <= 0 );
+		armor.SetHasClass( "cadence-up", s.cadence > 0 );
+		cadence( s );
 
 		var energy = $id( "EnergyBar" );
 		energy.SetHasClass( "hidden", !hero );
@@ -159,6 +161,8 @@
 		$id( "Clip" ).text = String( s.clip );
 		$id( "Reserve" ).text = s.noAmmo ? "" : String( s.reserve );
 		$id( "Reserve" ).SetHasClass( "hidden", !!s.noAmmo );
+		// the hero's own weapon never runs dry: no reserve count (sokky)
+		ammo.SetHasClass( "noreserve", !!s.hero && s.held === 1 );
 
 		var hero = s.hero;
 		slot( "SlotStatic", "SlotStaticName", hero ? hero.staticName : "", hero, s.held === 1 );
@@ -172,6 +176,25 @@
 		p.SetHasClass( "active", !!active );
 		p.SetHasClass( "empty", !name );
 		$id( nameId ).text = name || "—";
+	}
+
+	// ---- Choir's Cadence ------------------------------------------------
+	// buffing us: "Cadence" and 1-3 pips; on a Choir: how many it buffs
+
+	function cadence( s )
+	{
+		var box = $id( "Cadence" );
+		var mine = s.cadenceN >= 0;
+		var on = s.cadence > 0;
+		box.SetHasClass( "hidden", !on && !mine );
+		if ( !on && !mine )
+			return;
+		$id( "CadenceLabel" ).text = on ? "Cadence" : "Your cadence";
+		$id( "CadencePips" ).SetHasClass( "hidden", !on );
+		var pips = $id( "CadencePips" ).Children();
+		for ( var i = 0; i < pips.length; i++ )
+			pips[ i ].SetHasClass( "on", i < s.cadence );
+		$id( "CadenceCount" ).text = mine ? ( s.cadenceN === 1 ? "1 mate" : s.cadenceN + " mates" ) : "";
 	}
 
 	// ---- squad ---------------------------------------------------------
@@ -193,7 +216,10 @@
 			card.SetHasClass( "dead", st === "Dead" );
 			var top = $.CreatePanel( "Panel", card, "", { "class": "mate-top" } );
 			label( top, "mate-name", m.name );
-			label( top, "mate-status", st );
+			// in a Choir's Cadence: says so in gold in place of "Alive"
+			var cad = m.cad > 0 && st === "Alive";
+			label( top, "mate-status" + ( cad ? " mate-cad" : "" ), cad ? "Cadence" : st );
+			card.SetHasClass( "mate-cadence", m.cad > 0 );
 			var meter = $.CreatePanel( "Panel", card, "", { "class": "meter" } );
 			var fill = $.CreatePanel( "Panel", meter, "", { "class": "meter-fill" } );
 			fill.style.width = pct( st === "Alive" || st === "Low" ? m.hp : 0, 100 );
