@@ -308,6 +308,8 @@ Jtf_TargetID(void)
 		rint(stof(argv(0)) * 10) / 10));
 }
 
+string g_jtfPromptAt;
+
 void
 Jtf_Post(void)
 {
@@ -352,6 +354,31 @@ Jtf_Post(void)
 
 		g_jtfLast = strzone(json);
 		ui_post(g_jtfView, "state", json);
+	}
+
+	/* a pickup's prompt is a callout on the item (sokky 2026-11-02): where
+	   the item is on screen, in the view's layout units (900 rows tall),
+	   posted when it moves; null puts the prompt back under the crosshair */
+	string at = player.GetString("*promptAt");
+	string atJson = "null";
+
+	if (at != "") {
+		vector onScreen = project(stov(at));
+
+		if (onScreen[2] > 0) {
+			float units = 900 / screen.Size()[1];
+			atJson = sprintf("{\"x\":%d,\"y\":%d}", rint((onScreen[0] - screen.Mins()[0]) * units),
+				rint((onScreen[1] - screen.Mins()[1]) * units));
+		}
+	}
+
+	if (atJson != g_jtfPromptAt) {
+		if (g_jtfPromptAt) {
+			strunzone(g_jtfPromptAt);
+		}
+
+		g_jtfPromptAt = strzone(atJson);
+		ui_post(g_jtfView, "promptAt", atJson);
 	}
 
 	/* wave news: "seq|Wave 3: 12 monsters" */

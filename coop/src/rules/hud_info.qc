@@ -161,17 +161,23 @@ Coop_HudFrame(void)
 			}
 		}
 
-		/* a floor gun in reach: the same Use prompt as a revive */
+		/* a floor gun in reach: the same Use prompt as a revive, and where
+		   the gun is, so the HUD can draw the prompt as a callout on it */
+		string promptAt = "";
+
 		if (prompt == "" && slot >= 0i && is.Alive(p) && Hero_OfKit(p.classname) >= 0i) {
 			entity gun = Hero_AimedGun(p, HERO_TAKERANGE);
 
 			if (gun) {
 				string gunName = entityDef.GetString(gun.classname, "inv_name");
+				vector mid = (gun.absmin + gun.absmax) * 0.5f;
 				prompt = sprintf("Take %s", (gunName != "") ? gunName : gun.classname);
+				promptAt = sprintf("%d %d %d", mid[0], mid[1], mid[2]);
 			}
 		}
 
 		Coop_HudSet(p, "*prompt", prompt);
+		Coop_HudSet(p, "*promptAt", promptAt);
 		Coop_HudSet(p, "*usable", Coop_Usable(p, slot) ? "1" : "");
 	}
 }

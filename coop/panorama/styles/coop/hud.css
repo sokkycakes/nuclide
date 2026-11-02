@@ -182,9 +182,28 @@
 	y: 510px;
 	width: fit-children;
 	height: fit-children;
-	flow-children: right;
 }
 .key-prompt.hidden { visibility: collapse; }
+.prompt-row { width: fit-children; height: fit-children; flow-children: right; }
+.prompt-leader { visibility: collapse; }
+/* a pickup's callout (hud.js moves it so the leader's dot is on the item):
+   the leader runs up-right from the item to the prompt's underline */
+.key-prompt.callout { horizontal-align: left; x: 0px; y: 0px; }
+.key-prompt.callout .prompt-leader
+{
+	visibility: visible;
+	x: 0px;
+	y: 37px;
+	width: 48px;
+	height: 48px;
+	wash-color: var(--window-text);
+}
+.key-prompt.callout .prompt-row
+{
+	x: 44px;
+	padding: 0px 6px 6px 4px;
+	border-bottom: 2px solid var(--window-text);
+}
 /* a QtCurve push button */
 .key-cap
 {
