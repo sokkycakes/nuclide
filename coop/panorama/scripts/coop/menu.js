@@ -528,10 +528,10 @@ var CoopMenu = ( function ()
 	// (coop/src/menu/main.qc Menu_PadLayout); "+coop_lb"/"+coop_rb" are
 	// the shoulders, whose release is an ability and both together engage
 	var PAD = [
-		[ "+attack", "Fire" ], [ "+attack2", "Secondary fire" ], [ "+coop_lb", "Ability 1 (on release)" ],
+		[ "+attack", "Fire" ], [ "impulse 21", "Hero tool" ], [ "+coop_lb", "Ability 1 (on release)" ],
 		[ "+coop_rb", "Ability 2 (on release)" ], [ "+coop_lb+coop_rb", "Engage (both shoulders)" ],
 		[ "+jump", "Jump" ], [ "+duck", "Crouch" ], [ "+reload", "Reload" ], [ "weaplast", "Swap weapon" ],
-		[ "+use", "Use / revive" ], [ "+sprint", "Sprint" ], [ "slot1", "Weapon slot 1" ], [ "slot2", "Weapon slot 2" ],
+		[ "+use", "Use / revive" ], [ "impulse 25", "Engage move" ], [ "+attack2", "Secondary fire" ], [ "+sprint", "Sprint" ], [ "slot1", "Weapon slot 1" ], [ "slot2", "Weapon slot 2" ],
 		[ "slot3", "Weapon slot 3" ], [ "slot4", "Weapon slot 4" ], [ "+showscores", "Scores" ], [ "togglemenu", "Menu" ]
 	];
 	var padList = null;
