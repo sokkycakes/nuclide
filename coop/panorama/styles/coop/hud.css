@@ -186,21 +186,28 @@ Label { text-shadow: 0px 2px 3px 1.0 #000000cc; }
 }
 .vitals > Panel { margin-top: 14px; }
 
-/* hero abilities: one row per kit ability, above the readout */
-.abilities { width: 100%; height: fit-children; flow-children: down; }
+/* hero abilities: one row per kit ability, above the readout, all in one
+   contiguous panel with a thin slit between rows */
+.abilities
+{
+	width: 100%;
+	height: fit-children;
+	flow-children: down;
+	background-color: #000000a6;
+	border: 1px solid #2c2c2c;
+}
 .abilities.hidden { visibility: collapse; }
 .ability
 {
 	width: 100%;
 	height: 36px;
-	margin-top: 4px;
 	padding: 0px 10px;
-	background-color: #000000a6;
-	border: 1px solid #2c2c2c;
+	border-top: 1px solid #ffffff1a;
 	flow-children: right;
 }
-.ability.ready { border: 1px solid #ffa31a88; }
-.ability.engaged { background-color: #ffa31a33; border: 1px solid #ffa31a; }
+.ability:first-child { border-top: 0px solid #00000000; }
+.ability.ready { background-color: #ffa31a14; }
+.ability.engaged { background-color: #ffa31a33; }
 .ability Label { vertical-align: center; }
 .ability-key { width: fit-children; min-width: 32px; height: 32px; margin-right: 6px; vertical-align: center; flow-children: right; }
 .ability-key-glyph { width: 32px; height: 32px; vertical-align: center; }
