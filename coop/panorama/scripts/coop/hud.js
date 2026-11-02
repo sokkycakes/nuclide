@@ -12,6 +12,73 @@
 
 	var last = {};
 
+	// ---- button glyphs: Xelu's prompts (CC0, images/xelu) ---------------
+	// an engine key name ("G", "MOUSE2", "GP_LSHOULDER") to its glyph image,
+	// "" when there's none (the key's name is shown instead)
+	var PAD_GLYPHS = {
+		GP_A: "A", GP_B: "B", GP_X: "X", GP_Y: "Y", GP_LSHOULDER: "LB", GP_RSHOULDER: "RB",
+		GP_LTRIGGER: "LT", GP_RTRIGGER: "RT", GP_LTHUMB: "Left_Stick_Click", GP_RTHUMB: "Right_Stick_Click",
+		GP_START: "Menu", GP_MENU: "Menu", GP_BACK: "View", GP_VIEW: "View", GP_DPAD_UP: "Dpad_Up",
+		GP_DPAD_DOWN: "Dpad_Down", GP_DPAD_LEFT: "Dpad_Left", GP_DPAD_RIGHT: "Dpad_Right"
+	};
+	var KEY_GLYPHS = {
+		MOUSE1: "Mouse_Left", MOUSE2: "Mouse_Right", MOUSE3: "Mouse_Middle", SPACE: "Space", SHIFT: "Shift",
+		LSHIFT: "Shift", RSHIFT: "Shift", CTRL: "Ctrl", LCTRL: "Ctrl", RCTRL: "Ctrl", ALT: "Alt", LALT: "Alt",
+		RALT: "Alt", TAB: "Tab", ENTER: "Enter", ESCAPE: "Esc", BACKSPACE: "Backspace", UPARROW: "Arrow_Up",
+		DOWNARROW: "Arrow_Down", LEFTARROW: "Arrow_Left", RIGHTARROW: "Arrow_Right", INS: "Insert", DEL: "Del",
+		HOME: "Home", END: "End", PGUP: "Page_Up", PGDN: "Page_Down", CAPSLOCK: "Caps_Lock", TILDE: "Tilda",
+		BACKQUOTE: "Tilda", SEMICOLON: "Semicolon", MINUS: "Minus", SLASH: "Slash", "[": "Bracket_Left",
+		"]": "Bracket_Right", "'": "Quote", ";": "Semicolon", "-": "Minus", "/": "Slash", "`": "Tilda"
+	};
+	function glyph( key )
+	{
+		key = String( key || "" ).toUpperCase();
+		if ( PAD_GLYPHS[ key ] )
+			return "file://{images}/xelu/xbox/XboxSeriesX_" + PAD_GLYPHS[ key ] + ".png";
+		var k = KEY_GLYPHS[ key ] || ( /^([A-Z0-9]|F[1-9]|F1[0-2])$/.test( key ) ? key : "" );
+		return k ? "file://{images}/xelu/keyboard/" + k + "_Key_Dark.png" : "";
+	}
+	// a short label for a key with no glyph, so a long name such as
+	// KP_DOWNARROW doesn't push the ability's name onto two lines
+	// the keypad by its digits (the HUD font has no arrows)
+	var SHORT = {
+		END: "1", DOWNARROW: "2", PGDN: "3", LEFTARROW: "4", "5": "5", RIGHTARROW: "6", HOME: "7",
+		UPARROW: "8", PGUP: "9", INS: "0", DEL: ".", ENTER: "Ent", SLASH: "/", STAR: "*", MINUS: "-", PLUS: "+"
+	};
+	function shortKey( key )
+	{
+		key = String( key || "" ).toUpperCase();
+		var m = /^MOUSE(\d+)$/.exec( key );
+		if ( m )
+			return "M" + m[ 1 ];
+		m = /^MWHEEL(UP|DOWN)$/.exec( key );
+		if ( m )
+			return m[ 1 ] === "UP" ? "WhU" : "WhD";
+		m = /^KP_(.+)$/.exec( key );
+		if ( m )
+			return "KP" + ( SHORT[ m[ 1 ] ] || m[ 1 ] );
+		m = /^GP_(.+)$/.exec( key );
+		if ( m )
+			return m[ 1 ];
+		return key.length > 5 ? key.substr( 0, 4 ) : key;
+	}
+	// glyphs for "KEY" or a chord "KEY+KEY" into parent, or the text when a
+	// key has no glyph
+	function keyGlyphs( parent, cls, keys )
+	{
+		parent.RemoveAndDeleteChildren();
+		String( keys || "" ).split( "+" ).forEach( function ( k )
+		{
+			if ( !k )
+				return;
+			var src = glyph( k );
+			if ( src )
+				$.CreatePanel( "Image", parent, "", { "class": cls + "-glyph", src: src, hittest: "false" } );
+			else
+				label( parent, cls + "-text", shortKey( k ) );
+		} );
+	}
+
 	// ---- vitals --------------------------------------------------------
 
 	function vitals( s )
@@ -42,7 +109,8 @@
 	function abilities( hero )
 	{
 		var box = $id( "Abilities" );
-		var key = hero ? hero.status + "\n" + hero.form + hero.formLine : "";
+		var keys = hero && hero.keys ? hero.keys : {};
+		var key = hero ? hero.status + "\n" + hero.form + hero.formLine + JSON.stringify( keys ) : "";
 		box.SetHasClass( "hidden", !hero );
 		if ( key === last.abilities )
 			return;
@@ -70,7 +138,10 @@
 			var row = $.CreatePanel( "Panel", box, "", { "class": "ability" } );
 			row.SetHasClass( "ready", /^ready$/i.test( state ) );
 			row.SetHasClass( "engaged", i >= formFrom && hero.form > 0 );
-			label( row, "ability-key", k );
+			// the letter in the status line is the keyboard default: show
+			// what this player presses for it, as a glyph
+			var keyBox = $.CreatePanel( "Panel", row, "", { "class": "ability-key", hittest: "false" } );
+			keyGlyphs( keyBox, "ability-key", keys[ k ] || k );
 			label( row, "ability-name", text );
 			label( row, "ability-state", state );
 		} );
@@ -143,6 +214,24 @@
 		$id( "WaveCaption" ).text = fighting ? "monsters left" : "next wave soon";
 	}
 
+	// ---- respawn bar: fills while down, then fire respawns -------------
+
+	function respawn( s )
+	{
+		var r = s.respawn;
+		var p = $id( "Respawn" );
+		p.SetHasClass( "hidden", !r );
+		if ( !r )
+			return;
+		var ready = !r.survival && r.frac >= 1;
+		p.SetHasClass( "ready", ready );
+		$id( "RespawnFill" ).style.width = ( r.survival ? 0 : Math.round( r.frac * 100 ) ) + "%";
+		$id( "RespawnLabel" ).text = r.survival ? "Down" : ready ? "Ready to respawn" : "Respawning";
+		$id( "RespawnValue" ).text = r.survival || ready ? "" : r.left + "s";
+		$id( "RespawnHint" ).text = r.survival ? "Survival: wait for a teammate to revive you" :
+			ready ? "Press " + shortKey( s.fireKey || "MOUSE1" ) + " to respawn" : "A teammate can revive you";
+	}
+
 	// ---- prompt --------------------------------------------------------
 
 	function prompt( s )
@@ -151,7 +240,9 @@
 		p.SetHasClass( "hidden", !s.prompt );
 		if ( s.prompt )
 		{
-			$id( "PromptKey" ).text = s.promptKey || "E";
+			var pk = s.promptKey || "E";
+			keyGlyphs( $id( "PromptKeyBox" ), "prompt-key", pk );
+			$id( "PromptKeyBox" ).SetHasClass( "glyph", !!glyph( pk ) );
 			$id( "PromptAction" ).text = s.prompt;
 		}
 	}
@@ -160,11 +251,14 @@
 	{
 		if ( !s )
 			return;
+		if ( s.hero )
+			s.hero.keys = s.keys;
 		vitals( s );
 		weapons( s );
 		squad( s.team );
 		wave( s );
 		prompt( s );
+		respawn( s );
 	} );
 
 	// ---- kill feed: five lines, each for six seconds -------------------

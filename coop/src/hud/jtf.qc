@@ -98,14 +98,85 @@ Jtf_WeaponName(string def)
 string
 Jtf_KeyFor(string command)
 {
-	tokenize(findkeysforcommandex(command));
-	float key = stof(argv(0));
+	/* the controller's button when it was used last (the engine's
+	   in_lastdevice), else the first keyboard or mouse key */
+	bool pad = cvar("in_lastdevice") ? true : false;
+	float c = tokenize(findkeysforcommandex(command));
 
-	if (key <= 0) {
-		return ("");
+	/* the engine answers with key names ("E MOUSE2 GP_Y") */
+	for (float i = 0; i < c; i++) {
+		string name = argv(i);
+		float key = stringtokeynum(name);
+		bool padKey = (key >= 768 && key <= 831) ? true : false;
+
+		if (key > 0 && padKey == pad) {
+			return (strtoupper(name));
+		}
 	}
 
-	return (strtoupper(keynumtostring(key)));
+	return ("");
+}
+
+/* the respawn bar: {"frac":0..1,"left":seconds,"survival":bool}, or null
+   when alive. From "*respawn" (coop/src/rules/hud_info.qc); the progress
+   is worked out here each frame against the client's clock, in 1% steps
+   so the state is posted at most a hundred times a respawn */
+string
+Jtf_Respawn(void)
+{
+	string r = getplayerkeyvalue(player_localnum, "*respawn");
+
+	if (r == "") {
+		return ("null");
+	}
+
+	if (r == "survival") {
+		return ("{\"frac\":0,\"left\":0,\"survival\":true}");
+	}
+
+	tokenize(r);
+	float down = stof(argv(0));
+	float delay = max(0.01f, stof(argv(1)));
+	float frac = bound(0, (time - down) / delay, 1);
+
+	frac = floor(frac * 100) / 100;
+	return (sprintf("{\"frac\":%s,\"left\":%d,\"survival\":false}", ftos(frac),
+		ceil(max(0, delay - (time - down)))));
+}
+
+/* the Use key; on a controller that's the west button, "+coop_x" */
+string
+Jtf_UseKey(void)
+{
+	string key = Jtf_KeyFor("+use");
+
+	if (key == "") {
+		key = Jtf_KeyFor("+coop_x");
+	}
+
+	return (key);
+}
+
+/* the keys for the letters in the hero status line ("[G] Vent"): what the
+   player presses for each, by what it runs. On a controller ability 1 and
+   2 are the shoulders and engage both (coop/src/menu/main.qc) */
+string
+Jtf_HeroKeys(void)
+{
+	bool pad = cvar("in_lastdevice") ? true : false;
+	string g = Jtf_KeyFor("impulse 22"), x = Jtf_KeyFor("impulse 23"), z = Jtf_KeyFor("impulse 24");
+
+	if (pad) {
+		string lb = Jtf_KeyFor("+coop_lb"), rb = Jtf_KeyFor("+coop_rb");
+
+		if (g == "") g = lb;
+		if (x == "") x = rb;
+		if (z == "" && lb != "" && rb != "") z = strcat(lb, "+", rb);
+	}
+
+	return (sprintf("{\"C\":%s,\"G\":%s,\"X\":%s,\"Z\":%s,\"V\":%s,\"pad\":%s}",
+		Jtf_Str(Jtf_KeyFor("impulse 21")), Jtf_Str(g), Jtf_Str(x), Jtf_Str(z),
+		Jtf_Str(Jtf_KeyFor("impulse 25")), pad ? "true" : "false"));
 }
 
 /* "name|energy|energymax|barrier|cap|form|status|formline|static|dynamic"
@@ -183,9 +254,11 @@ Jtf_Post(void)
 		max(0, player.GetHealth()), player.GetArmor(), Jtf_Str(title), weapon.GetClip(), weapon.GetClipSize(),
 		weapon.GetAmmo1());
 	json = strcat(json, sprintf("\"noAmmo\":%s,\"held\":%d,\"hero\":%s,", noAmmo ? "true" : "false", held, hero));
-	json = strcat(json, sprintf("\"wave\":%d,\"left\":%d,\"team\":%s,\"prompt\":%s,\"promptKey\":%s}",
+	json = strcat(json, sprintf("\"wave\":%d,\"left\":%d,\"team\":%s,\"prompt\":%s,\"promptKey\":%s,\"keys\":%s}",
 		stof(serverkey("coop_wave")), (left == "") ? -1 : stof(left), Jtf_Team(), Jtf_Str(prompt),
-		Jtf_Str(Jtf_KeyFor("+use"))));
+		Jtf_Str(Jtf_UseKey()), Jtf_HeroKeys()));
+	json = strcat(substring(json, 0, strlen(json) - 1), sprintf(",\"respawn\":%s,\"fireKey\":%s}", Jtf_Respawn(),
+		Jtf_Str(Jtf_KeyFor("+attack"))));
 
 	if (json != g_jtfLast) {
 		if (g_jtfLast) {
@@ -320,4 +393,44 @@ HUD_Obituary(string targetName, string attackerName, string weaponDef, string me
 
 	ui_post(g_jtfView, "feed", sprintf("{\"a\":%s,\"w\":%s,\"v\":%s,\"you\":%s}", Jtf_Str(attacker),
 		Jtf_Str(weaponName), Jtf_Str(targetName), (attacker == me || targetName == me) ? "true" : "false"));
+}
+
+/* ---- the controller's west button: Use or reload, by what's ahead --------
+   bound to "+coop_x" (coop/src/menu/main.qc, pad layout 3). It uses when
+   the server says Use would do something here ("*usable",
+   coop/src/rules/hud_info.qc: a teammate to revive, a gun to take, a
+   button or door), else it reloads; its release ends whichever began */
+string g_coopXHeld;
+
+void
+HUD_Init(void)
+{
+	HLHUD_ClassicInit();
+	registercommand("+coop_x");
+	registercommand("-coop_x");
+}
+
+bool
+HUD_ConsoleCommand(string commandString)
+{
+	tokenize_console(commandString);
+
+	switch (argv(0)) {
+	case "+coop_x":
+		if (g_coopXHeld != "") {
+			return (true);	/* key repeat */
+		}
+
+		g_coopXHeld = (getplayerkeyvalue(player_localnum, "*usable") == "1") ? "use" : "reload";
+		localcmd(sprintf("+%s\n", g_coopXHeld));
+		return (true);
+	case "-coop_x":
+		if (g_coopXHeld != "") {
+			localcmd(sprintf("-%s\n", g_coopXHeld));
+			g_coopXHeld = "";
+		}
+		return (true);
+	}
+
+	return HLHUD_ClassicConsoleCommand(commandString);
 }
