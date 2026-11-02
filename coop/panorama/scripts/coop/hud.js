@@ -162,6 +162,8 @@
 	{
 		var ammo = $id( "Ammo" );
 		$id( "WeaponName" ).text = s.weapon || "";
+		// the hero slots above already name a hero weapon in hand
+		$id( "WeaponName" ).SetHasClass( "hidden", s.held > 0 );
 		ammo.SetHasClass( "empty", !s.weapon );
 		ammo.SetHasClass( "noclip", s.clipSize <= 0 );
 		ammo.SetHasClass( "low", s.clipSize > 0 && s.clip <= Math.max( 1, s.clipSize / 4 ) );
