@@ -521,6 +521,21 @@ XPM_DrawHud(entity pl, int s)
 		return;
 	}
 
+	/* the Panorama HUD shows it in its objective panel: "xp|need|level|
+	   max level|rank|medals|max medals" (need 0 at the top level) */
+	if (infokey(pl, "phud") == "1") {
+		bool top = (g_xpm[s].level >= XPM_MAXLEVEL);
+		string stats = sprintf("%i|%i|%i|%i|", g_xpm[s].xp, top ? 0i : XPM_NeededXP(g_xpm[s].level), g_xpm[s].level,
+			XPM_MAXLEVEL);
+		stats = strcat(stats, sprintf("%s|%i|%i", XPM_Rank(g_xpm[s].level), g_xpm[s].medals, XPM_MAXMEDALS));
+
+		if (infokey(pl, "*xpm") != stats) {
+			forceinfokey(pl, "*xpm", stats);
+		}
+
+		return;
+	}
+
 	if (g_xpm[s].level >= XPM_MAXLEVEL) {
 		text = sprintf("Level: %i / %i\nRank: %s\nMedals: %i / %i", XPM_MAXLEVEL, XPM_MAXLEVEL, XPM_Rank(XPM_MAXLEVEL), g_xpm[s].medals, XPM_MAXMEDALS);
 	} else {

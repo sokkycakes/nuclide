@@ -34,7 +34,7 @@
 /* ---- QtCurve pieces ---------------------------------------------------- */
 
 /* a window: colour, striped tile, frame */
-.target-id, .wave-counter, .feed-entry, .respawn, .cadence
+.target-id, .objective, .feed-entry, .respawn, .cadence
 {
 	background-color: var(--window);
 	background-image: var(--window-image);
@@ -121,19 +121,47 @@
 	border-color: #2c5a03;
 }
 
-/* ---- wave counter: top centre ------------------------------------------ */
+/* ---- objective: top-left, wave and stats in one window ---------------- */
 
-.wave-counter
+.objective
 {
-	horizontal-align: center;
-	y: 24px;
+	x: 32px;
+	y: 32px;
 	width: fit-children;
 	height: fit-children;
-	padding: 6px 18px 8px 18px;
-	flow-children: down;
+	padding: 8px 12px 8px 10px;
+	flow-children: right;
 }
-.wave-counter Label { horizontal-align: center; text-shadow: none; }
-.wave-counter.hidden { visibility: collapse; }
+.obj-emblem { width: 56px; height: 56px; margin-right: 12px; wash-color: var(--window-text); }
+.obj-body { width: 210px; height: fit-children; flow-children: down; }
+.obj-title
+{
+	horizontal-align: right;
+	font-family: "Tahoma", "Nimbus";
+	font-size: 20px;
+	font-weight: bold;
+	text-transform: uppercase;
+	color: var(--window-text);
+	margin-bottom: 2px;
+}
+.obj-row { width: 100%; height: fit-children; flow-children: right; }
+.obj-key
+{
+	width: fill-parent-flow( 1.0 );
+	font-family: "Tahoma", "Nimbus";
+	font-size: 16px;
+	font-weight: bold;
+	text-transform: uppercase;
+	color: var(--window-text);
+}
+.obj-val { font-family: "Tahoma", "Nimbus"; font-size: 16px; color: var(--window-text); }
+.obj-val.danger { color: #e0503a; }
+.obj-val.muted { color: var(--disabled-text); }
+.obj-xpm { width: 100%; height: fit-children; flow-children: down; }
+.obj-xpm.hidden, .obj-row.hidden { visibility: collapse; }
+/* a sunken line between the wave and the player's own progress */
+.obj-sep { width: 100%; height: 2px; margin: 5px 0px; background-color: var(--frame-border); }
+.objective Label { text-shadow: none; }
 
 /* ---- kill feed: top-right ---------------------------------------------- */
 

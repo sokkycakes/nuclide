@@ -309,14 +309,26 @@
 
 	function wave( s )
 	{
-		var w = $id( "Wave" );
-		w.SetHasClass( "hidden", !( s.wave > 0 ) );
-		if ( !( s.wave > 0 ) )
+		var fighting = s.wave > 0 && s.left >= 0;
+		$id( "WaveTitle" ).text = s.wave > 0 ? "Wave " + s.wave : "Get ready";
+		$id( "ObjLeftKey" ).text = fighting ? "Monsters" : "Next wave";
+		$id( "ObjLeft" ).text = fighting ? String( s.left ) : "Soon";
+		$id( "ObjLeft" ).SetHasClass( "danger", fighting );
+		$id( "ObjLeft" ).SetHasClass( "muted", !fighting );
+		// "score|points"
+		var st = ( s.stats || "0|0" ).split( "|" );
+		$id( "ObjScore" ).text = st[0] || "0";
+		$id( "ObjPoints" ).text = st[1] || "0";
+		// the XPM plugin: "xp|need|level|max level|rank|medals|max medals"
+		var x = ( s.xpm || "" ).split( "|" );
+		$id( "ObjXpm" ).SetHasClass( "hidden", x.length < 7 );
+		if ( x.length < 7 )
 			return;
-		$id( "WaveTitle" ).text = "Wave " + s.wave;
-		var fighting = s.left >= 0;
-		$id( "WaveLeft" ).text = fighting ? String( s.left ) : "—";
-		$id( "WaveCaption" ).text = fighting ? "monsters left" : "next wave soon";
+		$id( "ObjLevel" ).text = x[2] + " / " + x[3];
+		$id( "ObjRank" ).text = x[4];
+		$id( "ObjExpRow" ).SetHasClass( "hidden", x[1] === "0" );
+		$id( "ObjExp" ).text = x[0] + " / " + x[1];
+		$id( "ObjMedals" ).text = x[5] + " / " + x[6];
 	}
 
 	// ---- respawn bar: fills while down, then fire respawns -------------

@@ -19,11 +19,23 @@
 	</scripts>
 
 	<Panel id="Hud" class="hud QtCurve SokkyDark" hittest="false" bwdesignheight="900">
-		<!-- wave counter: top centre -->
-		<Panel id="Wave" class="wave-counter" hittest="false">
-			<Label id="WaveTitle" class="hud-label accent" text="Wave 1" />
-			<Label id="WaveLeft" class="hud-numeral" text="0" />
-			<Label id="WaveCaption" class="hud-label muted" text="monsters left" />
+		<!-- objective: top-left, the wave and our stats in one panel (sokky
+		     2026-11-02, laid out like a horde-mode scoreboard) -->
+		<Panel id="Objective" class="objective" hittest="false">
+			<Image id="ObjEmblem" class="obj-emblem" src="file://{images}/coop/obj_emblem.png" hittest="false" />
+			<Panel class="obj-body">
+				<Label id="WaveTitle" class="obj-title" text="Wave 1" />
+				<Panel class="obj-row"><Label id="ObjLeftKey" class="obj-key" text="Monsters" /><Label id="ObjLeft" class="obj-val danger" text="0" /></Panel>
+				<Panel class="obj-row"><Label class="obj-key" text="Score" /><Label id="ObjScore" class="obj-val" text="0" /></Panel>
+				<Panel class="obj-row"><Label class="obj-key" text="Points" /><Label id="ObjPoints" class="obj-val" text="0" /></Panel>
+				<Panel id="ObjXpm" class="obj-xpm">
+					<Panel class="obj-sep" />
+					<Panel class="obj-row"><Label class="obj-key" text="Level" /><Label id="ObjLevel" class="obj-val" text="" /></Panel>
+					<Panel class="obj-row"><Label class="obj-key" text="Rank" /><Label id="ObjRank" class="obj-val" text="" /></Panel>
+					<Panel id="ObjExpRow" class="obj-row"><Label class="obj-key" text="Exp" /><Label id="ObjExp" class="obj-val" text="" /></Panel>
+					<Panel class="obj-row"><Label class="obj-key" text="Medals" /><Label id="ObjMedals" class="obj-val" text="" /></Panel>
+				</Panel>
+			</Panel>
 		</Panel>
 
 		<!-- kill feed: top-right, newest on top -->
