@@ -322,6 +322,7 @@
 		// the XPM plugin: "xp|need|level|max level|rank|medals|max medals"
 		var x = ( s.xpm || "" ).split( "|" );
 		$id( "ObjXpm" ).SetHasClass( "hidden", x.length < 7 );
+		$id( "ObjExp" ).SetHasClass( "hidden", x.length < 7 );
 		if ( x.length < 7 )
 			return;
 		$id( "ObjLevel" ).text = "Lv" + x[2];
@@ -391,8 +392,9 @@
 		row.SetHasClass( "you", !!k.you );
 		if ( k.a )
 			label( row, "feed-attacker", k.a );
-		label( row, "feed-weapon", k.w || "killed" );
-		label( row, "feed-victim last", k.v );
+		label( row, "feed-weapon" + ( k.v ? "" : " last" ), k.w || "killed" );
+		if ( k.v )
+			label( row, "feed-victim last", k.v );
 		if ( box.GetChildCount() > 1 )
 			box.MoveChildBefore( row, box.GetChild( 0 ) );
 		while ( box.GetChildCount() > FEED_MAX )
