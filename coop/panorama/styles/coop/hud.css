@@ -255,6 +255,8 @@ Label { text-shadow: 0px 2px 3px 1.0 #000000cc; }
 .ammo-reserve { font-size: 32px; font-weight: bold; color: #e6e6e6; vertical-align: bottom; margin-bottom: 2px; }
 .hud-ammo.noclip .ammo-clip,
 .hud-ammo.noclip .ammo-divider { visibility: collapse; }
+.hud-ammo.noreserve .ammo-divider,
+.hud-ammo.noreserve .ammo-reserve { visibility: collapse; }
 .hud-ammo.empty { visibility: collapse; }
 .hud-ammo.low .ammo-clip { color: #e0503a; }
 

@@ -161,6 +161,8 @@
 		$id( "Clip" ).text = String( s.clip );
 		$id( "Reserve" ).text = s.noAmmo ? "" : String( s.reserve );
 		$id( "Reserve" ).SetHasClass( "hidden", !!s.noAmmo );
+		// the hero's own weapon never runs dry: no reserve count (sokky)
+		ammo.SetHasClass( "noreserve", !!s.hero && s.held === 1 );
 
 		var hero = s.hero;
 		slot( "SlotStatic", "SlotStaticName", hero ? hero.staticName : "", hero, s.held === 1 );
