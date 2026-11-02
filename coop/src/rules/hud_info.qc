@@ -10,6 +10,8 @@
      "*respawn"             while down: "<time downed> <delay>" for the
                             respawn bar, "survival" when only a revive
                             brings them back, else ""
+     "*revive"              while down and a teammate holds Use on us:
+                            "<start time> <revive time>|<their name>"
      "*usable"              "1" when Use would do something: a teammate to
                             revive, a gun to take, a button or door ahead.
                             A controller's west button uses then, else it
@@ -98,6 +100,29 @@ Coop_HudCadence(entity p, int slot)
 	}
 }
 
+/* while p is down: who's reviving them and since when, for the HUD's bar */
+string
+Coop_HudReviver(entity p, int slot)
+{
+	if (slot < 0i || is.Alive(p) || !g_coopDown[slot]) {
+		return ("");
+	}
+
+	for (int i = 0i; i < COOP_MAXPLAYERS; i++) {
+		entity by = g_coopReviveTarget[i];
+
+		if (by == p && time - g_coopReviveSeen[i] <= 0.25f) {
+			for (entity r = world; (r = next.Player(r));) {
+				if (Coop_Slot(r) == i) {
+					return (sprintf("%.2f %.2f|%s", g_coopReviveStart[i], autocvar_coop_reviveTime, infokey(r, "name")));
+				}
+			}
+		}
+	}
+
+	return ("");
+}
+
 void
 Coop_HudFrame(void)
 {
@@ -141,6 +166,8 @@ Coop_HudFrame(void)
 		Coop_HudSet(p, "*mate", sprintf("%d|%s", max(0, p.health), state));
 		/* for the objective panel: score and shop points */
 		Coop_HudSet(p, "*stats", sprintf("%d|%i", p.frags, Coop_Points(p)));	/* %i: points are an int */
+
+		Coop_HudSet(p, "*revive", Coop_HudReviver(p, slot));
 
 		if (slot >= 0i && !is.Alive(p) && g_coopDown[slot]) {
 			Coop_HudSet(p, "*respawn", autocvar_coop_survival ? "survival" :

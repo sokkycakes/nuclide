@@ -147,6 +147,23 @@ Jtf_Respawn(void)
 		ceil(max(0, delay - (time - down)))));
 }
 
+/* a teammate reviving us: {"frac", "name"} from "*revive", else null */
+string
+Jtf_Revive(void)
+{
+	string r = getplayerkeyvalue(player_localnum, "*revive");
+
+	if (r == "") {
+		return ("null");
+	}
+
+	float bar = strstrofs(r, "|");
+	tokenize(substring(r, 0, bar));
+	float frac = bound(0, (time - stof(argv(0))) / max(0.01f, stof(argv(1))), 1);
+
+	return (sprintf("{\"frac\":%s,\"name\":%s}", ftos(floor(frac * 100) / 100), Jtf_Str(substring(r, bar + 1, -1))));
+}
+
 /* the Use key; on a controller that's the west button, "+coop_x" */
 string
 Jtf_UseKey(void)
@@ -342,7 +359,7 @@ Jtf_Post(void)
 	json = strcat(json, sprintf("\"wave\":%d,\"left\":%d,\"team\":%s,\"prompt\":%s,\"promptKey\":%s,\"keys\":%s}",
 		stof(serverkey("coop_wave")), (left == "") ? -1 : stof(left), Jtf_Team(), Jtf_Str(prompt),
 		Jtf_Str(Jtf_UseKey()), Jtf_HeroKeys()));
-	json = strcat(substring(json, 0, strlen(json) - 1), sprintf(",\"respawn\":%s,\"fireKey\":%s,", Jtf_Respawn(),
+	json = strcat(substring(json, 0, strlen(json) - 1), sprintf(",\"respawn\":%s,\"revive\":%s,\"fireKey\":%s,", Jtf_Respawn(), Jtf_Revive(),
 		Jtf_Str(Jtf_KeyFor("+attack"))));
 	/* Choir's Cadence: how strongly it buffs us (0-3), and on a Choir how
 	   many teammates it buffs (-1 when we aren't one) */
@@ -515,7 +532,12 @@ HUD_Draw(void)
 
 	/* the Figma frame is the whole screen, not Half-Life's 4:3 HUD area */
 	ui_draw(g_jtfView, screen.Mins(), screen.Size(), 1.0f);
-	Jtf_DrawFeedback(g_hudMins, g_hudRes);
+
+	/* down or dead: only the objective panel and the respawn box (sokky
+	   2026-11-02), so no crosshair, damage arrows or weapon list either */
+	if (getplayerkeyvalue(player_localnum, "*respawn") == "") {
+		Jtf_DrawFeedback(g_hudMins, g_hudRes);
+	}
 }
 
 void

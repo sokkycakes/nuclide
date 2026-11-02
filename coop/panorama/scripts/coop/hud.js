@@ -358,6 +358,14 @@
 	{
 		var r = s.respawn;
 		var p = $id( "Respawn" );
+		$id( "Hud" ).SetHasClass( "down", !!r );
+		var rv = r ? s.revive : null;
+		$id( "Revive" ).SetHasClass( "hidden", !rv );
+		if ( rv )
+		{
+			$id( "ReviveLabel" ).text = rv.name + " is reviving you";
+			$id( "ReviveFill" ).style.width = Math.round( rv.frac * 100 ) + "%";
+		}
 		p.SetHasClass( "hidden", !r );
 		if ( !r )
 			return;
