@@ -27,20 +27,6 @@
 				<Panel class="obj-row"><Label id="ObjLeftKey" class="obj-key" text="Monsters" /><Label id="ObjLeft" class="obj-val danger" text="0" /></Panel>
 				<Panel class="obj-row"><Label class="obj-key" text="Score" /><Label id="ObjScore" class="obj-val" text="0" /></Panel>
 				<Panel class="obj-row"><Label class="obj-key" text="Points" /><Label id="ObjPoints" class="obj-val" text="0" /></Panel>
-				<Panel id="ObjXpm" class="obj-xpm">
-					<Panel class="obj-sep" />
-					<!-- "Lv8" on the left, the rank on the right (the experience
-					     gauge is beside the health) -->
-					<!-- medals after the rank: a medal (star in a ring) and "x3" -->
-					<Panel class="obj-row">
-						<Label id="ObjLevel" class="obj-key" text="" />
-						<Label id="ObjRank" class="obj-val" text="" />
-						<Panel id="ObjMedalBox" class="obj-medals">
-							<Image class="obj-medal" src="file://{images}/coop/medal.png" hittest="false" />
-							<Label id="ObjMedals" class="obj-val" text="" />
-						</Panel>
-					</Panel>
-				</Panel>
 			</Panel>
 		</Panel>
 
@@ -126,9 +112,20 @@
 					<Label id="BarrierValue" class="readout-value barrier-value" text="0" />
 					<Panel id="BarrierValueDg" class="wtnum readout-value barrier-value" hittest="false" />
 				</Panel>
-				<!-- experience toward the next level, beside the health and
-				     barrier (sokky 2026-11-02) -->
-				<Panel id="ObjExp" class="meter hud-exp"><Panel id="ObjExpFill" class="meter-fill" /></Panel>
+				<!-- level, rank and medals over the experience gauge, beside the
+				     health and barrier (sokky 2026-11-02) -->
+				<Panel id="ObjXpm" class="hud-xpm" hittest="false">
+					<Panel class="obj-row">
+						<Label id="ObjLevel" class="obj-key" text="" />
+						<Label id="ObjRank" class="obj-val" text="" />
+						<!-- medals after the rank: a medal (star in a ring) and "x3" -->
+						<Panel id="ObjMedalBox" class="obj-medals">
+							<Image class="obj-medal" src="file://{images}/coop/medal.png" hittest="false" />
+							<Label id="ObjMedals" class="obj-val" text="" />
+						</Panel>
+					</Panel>
+					<Panel id="ObjExp" class="meter hud-exp"><Panel id="ObjExpFill" class="meter-fill" /></Panel>
+				</Panel>
 			</Panel>
 		</Panel>
 

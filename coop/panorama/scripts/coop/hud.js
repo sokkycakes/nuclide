@@ -322,7 +322,6 @@
 		// the XPM plugin: "xp|need|level|max level|rank|medals|max medals"
 		var x = ( s.xpm || "" ).split( "|" );
 		$id( "ObjXpm" ).SetHasClass( "hidden", x.length < 7 );
-		$id( "ObjExp" ).SetHasClass( "hidden", x.length < 7 );
 		if ( x.length < 7 )
 			return;
 		$id( "ObjLevel" ).text = "Lv" + x[2];

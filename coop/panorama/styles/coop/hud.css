@@ -283,7 +283,8 @@
 	x: 40px;
 	vertical-align: bottom;
 	margin-bottom: 40px;
-	width: 280px;
+	/* the health row can run past the 280 wide bars (level and experience) */
+	width: fit-children;
 	height: fit-children;
 	flow-children: down;
 }
@@ -366,8 +367,11 @@
 .barrier-readout { margin-left: 26px; }
 .barrier-readout.hidden { visibility: collapse; }
 .hud-readout .barrier-value { color: #5aa8ff; }
-.hud-exp { width: 110px; margin-left: 22px; vertical-align: center; }
-.hud-exp.hidden { visibility: collapse; }
+.hud-xpm { width: 190px; height: fit-children; margin-left: 22px; vertical-align: center; flow-children: down; }
+.hud-xpm.hidden { visibility: collapse; }
+.hud-xpm .obj-row { margin-bottom: 4px; }
+.hud-xpm Label { text-shadow: none; }
+.hud-exp { width: 100%; }
 
 /* bar: label and value, then a progress bar */
 .hud-bar { width: 280px; height: fit-children; flow-children: down; }
@@ -477,7 +481,7 @@ Label.hidden { visibility: collapse; }
 /* ---- Choir's Cadence (above the Barrier bar) --------------------------- */
 .cadence
 {
-	width: 100%;
+	width: 280px;
 	height: 32px;
 	padding: 0px 10px;
 	flow-children: right;
