@@ -31,7 +31,7 @@
 /* ---- QtCurve pieces ---------------------------------------------------- */
 
 /* a window: colour, striped tile, frame */
-.mate, .abilities, .wave-counter, .feed-entry, .weapon-slot, .respawn, .cadence
+.mate, .abilities, .wave-counter, .feed-entry, .slot-body, .respawn, .cadence
 {
 	background-color: var(--window);
 	background-image: var(--window-image);
@@ -314,7 +314,8 @@ Label { text-shadow: 0px 2px 3px 1.0 #000000cc; }
 .hud-ammo.empty { visibility: collapse; }
 .hud-ammo.low .ammo-clip { color: #e0503a; }
 
-.weapon-slot
+.weapon-slot { width: fit-children; height: 40px; flow-children: right; }
+.slot-body
 {
 	width: 220px;
 	height: 40px;
@@ -324,10 +325,29 @@ Label { text-shadow: 0px 2px 3px 1.0 #000000cc; }
 .weapon-slot Label { vertical-align: center; margin-right: 10px; text-shadow: none; }
 .slot-key { color: var(--disabled-text); }
 .slot-name { font-size: 18px; color: var(--window-text); width: fill-parent-flow( 1.0 ); }
-/* the weapon in hand: selected, in the highlight */
-/* (the window tile can't be switched off here, so the highlight is an
-   inset shadow over it; #15539e is SokkyDark's --highlight) */
-.weapon-slot.active { background-color: var(--highlight); box-shadow: inset 0px 0px 0px 40px #15539e; border-color: #326a8e; }
+/* the weapon in hand: selected, in the highlight, its left end an arrow
+   (slot_tip.png, drawn for this in the highlight and its frame colour).
+   The window tile can't be switched off, so the highlight is an inset
+   shadow over it; #15539e is SokkyDark's --highlight. */
+.slot-tip
+{
+	width: 20px;
+	height: 40px;
+	visibility: collapse;
+	background-image: url( "file://{images}/coop/slot_tip.png" );
+	background-size: 20px 40px;
+	background-repeat: no-repeat;
+}
+.weapon-slot.active .slot-tip { visibility: visible; }
+.weapon-slot.active .slot-body
+{
+	background-color: var(--highlight);
+	box-shadow: inset 0px 0px 0px 40px #15539e;
+	border-color: #326a8e;
+	border-left: 0px solid #00000000;
+	border-top-left-radius: 0px;
+	border-bottom-left-radius: 0px;
+}
 .weapon-slot.active Label { color: var(--highlighted-text); }
 .weapon-slot.empty .slot-name { color: var(--disabled-text); }
 .weapon-slot.hidden { visibility: collapse; }
