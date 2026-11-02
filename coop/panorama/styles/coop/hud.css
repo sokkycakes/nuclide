@@ -25,7 +25,7 @@
 	height: 100%;
 	font-family: "Tahoma", "Nimbus";
 	color: var(--window-text);
-	font-size: 18px;
+	font-size: 12px;
 	/* the root carries .QtCurve for the variables only */
 	background-color: none;
 	background-image: none;
@@ -65,13 +65,13 @@
 
 /* ---- text styles ------------------------------------------------------- */
 
-/* no drop shadows (sokky). Tahoma text is regular weight with no letter
-   spacing: the Tahoma Bold we have (Wine's) has thin outlines on bold
-   advances above 12 ppem, and fractional spacing makes uneven gaps */
+/* no drop shadows (sokky). Small text is Tahoma 12px, drawn at exactly 12
+   pixels whatever the HUD's scale (hud.xml bwexacttext): the crisp,
+   bitmap-hinted size (sokky). Wine's Tahoma Bold is only right up to 12 */
 .hud-label
 {
 	font-family: "Tahoma", "Nimbus";
-	font-size: 17px;
+	font-size: 12px;
 	text-transform: uppercase;
 	color: var(--window-text);
 }
@@ -97,8 +97,8 @@
 	flow-children: down;
 }
 .mate-top { width: 100%; height: fit-children; flow-children: right; margin-bottom: 4px; }
-.mate-name { font-size: 18px; color: var(--window-text); width: fill-parent-flow( 1.0 ); }
-.mate-status { font-family: "Tahoma", "Nimbus"; font-size: 16px; text-transform: uppercase; color: var(--disabled-text); vertical-align: center; }
+.mate-name { font-size: 12px; color: var(--window-text); width: fill-parent-flow( 1.0 ); }
+.mate-status { font-family: "Tahoma", "Nimbus"; font-size: 12px; text-transform: uppercase; color: var(--disabled-text); vertical-align: center; }
 .mate.low .mate-status { color: #e0503a; }
 .mate.low .meter-fill { background-color: gradient( linear, 0% 0%, 0% 100%, from( #f86a52 ), color-stop( 0.4, #c43c26 ), to( #e4462c ) ); background-image: url( "file://{images}/coop/progress-stripes-red.png" ); border-color: #7c1f10; }
 .mate.down { border-color: #ffa31a; }
@@ -138,7 +138,8 @@
 {
 	horizontal-align: right;
 	font-family: "Tahoma", "Nimbus";
-	font-size: 20px;
+	font-size: 12px;
+	font-weight: bold;
 	text-transform: uppercase;
 	color: var(--window-text);
 	margin-bottom: 2px;
@@ -148,11 +149,11 @@
 {
 	width: fill-parent-flow( 1.0 );
 	font-family: "Tahoma", "Nimbus";
-	font-size: 16px;
+	font-size: 12px;
 	text-transform: uppercase;
 	color: var(--window-text);
 }
-.obj-val { font-family: "Tahoma", "Nimbus"; font-size: 16px; color: var(--window-text); }
+.obj-val { font-family: "Tahoma", "Nimbus"; font-size: 12px; color: var(--window-text); }
 .obj-val.danger { color: #e0503a; }
 .obj-val.muted { color: var(--disabled-text); }
 .obj-xpm { width: 100%; height: fit-children; flow-children: down; }
@@ -188,7 +189,7 @@
 	flow-children: right;
 }
 .feed-entry.you { box-shadow: inset 0px 0px 0px 2px #3396d4; }
-.feed-entry Label { font-size: 18px; vertical-align: center; margin-right: 10px; text-shadow: none; }
+.feed-entry Label { font-size: 12px; vertical-align: center; margin-right: 10px; text-shadow: none; }
 .feed-entry Label.last { margin-right: 0px; }
 .feed-attacker { color: #3396d4; }
 .feed-weapon { color: var(--disabled-text); }
@@ -219,7 +220,7 @@
 	text-transform: uppercase;
 	color: var(--window-text);
 }
-.notice-sub { horizontal-align: center; font-size: 18px; color: var(--window-text); }
+.notice-sub { horizontal-align: center; font-size: 12px; color: var(--window-text); }
 
 /* ---- key prompt -------------------------------------------------------- */
 
@@ -269,12 +270,12 @@
 	horizontal-align: center;
 	vertical-align: center;
 	font-family: "Tahoma", "Nimbus";
-	font-size: 16px;
+	font-size: 12px;
 	text-transform: uppercase;
 	color: var(--button-text);
 	text-shadow: none;
 }
-.prompt-action { font-size: 18px; color: var(--window-text); vertical-align: center; }
+.prompt-action { font-size: 12px; color: var(--window-text); vertical-align: center; }
 
 /* ---- vitals: bottom-left ----------------------------------------------- */
 
@@ -337,7 +338,7 @@
 	color: var(--window-text);
 }
 /* ENG and EX: squeezed to fit */
-.ability-glyph.condensed { font-size: 18px; letter-spacing: -1px; }
+.ability-glyph.condensed { font-size: 12px; }
 .ability-state
 {
 	vertical-align: bottom;
@@ -433,7 +434,7 @@
 	border-radius: 6px;
 }
 .weapon-slot Label { vertical-align: center; margin-right: 10px; text-shadow: none; color: var(--window-text); }
-.slot-name { font-size: 18px; width: fill-parent-flow( 1.0 ); }
+.slot-name { font-size: 12px; width: fill-parent-flow( 1.0 ); }
 /* the weapon in hand: its left end an arrow, outlined like the rest
    (slot_tip_outline.png, drawn for this) */
 .slot-tip
@@ -475,7 +476,7 @@ Label.hidden { visibility: collapse; }
 .respawn.hidden { visibility: collapse; }
 .respawn .meter { height: 16px; }
 .respawn.ready { box-shadow: inset 0px 0px 0px 2px #3396d4; }
-.respawn-hint { horizontal-align: center; margin-top: 8px; font-size: 16px; color: var(--disabled-text); }
+.respawn-hint { horizontal-align: center; margin-top: 8px; font-size: 12px; color: var(--disabled-text); }
 
 /* ---- Choir's Cadence (above the Barrier bar) --------------------------- */
 .cadence

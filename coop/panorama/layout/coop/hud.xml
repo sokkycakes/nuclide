@@ -18,7 +18,9 @@
 		<include src="file://{resources}/scripts/coop/hud.js" />
 	</scripts>
 
-	<Panel id="Hud" class="hud QtCurve SokkyDark" hittest="false" bwdesignheight="900">
+	<!-- bwexacttext: text up to 13px keeps its own pixel size (Tahoma 12's
+	     hinted bitmap look) while the rest scales with the HUD -->
+	<Panel id="Hud" class="hud QtCurve SokkyDark" hittest="false" bwdesignheight="900" bwexacttext="13">
 		<!-- objective: top-left, the wave and our stats in one panel (sokky
 		     2026-11-02, laid out like a horde-mode scoreboard) -->
 		<Panel id="Objective" class="objective" hittest="false">
