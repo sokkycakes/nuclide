@@ -328,9 +328,9 @@
 	function wave( s )
 	{
 		var fighting = s.wave > 0 && s.left >= 0;
-		$id( "WaveTitle" ).text = s.wave > 0 ? "Wave " + s.wave : "Get ready";
-		$id( "ObjLeftKey" ).text = fighting ? "Monsters" : "Next wave";
-		$id( "ObjLeft" ).text = fighting ? String( s.left ) : "Soon";
+		// always the current wave, and how many are left (0 between waves)
+		$id( "WaveTitle" ).text = "Wave " + Math.max( 1, s.wave );
+		$id( "ObjLeft" ).text = fighting ? String( s.left ) : "0";
 		$id( "ObjLeft" ).SetHasClass( "danger", fighting );
 		$id( "ObjLeft" ).SetHasClass( "muted", !fighting );
 		// "score|points"
