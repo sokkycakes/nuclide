@@ -49,22 +49,20 @@
 			<Label id="PromptAction" class="prompt-action" text="" />
 		</Panel>
 
+		<!-- target ID: the teammate or friendly under the crosshair, as a
+		     squad card (src/client/nameplates.qc finds it) -->
+		<Panel id="TargetID" class="mate target-id hidden" hittest="false">
+			<Panel class="mate-top">
+				<Label id="TargetName" class="mate-name" text="" />
+				<Label id="TargetStatus" class="mate-status" text="Alive" />
+				<Image id="TargetUp" class="mate-up hidden" src="file://{images}/coop/buff_up.png" hittest="false" />
+			</Panel>
+			<Panel class="meter"><Panel id="TargetFill" class="meter-fill" /></Panel>
+		</Panel>
+
 		<!-- vitals: bottom-left -->
 		<Panel id="Vitals" class="vitals" hittest="false">
 			<Panel id="Abilities" class="abilities" hittest="false" />
-			<Panel id="HealthReadout" class="hud-readout" hittest="false">
-				<!-- a plus for health (sokky 2026-11-02), two bars so it takes the
-				     low-health colour -->
-				<Panel class="icon-slot"><Panel class="plus-h" /><Panel class="plus-v" /></Panel>
-				<Panel class="readout-text">
-					<Label id="HealthValue" class="readout-value" text="100" />
-				</Panel>
-				<!-- a hero's Barrier: a blue number beside the health, only while
-				     there is some (sokky 2026-11-02) -->
-				<Panel id="BarrierReadout" class="readout-text barrier-readout hidden">
-					<Label id="BarrierValue" class="readout-value barrier-value" text="0" />
-				</Panel>
-			</Panel>
 			<!-- Choir's Cadence buffing us (pips: how close to her cone's middle) -->
 			<Panel id="Cadence" class="cadence hidden" hittest="false">
 				<Label id="CadenceLabel" class="hud-label cadence-label" text="Cadence" />
@@ -87,18 +85,24 @@
 				<!-- a tick at Engage's cost, shown once there's enough for it -->
 				<Panel class="meter energy-meter"><Panel id="EnergyFill" class="meter-fill" /><Panel id="EngageTickRow" class="engage-tick-row hidden"><Panel id="EngageTickGap" class="engage-tick-gap" /><Panel class="engage-tick" /></Panel></Panel>
 			</Panel>
+			<!-- health at the bottom, level with the ammo (sokky 2026-11-02) -->
+			<Panel id="HealthReadout" class="hud-readout" hittest="false">
+				<!-- a plus for health (sokky 2026-11-02), two bars so it takes the
+				     low-health colour -->
+				<Panel class="icon-slot"><Panel class="plus-h" /><Panel class="plus-v" /></Panel>
+				<Panel class="readout-text">
+					<Label id="HealthValue" class="readout-value" text="100" />
+				</Panel>
+				<!-- a hero's Barrier: a blue number beside the health, only while
+				     there is some (sokky 2026-11-02) -->
+				<Panel id="BarrierReadout" class="readout-text barrier-readout hidden">
+					<Label id="BarrierValue" class="readout-value barrier-value" text="0" />
+				</Panel>
+			</Panel>
 		</Panel>
 
 		<!-- weapons: bottom-right -->
 		<Panel id="Weapons" class="weapons" hittest="false">
-			<Panel id="Ammo" class="hud-ammo" hittest="false">
-				<Label id="WeaponName" class="hud-label muted" text="" />
-				<Panel class="ammo-counts">
-					<Label id="Clip" class="ammo-clip" text="0" />
-					<Panel id="AmmoDivider" class="ammo-divider" />
-					<Label id="Reserve" class="ammo-reserve" text="0" />
-				</Panel>
-			</Panel>
 			<Panel id="SlotStatic" class="weapon-slot static">
 				<Label class="hud-label slot-key" text="1" />
 				<Label id="SlotStaticName" class="slot-name" text="" />
@@ -107,6 +111,15 @@
 				<Label class="hud-label slot-key" text="2" />
 				<Label id="SlotDynamicName" class="slot-name" text="" />
 				<Label class="hud-label slot-tag" text="Pickup" />
+			</Panel>
+			<!-- the ammo at the bottom, level with the health; slots above -->
+			<Panel id="Ammo" class="hud-ammo" hittest="false">
+				<Label id="WeaponName" class="hud-label muted" text="" />
+				<Panel class="ammo-counts">
+					<Label id="Clip" class="ammo-clip" text="0" />
+					<Panel id="AmmoDivider" class="ammo-divider" />
+					<Label id="Reserve" class="ammo-reserve" text="0" />
+				</Panel>
 			</Panel>
 		</Panel>
 	</Panel>

@@ -45,6 +45,27 @@ static string g_targetIDName;
 static float g_targetIDHealth;
 static float g_targetIDMaxHealth;
 static float g_targetIDLastSeen;
+/* when a HUD progs last drew the panel itself (Nameplates_TargetIDInfo) */
+static float g_targetIDClaimed;
+
+/** For a HUD progs that draws its own target ID panel: what the panel
+shows, as "alpha entnum health maxhealth|name", or "" when there's none.
+Calling it each frame stops the built-in panel from drawing. Look it up
+with externvalue(0, "Nameplates_TargetIDInfo"). */
+string
+Nameplates_TargetIDInfo(void)
+{
+	float sinceSeen = time - g_targetIDLastSeen;
+
+	g_targetIDClaimed = time;
+
+	if (!g_targetIDEnt || sinceSeen > autocvar_cg_targetIDLinger)
+		return ("");
+
+	float alpha = (sinceSeen <= 0) ? 1.0 : bound(0.0, 1.0 - (sinceSeen / autocvar_cg_targetIDLinger), 1.0);
+	return (sprintf("%g %d %d %d|%s", alpha, g_targetIDEnt.entnum, ceil(g_targetIDHealth),
+		g_targetIDMaxHealth, g_targetIDName));
+}
 
 static void
 Nameplates_DrawOne(entity target, string nameText, float healthFrac, vector camPos, vector camFwd)
@@ -127,6 +148,10 @@ Nameplates_DrawTargetID(void)
 	float healthFrac;
 
 	if (!g_targetIDEnt || sinceSeen > autocvar_cg_targetIDLinger)
+		return;
+
+	/* the HUD progs draws it */
+	if (time - g_targetIDClaimed < 0.25)
 		return;
 
 	alpha = (sinceSeen <= 0) ? 1.0 : bound(0.0, 1.0 - (sinceSeen / autocvar_cg_targetIDLinger), 1.0);
