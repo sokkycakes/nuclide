@@ -29,9 +29,10 @@
 				<Panel class="obj-row"><Label class="obj-key" text="Points" /><Label id="ObjPoints" class="obj-val" text="0" /></Panel>
 				<Panel id="ObjXpm" class="obj-xpm">
 					<Panel class="obj-sep" />
-					<Panel class="obj-row"><Label class="obj-key" text="Level" /><Label id="ObjLevel" class="obj-val" text="" /></Panel>
-					<Panel class="obj-row"><Label class="obj-key" text="Rank" /><Label id="ObjRank" class="obj-val" text="" /></Panel>
-					<Panel id="ObjExpRow" class="obj-row"><Label class="obj-key" text="Exp" /><Label id="ObjExp" class="obj-val" text="" /></Panel>
+					<!-- "Lv8" on the left, the rank on the right, then the
+					     experience toward the next level as a gauge -->
+					<Panel class="obj-row"><Label id="ObjLevel" class="obj-key" text="" /><Label id="ObjRank" class="obj-val" text="" /></Panel>
+					<Panel id="ObjExp" class="meter obj-exp"><Panel id="ObjExpFill" class="meter-fill" /></Panel>
 					<Panel class="obj-row"><Label class="obj-key" text="Medals" /><Label id="ObjMedals" class="obj-val" text="" /></Panel>
 				</Panel>
 			</Panel>

@@ -158,6 +158,8 @@
 .obj-val.muted { color: var(--disabled-text); }
 .obj-xpm { width: 100%; height: fit-children; flow-children: down; }
 .obj-xpm.hidden, .obj-row.hidden { visibility: collapse; }
+.obj-exp { margin: 3px 0px 5px 0px; }
+#ObjLevel { text-transform: none; }
 /* a sunken line between the wave and the player's own progress */
 .obj-sep { width: 100%; height: 2px; margin: 5px 0px; background-color: var(--frame-border); }
 .objective Label { text-shadow: none; }
