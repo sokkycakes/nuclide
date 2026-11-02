@@ -912,6 +912,13 @@ ncSurfacePropEntity::ReceiveEntity(float flNew, float flChanged)
 		setsize(this, mins * scale, maxs * scale);
 	}
 
+	/* only the sequence is networked: a new one plays from its start, and
+	 * predraw advances it (prop_dynamic and friends would hold their
+	 * first frame otherwise) */
+	if (flChanged & SRFENT_CHANGED_FRAME) {
+		frame1time = 0.0f;
+	}
+
 	if (flChanged & SRFENT_CHANGED_BODY) {
 		setcustomskin(this, "", sprintf("geomset 0 %i\ngeomset 1 %i\n", m_geomsetField, m_geomsetField));
 	}
@@ -947,6 +954,8 @@ ncSurfacePropEntity::predraw(void)
 	if (modelindex != 0) {
 		RenderFire();
 	}
+
+	frame1time += clframetime;
 
 	float returnValue = super::predraw();
 

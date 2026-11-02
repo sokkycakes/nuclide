@@ -1,0 +1,19 @@
+// Left 4 Dead's Hunter and Tank for animation testing (coop_l4d in
+// coop/src/rules/l4dtest.qc). The models are game files and never go in
+// git; with "src_boneboxes 1" Bulwark draws each as one box per bone.
+
+entityDef l4d_hunter
+{
+	"spawnclass"	"prop_dynamic"
+	"model"			"models/infected/hunter.mdl"
+	"targetname"	"l4d_hunter"
+	"solid"			"0"
+}
+
+entityDef l4d_tank
+{
+	"spawnclass"	"prop_dynamic"
+	"model"			"models/infected/hulk.mdl"
+	"targetname"	"l4d_tank"
+	"solid"			"0"
+}
