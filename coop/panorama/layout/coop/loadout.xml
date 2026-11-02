@@ -22,7 +22,7 @@
 	<Panel id="Stage" class="stage shop-stage">
 		<Panel id="Loadout" class="shop loadout">
 			<Panel class="page-header" hittest="false">
-				<Label class="page-title" text="Shop and skills" hittest="false" />
+				<Label class="page-title" text="Requisition" hittest="false" />
 				<Label id="Points" class="shop-points" text="" hittest="false" />
 			</Panel>
 			<Panel class="tabs loadout-tabs" hittest="false">

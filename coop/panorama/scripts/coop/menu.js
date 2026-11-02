@@ -517,7 +517,7 @@ var CoopMenu = ( function ()
 		[ "invnext", "Next weapon" ], [ "invprev", "Previous weapon" ], [ "slot1", "Weapon slot 1" ],
 		[ "slot2", "Weapon slot 2" ], [ "slot3", "Weapon slot 3" ], [ "slot4", "Weapon slot 4" ],
 		[ "slot5", "Weapon slot 5" ], [ "+showscores", "Scores" ], [ "messagemode", "Chat" ],
-		[ "messagemode2", "Team chat" ], [ "cmd selectskills", "Skills" ], [ "cmd shop", "Shop and skills" ], [ "vote yes", "Vote yes" ],
+		[ "messagemode2", "Team chat" ], [ "cmd selectskills", "Skills" ], [ "cmd shop", "Requisition" ], [ "vote yes", "Vote yes" ],
 		[ "vote no", "Vote no" ], [ "impulse 201", "Spray" ],
 		[ "impulse 21", "Hero tool" ], [ "impulse 22", "Hero ability 1" ], [ "impulse 23", "Hero ability 2" ],
 		[ "impulse 25", "Engage move" ]
@@ -531,7 +531,7 @@ var CoopMenu = ( function ()
 		[ "+attack", "Fire" ], [ "impulse 21", "Hero tool" ], [ "+coop_lb", "Ability 1 (on release)" ],
 		[ "+coop_rb", "Ability 2 (on release)" ], [ "+coop_lb+coop_rb", "Engage (both shoulders)" ],
 		[ "impulse 24", "Engage" ], [ "+jump", "Jump" ], [ "+duck", "Crouch" ], [ "+coop_x", "Use / reload" ], [ "weaplast", "Swap weapon" ],
-		[ "impulse 25", "Engage move" ], [ "+attack2", "Secondary fire" ], [ "cmd shop", "Shop and skills" ], [ "slot2", "Weapon slot 2" ],
+		[ "impulse 25", "Engage move" ], [ "+attack2", "Secondary fire" ], [ "cmd shop", "Requisition" ], [ "slot2", "Weapon slot 2" ],
 		[ "slot3", "Weapon slot 3" ], [ "slot4", "Weapon slot 4" ], [ "+showscores", "Scores" ], [ "togglemenu", "Menu" ]
 	];
 	var padList = null;
@@ -776,7 +776,7 @@ var CoopMenu = ( function ()
 		list.RemoveAndDeleteChildren();
 		mainButtons = [];
 		var items = inGame ?
-			[ [ "", "Resume", resume ], [ "", "Shop and skills", function () { cmd( "cmd shop" ); } ], [ "vote", "Vote", votePage ], [ "options", "Options", function () { optionsPage(); } ],
+			[ [ "", "Resume", resume ], [ "", "Requisition", function () { cmd( "cmd shop" ); } ], [ "vote", "Vote", votePage ], [ "options", "Options", function () { optionsPage(); } ],
 			  [ "-" ], [ "", "Disconnect", function () { cmd( "disconnect" ); } ], [ "", "Quit", function () { cmd( "quit" ); } ] ] :
 			[ [ "play", "Play", playPage ], [ "hero", "Hero", heroPage ], [ "servers", "Find servers", serversPage ], [ "options", "Options", function () { optionsPage(); } ],
 			  [ "-" ], [ "", "Quit", function () { cmd( "quit" ); } ] ];
