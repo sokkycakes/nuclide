@@ -7,10 +7,51 @@
      "*mate"                each player's "health|state" for their
                             teammates' cards: a alive, d down, x dead
      "*prompt"              the key prompt under the crosshair (Use)
+     "*usable"              "1" when Use would do something: a teammate to
+                            revive, a gun to take, a button or door ahead.
+                            A controller's west button uses then, else it
+                            reloads (coop/src/hud/jtf.qc, +coop_x)
 
    The hero's own line is "*herohud", from Hero_HudInfo. */
 
 float g_coopHudNext;
+
+/* the server progs' field (src/server/defs.h), shared by name */
+.void(void) PlayerUse;
+
+/* would Use do anything for p: the player's own use trace (ncPlayer's,
+   96 units ahead, then an 8 unit radius where it lands), a downed
+   teammate in reach, or a floor gun to take */
+bool
+Coop_Usable(entity p, int slot)
+{
+	vector eye = p.origin + p.view_ofs;
+
+	if (g_coopAnyDown && slot >= 0i && Coop_DownedNear(p.origin)) {
+		return (true);
+	}
+
+	if (slot >= 0i && Hero_OfKit(p.classname) >= 0i && Hero_AimedGun(p, HERO_TAKERANGE)) {
+		return (true);
+	}
+
+	makevectors(p.v_angle);
+	traceline(eye, eye + v_forward * 96, MOVE_EVERYTHING, p);
+
+	if (trace_fraction < 1.0f) {
+		if (trace_ent.PlayerUse) {
+			return (true);
+		}
+
+		for (entity e = findradius(trace_endpos, 8); e; e = e.chain) {
+			if (e.PlayerUse) {
+				return (true);
+			}
+		}
+	}
+
+	return (false);
+}
 
 void
 Coop_HudSet(entity p, string key, string value)
@@ -70,5 +111,6 @@ Coop_HudFrame(void)
 		}
 
 		Coop_HudSet(p, "*prompt", prompt);
+		Coop_HudSet(p, "*usable", Coop_Usable(p, slot) ? "1" : "");
 	}
 }

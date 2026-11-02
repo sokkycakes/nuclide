@@ -117,6 +117,19 @@ Jtf_KeyFor(string command)
 	return ("");
 }
 
+/* the Use key; on a controller that's the west button, "+coop_x" */
+string
+Jtf_UseKey(void)
+{
+	string key = Jtf_KeyFor("+use");
+
+	if (key == "") {
+		key = Jtf_KeyFor("+coop_x");
+	}
+
+	return (key);
+}
+
 /* the keys for the letters in the hero status line ("[G] Vent"): what the
    player presses for each, by what it runs. On a controller ability 1 and
    2 are the shoulders and engage both (coop/src/menu/main.qc) */
@@ -216,7 +229,7 @@ Jtf_Post(void)
 	json = strcat(json, sprintf("\"noAmmo\":%s,\"held\":%d,\"hero\":%s,", noAmmo ? "true" : "false", held, hero));
 	json = strcat(json, sprintf("\"wave\":%d,\"left\":%d,\"team\":%s,\"prompt\":%s,\"promptKey\":%s,\"keys\":%s}",
 		stof(serverkey("coop_wave")), (left == "") ? -1 : stof(left), Jtf_Team(), Jtf_Str(prompt),
-		Jtf_Str(Jtf_KeyFor("+use")), Jtf_HeroKeys()));
+		Jtf_Str(Jtf_UseKey()), Jtf_HeroKeys()));
 
 	if (json != g_jtfLast) {
 		if (g_jtfLast) {
@@ -351,4 +364,44 @@ HUD_Obituary(string targetName, string attackerName, string weaponDef, string me
 
 	ui_post(g_jtfView, "feed", sprintf("{\"a\":%s,\"w\":%s,\"v\":%s,\"you\":%s}", Jtf_Str(attacker),
 		Jtf_Str(weaponName), Jtf_Str(targetName), (attacker == me || targetName == me) ? "true" : "false"));
+}
+
+/* ---- the controller's west button: Use or reload, by what's ahead --------
+   bound to "+coop_x" (coop/src/menu/main.qc, pad layout 3). It uses when
+   the server says Use would do something here ("*usable",
+   coop/src/rules/hud_info.qc: a teammate to revive, a gun to take, a
+   button or door), else it reloads; its release ends whichever began */
+string g_coopXHeld;
+
+void
+HUD_Init(void)
+{
+	HLHUD_ClassicInit();
+	registercommand("+coop_x");
+	registercommand("-coop_x");
+}
+
+bool
+HUD_ConsoleCommand(string commandString)
+{
+	tokenize_console(commandString);
+
+	switch (argv(0)) {
+	case "+coop_x":
+		if (g_coopXHeld != "") {
+			return (true);	/* key repeat */
+		}
+
+		g_coopXHeld = (getplayerkeyvalue(player_localnum, "*usable") == "1") ? "use" : "reload";
+		localcmd(sprintf("+%s\n", g_coopXHeld));
+		return (true);
+	case "-coop_x":
+		if (g_coopXHeld != "") {
+			localcmd(sprintf("-%s\n", g_coopXHeld));
+			g_coopXHeld = "";
+		}
+		return (true);
+	}
+
+	return HLHUD_ClassicConsoleCommand(commandString);
 }
