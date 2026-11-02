@@ -31,8 +31,15 @@
 					<Panel class="obj-sep" />
 					<!-- "Lv8" on the left, the rank on the right (the experience
 					     gauge is beside the health) -->
-					<Panel class="obj-row"><Label id="ObjLevel" class="obj-key" text="" /><Label id="ObjRank" class="obj-val" text="" /></Panel>
-					<Panel class="obj-row"><Label class="obj-key" text="Medals" /><Label id="ObjMedals" class="obj-val" text="" /></Panel>
+					<!-- medals after the rank: a medal (star in a ring) and "x3" -->
+					<Panel class="obj-row">
+						<Label id="ObjLevel" class="obj-key" text="" />
+						<Label id="ObjRank" class="obj-val" text="" />
+						<Panel id="ObjMedalBox" class="obj-medals">
+							<Image class="obj-medal" src="file://{images}/coop/medal.png" hittest="false" />
+							<Label id="ObjMedals" class="obj-val" text="" />
+						</Panel>
+					</Panel>
 				</Panel>
 			</Panel>
 		</Panel>

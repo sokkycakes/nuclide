@@ -329,7 +329,8 @@
 		$id( "ObjRank" ).text = x[4];
 		// need is 0 at the top level: a full gauge
 		$id( "ObjExpFill" ).style.width = x[1] === "0" ? "100%" : pct( Number( x[0] ), Number( x[1] ) );
-		$id( "ObjMedals" ).text = x[5] + " / " + x[6];
+		$id( "ObjMedals" ).text = "x" + x[5];
+		$id( "ObjMedalBox" ).SetHasClass( "hidden", Number( x[5] ) <= 0 );
 	}
 
 	// ---- respawn bar: fills while down, then fire respawns -------------
