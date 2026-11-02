@@ -21,8 +21,9 @@
                             player (3 = the middle of her cone), else ""
      "*cadenceN"            on a Choir: how many teammates her Cadence
                             buffs right now
-     "*outline"             "r g b" (0-255): other players draw this player
-                            outlined in that colour (gold in a Cadence;
+     "*tint", "*aura"       a pulsing colour glow ("r g b", 0-255) and a
+                            particle effect around this player, for
+                            everyone (gold in a Cadence;
                             src/shared/game/Player.qc) */
 
 float g_coopHudNext;
@@ -80,7 +81,10 @@ Coop_HudCadence(entity p, int slot)
 	int count = 0i;
 
 	Coop_HudSet(p, "*cadence", buffed ? ftos(ceil(g_cadenceAmt[slot] * 3)) : "");
-	Coop_HudSet(p, "*outline", buffed ? "255 196 64" : "");
+	/* in the world: a pulsing gold glow and rising gold motes (sokky: the
+	   outline alone was too easy to miss) */
+	Coop_HudSet(p, "*tint", buffed ? "200 140 30" : "");
+	Coop_HudSet(p, "*aura", buffed ? "fx_cadence.motes" : "");
 
 	if (slot >= 0i && g_hLogic[slot] == HL_CHOIR) {
 		for (int i = 0i; i < COOP_MAXPLAYERS; i++) {
