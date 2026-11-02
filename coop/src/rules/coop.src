@@ -3,6 +3,7 @@
 
 #includelist
 ../../../src/rules.src
+l4dtest.qc
 coop.qc
 shop.qc
 heroes.qc

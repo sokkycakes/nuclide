@@ -1205,6 +1205,10 @@ CodeCallback_ConsoleCommand(entity playerEntity, string command)
 {
 	tokenize(command);
 
+	if (L4DTest_Command(playerEntity, argv(0))) {
+		return (true);
+	}
+
 	switch (argv(0)) {
 	case "coop_status":
 		Coop_PrintStatus();
