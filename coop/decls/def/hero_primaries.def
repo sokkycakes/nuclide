@@ -176,6 +176,8 @@ entityDef projectile_jtf_gauntlets
 	"damage"		"22"
 	"range"			"112"
 	"snd_hitBody"	"Weapon_JTF.GauntletsHit"
+	// sparks where a punch lands, as Half-Life's low-violence hits (sokky)
+	"model_hitActor"	"fx_spark.main"
 	"knockback"		"350"
 	"push"			"35000"
 }

@@ -48,6 +48,7 @@ ncProjectile::ncProjectile(void)
 	m_partFXPath = __NULL__;
 	m_partModelDetonate = __NULL__;
 	m_partModelDetonateAir = __NULL__;
+	m_partHitActor = __NULL__;
 	m_partSmokeDetonate = __NULL__;
 	m_partSmokeBounce = __NULL__;
 	m_partSmokeFuse = __NULL__;
@@ -186,6 +187,9 @@ ncProjectile::SpawnKey(string keyName, string setValue)
 		break;
 	case "model_detonate":
 		m_partModelDetonate = ReadString(setValue);
+		break;
+	case "model_hitActor":
+		m_partHitActor = ReadString(setValue);
 		break;
 	case "model_detonate_air":
 		m_partModelDetonateAir = ReadString(setValue);
@@ -1048,6 +1052,10 @@ ncProjectile::_LaunchSweep(vector startPos, vector launchDir, entity aimedTarget
 			SoundDef_Play(target, CHAN_BODY, m_sndHitActor);
 		}
 
+		if (STRING_SET(m_partHitActor)) {
+			pointparticles(particleeffectnum(m_partHitActor), m_hitLocation, m_lastPlaneNormal, 1);
+		}
+
 		_ApplyDamage();
 	}
 }
@@ -1178,6 +1186,10 @@ ncProjectile::_FireSingle(vector vecPos, vector vecAngles, float flDamage, float
 		if (STRING_SET(m_sndHitActor)) {
 		//	SoundDef_PlayAt(m_hitLocation, m_sndHitActor);
 			SoundDef_Play(impactTarget, CHAN_BODY, m_sndHitActor);
+		}
+
+		if (STRING_SET(m_partHitActor)) {
+			pointparticles(particleeffectnum(m_partHitActor), m_hitLocation + (vecAngles * -2), m_lastPlaneNormal, 1);
 		}
 
 		/* only headshots count in HL */

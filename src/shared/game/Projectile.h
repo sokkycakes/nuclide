@@ -314,6 +314,7 @@ private:
 	string m_partFXPath;
 	string m_partModelDetonate;
 	string m_partModelDetonateAir;
+	string m_partHitActor;	/* "model_hitActor": particle where it hits something alive */
 	string m_partSmokeDetonate;
 	string m_partSmokeBounce; 
 	string m_partSmokeFuse;
