@@ -34,7 +34,7 @@
 /* ---- QtCurve pieces ---------------------------------------------------- */
 
 /* a window: colour, striped tile, frame */
-.mate, .wave-counter, .feed-entry, .respawn, .cadence
+.target-id, .wave-counter, .feed-entry, .respawn, .cadence
 {
 	background-color: var(--window);
 	background-image: var(--window-image);
@@ -78,14 +78,13 @@
 .accent { color: #3396d4; }
 .muted { color: var(--disabled-text); }
 
-/* ---- squad: top-left --------------------------------------------------- */
+/* ---- squad: bottom-left, above the abilities (sokky 2026-11-02) --------- */
 
 .squad
 {
-	x: 32px;
-	y: 32px;
 	width: 240px;
 	height: fit-children;
+	margin-bottom: 6px;
 	flow-children: down;
 }
 .mate
@@ -100,11 +99,21 @@
 .mate-name { font-size: 18px; color: var(--window-text); width: fill-parent-flow( 1.0 ); }
 .mate-status { font-family: "Tahoma", "Nimbus"; font-size: 16px; letter-spacing: 1px; text-transform: uppercase; color: var(--disabled-text); vertical-align: center; }
 .mate.low .mate-status { color: #e0503a; }
-.mate.low .meter-fill { background-color: gradient( linear, 0% 0%, 0% 100%, from( #f86a52 ), color-stop( 0.4, #c43c26 ), to( #e4462c ) ); border-color: #7c1f10; }
+.mate.low .meter-fill { background-color: gradient( linear, 0% 0%, 0% 100%, from( #f86a52 ), color-stop( 0.4, #c43c26 ), to( #e4462c ) ); background-image: url( "file://{images}/coop/progress-stripes-red.png" ); border-color: #7c1f10; }
 .mate.down { border-color: #ffa31a; }
 .mate.down .mate-status { color: #ffa31a; }
-.mate.down .meter-fill { background-color: gradient( linear, 0% 0%, 0% 100%, from( #ffc14d ), color-stop( 0.4, #d98306 ), to( #f29a12 ) ); border-color: #7a4a05; }
+.mate.down .meter-fill { background-color: gradient( linear, 0% 0%, 0% 100%, from( #ffc14d ), color-stop( 0.4, #d98306 ), to( #f29a12 ) ); background-image: url( "file://{images}/coop/progress-stripes-orange.png" ); border-color: #7a4a05; }
 .mate.dead { opacity: 0.4; }
+/* squad cards: no panel behind them (sokky); teammates' health gauges
+   are green, with the theme's stripes recoloured to match */
+.squad .mate { padding: 0px; margin-bottom: 6px; }
+.mate .meter-fill
+{
+	background-color: gradient( linear, 0% 0%, 0% 100%, from( #8ae234 ), color-stop( 0.4, #4e9a06 ), to( #73d216 ) );
+	/* the theme's stripes, turned green */
+	background-image: url( "file://{images}/coop/progress-stripes-green.png" );
+	border-color: #2c5a03;
+}
 
 /* ---- wave counter: top centre ------------------------------------------ */
 
