@@ -375,6 +375,7 @@ public:
 	nonvirtual nsweapon_state_t GetWeaponState(void);
 
 	virtual void SetAttackNext(float);
+	nonvirtual float _FireScale(void);
 	virtual void SetReloadNext(float);
 	virtual void SetIdleNext(float);
 	virtual bool CanFire(void);

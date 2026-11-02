@@ -151,6 +151,9 @@ entityDef weapon_jtf_gauntlets
 	"inv_name"			"Pressure Gauntlets"
 	"def_onFire"		"projectile_jtf_gauntlets"
 	"fireRate"			"0.35"
+	// a miss takes as long as a hit (the crowbar's is 0.5), so pressure's
+	// slowdown tops out at coop_kettleMaxRate either way
+	"failRate"			"0.35"
 	"hudSlot"			"1"
 	"hudSlotPos"		"4"
 	"hero_static"		"1"

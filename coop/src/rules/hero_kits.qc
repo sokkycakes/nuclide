@@ -2532,9 +2532,40 @@ Kit_AnyThink(entity pl, int slot)
 	}
 }
 
+/* Kettle's swings slow as his pressure builds (sokky 2026-11-02): the
+   gauntlets' own fireRate at no pressure, coop_kettleMaxRate seconds at
+   full. Sent as the "*fireScale" player key, which the weapon code reads
+   on both sides; 1 for everyone and everything else. */
+var float autocvar_coop_kettleMaxRate = 0.9f;
+float g_fireScale[COOP_MAXPLAYERS];
+
+void
+Kit_FireScaleThink(entity pl, int slot)
+{
+	float scale = 1.0f;
+
+	if (g_hLogic[slot] == HL_KETTLE && Hero_Holding(pl, Hero_StaticWeapon(pl))) {
+		float baseRate = entityDef.GetFloat(Hero_StaticWeapon(pl), "fireRate");
+
+		if (baseRate > 0) {
+			float rate = baseRate + (autocvar_coop_kettleMaxRate - baseRate) * (bound(0, g_hRes[slot], 100) / 100);
+			scale = rate / baseRate;
+		}
+	}
+
+	/* only on a change of 0.01 or more (or reaching the ends), so the
+	   key isn't resent every frame while pressure drifts */
+	if (fabs(scale - g_fireScale[slot]) >= 0.01 || (scale != g_fireScale[slot] && (scale == 1.0f || g_hRes[slot] >= 100)) || infokey(pl, "*fireScale") == "") {
+		g_fireScale[slot] = scale;
+		forceinfokey(pl, "*fireScale", ftos(scale));
+	}
+}
+
 void
 Kit_Think(entity pl, int slot)
 {
+	Kit_FireScaleThink(pl, slot);
+
 	switch (g_hLogic[slot]) {
 	case HL_CHOIR:
 		Choir_Think(pl, slot);
