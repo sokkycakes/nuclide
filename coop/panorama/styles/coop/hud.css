@@ -416,3 +416,9 @@ Label.hidden { visibility: collapse; }
 .mate.target-id { horizontal-align: center; y: 558px; margin-bottom: 0px; }
 .mate.target-id.hidden { visibility: collapse; }
 .mate-up.hidden, .mate-status.hidden { visibility: collapse; }
+
+/* digits: the big numbers can also be drawn from WolfTeam's HP digit strip
+   (pl_num_0, white 20x33 cells every 40px, tinted). That art is private,
+   so it and its rules live in styles/coop/hud-wtdigits.css and
+   images/coop/wt-private/, outside git; here the digit boxes stay hidden */
+.wtnum { visibility: collapse; width: fit-children; height: fit-children; flow-children: right; }

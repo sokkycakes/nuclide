@@ -101,3 +101,7 @@ mainkp/
 ts/
 wastes/
 zp/
+
+# co-op HUD: WolfTeam digit strip and its rules, private (never commit)
+coop/panorama/images/coop/wt-private/
+coop/panorama/styles/coop/hud-wtdigits.css

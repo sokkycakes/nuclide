@@ -79,11 +79,35 @@
 		} );
 	}
 
+	// ---- big numbers: text, and the same as digit panels (#<id>Dg) ----
+	// hud-wtdigits.css (private) draws the digits from WolfTeam's strip and
+	// hides the text; without it the digit boxes stay hidden
+
+	function bigNum( id, text )
+	{
+		text = String( text );
+		$id( id ).text = text;
+		var box = $id( id + "Dg" );
+		if ( !box )
+			return;
+		var kids = box.Children();
+		while ( kids.length > text.length )
+			kids.pop().DeleteAsync( 0 );
+		while ( kids.length < text.length )
+			kids.push( $.CreatePanel( "Panel", box, "", { "class": "dg", hittest: "false" } ) );
+		for ( var i = 0; i < text.length; i++ )
+		{
+			var c = text.charAt( i );
+			for ( var d = 0; d < 10; d++ )
+				kids[ i ].SetHasClass( "d" + d, c === String( d ) );
+		}
+	}
+
 	// ---- vitals --------------------------------------------------------
 
 	function vitals( s )
 	{
-		$id( "HealthValue" ).text = String( s.hp );
+		bigNum( "HealthValue", s.hp );
 		$id( "HealthReadout" ).SetHasClass( "low", s.hp < 25 );
 
 		var hero = s.hero;
@@ -97,7 +121,7 @@
 		// while there is some; the bar is only for plain armour
 		armor.SetHasClass( "hidden", !!hero || ar <= 0 );
 		$id( "BarrierReadout" ).SetHasClass( "hidden", !hero || ar <= 0 );
-		$id( "BarrierValue" ).text = String( ar );
+		bigNum( "BarrierValue", ar );
 		cadence( s );
 
 		var energy = $id( "EnergyBar" );
@@ -175,8 +199,8 @@
 		ammo.SetHasClass( "empty", !s.weapon );
 		ammo.SetHasClass( "noclip", s.clipSize <= 0 );
 		ammo.SetHasClass( "low", s.clipSize > 0 && s.clip <= Math.max( 1, s.clipSize / 4 ) );
-		$id( "Clip" ).text = String( s.clip );
-		$id( "Reserve" ).text = s.noAmmo ? "" : String( s.reserve );
+		bigNum( "Clip", s.clip );
+		bigNum( "Reserve", s.noAmmo ? "" : s.reserve );
 		$id( "Reserve" ).SetHasClass( "hidden", !!s.noAmmo );
 		// the hero's own weapon never runs dry: no reserve count (sokky)
 		ammo.SetHasClass( "noreserve", !!s.hero && s.held === 1 );
