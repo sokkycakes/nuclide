@@ -48,10 +48,14 @@
 			<Label id="RespawnHint" class="respawn-hint" text="A teammate can revive you" />
 		</Panel>
 
-		<!-- key prompt under the crosshair -->
+		<!-- key prompt under the crosshair; for a pickup, a callout on the
+		     item: a leader line from it up to the prompt, underlined -->
 		<Panel id="Prompt" class="key-prompt" hittest="false">
-			<Panel id="PromptKeyBox" class="key-cap"><Label id="PromptKey" class="key-text" text="E" /></Panel>
-			<Label id="PromptAction" class="prompt-action" text="" />
+			<Image id="PromptLeader" class="prompt-leader" src="file://{images}/coop/callout_leader.png" hittest="false" />
+			<Panel id="PromptRow" class="prompt-row" hittest="false">
+				<Panel id="PromptKeyBox" class="key-cap"><Label id="PromptKey" class="key-text" text="E" /></Panel>
+				<Label id="PromptAction" class="prompt-action" text="" />
+			</Panel>
 		</Panel>
 
 		<!-- target ID: the teammate or friendly under the crosshair, as a

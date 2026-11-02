@@ -396,6 +396,16 @@
 	// ---- notice --------------------------------------------------------
 
 	var noticeTimer = null;
+	// a pickup's prompt as a callout: where the item is on screen (layout
+	// units), or null for the prompt under the crosshair
+	Bulwark.On( "promptAt", function ( at )
+	{
+		var p = $id( "Prompt" );
+		p.SetHasClass( "callout", !!at );
+		// the leader's dot is 4 across and 81 down from the callout's corner
+		p.style.transform = at ? "translate3d(" + ( at.x - 4 ) + "px, " + ( at.y - 81 ) + "px, 0px)" : "translate3d(0px, 0px, 0px)";
+	} );
+
 	Bulwark.On( "notice", function ( n )
 	{
 		if ( !n )
