@@ -165,6 +165,7 @@
 .obj-medal { width: 16px; height: 16px; margin-right: 3px; vertical-align: center; wash-color: #ffc440; }
 /* a sunken line between the wave and the player's own progress */
 .obj-sep { width: 100%; height: 2px; margin: 5px 0px; background-color: var(--frame-border); }
+.obj-points { horizontal-align: right; }
 .objective Label { text-shadow: none; }
 
 /* ---- kill feed: top-right ---------------------------------------------- */

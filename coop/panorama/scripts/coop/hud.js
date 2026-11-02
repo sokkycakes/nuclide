@@ -318,7 +318,7 @@
 		// "score|points"
 		var st = ( s.stats || "0|0" ).split( "|" );
 		$id( "ObjScore" ).text = st[0] || "0";
-		$id( "ObjPoints" ).text = st[1] || "0";
+		$id( "ObjPoints" ).text = "P" + ( st[1] || "0" );
 		// the XPM plugin: "xp|need|level|max level|rank|medals|max medals"
 		var x = ( s.xpm || "" ).split( "|" );
 		$id( "ObjXpm" ).SetHasClass( "hidden", x.length < 7 );
