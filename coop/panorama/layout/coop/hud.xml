@@ -107,12 +107,14 @@
 				     low-health colour -->
 				<Panel class="icon-slot"><Panel class="plus-h" /><Panel class="plus-v" /></Panel>
 				<Panel class="readout-text">
+					<Label id="HealthValueGhost" class="readout-value readout-ghost" text="888" />
 					<Label id="HealthValue" class="readout-value" text="100" />
 					<Panel id="HealthValueDg" class="wtnum readout-value" hittest="false" />
 				</Panel>
-				<!-- a hero's Barrier: a blue number beside the health, only while
-				     there is some (sokky 2026-11-02) -->
+				<!-- a hero's Barrier: a blue two-digit display beside the health,
+				     empty when there's none (sokky 2026-11-02) -->
 				<Panel id="BarrierReadout" class="readout-text barrier-readout hidden">
+					<Label id="BarrierValueGhost" class="readout-value readout-ghost barrier-value" text="88" />
 					<Label id="BarrierValue" class="readout-value barrier-value" text="0" />
 					<Panel id="BarrierValueDg" class="wtnum readout-value barrier-value" hittest="false" />
 				</Panel>

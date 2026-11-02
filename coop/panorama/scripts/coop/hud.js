@@ -83,23 +83,40 @@
 	// hud-wtdigits.css (private) draws the digits from WolfTeam's strip and
 	// hides the text; without it the digit boxes stay hidden
 
-	function bigNum( id, text )
+	// cells: a fixed-width "display" of that many digits (sokky 2026-11-02):
+	// the number sits on the right and every cell has a faint 8 behind it,
+	// so the digits stay evenly spaced and an empty display shows only the
+	// 8s. The text fallback overlays the value on a faint "888".
+	function bigNum( id, text, cells )
 	{
 		text = String( text );
+		cells = Math.max( cells || 0, text.length );
 		$id( id ).text = text;
+		var ghost = $id( id + "Ghost" );
+		if ( ghost )
+			ghost.text = new Array( cells + 1 ).join( "8" );
 		var box = $id( id + "Dg" );
 		if ( !box )
 			return;
 		var kids = box.Children();
-		while ( kids.length > text.length )
+		while ( kids.length > cells )
 			kids.pop().DeleteAsync( 0 );
-		while ( kids.length < text.length )
-			kids.push( $.CreatePanel( "Panel", box, "", { "class": "dg", hittest: "false" } ) );
-		for ( var i = 0; i < text.length; i++ )
+		while ( kids.length < cells )
 		{
-			var c = text.charAt( i );
+			var cell = $.CreatePanel( "Panel", box, "", { "class": "dgcell", hittest: "false" } );
+			if ( !$.CreatePanel( "Panel", cell, "", { "class": "dg d8 ghost", hittest: "false" } ) )
+				break;
+			$.CreatePanel( "Panel", cell, "", { "class": "dg", hittest: "false" } );
+			kids.push( cell );
+		}
+		var pad = cells - text.length;
+		for ( var i = 0; i < kids.length; i++ )
+		{
+			var dg = kids[ i ].Children()[ 1 ];
+			var c = i < pad ? "" : text.charAt( i - pad );
 			for ( var d = 0; d < 10; d++ )
-				kids[ i ].SetHasClass( "d" + d, c === String( d ) );
+				dg.SetHasClass( "d" + d, c === String( d ) );
+			dg.SetHasClass( "blank", c === "" );
 		}
 	}
 
@@ -107,7 +124,7 @@
 
 	function vitals( s )
 	{
-		bigNum( "HealthValue", s.hp );
+		bigNum( "HealthValue", Math.max( 0, s.hp ), 3 );
 		$id( "HealthReadout" ).SetHasClass( "low", s.hp < 25 );
 
 		var hero = s.hero;
@@ -117,11 +134,12 @@
 		$id( "ArmorLabel" ).text = hero ? "Barrier" : "Armor";
 		$id( "ArmorValue" ).text = hero ? ar + " / " + cap : String( ar );
 		$id( "ArmorFill" ).style.width = pct( ar, cap );
-		// a hero's Barrier is a blue number beside the health, shown only
-		// while there is some; the bar is only for plain armour
+		// a hero's Barrier is a blue two-digit display beside the health,
+		// empty (just the faint 88) when there's none; the bar is only for
+		// plain armour
 		armor.SetHasClass( "hidden", !!hero || ar <= 0 );
-		$id( "BarrierReadout" ).SetHasClass( "hidden", !hero || ar <= 0 );
-		bigNum( "BarrierValue", ar );
+		$id( "BarrierReadout" ).SetHasClass( "hidden", !hero );
+		bigNum( "BarrierValue", ar > 0 ? ar : "", 2 );
 		cadence( s );
 
 		var energy = $id( "EnergyBar" );
