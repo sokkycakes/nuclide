@@ -110,7 +110,6 @@
 			<Panel id="SlotDynamic" class="weapon-slot dynamic">
 				<Label class="hud-label slot-key" text="2" />
 				<Label id="SlotDynamicName" class="slot-name" text="" />
-				<Label class="hud-label slot-tag" text="Pickup" />
 			</Panel>
 			<!-- the ammo at the bottom, level with the health; slots above -->
 			<Panel id="Ammo" class="hud-ammo" hittest="false">
