@@ -963,11 +963,12 @@ Menu_DefaultBind(string command, string keys)
    LB is ability 1 and RB ability 2, each on release, so that holding both
    is engage without either ability going off. West reloads, north swaps
    to the last weapon, east ducks, south jumps; Use moves to the right
-   stick click. Look is inverted. The rest is the engine's pad layout
-   (triggers fire, d-pad slots, left stick click sprints), bound here too. Applied once
+   stick click, the hero tool to LT and the engage move to L3 (layout 2).
+   Look is inverted. The rest is the engine's pad layout (RT fires, d-pad
+   slots), bound here too. Applied once
    per config (coop_padLayout remembers it) after the saved config has run,
    so later changes stick; "coop_padlayout" puts it back. */
-#define COOP_PADLAYOUT 1
+#define COOP_PADLAYOUT 2	/* raise to apply a changed layout over the old one */
 bool g_padLB, g_padRB, g_padChord;
 
 void
@@ -977,7 +978,7 @@ Menu_PadLayout(void)
 	localcmd("bind GP_X +reload\nbind GP_Y weaplast\nbind GP_B +duck\nbind GP_A +jump\nbind GP_RTHUMB +use\n");
 	/* the rest as the engine's own pad layout, which it applies only to a
 	   pad with nothing bound, so after the binds above it never would */
-	localcmd("bind GP_RTRIGGER +attack\nbind GP_LTRIGGER +attack2\nbind GP_LTHUMB +sprint\nbind GP_VIEW +showscores\n");
+	localcmd("bind GP_RTRIGGER +attack\nbind GP_LTRIGGER \"impulse 21\"\nbind GP_LTHUMB \"impulse 25\"\nbind GP_VIEW +showscores\n");
 	localcmd("bind GP_MENU togglemenu\nbind GP_DPAD_UP slot1\nbind GP_DPAD_RIGHT slot2\nbind GP_DPAD_DOWN slot3\nbind GP_DPAD_LEFT slot4\n");
 	localcmd("seta joy_invert 1\n");
 	localcmd(sprintf("seta coop_padLayout %d\n", COOP_PADLAYOUT));
