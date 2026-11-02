@@ -231,6 +231,25 @@
 		} );
 	}
 
+	// ---- target ID: who the crosshair is on, drawn like a squad card ----
+
+	function targetID( t )
+	{
+		var card = $id( "TargetID" );
+		card.SetHasClass( "hidden", !t );
+		if ( !t )
+			return;
+		var low = t.hp * 4 < t.max, up = t.cad > 0 && !low;
+		card.SetHasClass( "low", low );
+		card.SetHasClass( "mate-cadence", t.cad > 0 );
+		card.style.opacity = String( t.a );
+		$id( "TargetName" ).text = t.name;
+		$id( "TargetStatus" ).text = low ? "Low" : "Alive";
+		$id( "TargetStatus" ).SetHasClass( "hidden", up );
+		$id( "TargetUp" ).SetHasClass( "hidden", !up );
+		$id( "TargetFill" ).style.width = pct( t.hp, t.max );
+	}
+
 	// ---- wave ----------------------------------------------------------
 
 	function wave( s )
@@ -290,6 +309,7 @@
 		wave( s );
 		prompt( s );
 		respawn( s );
+		targetID( s.tid );
 	} );
 
 	// ---- kill feed: five lines, each for six seconds -------------------

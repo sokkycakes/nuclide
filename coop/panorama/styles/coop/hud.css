@@ -345,3 +345,8 @@ Label.hidden { visibility: collapse; }
 .engage-tick { width: 3px; height: 100%; background-color: #ffffff; }
 /* in a Cadence: an up arrow in place of the squad card's status */
 .mate-up { width: 16px; height: 16px; vertical-align: center; }
+
+/* target ID: a squad card under the crosshair, below the key prompt */
+.mate.target-id { horizontal-align: center; y: 648px; margin-bottom: 0px; }
+.mate.target-id.hidden { visibility: collapse; }
+.mate-up.hidden, .mate-status.hidden { visibility: collapse; }

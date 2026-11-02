@@ -49,6 +49,17 @@
 			<Label id="PromptAction" class="prompt-action" text="" />
 		</Panel>
 
+		<!-- target ID: the teammate or friendly under the crosshair, as a
+		     squad card (src/client/nameplates.qc finds it) -->
+		<Panel id="TargetID" class="mate target-id hidden" hittest="false">
+			<Panel class="mate-top">
+				<Label id="TargetName" class="mate-name" text="" />
+				<Label id="TargetStatus" class="mate-status" text="Alive" />
+				<Image id="TargetUp" class="mate-up hidden" src="file://{images}/coop/buff_up.png" hittest="false" />
+			</Panel>
+			<Panel class="meter"><Panel id="TargetFill" class="meter-fill" /></Panel>
+		</Panel>
+
 		<!-- vitals: bottom-left -->
 		<Panel id="Vitals" class="vitals" hittest="false">
 			<Panel id="Abilities" class="abilities" hittest="false" />

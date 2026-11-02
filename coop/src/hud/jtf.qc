@@ -228,6 +228,42 @@ Jtf_Team(void)
 	return (strcat("[", json, "]"));
 }
 
+/* the client's target ID (src/client/nameplates.qc) as a teammate card:
+   null, or name, health, max, status, the Cadence buff and the fade */
+var string(void) Jtf_TargetIDInfo;
+bool g_jtfTargetIDLinked;
+
+string
+Jtf_TargetID(void)
+{
+	if (!g_jtfTargetIDLinked) {
+		g_jtfTargetIDLinked = true;
+		Jtf_TargetIDInfo = externvalue(0, "Nameplates_TargetIDInfo");
+	}
+
+	if (!Jtf_TargetIDInfo) {
+		return ("null");
+	}
+
+	string info = Jtf_TargetIDInfo();
+
+	if (info == "") {
+		return ("null");
+	}
+
+	float bar = strstrofs(info, "|");
+	string name = substring(info, bar + 1, -1);
+	tokenize(substring(info, 0, bar));
+	float ent = stof(argv(1));
+	float hp = stof(argv(2));
+	float maxHp = max(1, stof(argv(3)));
+	float cad = (ent >= 1 && ent <= 32) ? stof(getplayerkeyvalue(ent - 1, "*cadence")) : 0;
+
+	/* fade in steps, so the state isn't reposted every frame */
+	return (sprintf("{\"name\":%s,\"hp\":%d,\"max\":%d,\"cad\":%d,\"a\":%g}", Jtf_Str(name), hp, maxHp, cad,
+		rint(stof(argv(0)) * 10) / 10));
+}
+
 void
 Jtf_Post(void)
 {
@@ -262,8 +298,8 @@ Jtf_Post(void)
 	/* Choir's Cadence: how strongly it buffs us (0-3), and on a Choir how
 	   many teammates it buffs (-1 when we aren't one) */
 	string cadN = player.GetString("*cadenceN");
-	json = strcat(json, sprintf("\"cadence\":%d,\"cadenceN\":%d}", stof(player.GetString("*cadence")),
-		(cadN == "") ? -1 : stof(cadN)));
+	json = strcat(json, sprintf("\"cadence\":%d,\"cadenceN\":%d,\"tid\":%s}", stof(player.GetString("*cadence")),
+		(cadN == "") ? -1 : stof(cadN), Jtf_TargetID()));
 
 	if (json != g_jtfLast) {
 		if (g_jtfLast) {
