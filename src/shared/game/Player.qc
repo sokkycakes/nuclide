@@ -385,6 +385,16 @@ ncPlayer::ProcessInput(void)
 	else
 		InputUse_Up();
 
+	/* Quake's next and previous weapon impulses, for players that have no
+	   client game of their own to pick weapons with (handheld link players) */
+	if (impulse == 10 || impulse == 12) {
+		ncWeapon pickWeapon = (impulse == 10) ? GetNextWeapon() : GetPreviousWeapon();
+
+		if (pickWeapon && pickWeapon != m_activeWeapon && HasExactItem(pickWeapon)) {
+			SwitchToExactWeapon(pickWeapon);
+		}
+	}
+
 	/* handle impulse commands */
 	rules.ImpulseCommand(this, impulse);
 	impulse = 0;
