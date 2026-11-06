@@ -55,7 +55,7 @@ HUD_Draw(void)
 	vector hud_mins = screen.HUDMins();
 	vector hudSize = screen.HUDSize();
 	vector iconPos = hud_mins + (hudSize / 2);
-	iconPos[1] = (hudSize[1] - baseIconSize) - baseIconPadding;
+	iconPos[1] = hud_mins[1] + (hudSize[1] - baseIconSize) - baseIconPadding;
 
 	string healthValue = ftos(player.GetHealth());
 	string armorValue = ftos(player.GetArmor());

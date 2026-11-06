@@ -410,13 +410,14 @@ CSQC_UpdateView(float w, float h, float focus)
 			pSeatLocal = &g_seatslocal[s];
 			g_view = g_viewSeats[s];
 
+			/* switch seats first: player_localentnum is the active seat's */
+			setproperty(VF_ACTIVESEAT, (float)s);
 			pSeat->m_ePlayer = findfloat(world, ::entnum, player_localentnum);
 
             if (pSeat->m_ePlayer == world)
                 continue;
 
 			cl = (ncPlayer)pSeat->m_ePlayer;
-			setproperty(VF_ACTIVESEAT, (float)s);
 
 			/* set up our single/split viewport */
 			View_CalcViewport(s, w, h);
