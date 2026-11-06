@@ -78,10 +78,20 @@ View_ClearEvents(void)
 	pSeat->m_eViewModel.frame1time = 0.0f;
 }
 
+vector(float seat) splitscreen_pos = #0:splitscreen_pos;
+vector(float seat) splitscreen_size = #0:splitscreen_size;
+
 void
 View_CalcViewport(int s, float fWinWidth, float fWinHeight)
 {
-	switch (numclientseats) {
+	/* Bulwark lays out split screen views itself, by the player's
+	   cl_splitscreen* settings: as fractions of the screen */
+	if (checkbuiltin(splitscreen_pos) && numclientseats > 1) {
+		vector frac = splitscreen_pos((float)s);
+		vector fracSize = splitscreen_size((float)s);
+		g_viewSeats[s].SetViewSize([rint(fWinWidth * fracSize[0]), rint(fWinHeight * fracSize[1])]);
+		g_viewSeats[s].SetViewPosition([rint(fWinWidth * frac[0]), rint(fWinHeight * frac[1])]);
+	} else switch (numclientseats) {
 	case 3:
 		if (!s) {
 	case 2:
