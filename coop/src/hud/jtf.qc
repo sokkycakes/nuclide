@@ -449,8 +449,10 @@ Jtf_Post(void)
 		(cadN == "") ? -1 : stof(cadN), Jtf_TargetID()));
 	/* the objective panel: "score|points" (hud_info.qc) and the XPM
 	   plugin's "xp|need|level|max|rank|medals|max medals" */
-	json = strcat(json, sprintf("\"stats\":%s,\"xpm\":%s}", Jtf_Str(player.GetString("*stats")),
+	json = strcat(json, sprintf("\"stats\":%s,\"xpm\":%s,", Jtf_Str(player.GetString("*stats")),
 		Jtf_Str(player.GetString("*xpm"))));
+	/* a short split screen view: the layout moves the squad up (hud.css) */
+	json = strcat(json, sprintf("\"short\":%s}", (screen.Size()[1] < 600) ? "true" : "false"));
 
 	if (json != g_jtfLast) {
 		if (g_jtfLast) {

@@ -23,15 +23,20 @@
 	<Panel id="Hud" class="hud QtCurve SokkyDark" hittest="false" bwdesignheight="900" bwexacttext="13">
 		<!-- objective: top-left, the wave and our stats in one panel (sokky
 		     2026-11-02, laid out like a horde-mode scoreboard) -->
-		<Panel id="Objective" class="objective" hittest="false">
-			<Panel class="obj-body">
-				<Label id="WaveTitle" class="obj-title" text="Wave 1" />
-				<Panel class="obj-row"><Label id="ObjLeftKey" class="obj-key" text="Left" /><Label id="ObjLeft" class="obj-val danger" text="0" /></Panel>
-				<Panel class="obj-row"><Label class="obj-key" text="Score" /><Label id="ObjScore" class="obj-val" text="0" /></Panel>
-				<!-- a line, then the shop points with no label: "p300" -->
-				<Panel class="obj-sep" />
-				<Panel class="obj-row"><Label id="ObjPoints" class="obj-val obj-points" text="p0" /></Panel>
+		<!-- top-left: the objective panel, and beside it the squad when the
+		     view is short (split screen: "short" on #Hud, from the HUD progs) -->
+		<Panel id="TopLeft" class="top-left" hittest="false">
+			<Panel id="Objective" class="objective" hittest="false">
+				<Panel class="obj-body">
+					<Label id="WaveTitle" class="obj-title" text="Wave 1" />
+					<Panel class="obj-row"><Label id="ObjLeftKey" class="obj-key" text="Left" /><Label id="ObjLeft" class="obj-val danger" text="0" /></Panel>
+					<Panel class="obj-row"><Label class="obj-key" text="Score" /><Label id="ObjScore" class="obj-val" text="0" /></Panel>
+					<!-- a line, then the shop points with no label: "p300" -->
+					<Panel class="obj-sep" />
+					<Panel class="obj-row"><Label id="ObjPoints" class="obj-val obj-points" text="p0" /></Panel>
+				</Panel>
 			</Panel>
+			<Panel id="SquadTop" class="squad squad-top" hittest="false" />
 		</Panel>
 
 		<!-- kill feed: top-right, newest on top -->

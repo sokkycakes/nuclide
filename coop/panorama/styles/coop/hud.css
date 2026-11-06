@@ -124,10 +124,16 @@
 
 /* ---- objective: top-left, wave and stats in one window ---------------- */
 
-.objective
+.top-left
 {
 	x: 32px;
 	y: 32px;
+	width: fit-children;
+	height: fit-children;
+	flow-children: right;
+}
+.objective
+{
 	width: fit-children;
 	height: fit-children;
 	padding: 8px 12px;
@@ -485,7 +491,7 @@ Label.hidden { visibility: collapse; }
 .revive-fill { width: 0%; height: 100%; background-color: #ffffff; }
 /* down or dead: everything but the objective panel and the respawn box */
 .hud.down #Feed, .hud.down #Notice, .hud.down #Prompt, .hud.down #TargetID,
-.hud.down #Vitals, .hud.down #Weapons { visibility: collapse; }
+.hud.down #Vitals, .hud.down #Weapons, .hud.down #SquadTop { visibility: collapse; }
 .respawn .meter { height: 16px; }
 .respawn.ready { box-shadow: inset 0px 0px 0px 2px #3396d4; }
 .respawn-hint { horizontal-align: center; margin-top: 8px; font-size: 12px; color: var(--disabled-text); }
@@ -539,3 +545,11 @@ Label.hidden { visibility: collapse; }
 .wtnum .dgcell { width: fit-children; height: fit-children; }
 .wtnum .dg.ghost { opacity: 0.08; }
 .wtnum .dg.blank { visibility: collapse; }
+
+/* ---- short views (split screen) ----------------------------------------
+   Text keeps its pixel size (bwexacttext) while the layout shrinks with the
+   view, so in a view under 600 pixels tall the squad no longer fits above
+   the abilities: it goes up beside the objective panel instead */
+.squad-top { visibility: collapse; margin-left: 16px; }
+.hud.short .squad-top { visibility: visible; }
+.hud.short .vitals .squad { visibility: collapse; }

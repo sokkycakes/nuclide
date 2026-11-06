@@ -274,14 +274,16 @@
 
 	// ---- squad ---------------------------------------------------------
 
-	function squad( team )
+	function squad( team, compact )
 	{
-		var key = JSON.stringify( team || [] );
+		var key = ( compact ? "s" : "" ) + JSON.stringify( team || [] );
 		if ( key === last.squad )
 			return;
 		last.squad = key;
-		var box = $id( "Squad" );
-		box.RemoveAndDeleteChildren();
+		// a short view has it up beside the objective panel (hud.css)
+		$id( "Squad" ).RemoveAndDeleteChildren();
+		$id( "SquadTop" ).RemoveAndDeleteChildren();
+		var box = $id( compact ? "SquadTop" : "Squad" );
 		( team || [] ).forEach( function ( m )
 		{
 			var card = $.CreatePanel( "Panel", box, "", { "class": "mate" } );
@@ -399,9 +401,10 @@
 			return;
 		if ( s.hero )
 			s.hero.keys = s.keys;
+		$id( "Hud" ).SetHasClass( "short", !!s.short );
 		vitals( s );
 		weapons( s );
-		squad( s.team );
+		squad( s.team, !!s.short );
 		wave( s );
 		prompt( s );
 		respawn( s );
