@@ -27,6 +27,9 @@ void(float view, vector pos, vector size, float alpha) ui_draw = #0:ui_draw;
 
 var float autocvar_cg_hudPanorama = 1;
 
+/* the view and what was last posted to it are the drawing seat's: each
+   split screen player gets a view of their own (Jtf_Load/Jtf_Store swap
+   them in around HUD_Draw) */
 float g_jtfView;
 bool g_jtfTried;
 string g_jtfLast;
@@ -35,6 +38,67 @@ bool g_jtfNoticeInit;
 float g_jtfFeedSeq;
 bool g_jtfFeedInit;
 string g_jtfPhud;
+string g_jtfPromptAt;
+float g_jtfObitDone;	/* the last obituary this seat's view shows */
+
+#define JTF_SEATS 4
+float g_jtfViewS[JTF_SEATS];
+bool g_jtfTriedS[JTF_SEATS];
+string g_jtfLastS[JTF_SEATS];
+float g_jtfNoticeSeqS[JTF_SEATS];
+bool g_jtfNoticeInitS[JTF_SEATS];
+float g_jtfFeedSeqS[JTF_SEATS];
+bool g_jtfFeedInitS[JTF_SEATS];
+string g_jtfPromptAtS[JTF_SEATS];
+float g_jtfObitDoneS[JTF_SEATS];
+
+/* the split screen player the client game is working for now */
+int
+Jtf_Seat(void)
+{
+	/* via float: getproperty returns a variant, and (int) would take its
+	   bits as they are */
+	float f = (float)getproperty(VF_ACTIVESEAT);
+	int s = (int)f;
+	return (s < 0i || s >= JTF_SEATS) ? 0i : s;
+}
+
+void
+Jtf_Load(int s)
+{
+	g_jtfView = g_jtfViewS[s];
+	g_jtfTried = g_jtfTriedS[s];
+	g_jtfLast = g_jtfLastS[s];
+	g_jtfNoticeSeq = g_jtfNoticeSeqS[s];
+	g_jtfNoticeInit = g_jtfNoticeInitS[s];
+	g_jtfFeedSeq = g_jtfFeedSeqS[s];
+	g_jtfFeedInit = g_jtfFeedInitS[s];
+	g_jtfPromptAt = g_jtfPromptAtS[s];
+	g_jtfObitDone = g_jtfObitDoneS[s];
+}
+
+void
+Jtf_Store(int s)
+{
+	g_jtfViewS[s] = g_jtfView;
+	g_jtfTriedS[s] = g_jtfTried;
+	g_jtfLastS[s] = g_jtfLast;
+	g_jtfNoticeSeqS[s] = g_jtfNoticeSeq;
+	g_jtfNoticeInitS[s] = g_jtfNoticeInit;
+	g_jtfFeedSeqS[s] = g_jtfFeedSeq;
+	g_jtfFeedInitS[s] = g_jtfFeedInit;
+	g_jtfPromptAtS[s] = g_jtfPromptAt;
+	g_jtfObitDoneS[s] = g_jtfObitDone;
+}
+
+/* obituaries arrive once, for every seat: kept here until each seat's view
+   has shown them, so "you" is worked out for that seat's player */
+#define JTF_OBITS 8
+float g_jtfObitSeq;
+string g_jtfObitA[JTF_OBITS];
+string g_jtfObitW[JTF_OBITS];
+string g_jtfObitV[JTF_OBITS];
+string g_jtfObitVictim[JTF_OBITS];
 
 string
 Jtf_Str(string s)
@@ -70,6 +134,7 @@ Jtf_Ready(void)
 	}
 
 	g_jtfView = ui_open(JTF_LAYOUT, JTF_EMBED);
+	g_jtfObitDone = g_jtfObitSeq; /* deaths before we joined aren't news */
 	return (g_jtfView) ? true : false;
 }
 
@@ -328,7 +393,23 @@ Jtf_TargetID(void)
 		rint(stof(argv(0)) * 10) / 10));
 }
 
-string g_jtfPromptAt;
+void
+Jtf_PostObits(void)
+{
+	string me = getplayerkeyvalue(player_localnum, "name");
+
+	if (g_jtfObitDone < g_jtfObitSeq - JTF_OBITS) {
+		g_jtfObitDone = g_jtfObitSeq - JTF_OBITS;
+	}
+
+	while (g_jtfObitDone < g_jtfObitSeq) {
+		int i = (int)(g_jtfObitDone % JTF_OBITS);
+		bool you = (g_jtfObitA[i] == me || g_jtfObitVictim[i] == me);
+		ui_post(g_jtfView, "feed", sprintf("{\"a\":%s,\"w\":%s,\"v\":%s,\"you\":%s}", Jtf_Str(g_jtfObitA[i]),
+			Jtf_Str(g_jtfObitW[i]), Jtf_Str(g_jtfObitV[i]), you ? "true" : "false"));
+		g_jtfObitDone++;
+	}
+}
 
 void
 Jtf_Post(void)
@@ -519,7 +600,11 @@ Jtf_DrawFeedback(vector hud_mins, vector hud_size)
 void
 HUD_Draw(void)
 {
+	int seat = Jtf_Seat();
+	Jtf_Load(seat);
+
 	if (!autocvar_cg_hudPanorama || !Jtf_Ready()) {
+		Jtf_Store(seat);
 		Jtf_SetPhud("0");
 		HLHUD_ClassicDraw();
 		return;
@@ -529,6 +614,8 @@ HUD_Draw(void)
 	g_hudMins = screen.HUDMins();
 	g_hudRes = screen.HUDSize();
 	Jtf_Post();
+	Jtf_PostObits();
+	Jtf_Store(seat);
 
 	/* the Figma frame is the whole screen, not Half-Life's 4:3 HUD area */
 	ui_draw(g_jtfView, screen.Mins(), screen.Size(), 1.0f);
@@ -545,7 +632,7 @@ HUD_Obituary(string targetName, string attackerName, string weaponDef, string me
 {
 	HLHUD_ClassicObituary(targetName, attackerName, weaponDef, meansOfDeath);
 
-	if (!autocvar_cg_hudPanorama || !g_jtfView) {
+	if (!autocvar_cg_hudPanorama) {
 		return;
 	}
 
@@ -563,21 +650,30 @@ HUD_Obituary(string targetName, string attackerName, string weaponDef, string me
 		return;
 	}
 
-	string me = getplayerkeyvalue(player_localnum, "name");
 	bool self = wordInString(meansOfDeath, "self");
 	string attacker = self ? "" : attackerName;
-	string weaponName = (weaponDef != "") ? Jtf_WeaponName(weaponDef) : "";
-	bool you = (attacker == me || targetName == me);
+	int k = (int)(g_jtfObitSeq % JTF_OBITS);
+
+	if (g_jtfObitSeq >= JTF_OBITS) {
+		strunzone(g_jtfObitA[k]);
+		strunzone(g_jtfObitW[k]);
+		strunzone(g_jtfObitV[k]);
+		strunzone(g_jtfObitVictim[k]);
+	}
 
 	/* nobody to blame: "<name> died" */
 	if (attacker == "") {
-		ui_post(g_jtfView, "feed", sprintf("{\"a\":%s,\"w\":%s,\"v\":%s,\"you\":%s}", Jtf_Str(targetName),
-			Jtf_Str("died"), Jtf_Str(""), you ? "true" : "false"));
-		return;
+		g_jtfObitA[k] = strzone(targetName);
+		g_jtfObitW[k] = strzone("died");
+		g_jtfObitV[k] = strzone("");
+	} else {
+		g_jtfObitA[k] = strzone(attacker);
+		g_jtfObitW[k] = strzone((weaponDef != "") ? Jtf_WeaponName(weaponDef) : "");
+		g_jtfObitV[k] = strzone(targetName);
 	}
 
-	ui_post(g_jtfView, "feed", sprintf("{\"a\":%s,\"w\":%s,\"v\":%s,\"you\":%s}", Jtf_Str(attacker),
-		Jtf_Str(weaponName), Jtf_Str(targetName), you ? "true" : "false"));
+	g_jtfObitVictim[k] = strzone(targetName);
+	g_jtfObitSeq++;
 }
 
 /* ---- the controller's west button: Use or reload, by what's ahead --------
@@ -585,7 +681,7 @@ HUD_Obituary(string targetName, string attackerName, string weaponDef, string me
    the server says Use would do something here ("*usable",
    coop/src/rules/hud_info.qc: a teammate to revive, a gun to take, a
    button or door), else it reloads; its release ends whichever began */
-string g_coopXHeld;
+string g_coopXHeldS[JTF_SEATS];
 
 void
 HUD_Init(void)
@@ -598,21 +694,26 @@ HUD_Init(void)
 bool
 HUD_ConsoleCommand(string commandString)
 {
+	/* a split screen player's button: the command buffer runs later, as
+	   the first player, unless it says whose it is (p2 +use) */
+	int seat = Jtf_Seat();
+	string forSeat = (seat > 0i) ? sprintf("p%i ", seat + 1i) : "";
+
 	tokenize_console(commandString);
 
 	switch (argv(0)) {
 	case "+coop_x":
-		if (g_coopXHeld != "") {
+		if (g_coopXHeldS[seat] != "") {
 			return (true);	/* key repeat */
 		}
 
-		g_coopXHeld = (getplayerkeyvalue(player_localnum, "*usable") == "1") ? "use" : "reload";
-		localcmd(sprintf("+%s\n", g_coopXHeld));
+		g_coopXHeldS[seat] = (getplayerkeyvalue(player_localnum, "*usable") == "1") ? "use" : "reload";
+		localcmd(sprintf("%s+%s\n", forSeat, g_coopXHeldS[seat]));
 		return (true);
 	case "-coop_x":
-		if (g_coopXHeld != "") {
-			localcmd(sprintf("-%s\n", g_coopXHeld));
-			g_coopXHeld = "";
+		if (g_coopXHeldS[seat] != "") {
+			localcmd(sprintf("%s-%s\n", forSeat, g_coopXHeldS[seat]));
+			g_coopXHeldS[seat] = "";
 		}
 		return (true);
 	}
