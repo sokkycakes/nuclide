@@ -15,3 +15,4 @@
 */
 
 vguiWidget g_uiDesktop;
+vguiWidget g_uiClassicDesktop;

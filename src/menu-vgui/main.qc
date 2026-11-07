@@ -14,36 +14,57 @@
  * OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
+void m_display(void);
+
 void
 m_init(void)
 {
 	Platform_Init();
 	UISystem_Init();
 	Desktop_Init();
+	L4D_Init();
+	UIOMP_RestoreSavedSpray();
 
 	registercommand("packageList");
 	registercommand("friendsList");
 	registercommand("console");
 	registercommand("menu_quit");
 	registercommand("menu_music");
+	registercommand("menu_options");
+	registercommand("menu_title");
+#ifdef LAB_L4D360_TEST
+	registercommand("menu_title_test");
+#endif
+#ifdef LAB_OPTIONS_TEST
+	registercommand("menu_options_test");
+#endif
 	registercommand("map_background");
+
+	/* Quake manifest startup can reload MenuQC after the initial menu command.
+	 * The title has no background server to reopen it, so restore its offline
+	 * visibility when the VM is initialized. In-level menus keep their flow. */
+	if (L4D_Active()) m_display();
 }
 
 void
 Menu_RendererRestarted(string renderer)
 {
 	Platform_RendererRestarted();
+	UIOMP_ReloadImages();
+	if (g_l4dLoaded) L4D_ReloadFonts();
 }
 
 void
 m_shutdown(void)
 {
+	UI_Options_Close();
 	Platform_Shutdown();
 }
 
 void
 m_draw(vector screensize)
 {
+	UI_Options_Frame();
 	/* set new scale whenever the resolution changes */
 	if (Platform_DimensionsChanged(screensize) == true) {
 		Platform_CalculateRenderingScale(screensize);
@@ -58,13 +79,14 @@ m_draw(vector screensize)
 		return;
 	}
 
-	Background_Draw([0,0], g_vidsize, false);
+	if (!L4D_Active()) Background_Draw([0,0], g_vidsize, false);
 	Desktop_Draw();
 }
 
 void
 m_drawloading(vector screensize, float opaque)
 {
+	UI_Options_Frame();
 	vector pos;
 
 	/* set new scale whenever the resolution changes */
@@ -85,9 +107,20 @@ m_drawloading(vector screensize, float opaque)
 float
 Menu_InputEvent (float evtype, float scanx, float chary, float devid)
 {
+    g_vecMousePos = getmousepos();
+    if (UI_Options_InputEvent(evtype, scanx, chary, devid))
+        return 1;
+    if (evtype == IE_KEYDOWN && getkeybind(scanx, 0, 0) == "toggleconsole") {
+        localcmd("toggleconsole\n");
+        return 1;
+    }
+    if (L4D_Active()) {
+        if (L4D_ModalInput(evtype,scanx,chary,devid)) return 1;
+        return L4D_Input(evtype,scanx,chary,devid);
+    }
 	switch (evtype) {
 	case IE_KEYDOWN:
-		if (chary == K_ESCAPE) {
+		if (scanx == K_ESCAPE) {
 			if (clientstate() == 2 && !g_background) {
 				m_toggle(0);
 			}
@@ -104,7 +137,8 @@ Menu_InputEvent (float evtype, float scanx, float chary, float devid)
 	}
 
 	g_vecMousePos = getmousepos();
-	g_uiDesktop.Input(evtype, scanx, chary, devid);
+	if (!L4D_ModalInput(evtype,scanx,chary,devid))
+		g_uiClassicDesktop.Input(evtype, scanx, chary, devid);
 	return (float)g_active;
 }
 
@@ -125,6 +159,10 @@ m_hide
 void
 m_hide(void)
 {
+	UI_Options_Close();
+	L4D_CloseFlyout(false);
+	g_l4dPressed = -1;
+	g_l4dNotice = false;
 	g_active = FALSE;
 	setkeydest(KEY_GAME);
 	setmousetarget(TARGET_CLIENT);
@@ -151,6 +189,19 @@ m_consolecommand(string cmd)
 	int c = (int)tokenize(cmd);
 
 	switch (argv(0)) {
+#ifdef LAB_L4D360_TEST
+	case "menu_title_test":
+		L4D_RunTests(cmd);
+		break;
+#endif
+	case "menu_title":
+		UI_Options_Close();
+		L4D_CloseFlyout(false);
+		g_l4dNotice = false;
+		g_l4dPressed = -1;
+		for (vguiWidget child=g_uiDesktop.m_next;child;child=child.m_next) child.Hide();
+		m_display();
+		break;
 	case "console":
 		static VGUIConsole consoleWindow;
 
@@ -159,6 +210,19 @@ m_consolecommand(string cmd)
 
 		g_uiDesktop.Add( consoleWindow );
 		break;
+    case "menu_options":
+        string requestedPage = argv(1);
+        UI_Options_Show();
+        for (int page = 0; page < 6; page++)
+            if (requestedPage == UIO_Part("keyboard|mouse|audio|video|voice|multiplayer", page))
+                UIO_SetPage(page);
+        m_display();
+        break;
+#ifdef LAB_OPTIONS_TEST
+    case "menu_options_test":
+        UIO_RunTestCommand(cmd);
+        break;
+#endif
 	case "menu_quit":
 		UI_QuitGame_Show();
 		break;

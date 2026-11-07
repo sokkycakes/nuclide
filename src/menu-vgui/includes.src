@@ -18,6 +18,10 @@ ui_options.qc
 ui_modelviewer.qc
 ui_loadgame.qc
 ui_packages.qc
+l4d360/resource.qc
+l4d360/title.qc
+l4d360/commands.qc
+l4d360/tests.qc
 desktop.qc
 main.qc
 ../platform/includes.src

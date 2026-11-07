@@ -45,6 +45,8 @@ void Desktop_Init ( void )
 
 	g_uiDesktop = spawn( vguiWidget );
 	g_uiDesktop.FlagAdd( 1 );
+	g_uiClassicDesktop = spawn(vguiWidget);
+	g_uiClassicDesktop.FlagAdd(1);
 
 	btnNewgame = spawn( vguiMenuButton );
 	btnNewgame.SetTitle( "New Game" );
@@ -147,40 +149,43 @@ void Desktop_Init ( void )
 
 	title = spawn(vguiMenuTitle);
 
-	g_uiDesktop.Add( title );
+	g_uiClassicDesktop.Add( title );
 
 	if (GameLibrary_GetInfo(GAMEINFO_TYPE) != "Multiplayer")
-		g_uiDesktop.Add( btnNewgame );
+		g_uiClassicDesktop.Add( btnNewgame );
 
 	if (GameLibrary_GetInfo(GAMEINFO_TYPE) != "Multiplayer")
-		g_uiDesktop.Add( btnLoadgame );
+		g_uiClassicDesktop.Add( btnLoadgame );
 
 	if (GameLibrary_GetInfo(GAMEINFO_TYPE) != "Singleplayer")
-		g_uiDesktop.Add( btnFindserver );
+		g_uiClassicDesktop.Add( btnFindserver );
 
 	if (GameLibrary_GetInfo(GAMEINFO_TYPE) != "Singleplayer")
-		g_uiDesktop.Add( btnCreateserver );
+		g_uiClassicDesktop.Add( btnCreateserver );
 
-	g_uiDesktop.Add( btnOptions );
-	g_uiDesktop.Add( btnQuit );
-	g_uiDesktop.Add( btnMPlayer );
-	g_uiDesktop.Add( btnPlayerList );
-	g_uiDesktop.Add( btnResume );
-	g_uiDesktop.Add( btnDisconnect );
-	g_uiDesktop.Add( btnMods );
-	g_uiDesktop.Add( btnFriends );
-	g_uiDesktop.Add( btnPackages );
-	g_uiDesktop.Add( fnIcon );
+	g_uiClassicDesktop.Add( btnOptions );
+	g_uiClassicDesktop.Add( btnQuit );
+	g_uiClassicDesktop.Add( btnMPlayer );
+	g_uiClassicDesktop.Add( btnPlayerList );
+	g_uiClassicDesktop.Add( btnResume );
+	g_uiClassicDesktop.Add( btnDisconnect );
+	g_uiClassicDesktop.Add( btnMods );
+	g_uiClassicDesktop.Add( btnFriends );
+	g_uiClassicDesktop.Add( btnPackages );
+	if (fnIcon) g_uiClassicDesktop.Add(fnIcon);
 }
 
 void Desktop_Draw ( void )
 {
+	if (L4D_Active()) L4D_Draw();
+	else g_uiClassicDesktop.Draw();
 	g_uiDesktop.Draw();
 }
 
 void Desktop_CanvasChanged ( void )
 {
 	g_uiDesktop.Reposition();
+	g_uiClassicDesktop.Reposition();
 }
 
 void
