@@ -147,17 +147,19 @@ void
 L4D_FrameLoaded(string frame)
 {
 	if (frame == "mainmenu.res") {
-		L4D_Rewire("BtnVersus", -1, "Hero", "CoopHero");
+		L4D_Rewire("BtnVersus", -1, "HERO", "CoopHero");
 		L4D_Help("BtnVersus", -1, "Pick the hero you play as.");
 		return;
 	}
 
 	if (frame == "ingamemainmenu.res") {
-		L4D_Rewire("BtnInviteAFriend", -1, "Requisition", "CoopShop");
-		L4D_Rewire("BtnStatsAndAchievements", -1, "Hero", "CoopHeroTab");
+		L4D_Rewire("BtnInviteAFriend", -1, "REQUISITION", "CoopShop");
+		L4D_Rewire("BtnStatsAndAchievements", -1, "HERO", "CoopHeroTab");
 		L4D_Help("BtnInviteAFriend", -1, "Buy weapons and gear with your points.");
 		L4D_Help("BtnStatsAndAchievements", -1, "Change your hero. It takes effect when you respawn.");
 		L4D_Disable("BtnGoIdle", -1);
+		/* both have tabPosition 1; the last (Go Idle, off here) would win */
+		L4D_SetFocus(L4D_FindButton("BtnReturnToGame", -1), false);
 
 		int vote = L4D_FlyoutIndex("FlmVoteFlyout");
 		L4D_Rewire("BtnReturnToLobby", vote, "Next Map", "CoopVoteNextMap");
@@ -344,7 +346,7 @@ L4D_DrawFrame(void)
 		float y = L4D_Coord(g_l4dFooter.Get("FooterPanel/ypos","r100"), g_l4dExtent[1]);
 		float tall = g_l4dFooter.Number("FooterPanel/tall", 70);
 		L4D_Fill([0, y + tall * 0.25], [g_l4dExtent[0], tall * 0.75], [0,0,0], 1);
-		L4D_FooterButton([100, y + 58], 'A', "#L4D360UI_Yes", false);
-		L4D_FooterButton([225, y + 58], 'B', "#L4D360UI_No", false);
+		L4D_FooterButton([100, y + 58], 'A', "#GameUI_Yes", false);
+		L4D_FooterButton([225, y + 58], 'B', "#GameUI_No", false);
 	}
 }

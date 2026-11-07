@@ -193,3 +193,17 @@
 .l4d .shop-line.current .shop-name { color: #ffffff; }
 .l4d .shop-price { font-size: 26px; color: #c8c8c8; }
 .l4d .shop-message { color: #c8c8c8; }
+
+/* ---- heroes and skills (skills.css): white for the picked, grey otherwise */
+
+.l4d .hero-name { color: #ffffff; }
+.l4d .hero.full .hero-name { color: #414a60; }
+.l4d .hero-stats,
+.l4d .hero-desc { color: #7d7d7d; }
+.l4d .kit .skill-name { color: #c8c8c8; }
+.l4d .kit.current .skill-name,
+.l4d .kit.current .kit-state { color: #ffffff; }
+.l4d .kit.picked { border: 1px solid #ffffff40; }
+.l4d .skill:hover { background-color: gradient( linear, 0% 0%, 100% 0%, from( #ffffff14 ), to( #ffffff00 ) ); }
+.l4d .tab.current.has-points Label { color: #ffffff; }
+.l4d .hero-preview { border: 0px solid #00000000; }
