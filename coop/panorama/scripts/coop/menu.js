@@ -242,10 +242,13 @@ var CoopMenu = ( function ()
 	// shows only the page it was asked for, and leaving the page goes back
 	// to the title, which the progs opens again.
 	var fromTitle = false;
+	// Opened from a Left 4 Dead frame (coop/src/menu/l4d360.qc), in a game
+	// too: the frame is the navigation, and leaving the page goes back to it.
+	var l4d = false;
 	function closePage()
 	{
 		clearPage();
-		if ( fromTitle && !inGame )
+		if ( l4d || ( fromTitle && !inGame ) )
 			Bulwark.Send( "title", "" );
 	}
 	function clearPage()
@@ -404,7 +407,7 @@ var CoopMenu = ( function ()
 			"Saved for every server with heroes on." :
 			"No hero picked: servers will ask.";
 		if ( shown )
-			Bulwark.Send( "preview", shown.def + " screen " + HERO_WINDOW + " backdrop" );
+			Bulwark.Send( "preview", shown.def + " screen " + HERO_WINDOW + ( l4d ? " none" : " backdrop" ) );
 	}
 
 	// Find servers: the LAN servers for this game, or an address
@@ -805,7 +808,9 @@ var CoopMenu = ( function ()
 	{
 		inGame = !!( c && c.ingame );
 		stage.SetHasClass( "ingame", inGame );
-		fromTitle = !!( c && c.title ) && !inGame;
+		l4d = !!( c && c.l4d );
+		stage.SetHasClass( "l4d", l4d );
+		fromTitle = ( !!( c && c.title ) && !inGame ) || l4d;
 		stage.SetHasClass( "fromtitle", fromTitle );
 		clearPage();
 		buildMain();
@@ -821,6 +826,10 @@ var CoopMenu = ( function ()
 			optionsPage();
 		else if ( name === "servers" )
 			serversPage();
+		else if ( name === "controller" )
+			optionsPage( "pad" );
+		else if ( name === "vote" )
+			votePage();
 	} );
 	Bulwark.On( "maps", showMaps );
 	Bulwark.On( "servers", showServers );

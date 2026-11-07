@@ -88,3 +88,8 @@ void L4D_RunCommand(string command)
     /* A press-activated main item hands the release to its new dialog. */
     if (L4D_HasModal()) g_l4dPressed = -1;
 }
+
+/* The stock menu keeps the Xbox frames as authored. */
+void L4D_FrameLoaded(string frame)
+{
+}

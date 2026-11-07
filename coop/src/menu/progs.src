@@ -4,5 +4,7 @@
 
 #includelist
 ../../../src/common/fteextensions.qc
+defs.qc
+l4d360.qc
 main.qc
 #endlist

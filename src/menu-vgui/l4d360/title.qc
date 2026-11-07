@@ -56,6 +56,8 @@ bool g_l4dLoaded, g_l4dController, g_l4dReady;
 string g_l4dHelp, g_l4dLastAction, g_l4dNoticeTitle, g_l4dNoticeText;
 bool g_l4dNotice;
 l4dResource g_l4dScheme, g_l4dMain, g_l4dFooter;
+string g_l4dFrame;
+var bool g_l4dBackdrop = true; /* the title's street picture; off over a game */
 hashtable g_l4dLocale;
 float g_l4dMainFont, g_l4dMediumFont, g_l4dBoldFont;
 float g_l4dMainHeight, g_l4dMediumHeight, g_l4dBoldHeight;
@@ -363,20 +365,36 @@ void L4D_ReloadFonts(void)
     g_l4dBoldFont = g_l4dMainFont;
 }
 
-void L4D_Init(void)
+/* A game can rename or rewire the frame's buttons once it has loaded
+ * (the co-op mod maps the Xbox commands onto its own pages). */
+void L4D_FrameLoaded(string frame);
+
+void L4D_ClearFrame(void)
 {
-    if (g_l4dLoaded) return;
-    g_l4dScheme = spawn(l4dResource);
+    for (int i=0;i<g_l4dButtonCount;i++) { remove(g_l4dButtons[i]); g_l4dButtons[i] = __NULL__; }
+    for (int i=0;i<g_l4dFlyoutCount;i++) {
+        if (g_l4dFlyouts[i].resource) g_l4dFlyouts[i].resource.Release();
+        g_l4dFlyouts[i].resource = __NULL__;
+    }
+    g_l4dButtonCount = g_l4dFlyoutCount = 0;
+    g_l4dFocus = g_l4dOpen = g_l4dPressed = -1;
+    g_l4dHelp = "";
+    g_l4dNotice = false;
+}
+
+/* Loads one BaseMod frame (mainmenu.res, ingamemainmenu.res, ...) and the
+ * flyouts it names, in place of the current one. */
+bool L4D_LoadFrame(string resName)
+{
+    if (!g_l4dMain) return false;
+    resName = strtolower(resName);
+    if (resName == g_l4dFrame && g_l4dButtonCount > 0) return true;
+    L4D_ClearFrame();
+    g_l4dMain.Release();
     g_l4dMain = spawn(l4dResource);
-    g_l4dFooter = spawn(l4dResource);
-    if (!g_l4dScheme.Load("resource/l4d360/l4d360uischeme.res") ||
-        !g_l4dMain.Load("resource/l4d360/ui/mainmenu.res") ||
-        !g_l4dFooter.Load("resource/l4d360/ui/footerpanel.res")) return;
-    g_l4dLocale = hash_createtab(4096,EV_STRING);
-    L4D_LoadLocale("gameui_english.txt");
-    L4D_LoadLocale("valve_english.txt");
-    L4D_LoadLocale("l4d360ui_english.txt");
-    L4D_ReloadFonts();
+    if (!g_l4dMain.Load(strcat("resource/l4d360/ui/",resName))) return false;
+    if (g_l4dFrame) strunzone(g_l4dFrame);
+    g_l4dFrame = strzone(resName);
     L4D_LoadButtons(g_l4dMain,-1);
     string children = g_l4dMain.Get("@");
     int cursor = 0;
@@ -398,6 +416,29 @@ void L4D_Init(void)
         g_l4dFlyouts[id].size = [resource.Number("PnlBackground/wide",150),resource.Number("PnlBackground/tall",60)];
         L4D_LoadButtons(resource,id);
     }
+    /* No tabPosition 1 on a shown button: focus the first one. */
+    if (g_l4dFocus < 0)
+        for (int i=0;i<g_l4dButtonCount;i++)
+            if (g_l4dButtons[i].scope == -1 && g_l4dButtons[i].shown) { L4D_SetFocus(i,false); break; }
+    L4D_FrameLoaded(g_l4dFrame);
+    print(sprintf("L4D360: loaded %s: %i buttons and %i flyouts from Xbox resources\n",g_l4dFrame,g_l4dButtonCount,g_l4dFlyoutCount));
+    return true;
+}
+
+void L4D_Init(void)
+{
+    if (g_l4dLoaded) return;
+    g_l4dScheme = spawn(l4dResource);
+    g_l4dMain = spawn(l4dResource);
+    g_l4dFooter = spawn(l4dResource);
+    if (!g_l4dScheme.Load("resource/l4d360/l4d360uischeme.res") ||
+        !g_l4dFooter.Load("resource/l4d360/ui/footerpanel.res")) return;
+    g_l4dLocale = hash_createtab(4096,EV_STRING);
+    L4D_LoadLocale("gameui_english.txt");
+    L4D_LoadLocale("valve_english.txt");
+    L4D_LoadLocale("l4d360ui_english.txt");
+    L4D_ReloadFonts();
+    if (!L4D_LoadFrame("mainmenu.res")) return;
     filestream glyphs = fopen("resource/l4d360/buttons.metrics",FILE_READ);
     string line;
     if (glyphs >= 0) {
@@ -415,12 +456,14 @@ void L4D_Init(void)
     g_l4dLastMouse = getmousepos();
     g_l4dController = true;
     g_l4dLoaded = true;
-    print(sprintf("L4D360: loaded %i buttons and %i flyouts from Xbox resources\n",g_l4dButtonCount,g_l4dFlyoutCount));
 }
+
+/* A game that shows a frame over a level (the co-op pause menu) sets this. */
+bool g_l4dOverGame;
 
 bool L4D_Active(void)
 {
-    return autocvar_ui_l4d360 != 0 && g_l4dLoaded && (clientstate() != 2 || cvar("_background") != 0);
+    return autocvar_ui_l4d360 != 0 && g_l4dLoaded && (clientstate() != 2 || cvar("_background") != 0 || g_l4dOverGame);
 }
 
 void L4D_Layout(void)
@@ -477,6 +520,8 @@ void L4D_DrawFooter(void)
     L4D_FooterButton([100,y+58], 'A', "#L4D360UI_Select",false);
     if (g_l4dOpen >= 0 || g_l4dNotice)
         L4D_FooterButton([225,y+58], 'B', "#L4D360UI_Cancel",false);
+    else if (g_l4dOverGame) /* the in-game menu: B returns to the game */
+        L4D_FooterButton([225,y+58], 'B', "#L4D360UI_Back",false);
     else L4D_FooterButton([240,y+58], 'X', "#L4D360UI_MainMenu_SeeAll",true);
 }
 
@@ -519,19 +564,44 @@ void L4D_MouseMove(vector mouse)
     g_l4dLastMouse = mouse;
 }
 
-void L4D_Draw(void)
+void L4D_DrawBackdrop(void)
 {
-    L4D_Layout();
     drawfill([0,0],g_vidsize,[0,0,0],1);
     string background = g_l4dExtent[0]/480 >= 1.5999 ? "backgroundstreet_widescreen" : "backgroundstreet";
     drawpic(L4D_Point([0,0]),strcat("resource/l4d360/images/",background,".png"),g_l4dExtent*g_l4dScale,[1,1,1],1);
+}
+
+/* A frame's PnlBackground: the in-game menu's band ("bgcolor_override"). */
+void L4D_DrawPanelBackground(l4dResource resource)
+{
+    if (resource.Get("PnlBackground/ControlName") != "Panel") return;
+    if (resource.Number("PnlBackground/visible",1) == 0) return;
+    string color = resource.Get("PnlBackground/bgcolor_override");
+    if (color == "") return;
+    tokenize_console(color);
+    vector rgb = [stof(argv(0)),stof(argv(1)),stof(argv(2))]/255;
+    float alpha = stof(argv(3))/255;
+    vector pos = [L4D_Coord(resource.Get("PnlBackground/xpos","0"),g_l4dExtent[0]),
+                  L4D_Coord(resource.Get("PnlBackground/ypos","0"),g_l4dExtent[1])];
+    vector size = [L4D_Coord(resource.Get("PnlBackground/wide","f0"),g_l4dExtent[0]),
+                   L4D_Coord(resource.Get("PnlBackground/tall","f0"),g_l4dExtent[1])];
+    L4D_Fill(pos,size,rgb,alpha);
+}
+
+void L4D_Draw(void)
+{
+    L4D_Layout();
+    if (g_l4dBackdrop) L4D_DrawBackdrop();
+    L4D_DrawPanelBackground(g_l4dMain);
     L4D_MouseMove(getmousepos());
     for (int i=0;i<g_l4dButtonCount;i++) if (g_l4dButtons[i].scope == -1) g_l4dButtons[i].Draw();
     /* Xbox ApplySchemeSettings makes the first local profile label visible. */
-    vector labelPos = [L4D_Coord(g_l4dMain.Get("LblPlayer1GamerTag/xpos"),g_l4dExtent[0]),
-                       L4D_Coord(g_l4dMain.Get("LblPlayer1GamerTag/ypos"),g_l4dExtent[1])];
-    string profile = strreplace("%s1",cvar_string("name"),L4D_Text("#L4D360UI_MainMenu_LocalProfilePlayer1"));
-    L4D_DrawText(labelPos,L4D_Ellipsis(profile,g_l4dMediumFont,16,300),g_l4dMediumFont,16,[125,125,125]/255,1);
+    if (g_l4dMain.Get("LblPlayer1GamerTag/ControlName") != "") {
+        vector labelPos = [L4D_Coord(g_l4dMain.Get("LblPlayer1GamerTag/xpos"),g_l4dExtent[0]),
+                           L4D_Coord(g_l4dMain.Get("LblPlayer1GamerTag/ypos"),g_l4dExtent[1])];
+        string profile = strreplace("%s1",cvar_string("name"),L4D_Text("#L4D360UI_MainMenu_LocalProfilePlayer1"));
+        L4D_DrawText(labelPos,L4D_Ellipsis(profile,g_l4dMediumFont,16,300),g_l4dMediumFont,16,[125,125,125]/255,1);
+    }
     L4D_DrawFlyout();
     L4D_DrawNotice();
     L4D_DrawFooter();
@@ -564,7 +634,7 @@ bool L4D_Input(float event, float key, float character, float device)
     if (down && (key == K_DOWNARROW || key == K_GP_DPAD_DOWN || key == K_GP_LTHUMB_DOWN)) { g_l4dController = true; L4D_Navigate(1); return true; }
     if (down && (key == K_LEFTARROW || key == K_GP_DPAD_LEFT || key == K_GP_LTHUMB_LEFT)) { g_l4dController = true; L4D_Navigate(2); return true; }
     if (down && (key == K_RIGHTARROW || key == K_GP_DPAD_RIGHT || key == K_GP_LTHUMB_RIGHT)) { g_l4dController = true; L4D_Navigate(3); return true; }
-    if (down && key == K_GP_X && g_l4dOpen < 0) { L4D_RunCommand("SeeAll"); return true; }
+    if (down && key == K_GP_X && g_l4dOpen < 0 && !g_l4dOverGame) { L4D_RunCommand("SeeAll"); return true; }
     bool accept = key == K_MOUSE1 || key == K_ENTER || key == K_SPACE || key == K_GP_A;
     if (!accept) return true;
     if (down) {

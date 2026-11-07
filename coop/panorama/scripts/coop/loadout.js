@@ -556,6 +556,8 @@ var CoopLoadout = ( function ()
 		render();
 	} );
 	Bulwark.On( "tab", function ( t ) { setTab( t ); } );
+	// the Left 4 Dead menus are on (coop/src/menu/l4d360.qc): styles/coop/l4d360.css
+	Bulwark.On( "l4d", function () { $( "#Stage" ).SetHasClass( "l4d", true ); } );
 	Bulwark.On( "key", function ( e )
 	{
 		if ( !e || !e.down )

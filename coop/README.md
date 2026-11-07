@@ -220,6 +220,25 @@ and run commands themselves.
 - The menu uses Tahoma when the game has `fonts/tahoma.ttf` and
   Rad-Therapy's Nimbus Sans otherwise.
 
+### Left 4 Dead 360 menus (`src/menu/l4d360.qc`)
+
+With sokky's private L4D 360 resources installed (`resource/l4d360/`:
+`l4d360uischeme.res`, `ui/*.res`, `locale/`, `fonts/TGB.ttf`, `images/`,
+and `sound/l4d360/`), the title and pause menus are Valve's Xbox frames
+`mainmenu.res` and `ingamemainmenu.res`, drawn by sokky's QuakeC BaseMod
+renderer from `src/menu-vgui/l4d360/`. The pages behind them and the shop
+are the Panorama views above, restyled by `styles/coop/l4d360.css`, with
+the street backdrop (or the dimmed game) and the A/B footer drawn under
+them. `ui_l4d360 0`, or no resources, brings back the JTF menus.
+
+- Title: Co-op flyout (Quick Match and Play Online open Find servers, Play
+  with Friends opens Play), Hero (in Versus's place), Play Solo (Play),
+  Options flyout (Audio/Video, Controller), Extras, Quit (asks first).
+  X opens Find servers.
+- Pause: Return to Game, Call a Vote (Next Map, Change Difficulty,
+  Restart), Requisition (the shop), Hero (the shop's Hero tab), Options,
+  Exit to Main Menu (asks first). Go Idle and Boot Player are off.
+
 ## XP mod (`src/plugins/xpm.qc`)
 
 A server plugin in the style of the Sven Co-op XP mod (SCXPM), written

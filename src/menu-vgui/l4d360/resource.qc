@@ -10,7 +10,7 @@ class l4dResource
 public:
     void l4dResource(void);
     nonvirtual bool Load(string path);
-    nonvirtual string Get(string path, optional string fallback);
+    nonvirtual string Get(string path, string fallback = "");
     nonvirtual float Number(string path, float fallback);
     nonvirtual void Put(string path, string value);
     nonvirtual void Release(void);
@@ -36,7 +36,7 @@ void l4dResource::Put(string path, string value)
     hash_add(m_values, strtolower(path), value, EV_STRING | HASH_REPLACE);
 }
 
-string l4dResource::Get(string path, optional string fallback)
+string l4dResource::Get(string path, string fallback = "")
 {
     return (string)hash_get(m_values, strtolower(path), fallback, EV_STRING);
 }

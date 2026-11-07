@@ -1,0 +1,195 @@
+/* Left 4 Dead 360 look for the co-op pages and the shop, on top of
+   menu.css, shop.css and skills.css. On when the menu progs posts "l4d"
+   (coop/src/menu/l4d360.qc): the title and pause menus are then L4D frames
+   drawn by the progs, which also draws the street backdrop (or the dimmed
+   game) and the A/B footer under these views.
+
+   Taken from the Xbox frames and L4D360UIScheme: a black band across the
+   screen (ingamemainmenu.res PnlBackground, "0 0 0 200"), text in the
+   scheme's TGB face, grey 125 for an item at rest, white for the focused
+   one, 65 74 96 for a disabled one, and content starting at x 100 of the
+   480-line frame (225 of the 1920-wide design; padding takes no
+   percentages). */
+
+.l4d
+{
+	font-family: "TGB", "Arial", "Tahoma", "Nimbus";
+	color: #c8c8c8;
+}
+
+/* the progs draws what's behind */
+.l4d .backdrop,
+.l4d.ingame .backdrop,
+.l4d .backdrop-glow,
+.l4d .backdrop-line,
+.l4d .brand,
+.l4d .main-buttons { visibility: collapse; }
+
+/* ---- the page: a band across the screen ------------------------------- */
+
+.l4d .page
+{
+	x: 0%;
+	y: 16%;
+	width: 100%;
+	height: 66%;
+	padding-left: 225px;
+	padding-right: 110px;
+	background-color: gradient( linear, 0% 0%, 0% 100%, from( #000000b4 ), color-stop( 0.03, #000000c8 ), color-stop( 0.97, #000000c8 ), to( #000000b4 ) );
+	border: 0px solid #00000000;
+}
+/* the Hero page: the band stops short of the model, drawn on the street */
+.l4d.hero-open .page { width: 66%; padding-right: 20px; }
+
+.l4d .page-header
+{
+	height: 72px;
+	background-color: #00000000;
+}
+.l4d .page-title
+{
+	x: 0px;
+	font-size: 46px;
+	font-weight: normal;
+	letter-spacing: 0px;
+	color: #c8c8c8;
+	text-transform: uppercase;
+}
+.l4d .page-body { padding: 8px 0px 0px 0px; }
+.l4d .page-footer { padding: 0px; height: 70px; }
+
+/* ---- buttons: text only, grey at rest, white when focused ---------------- */
+
+.l4d .btn,
+.l4d .btn.primary,
+.l4d .btn.small,
+.l4d .btn.disabled
+{
+	background-color: #00000001;
+	border: 0px solid #00000000;
+	padding: 0px 16px 0px 0px;
+	min-width: 0px;
+}
+.l4d .btn Label
+{
+	horizontal-align: left;
+	font-size: 30px;
+	color: #7d7d7d;
+}
+.l4d .btn.small Label { horizontal-align: center; }
+.l4d .btn:hover
+{
+	background-color: gradient( linear, 0% 0%, 100% 0%, from( #00000000 ), color-stop( 0.15, #ffffff14 ), to( #00000000 ) );
+	border: 0px solid #00000000;
+}
+.l4d .btn:hover Label,
+.l4d .btn.primary Label { color: #ffffff; }
+.l4d .btn.disabled Label { color: #414a60; }
+
+/* ---- settings rows ------------------------------------------------------- */
+
+.l4d .section Label
+{
+	font-size: 22px;
+	letter-spacing: 1px;
+	color: #7d7d7d;
+}
+.l4d .row:hover
+{
+	background-color: gradient( linear, 0% 0%, 100% 0%, from( #ffffff12 ), to( #ffffff00 ) );
+}
+.l4d .row-name
+{
+	font-size: 28px;
+	color: #7d7d7d;
+}
+.l4d .row:hover .row-name { color: #ffffff; }
+.l4d .row-value
+{
+	background-color: #00000000;
+	border: 0px solid #00000000;
+}
+.l4d .row-value Label
+{
+	font-size: 28px;
+	color: #c8c8c8;
+}
+.l4d .row-bar { background-color: #ffffff26; }
+.l4d .toggle-on .row-value { border: 0px solid #00000000; }
+.l4d .toggle-on .row-value Label { color: #ffffff; }
+.l4d .entry
+{
+	background-color: #ffffff0f;
+	border: 0px solid #00000000;
+	font-size: 26px;
+	color: #ffffff;
+}
+.l4d .entry:focus { background-color: #ffffff1f; border: 0px solid #00000000; }
+.l4d .capture .row-value { border: 0px solid #00000000; background-color: #ffffff26; }
+
+/* ---- lists ----------------------------------------------------------------- */
+
+.l4d .list
+{
+	background-color: #00000066;
+	border: 0px solid #00000000;
+}
+.l4d .list-row:hover { background-color: gradient( linear, 0% 0%, 100% 0%, from( #ffffff14 ), to( #ffffff00 ) ); }
+.l4d .list-row.selected { background-color: gradient( linear, 0% 0%, 100% 0%, from( #ffffff33 ), to( #ffffff00 ) ); }
+.l4d .list-row Label { font-size: 26px; color: #7d7d7d; }
+.l4d .list-row:hover Label,
+.l4d .list-row.selected Label { color: #ffffff; }
+.l4d .list-head { background-color: #00000000; }
+.l4d .list-head Label { font-size: 20px; letter-spacing: 1px; color: #5a5a5a; }
+.l4d .list-divider { background-color: #00000000; }
+.l4d .list-divider Label { font-size: 20px; letter-spacing: 1px; color: #c8c8c8; }
+.l4d .list-pager Label { font-size: 20px; color: #5a5a5a; }
+
+/* ---- tabs ------------------------------------------------------------------ */
+
+.l4d .tab
+{
+	border-bottom: 0px solid #00000000;
+	padding: 0px 28px 0px 0px;
+}
+.l4d .tab Label { font-size: 30px; color: #7d7d7d; }
+.l4d .tab:hover Label { color: #c8c8c8; }
+.l4d .tab.current { border-bottom: 0px solid #00000000; }
+.l4d .tab.current Label { color: #ffffff; }
+
+.l4d .note { font-size: 22px; color: #7d7d7d; }
+.l4d .status { font-size: 22px; color: #ffffff; }
+
+/* the Hero page's model window */
+.l4d .hero-window { border: 0px solid #00000000; }
+
+/* ---- the shop (layout/coop/loadout.xml) ------------------------------------ */
+
+.l4d.shop-stage { background-color: #0000008c; }
+.l4d .shop
+{
+	horizontal-align: left;
+	vertical-align: top;
+	y: 16%;
+	width: 100%;
+	height: 70%;
+	padding-left: 225px;
+	padding-right: 110px;
+	background-color: gradient( linear, 0% 0%, 0% 100%, from( #000000b4 ), color-stop( 0.03, #000000c8 ), color-stop( 0.97, #000000c8 ), to( #000000b4 ) );
+	border: 0px solid #00000000;
+}
+.l4d .shop-points { font-size: 32px; font-weight: normal; color: #ffffff; }
+.l4d .shop-body { padding: 12px 0px 0px 0px; }
+.l4d .shop-line,
+.l4d .shop-line.current
+{
+	border: 0px solid #00000000;
+}
+.l4d .shop-line:hover { background-color: gradient( linear, 0% 0%, 100% 0%, from( #ffffff14 ), to( #ffffff00 ) ); }
+.l4d .shop-line.current { background-color: gradient( linear, 0% 0%, 100% 0%, from( #ffffff33 ), to( #ffffff00 ) ); }
+.l4d .shop-key { font-size: 24px; font-weight: normal; color: #7d7d7d; }
+.l4d .shop-name { font-size: 28px; color: #c8c8c8; }
+.l4d .shop-line:hover .shop-name,
+.l4d .shop-line.current .shop-name { color: #ffffff; }
+.l4d .shop-price { font-size: 26px; color: #c8c8c8; }
+.l4d .shop-message { color: #c8c8c8; }

@@ -46,10 +46,6 @@ void(float view) ui_close = #0:ui_close;
 float(float view) ui_isopen = #0:ui_isopen;
 void(float view, string event, string json) ui_post = #0:ui_post;
 
-typedef float bool;
-#define true 1
-#define false 0
-
 #define UI_INPUT 1
 #define MENU_LAYOUT "layout/coop/menu.xml"
 #define LOADOUT_LAYOUT "layout/coop/loadout.xml"
@@ -561,8 +557,9 @@ Menu_OpenPages(bool inGame, string page)
 	}
 
 	setkeydest(2);
-	ui_post(g_view, "context", sprintf("{\"ingame\":%s,\"title\":%s}",
-		inGame ? "true" : "false", page != "" ? "true" : "false"));
+	ui_post(g_view, "context", sprintf("{\"ingame\":%s,\"title\":%s,\"l4d\":%s}",
+		inGame ? "true" : "false", page != "" ? "true" : "false",
+		L4D_On() ? "true" : "false"));
 
 	if (page != "")
 		ui_post(g_view, "page", Json_Str(page));
@@ -581,6 +578,12 @@ Menu_OpenTitle(void)
 		return;
 
 	Menu_Close();
+
+	/* the Left 4 Dead title frame (l4d360.qc), drawn by this progs */
+	if (L4D_On()) {
+		L4D_ShowFrame(false);
+		return;
+	}
 
 	if (!g_noTitle) {
 		g_view = ui_open(TITLE_LAYOUT, UI_INPUT);
@@ -607,10 +610,28 @@ Menu_Open(void)
 	if (Menu_IsOpen() && g_inGame == inGame)
 		return;
 
-	if (inGame)
+	if (inGame && L4D_On()) {
+		Menu_Close();
+		L4D_ShowFrame(true);
+	} else if (inGame)
 		Menu_OpenPages(true, "");
 	else
 		Menu_OpenTitle();
+}
+
+/* a page from an L4D frame: Play, Hero, Find servers, Options, Vote */
+void
+L4D_OpenPage(string page)
+{
+	/* literals only: the frame's command is a temp string */
+	switch (page) {
+	case "play": g_switchTo = "play"; break;
+	case "hero": g_switchTo = "hero"; break;
+	case "servers": g_switchTo = "servers"; break;
+	case "settings": g_switchTo = "settings"; break;
+	case "controller": g_switchTo = "controller"; break;
+	case "vote": g_switchTo = "vote"; break;
+	}
 }
 
 /* ---- panels the server fills: the points shop and the XP skill menu ---- */
@@ -681,6 +702,8 @@ Panel_Open(string tab)
 			return;
 		}
 
+		if (L4D_On())
+			ui_post(g_panelView, "l4d", "true");
 		if (g_shopJson)
 			ui_post(g_panelView, "shop", g_shopJson);
 		if (g_skillsJson)
@@ -725,8 +748,14 @@ Panel_End(string kind)
 	/* the shop list is the answer to "cmd shop", so it opens the menu;
 	   skills also come on level-up and heroes before the shop, and only
 	   update it */
-	if (kind == "shop" && !Panel_IsOpen())
-		Panel_Open("shop");
+	if (kind == "shop" && !Panel_IsOpen()) {
+		/* the L4D pause menu's Hero asks for the shop on its Hero tab */
+		if (g_l4dPageTab == "hero") {
+			g_l4dPageTab = "";
+			Panel_Open("hero");
+		} else
+			Panel_Open("shop");
+	}
 	else if (Panel_IsOpen())
 		ui_post(g_panelView, kind, json);
 }
@@ -862,8 +891,10 @@ Menu_UIAction(float view, string action, string arg)
 		break;
 	case "close":
 		/* only a pause menu closes; the title menu stays up */
-		if (clientstate() == 2)
+		if (clientstate() == 2) {
 			Menu_Close();
+			L4D_ClosePause();
+		}
 		break;
 	default:
 		print(sprintf("menu: unknown action %s(%s)\n", action, arg));
@@ -909,6 +940,11 @@ m_init(void)
 	/* the title menu's faces (SIL OFL, shipped with Bulwark's data) */
 	localcmd("ui_font Iceberg panorama/fonts-jtf/Iceberg-Regular.ttf 400\n");
 	localcmd("ui_font \"Kode Mono\" panorama/fonts-jtf/KodeMono-Regular.ttf 400\n");
+	/* the Left 4 Dead menus (l4d360.qc): sokky's private Xbox resources */
+	L4D_Init();
+	if (fileExists("resource/l4d360/fonts/TGB.ttf"))
+		localcmd("ui_font TGB resource/l4d360/fonts/TGB.ttf 400\n");
+
 	/* the in-game HUD (coop/src/hud) waits for these faces */
 	localcmd("set _coop_uifonts 1\n");
 
@@ -1050,23 +1086,86 @@ m_shutdown(void)
 void
 m_toggle(float wantmode)
 {
+	bool open = (Menu_IsOpen() || g_l4dPause) ? true : false;
+
 	if (wantmode == 0) {
-		if (clientstate() == 2)
+		if (clientstate() == 2) {
 			Menu_Close();
-	} else if (wantmode == 1 || !Menu_IsOpen()) {
+			L4D_ClosePause();
+		}
+	} else if (wantmode == 1 || !open) {
 		Menu_Open();
 	} else if (clientstate() == 2) {
 		Menu_Close();
+		L4D_ClosePause();
 	}
+}
+
+/* the L4D frames (l4d360.qc) and the co-op pages they open */
+bool g_l4dTitleUp;	/* the title frame has the keys */
+
+void
+L4D_DrawMenus(void)
+{
+	if (clientstate() != 2) {
+		g_drawFrames++;
+
+		if (g_switchTo == "title") {
+			Menu_Close();
+			L4D_ShowFrame(false);
+		} else if (g_switchTo != "")
+			Menu_OpenPages(false, g_switchTo);
+		g_switchTo = "";
+
+		/* a pause view left over from a game */
+		if (Menu_IsOpen() && g_inGame)
+			Menu_Close();
+		if (g_l4dPause || g_l4dFrame != "mainmenu.res")
+			L4D_ShowFrame(false);
+		Panel_Close();
+
+		if (Menu_IsOpen()) {
+			g_l4dTitleUp = false;
+			L4D_DrawUnderPage(false);
+		} else {
+			g_l4dTitleUp = true;
+			setkeydest(2);
+			L4D_DrawFrame();
+		}
+		return;
+	}
+
+	/* just joined a game from the title */
+	if (g_l4dTitleUp) {
+		g_l4dTitleUp = false;
+		L4D_ClosePause();
+	}
+	if (Menu_IsOpen() && !g_inGame)
+		Menu_Close();
+
+	if (g_switchTo == "title") {
+		Menu_Close();
+		L4D_ShowFrame(true);
+	} else if (g_switchTo != "")
+		Menu_OpenPages(true, g_switchTo);
+	g_switchTo = "";
+
+	if (Menu_IsOpen())
+		L4D_DrawUnderPage(true);
+	else if (g_l4dPause)
+		L4D_DrawFrame();
 }
 
 void
 m_draw(vector screensize)
 {
 	g_screen = screensize;
+	g_vidsize = screensize;
 	Hero_SendSaved();
 
-	if (clientstate() != 2) {
+	if (L4D_On()) {
+		L4D_DrawMenus();
+	} else if (clientstate() != 2) {
 		/* out of a game the title menu is always up */
 		drawfill([0,0], screensize, [0,0,0], 1.0, 0);
 		g_drawFrames++;
@@ -1128,6 +1227,10 @@ m_drawloading(vector screensize, float opaque)
 float
 Menu_InputEvent(float evtype, float scanx, float chary, float devid)
 {
+	/* an L4D frame with no page over it */
+	if (L4D_On() && !Menu_IsOpen() && (clientstate() != 2 || g_l4dPause))
+		return L4D_FrameInput(evtype, scanx, chary, devid);
+
 	/* the open view takes input before this; Escape in a game reaches
 	   here when none is open */
 	return (Menu_IsOpen()) ? TRUE : FALSE;
