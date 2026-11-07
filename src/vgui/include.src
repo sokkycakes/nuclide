@@ -27,4 +27,10 @@
 ../vgui/ProgressBar.qc
 ../vgui/LoadingPanel.qc
 ../vgui/TextView.qc
+../vgui/ComboBox.qc
+../vgui/ResImage.qc
+../vgui/ResList.qc
+../vgui/ResSlider.qc
+../vgui/ResFile.qc
+../vgui/SchemeTheme.qc
 #endlist

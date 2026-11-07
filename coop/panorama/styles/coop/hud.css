@@ -1,0 +1,555 @@
+/* Justice Task Force in-game HUD, built from sokky's Figma kit
+   (Design System page, "HUD" components and the "Example · HUD" frame) and
+   drawn in the title menu's theme: QtCurve variant SokkyDark (engine
+   data/panorama/styles/qt/qtcurve-sokky-dark.css, included by hud.xml; the
+   HUD root carries class "QtCurve SokkyDark", so var(--...) reads the
+   variant's colours, gradients and textures). qtcurve.css itself is NOT
+   included: its rules would restyle every label and fill the screen.
+
+   Sizes are the Figma ones on a 1920x1080 frame, but the view is laid out
+   at bwdesignheight 900 so the whole HUD is 20% bigger (sokky); things
+   placed against the crosshair (key prompt, target ID, respawn, notice)
+   keep their Figma distance from the screen centre (450 here). The
+   title menu is laid out at 540 and drawn 2x, so the theme's 1px lines and
+   32px window tile are drawn 2px and 64px here to match it on screen.
+
+   Panels are QtCurve windows: the window colour and striped tile, a frame
+   border. Selected things (current weapon, engaged form) use the highlight
+   colour, ready things the hover ring, meters are QtCurve progress bars.
+   Game colours stay where they carry meaning: red low, amber down, gold
+   Cadence, blue Barrier. */
+
+.hud
+{
+	width: 100%;
+	height: 100%;
+	font-family: "Arial", "Tahoma", "Nimbus";
+	color: var(--window-text);
+	font-size: 12px;
+	/* the root carries .QtCurve for the variables only */
+	background-color: none;
+	background-image: none;
+}
+
+/* ---- QtCurve pieces ---------------------------------------------------- */
+
+/* a window: colour, striped tile, frame */
+.target-id, .objective, .feed-entry, .respawn, .cadence
+{
+	background-color: var(--window);
+	background-image: var(--window-image);
+	background-size: 64px 64px;
+	background-repeat: repeat;
+	border: 2px solid var(--frame-border);
+	border-radius: 6px;
+}
+
+/* a progress bar: trough and striped fill */
+.meter
+{
+	width: 100%;
+	height: 14px;
+	background-color: var(--trough-bg);
+	border: 2px solid var(--trough-bs);
+	border-radius: 6px;
+}
+.meter-fill
+{
+	background-color: var(--pfill-bg);
+	border: 2px solid var(--pfill-bs);
+	border-radius: 6px;
+	background-image: var(--pfill-image);
+	background-size: 40px 100%;
+	background-repeat: repeat-x;
+}
+
+/* ---- text styles ------------------------------------------------------- */
+
+/* no drop shadows (sokky). Small text is Tahoma 12px, drawn at exactly 12
+   pixels whatever the HUD's scale (hud.xml bwexacttext): the crisp,
+   bitmap-hinted size (sokky). Wine's Tahoma Bold is only right up to 12 */
+.hud-label
+{
+	font-family: "Arial", "Tahoma", "Nimbus";
+	font-size: 12px;
+	text-transform: uppercase;
+	color: var(--window-text);
+}
+.hud-numeral { font-family: "Kode Mono"; font-size: 34px; color: var(--window-text); }
+.accent { color: #3396d4; }
+.muted { color: var(--disabled-text); }
+
+/* ---- squad: bottom-left, above the abilities (sokky 2026-11-02) --------- */
+
+.squad
+{
+	width: 240px;
+	height: fit-children;
+	margin-bottom: 6px;
+	flow-children: down;
+}
+.mate
+{
+	width: 240px;
+	height: fit-children;
+	margin-bottom: 8px;
+	padding: 6px 10px 8px 10px;
+	flow-children: down;
+}
+.mate-top { width: 100%; height: fit-children; flow-children: right; margin-bottom: 4px; }
+.mate-name { font-size: 12px; color: var(--window-text); width: fill-parent-flow( 1.0 ); }
+.mate-status { font-family: "Arial", "Tahoma", "Nimbus"; font-size: 12px; text-transform: uppercase; color: var(--disabled-text); vertical-align: center; }
+.mate.low .mate-status { color: #e0503a; }
+.mate.low .meter-fill { background-color: gradient( linear, 0% 0%, 0% 100%, from( #f86a52 ), color-stop( 0.4, #c43c26 ), to( #e4462c ) ); background-image: url( "file://{images}/coop/progress-stripes-red.png" ); border-color: #7c1f10; }
+.mate.down { border-color: #ffa31a; }
+.mate.down .mate-status { color: #ffa31a; }
+.mate.down .meter-fill { background-color: gradient( linear, 0% 0%, 0% 100%, from( #ffc14d ), color-stop( 0.4, #d98306 ), to( #f29a12 ) ); background-image: url( "file://{images}/coop/progress-stripes-orange.png" ); border-color: #7a4a05; }
+.mate.dead { opacity: 0.4; }
+/* squad cards: no panel behind them (sokky); teammates' health gauges
+   are green, with the theme's stripes recoloured to match */
+.squad .mate { width: fit-children; padding: 0px; margin-bottom: 6px; }
+/* gauges end about 180 units in (sokky); the name runs on, with the
+   Cadence arrow or "Down" right after it */
+.squad .meter { width: 136px; }
+.squad .mate-top { width: fit-children; }
+.squad .mate-name { width: fit-children; }
+.squad .mate-status, .squad .mate-up { margin-left: 8px; }
+.mate .meter-fill
+{
+	background-color: gradient( linear, 0% 0%, 0% 100%, from( #8ae234 ), color-stop( 0.4, #4e9a06 ), to( #73d216 ) );
+	/* the theme's stripes, turned green */
+	background-image: url( "file://{images}/coop/progress-stripes-green.png" );
+	border-color: #2c5a03;
+}
+
+/* ---- objective: top-left, wave and stats in one window ---------------- */
+
+.top-left
+{
+	x: 32px;
+	y: 32px;
+	width: fit-children;
+	height: fit-children;
+	flow-children: right;
+}
+.objective
+{
+	width: fit-children;
+	height: fit-children;
+	padding: 8px 12px;
+	flow-children: right;
+}
+.obj-body { width: 140px; height: fit-children; flow-children: down; }
+.obj-title
+{
+	horizontal-align: right;
+	font-family: "Arial", "Tahoma", "Nimbus";
+	font-size: 12px;
+	font-weight: bold;
+	text-transform: uppercase;
+	color: var(--window-text);
+	margin-bottom: 2px;
+}
+.obj-row { width: 100%; height: fit-children; flow-children: right; }
+.obj-key
+{
+	width: fill-parent-flow( 1.0 );
+	font-family: "Arial", "Tahoma", "Nimbus";
+	font-size: 12px;
+	text-transform: uppercase;
+	color: var(--window-text);
+}
+.obj-val { font-family: "Arial", "Tahoma", "Nimbus"; font-size: 12px; color: var(--window-text); }
+.obj-val.danger { color: #e0503a; }
+.obj-val.muted { color: var(--disabled-text); }
+.obj-xpm { width: 100%; height: fit-children; flow-children: down; }
+.obj-xpm.hidden, .obj-row.hidden { visibility: collapse; }
+
+#ObjLevel { text-transform: none; }
+.obj-medals { width: fit-children; height: fit-children; flow-children: right; margin-left: 8px; }
+.obj-medals.hidden { visibility: collapse; }
+.obj-medal { width: 16px; height: 16px; margin-right: 3px; vertical-align: center; wash-color: #ffc440; }
+/* a sunken line between the wave and the player's own progress */
+.obj-sep { width: 100%; height: 2px; margin: 5px 0px; background-color: var(--frame-border); }
+.obj-points { horizontal-align: right; }
+.objective Label { text-shadow: none; }
+
+/* ---- kill feed: top-right ---------------------------------------------- */
+
+.kill-feed
+{
+	horizontal-align: right;
+	margin-right: 32px;
+	y: 32px;
+	width: 700px;
+	height: fit-children;
+	flow-children: down;
+}
+.feed-entry
+{
+	horizontal-align: right;
+	height: 34px;
+	width: fit-children;
+	margin-bottom: 6px;
+	padding: 0px 10px;
+	flow-children: right;
+}
+.feed-entry.you { box-shadow: inset 0px 0px 0px 2px #3396d4; }
+.feed-entry Label { font-size: 12px; vertical-align: center; margin-right: 10px; text-shadow: none; }
+.feed-entry Label.last { margin-right: 0px; }
+.feed-attacker { color: #3396d4; }
+.feed-weapon { color: var(--disabled-text); }
+.feed-victim { color: var(--window-text); }
+
+/* ---- notice ------------------------------------------------------------ */
+
+.hud-notice
+{
+	horizontal-align: center;
+	y: 140px;
+	width: 720px;
+	height: fit-children;
+	padding: 12px 0px;
+	background-color: gradient( linear, 0% 0%, 100% 0%, from( #35353500 ), color-stop( 0.5, #353535e6 ), to( #35353500 ) );
+	flow-children: down;
+	opacity: 1;
+	transition-property: opacity;
+	transition-duration: 0.4s;
+}
+.hud-notice.hidden { opacity: 0; }
+.notice-title
+{
+	horizontal-align: center;
+	font-family: "Kode Mono";
+	font-size: 28px;
+	letter-spacing: 2px;
+	text-transform: uppercase;
+	color: var(--window-text);
+}
+.notice-sub { horizontal-align: center; font-size: 12px; color: var(--window-text); }
+
+/* ---- key prompt -------------------------------------------------------- */
+
+.key-prompt
+{
+	horizontal-align: center;
+	y: 510px;
+	width: fit-children;
+	height: fit-children;
+}
+.key-prompt.hidden { visibility: collapse; }
+.prompt-row { width: fit-children; height: fit-children; flow-children: right; }
+.prompt-leader { visibility: collapse; }
+/* a pickup's callout (hud.js moves it so the leader's dot is on the item):
+   the leader runs up-right from the item to the prompt's underline */
+.key-prompt.callout { horizontal-align: left; x: 0px; y: 0px; }
+.key-prompt.callout .prompt-leader
+{
+	visibility: visible;
+	x: 0px;
+	y: 37px;
+	width: 48px;
+	height: 48px;
+	wash-color: var(--window-text);
+}
+.key-prompt.callout .prompt-row
+{
+	x: 44px;
+	padding: 0px 6px 6px 4px;
+	border-bottom: 2px solid var(--window-text);
+}
+/* a QtCurve push button */
+.key-cap
+{
+	min-width: 34px;
+	height: 34px;
+	width: fit-children;
+	padding: 0px 8px;
+	background-color: var(--btn-bg);
+	border: 2px solid var(--btn-bs);
+	border-radius: 6px;
+	margin-right: 10px;
+	vertical-align: center;
+}
+.key-text
+{
+	horizontal-align: center;
+	vertical-align: center;
+	font-family: "Arial", "Tahoma", "Nimbus";
+	font-size: 12px;
+	text-transform: uppercase;
+	color: var(--button-text);
+	text-shadow: none;
+}
+.prompt-action { font-size: 12px; color: var(--window-text); vertical-align: center; }
+
+/* ---- vitals: bottom-left ----------------------------------------------- */
+
+.vitals
+{
+	x: 40px;
+	vertical-align: bottom;
+	margin-bottom: 40px;
+	/* the health row can run past the 280 wide bars (level and experience) */
+	width: fit-children;
+	height: fit-children;
+	flow-children: down;
+}
+.vitals > Panel { margin-top: 14px; }
+
+/* hero abilities: a row of rounded squares (QtCurve windows), one per
+   ability: T, 1, 2, ENG (and EX in form) */
+.abilities
+{
+	width: fit-children;
+	height: fit-children;
+	flow-children: right;
+}
+.abilities.hidden { visibility: collapse; }
+.ability
+{
+	width: 54px;
+	height: 54px;
+	margin-right: 8px;
+	flow-children: none;
+	background-color: var(--window);
+	background-image: var(--window-image);
+	background-size: 64px 64px;
+	background-repeat: repeat;
+	border: 2px solid var(--frame-border);
+	border-radius: 8px;
+}
+/* ready: a triangle in the top-right corner (like QtCurve's default
+   button corner, mirrored); engaged: selected, in the highlight (an inset
+   shadow over the tile; #15539e is SokkyDark's --highlight) */
+.ability-tri
+{
+	horizontal-align: right;
+	vertical-align: top;
+	width: 14px;
+	height: 14px;
+	visibility: collapse;
+	background-image: url( "file://{images}/coop/ready_corner.png" );
+	background-size: 14px 14px;
+	background-repeat: no-repeat;
+}
+.ability.ready .ability-tri { visibility: visible; }
+.ability.engaged { box-shadow: inset 0px 0px 0px 40px #15539e; border-color: #326a8e; }
+.ability Label { text-shadow: none; horizontal-align: center; }
+.ability-glyph
+{
+	vertical-align: center;
+	font-family: "Arial", "Tahoma", "Nimbus";
+	font-size: 26px;
+	color: var(--window-text);
+}
+/* ENG and EX: squeezed to fit */
+.ability-glyph.condensed { font-size: 12px; }
+.ability-state
+{
+	vertical-align: bottom;
+	margin-bottom: 1px;
+	font-family: "Arial", "Tahoma", "Nimbus";
+	font-size: 12px;
+	color: var(--disabled-text);
+}
+.ability.engaged Label { color: var(--highlighted-text); }
+/* can't be used now: greyed and darkened */
+.ability.unavailable { box-shadow: inset 0px 0px 0px 40px #00000066; }
+.ability.unavailable Label { color: #6e6e6d; }
+
+/* readout: icon slot, then label over value */
+.hud-readout { width: fit-children; height: fit-children; flow-children: right; }
+.icon-slot { width: 32px; height: 32px; margin-right: 10px; vertical-align: center; }
+.plus-h { x: 2px; y: 12px; width: 28px; height: 8px; background-color: var(--window-text); }
+.plus-v { x: 12px; y: 2px; width: 8px; height: 28px; background-color: var(--window-text); }
+/* the big numbers are fixed-width displays: the value sits right-aligned
+   over a faint row of 8s (text here, digit cells in .wtnum) */
+.readout-text { width: fit-children; height: fit-children; }
+.readout-text .readout-value { horizontal-align: right; vertical-align: center; }
+.readout-ghost { opacity: 0.08; }
+.readout-label { color: var(--disabled-text); }
+.readout-value { font-family: "Kode Mono"; font-size: 52px; color: var(--window-text); }
+.hud-readout.low .plus-h,
+.hud-readout.low .plus-v { background-color: #e0503a; }
+.hud-readout.low .readout-label,
+.hud-readout.low .readout-value { color: #e0503a; }
+.barrier-readout { margin-left: 26px; }
+.barrier-readout.hidden { visibility: collapse; }
+.hud-readout .barrier-value { color: #5aa8ff; }
+.hud-xpm { width: 190px; height: fit-children; margin-left: 22px; vertical-align: center; flow-children: down; }
+.hud-xpm.hidden { visibility: collapse; }
+.hud-xpm .obj-row { margin-bottom: 4px; }
+.hud-xpm Label { text-shadow: none; }
+.hud-exp { width: 100%; }
+
+/* bar: label and value, then a progress bar */
+.hud-bar { width: 280px; height: fit-children; flow-children: down; }
+.hud-bar.hidden { visibility: collapse; }
+.bar-top { width: 100%; height: fit-children; flow-children: right; margin-bottom: 6px; }
+.bar-label { width: fill-parent-flow( 1.0 ); }
+.bar-value { horizontal-align: right; }
+.meter-fill { height: 100%; width: 0%; }
+.hud-bar.low .meter-fill { background-color: gradient( linear, 0% 0%, 0% 100%, from( #f86a52 ), color-stop( 0.4, #c43c26 ), to( #e4462c ) ); border-color: #7c1f10; }
+.hud-bar.low .bar-value { color: #e0503a; }
+
+/* ---- weapons: bottom-right --------------------------------------------- */
+
+.weapons
+{
+	horizontal-align: right;
+	vertical-align: bottom;
+	margin-right: 40px;
+	margin-bottom: 40px;
+	width: 300px;
+	height: fit-children;
+	flow-children: down;
+}
+.weapons > Panel { margin-top: 12px; horizontal-align: right; }
+
+.hud-ammo { width: fit-children; height: fit-children; flow-children: down; }
+.hud-ammo > Label { horizontal-align: right; }
+.ammo-counts { width: fit-children; height: fit-children; flow-children: right; horizontal-align: right; }
+.ammo-clip { font-family: "Kode Mono"; font-size: 52px; color: var(--window-text); vertical-align: bottom; }
+.ammo-divider { width: 2px; height: 40px; margin: 0px 10px 8px 10px; background-color: var(--disabled-text); vertical-align: bottom; }
+.ammo-reserve { font-family: "Kode Mono"; font-size: 34px; color: var(--disabled-text); vertical-align: bottom; margin-bottom: 2px; }
+.hud-ammo.noclip .ammo-clip,
+.hud-ammo.noclip .ammo-divider { visibility: collapse; }
+.hud-ammo.noreserve .ammo-divider,
+.hud-ammo.noreserve .ammo-reserve { visibility: collapse; }
+.hud-ammo.empty { visibility: collapse; }
+.hud-ammo.low .ammo-clip { color: #e0503a; }
+
+/* weapon slots: outlines only, faint, the one in hand brighter; they show
+   when the weapon changes or one is picked up, then fade after 2 s
+   (hud.js weaponSlots adds .slots-shown to #Weapons) */
+.weapon-slot
+{
+	width: fit-children;
+	height: 40px;
+	flow-children: right;
+	opacity: 0;
+	transition-property: opacity;
+	transition-duration: 0.5s;
+}
+#Weapons.slots-shown .weapon-slot { opacity: 0.35; transition-duration: 0.1s; }
+#Weapons.slots-shown .weapon-slot.active { opacity: 0.9; }
+.slot-body
+{
+	width: 220px;
+	height: 40px;
+	padding: 0px 12px;
+	flow-children: right;
+	border: 2px solid var(--window-text);
+	border-radius: 6px;
+}
+.weapon-slot Label { vertical-align: center; margin-right: 10px; text-shadow: none; color: var(--window-text); }
+.slot-name { font-size: 12px; width: fill-parent-flow( 1.0 ); }
+/* the weapon in hand: its left end an arrow, outlined like the rest
+   (slot_tip_outline.png, drawn for this) */
+.slot-tip
+{
+	width: 20px;
+	height: 40px;
+	visibility: collapse;
+	background-image: url( "file://{images}/coop/slot_tip_outline.png" );
+	background-size: 20px 40px;
+	background-repeat: no-repeat;
+}
+.weapon-slot.active .slot-tip { visibility: visible; }
+.weapon-slot.active .slot-body
+{
+	border-left: 0px solid #00000000;
+	border-top-left-radius: 0px;
+	border-bottom-left-radius: 0px;
+}
+.weapon-slot.hidden { visibility: collapse; }
+Label.hidden { visibility: collapse; }
+
+/* the Use prompt's key, as a glyph (images/xelu) */
+.key-cap { flow-children: right; }
+.key-cap.glyph { padding: 0px; border: 0px solid #00000000; background-color: #00000000; }
+.prompt-key-glyph { width: 32px; height: 32px; }
+.prompt-key-text { horizontal-align: center; vertical-align: center; font-family: "Arial", "Tahoma", "Nimbus"; color: var(--button-text); margin: 0px 8px; text-shadow: none; }
+
+/* ---- respawn: centre, below the crosshair, while down ------------------ */
+.down-box { horizontal-align: center; y: 540px; width: 420px; height: fit-children; flow-children: down; }
+.respawn
+{
+	width: 420px;
+	height: fit-children;
+	padding: 12px 16px;
+	flow-children: down;
+}
+.respawn Label { text-shadow: none; }
+.respawn.hidden { visibility: collapse; }
+/* a teammate reviving us: plain white, no panel */
+.revive { width: 100%; height: fit-children; flow-children: down; margin-bottom: 10px; }
+.revive.hidden { visibility: collapse; }
+.revive-label { horizontal-align: center; font-family: "Arial", "Tahoma", "Nimbus"; font-size: 16px; font-weight: bold; color: #ffffff; margin-bottom: 4px; text-shadow: 1px 1px 0px 1 #000000c0; }
+.revive-meter { width: 100%; height: 6px; background-color: #ffffff40; }
+.revive-fill { width: 0%; height: 100%; background-color: #ffffff; }
+/* down or dead: everything but the objective panel and the respawn box */
+.hud.down #Feed, .hud.down #Notice, .hud.down #Prompt, .hud.down #TargetID,
+.hud.down #Vitals, .hud.down #Weapons, .hud.down #SquadTop { visibility: collapse; }
+.respawn .meter { height: 16px; }
+.respawn.ready { box-shadow: inset 0px 0px 0px 2px #3396d4; }
+.respawn-hint { horizontal-align: center; margin-top: 8px; font-size: 12px; color: var(--disabled-text); }
+
+/* ---- Choir's Cadence (above the Barrier bar) --------------------------- */
+.cadence
+{
+	width: 280px;
+	height: 32px;
+	padding: 0px 10px;
+	flow-children: right;
+	border-color: #ffc44099;
+}
+.cadence.hidden { visibility: collapse; }
+.cadence-label { vertical-align: center; color: #ffc440; width: fill-parent-flow( 1.0 ); text-shadow: none; }
+.cadence-pips { height: 100%; flow-children: right; }
+.cadence-pips.hidden { visibility: collapse; }
+.cadence-pip
+{
+	width: 14px;
+	height: 8px;
+	margin-left: 4px;
+	vertical-align: center;
+	background-color: #ffc44033;
+}
+.cadence-pip.on { background-color: #ffc440; }
+.cadence-count { vertical-align: center; color: #ffc440; }
+/* a teammate in a Cadence: a gold frame */
+.mate.mate-cadence { border-color: #ffc440aa; }
+
+/* Engage's cost on the energy meter, shown once there's enough */
+.engage-tick-row { width: 100%; height: 100%; flow-children: right; }
+.engage-tick-row.hidden { visibility: collapse; }
+.engage-tick-gap { height: 100%; width: 0%; }
+.engage-tick { width: 3px; height: 100%; background-color: #ffffff; }
+/* in a Cadence: an up arrow in place of the squad card's status */
+.mate-up { width: 16px; height: 16px; vertical-align: center; }
+.mate Label { text-shadow: none; }
+
+/* target ID: a squad card under the crosshair, below the key prompt */
+.mate.target-id { horizontal-align: center; y: 558px; margin-bottom: 0px; }
+.mate.target-id.hidden { visibility: collapse; }
+.mate-up.hidden, .mate-status.hidden { visibility: collapse; }
+
+/* digits: the big numbers can also be drawn from WolfTeam's HP digit strip
+   (pl_num_0, white 20x33 cells every 40px, tinted). That art is private,
+   so it and its rules live in styles/coop/hud-wtdigits.css and
+   images/coop/wt-private/, outside git; here the digit boxes stay hidden */
+.wtnum { visibility: collapse; width: fit-children; height: fit-children; flow-children: right; }
+/* a digit cell: a faint 8 with the digit (or nothing) over it */
+.wtnum .dgcell { width: fit-children; height: fit-children; }
+.wtnum .dg.ghost { opacity: 0.08; }
+.wtnum .dg.blank { visibility: collapse; }
+
+/* ---- short views (split screen) ----------------------------------------
+   Text keeps its pixel size (bwexacttext) while the layout shrinks with the
+   view, so in a view under 600 pixels tall the squad no longer fits above
+   the abilities: it goes up beside the objective panel instead */
+.squad-top { visibility: collapse; margin-left: 16px; }
+.hud.short .squad-top { visibility: visible; }
+.hud.short .vitals .squad { visibility: collapse; }

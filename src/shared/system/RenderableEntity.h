@@ -124,6 +124,9 @@ public:
 	/* model events */
 	/** Callback for any model event that gets triggered while playing a framegroup. */
 	virtual void HandleAnimEvent(float,int,string);
+#ifdef CLIENT
+	nonvirtual void _GSMuzzleFlash(int, string);
+#endif
 
 	/* set */
 	/** Sets the bodygroup of the entity. */

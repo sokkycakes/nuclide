@@ -1,0 +1,437 @@
+// Justice Task Force: the prototype heroes' primaries (coop_heroes 1).
+//
+// Built on Half-Life's weapons for their behaviour (burst, pump, melee),
+// with Counter-Strike Online's models and sounds, one per hero, from the
+// CSNZ install, in zz_coopguns.pk3, which isn't in git (coop/README.md).
+// View models have their arms hidden (tools/cso_hide_arms.py) and are
+// mirrored like the other heroes' guns.
+// Each is a static weapon: hudSlot 1, "hero_static",
+// and the never-ending ammo_hero reserve (see hero_weapons.def). Only the
+// feel is aimed at: burst, pump, slow and heavy, spray, charged. Numbers
+// are first guesses.
+
+// ---- Dispatch: compact burst PDW ------------------------------------------
+entityDef weapon_jtf_pdw
+{
+	"inherit"			"weapon_9mmhandgun"
+	"crosshair"			"weapon_9mmar.crosshair"
+	"inv_name"			"Burst PDW"
+	"def_fireInfo"		"fireInfo_jtf_pdw"
+	"def_altFireInfo"	""
+	"clipSize"			"30"
+	"clipSizeDefault"	"30"
+	"hudSlot"			"1"
+	"hudSlotPos"		"4"
+	"hero_static"		"1"
+	// CSO mp7a1 (zz_coopguns.pk3, private): MP7A1 (carbine stock)
+	"model"				"models/w_mp7a1.mdl"
+	"model_player"		"models/p_mp7a1.mdl"
+	"model_view"			"models/v_mp7a1.mdl"
+	"model_viewMirror"	"1"
+	"act_holster"		""
+	"act_idle"			"6"
+	"act_reload"		"7"
+	"act_draw"		"8"
+	"act_fire"		"9,10"
+	"snd_fire"			"Weapon_JTF.PDW"
+}
+
+entityDef fireInfo_jtf_pdw
+{
+	"def_onFire"		"projectile_jtf_pdw"
+	"ammoType"			"ammo_hero"
+	"ammoRequired"		"1"
+	"ammoPerShot"		"1"
+	"fireRate"			"0.06"
+	"burstCount"		"3"
+	"burstTime"			"0.3"
+	"punchAngle"		"-1 0 0"
+	"model_flash"		"sprites/muzzleflash1.spr"
+}
+
+entityDef projectile_jtf_pdw
+{
+	"inherit"		"projectile_bullet_base"
+	"damage"		"9"
+	"spread"		"0.01 0.01"
+}
+
+// ---- Choir: pump shotgun ---------------------------------------------------
+entityDef weapon_jtf_pump
+{
+	"inherit"			"weapon_shotgun"
+	"inv_name"			"Pump Shotgun"
+	"def_fireInfo"		"fireInfo_jtf_pump"
+	"def_altFireInfo"	""
+	"clipSize"			"6"
+	"clipSizeDefault"	"6"
+	"hudSlot"			"1"
+	"hudSlotPos"		"4"
+	"hero_static"		"1"
+	// CSO ksg12 (zz_coopguns.pk3, private): KSG-12
+	"model"				"models/w_ksg12.mdl"
+	"model_player"		"models/p_ksg12.mdl"
+	"model_view"			"models/v_ksg12.mdl"
+	"model_viewMirror"	"1"
+	"act_holster"		""
+	"act_idle"			"0"
+	"act_fire"		"1,2"
+	"act_reloadStart"		"5"
+	"act_reload"		"3"
+	"act_reloadEnd"		"4"
+	"act_draw"		"6"
+	"snd_fire"			"Weapon_JTF.Pump"
+}
+
+entityDef fireInfo_jtf_pump
+{
+	"def_onFire"	"projectile_jtf_pump"
+	"ammoType"		"ammo_hero"
+	"ammoRequired"	"1"
+	"ammoPerShot"	"1"
+	"fireRate"		"0.9"
+	"punchAngle"	"-5 0 0"
+}
+
+entityDef projectile_jtf_pump
+{
+	"inherit"		"projectile_shotgun"
+	"damage"		"9"
+	"hitscans"		"8"
+	"spread"		"0.12 0.12"
+}
+
+// ---- Bulkhead: heavy one-handed revolver -----------------------------------
+entityDef weapon_jtf_revolver
+{
+	"inherit"			"weapon_357"
+	"inv_name"			"Heavy Revolver"
+	"def_fireInfo"		"fireInfo_jtf_revolver"
+	"def_altFireInfo"	""
+	"clipSize"			"5"
+	"clipSizeDefault"	"5"
+	"hudSlot"			"1"
+	"hudSlotPos"		"4"
+	"hero_static"		"1"
+	// CSO anaconda (zz_coopguns.pk3, private): Anaconda
+	"model"				"models/w_anaconda.mdl"
+	"model_player"		"models/p_anaconda.mdl"
+	"model_view"			"models/v_anaconda.mdl"
+	"model_viewMirror"	"1"
+	"act_holster"		""
+	"act_idle"			"0"
+	"act_fire"		"1,2"
+	"act_reload"		"4"
+	"act_draw"		"5"
+	"snd_fire"			"Weapon_JTF.Revolver"
+}
+
+entityDef fireInfo_jtf_revolver
+{
+	"def_onFire"		"projectile_jtf_revolver"
+	"ammoType"			"ammo_hero"
+	"ammoRequired"		"1"
+	"ammoPerShot"		"1"
+	"fireRate"			"0.9"
+	"semiAuto"			"1"
+	"punchAngle"		"-8 0 0"
+	"model_flash"		"sprites/muzzleflash2.spr"
+}
+
+entityDef projectile_jtf_revolver
+{
+	"inherit"		"projectile_357"
+	"damage"		"70"
+}
+
+// ---- Kettle: pressure gauntlets (the carbine is the kit's gun) ---------------
+entityDef weapon_jtf_gauntlets
+{
+	"inherit"			"weapon_crowbar"
+	"inv_name"			"Pressure Gauntlets"
+	"def_onFire"		"projectile_jtf_gauntlets"
+	"fireRate"			"0.35"
+	// a miss takes as long as a hit (the crowbar's is 0.5), so pressure's
+	// slowdown tops out at coop_kettleMaxRate either way
+	"failRate"			"0.35"
+	"hudSlot"			"1"
+	"hudSlotPos"		"4"
+	"hero_static"		"1"
+	// CSO balrog9 (zz_coopguns.pk3, private): Balrog-IX, a melee
+	// gauntlet (sokky 2026-11-02; it replaced the Laser Fist). It has no
+	// world model, so the third-person one stands in.
+	"model"				"models/p_balrog9.mdl"
+	"model_player"		"models/p_balrog9.mdl"
+	"model_view"			"models/v_balrog9.mdl"
+	"model_viewMirror"	"1"
+	"act_holster"		""
+	"act_idle"			"0"
+	"act_fire"		"1,2,3,4,5"
+	"act_fireFailed"		"1,2,3,4,5"
+	"act_draw"		"6"
+	"snd_fire"			"Weapon_JTF.Gauntlets"
+	"snd_fireFailed"		"Weapon_JTF.Gauntlets"
+}
+
+entityDef projectile_jtf_gauntlets
+{
+	"inherit"		"projectile_crowbar"
+	"damage"		"22"
+	"range"			"112"
+	"snd_hitBody"	"Weapon_JTF.GauntletsHit"
+	// sparks where a punch lands, as Half-Life's low-violence hits (sokky)
+	"model_hitActor"	"fx_spark.main"
+	"knockback"		"350"
+	"push"			"35000"
+}
+
+// ---- Vector: light SMG -----------------------------------------------------
+entityDef weapon_jtf_smg
+{
+	"inherit"			"weapon_9mmAR"
+	"inv_name"			"Light SMG"
+	"def_fireInfo"		"fireInfo_jtf_smg"
+	"def_altFireInfo"	""
+	"clipSize"			"40"
+	"clipSizeDefault"	"40"
+	"hudSlot"			"1"
+	"hudSlotPos"		"4"
+	"hero_static"		"1"
+	// CSO kriss (zz_coopguns.pk3, private): KRISS Vector, unsilenced
+	"model"				"models/w_kriss.mdl"
+	"model_player"		"models/p_kriss.mdl"
+	"model_view"			"models/v_kriss.mdl"
+	"model_viewMirror"	"1"
+	"act_holster"		""
+	"act_idle"			"7"
+	"act_fire"		"8,9,10"
+	"act_reload"		"11"
+	"act_draw"		"12"
+	"snd_fire"			"Weapon_JTF.SMG"
+}
+
+entityDef fireInfo_jtf_smg
+{
+	"def_onFire"		"projectile_jtf_smg"
+	"ammoType"			"ammo_hero"
+	"ammoRequired"		"1"
+	"ammoPerShot"		"1"
+	"fireRate"			"0.065"
+	"punchAngle"		"-1 0 0"
+	"model_flash"		"sprites/muzzleflash1.spr"
+}
+
+entityDef projectile_jtf_smg
+{
+	"inherit"		"projectile_bullet_base"
+	"damage"		"6"
+	"spread"		"0.04 0.04"
+}
+
+// ---- Stray: machine pistols ------------------------------------------------
+entityDef weapon_jtf_machinepistols
+{
+	"inherit"			"weapon_9mmhandgun"
+	"crosshair"			"weapon_9mmhandgun.crosshair"
+	"inv_name"			"Machine Pistols"
+	"def_fireInfo"		"fireInfo_jtf_machinepistols"
+	"def_altFireInfo"	""
+	"clipSize"			"36"
+	"clipSizeDefault"	"36"
+	"hudSlot"			"1"
+	"hudSlotPos"		"4"
+	"hero_static"		"1"
+	// CSO dualuzi (zz_coopguns.pk3, private): Dual UZI
+	"model"				"models/w_dualuzi.mdl"
+	"model_player"		"models/p_dualuzi.mdl"
+	"model_view"			"models/v_dualuzi.mdl"
+	"model_viewMirror"	"1"
+	"act_holster"		""
+	"act_idle"			"0"
+	"act_fire"		"3,9,4,10,5,11"
+	"act_reload"		"15"
+	"act_draw"		"16"
+	"snd_fire"			"Weapon_JTF.MachinePistols"
+}
+
+entityDef fireInfo_jtf_machinepistols
+{
+	"def_onFire"		"projectile_jtf_machinepistols"
+	"ammoType"			"ammo_hero"
+	"ammoRequired"		"1"
+	"ammoPerShot"		"1"
+	"fireRate"			"0.07"
+	"punchAngle"		"-1 0 0"
+	"model_flash"		"sprites/muzzleflash1.spr"
+}
+
+entityDef projectile_jtf_machinepistols
+{
+	"inherit"		"projectile_bullet_base"
+	"damage"		"6"
+	"spread"		"0.07 0.07"
+}
+
+// ---- Ledger: battle rifle --------------------------------------------------
+entityDef weapon_jtf_battlerifle
+{
+	"inherit"			"weapon_9mmAR"
+	"inv_name"			"Battle Rifle"
+	"def_fireInfo"		"fireInfo_jtf_battlerifle"
+	"def_altFireInfo"	""
+	"clipSize"			"20"
+	"clipSizeDefault"	"20"
+	"hudSlot"			"1"
+	"hudSlotPos"		"4"
+	"hero_static"		"1"
+	// CSO scar (zz_coopguns.pk3, private): SCAR, heavy (H) mode
+	"model"				"models/w_scar.mdl"
+	"model_player"		"models/p_scar.mdl"
+	"model_view"			"models/v_scar.mdl"
+	"model_viewMirror"	"1"
+	"act_holster"		""
+	"act_idle"			"7"
+	"act_reload"		"8"
+	"act_draw"		"9"
+	"act_fire"		"10,11,12"
+	"snd_fire"			"Weapon_JTF.BattleRifle"
+}
+
+entityDef fireInfo_jtf_battlerifle
+{
+	"def_onFire"		"projectile_jtf_battlerifle"
+	"ammoType"			"ammo_hero"
+	"ammoRequired"		"1"
+	"ammoPerShot"		"1"
+	"fireRate"			"0.2"
+	"semiAuto"			"1"
+	"punchAngle"		"-3 0 0"
+	"model_flash"		"sprites/muzzleflash1.spr"
+}
+
+entityDef projectile_jtf_battlerifle
+{
+	"inherit"		"projectile_bullet_base"
+	"damage"		"24"
+	"spread"		"0.01 0.01"
+}
+
+// ---- Tripwire: silenced carbine --------------------------------------------
+entityDef weapon_jtf_silenced
+{
+	"inherit"			"weapon_9mmhandgun"
+	"crosshair"			"weapon_9mmhandgun.crosshair"
+	"inv_name"			"Silenced Carbine"
+	"def_fireInfo"		"fireInfo_jtf_silenced"
+	"def_altFireInfo"	""
+	"clipSize"			"20"
+	"clipSizeDefault"	"20"
+	"hudSlot"			"1"
+	"hudSlotPos"		"4"
+	"hero_static"		"1"
+	// CSO m4a1 (zz_coopguns.pk3, private): M4A1, silenced
+	"model"				"models/w_m4a1.mdl"
+	"model_player"		"models/p_m4a1.mdl"
+	"model_view"			"models/v_m4a1.mdl"
+	"model_viewMirror"	"1"
+	"act_holster"		""
+	"act_idle"			"0"
+	"act_fire"		"1,2,3"
+	"act_reload"		"4"
+	"act_draw"		"5"
+	"snd_fire"			"Weapon_JTF.Silenced"
+}
+
+entityDef fireInfo_jtf_silenced
+{
+	"def_onFire"		"projectile_jtf_silenced"
+	"ammoType"			"ammo_hero"
+	"ammoRequired"		"1"
+	"ammoPerShot"		"1"
+	"fireRate"			"0.15"
+	"semiAuto"			"1"
+	"punchAngle"		"-1 0 0"
+}
+
+entityDef projectile_jtf_silenced
+{
+	"inherit"		"projectile_bullet_base"
+	"damage"		"16"
+	"spread"		"0.01 0.01"
+}
+
+// ---- Longhand: charged rifle -----------------------------------------------
+// Slow and heavy here; the charge (time since the last shot) and the
+// weak point bonus are the rules' (coop/src/rules/hero_kits.qc).
+entityDef weapon_jtf_chargerifle
+{
+	"inherit"			"weapon_357"
+	"inv_name"			"Charge Rifle"
+	"def_fireInfo"		"fireInfo_jtf_chargerifle"
+	"def_altFireInfo"	""
+	"clipSize"			"4"
+	"clipSizeDefault"	"4"
+	"hudSlot"			"1"
+	"hudSlotPos"		"4"
+	"hero_static"		"1"
+	// CSO railgun (zz_coopguns.pk3, private): Railgun: no reload sequence, charge stands in
+	"model"				"models/w_railgun.mdl"
+	"model_player"		"models/p_railgun.mdl"
+	"model_view"			"models/v_railgun.mdl"
+	"model_viewMirror"	"1"
+	"act_holster"		""
+	"act_idle"			"0"
+	"act_fire"		"4"
+	"act_reload"		"5"
+	"act_draw"		"7"
+	"snd_fire"			"Weapon_JTF.ChargeRifle"
+}
+
+entityDef fireInfo_jtf_chargerifle
+{
+	"def_onFire"		"projectile_jtf_chargerifle"
+	"ammoType"			"ammo_hero"
+	"ammoRequired"		"1"
+	"ammoPerShot"		"1"
+	"fireRate"			"1.2"
+	"semiAuto"			"1"
+	"punchAngle"		"-10 0 0"
+	"model_flash"		"sprites/muzzleflash2.spr"
+}
+
+entityDef projectile_jtf_chargerifle
+{
+	"inherit"		"projectile_357"
+	"damage"		"55"
+	"spread"		"0 0"
+}
+
+// ---- Mantis: twin blades (the pistol is the kit's gun) ----------------------
+entityDef weapon_jtf_blades
+{
+	"inherit"			"weapon_crowbar"
+	"inv_name"			"Twin Blades"
+	"def_onFire"		"projectile_jtf_blades"
+	"fireRate"			"0.3"
+	"hudSlot"			"1"
+	"hudSlotPos"		"4"
+	"hero_static"		"1"
+	// CSO dualsword (zz_coopguns.pk3, private): Dual Sword (p_katana in third person, no world model)
+	"model_player"		"models/p_katana.mdl"
+	"model_view"			"models/v_dualsword.mdl"
+	"model_viewMirror"	"0"
+	"act_holster"		""
+	"act_idle"			"0"
+	"act_fire"		"1,2,3,4"
+	"act_fireFailed"		"1,2,3,4"
+	"act_draw"		"6"
+	"snd_fire"			"Weapon_JTF.Blades"
+	"snd_fireFailed"		"Weapon_JTF.Blades"
+}
+
+entityDef projectile_jtf_blades
+{
+	"inherit"		"projectile_crowbar"
+	"damage"		"18"
+	"range"			"104"
+}

@@ -1,0 +1,8 @@
+#pragma target fte_5768
+#pragma PROGS_DAT  "../../menu.dat"
+#define MENU
+
+#includelist
+../../../src/common/fteextensions.qc
+main.qc
+#endlist

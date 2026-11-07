@@ -60,7 +60,7 @@ vguiLabel::SetTitle (string strName)
 	if (GetSize() == [0,0]) {
 	/* hack, add 2 just to make sure it doesn't immediately wrap. bug
 	 * in engines' textfield thing in combo with ttf. */
-	SetSize([2 + stringwidth(m_strTitle, TRUE, [g_fntDefault.iScaleX, g_fntDefault.iScaleY]), 16]);
+	SetSize([2 + Font_StringWidth(m_strTitle, TRUE, g_fntDefault), 16]);
 	}
 }
 

@@ -77,7 +77,7 @@ ncIO::Spawned(void)
 	if (STRING_SET(m_outputOnKilled))
 		m_outputOnKilled = CreateOutput(m_outputOnKilled);
 	if (STRING_SET(m_outputOnTrigger))
-		m_outputOnKilled = CreateOutput(m_outputOnTrigger);
+		m_outputOnTrigger = CreateOutput(m_outputOnTrigger);
 	if (STRING_SET(m_outputOnUser1))
 		m_outputOnUser1 = CreateOutput(m_outputOnUser1);
 	if (STRING_SET(m_outputOnUser2))
@@ -94,6 +94,11 @@ ncIO::Spawned(void)
 	solid = SOLID_NOT;
 
 #ifdef SERVER
+	if (STRING_SET(m_scriptFiles) && checkbuiltin(script_attach))
+		script_attach(this, m_scriptFiles);
+	if (STRING_SET(m_scriptThink) && checkbuiltin(script_think))
+		script_think(this, m_scriptThink);
+
 	UseOutput(this, m_outputOnSpawn);
 #endif
 }
@@ -110,32 +115,40 @@ ncIO::Destroy(void)
 		return;
 	}
 
+	/* OnRemoveEntity may destroy other entities (a projectile's timer, a
+	   player's weapons), which runs this function again. The compiler keeps
+	   the copy of 'self' it saves around that call in a temp, and the nested
+	   call overwrites it, so we would come back as the other entity and
+	   never remove ourselves. A local is saved across the nested call, so
+	   everything after it goes through one. */
+	ncIO removing = this;
+
 	if (OnRemoveEntity) {
 		OnRemoveEntity();
 	}
 
 #ifdef SERVER
-	UseOutput(this, m_outputOnKilled);
+	removing.UseOutput(removing, removing.m_outputOnKilled);
 #endif
 
-	_isActor = false;
-	_isItem = false;
-	_isPlayer = false;
-	_isWeapon = false;
-	chain =
-	owner = __NULL__;
-	spawnclass =
-	classname =
-	declclass = __NULL__;
-	identity = 0;
-	modelindex = 0;
-	movetype = 0;
-	solid = 0;
-	removed = true;
-	customphysics =
-	think = __NULL__;
-	nextthink = 0.0f;
-	remove(this);
+	removing._isActor = false;
+	removing._isItem = false;
+	removing._isPlayer = false;
+	removing._isWeapon = false;
+	removing.chain =
+	removing.owner = __NULL__;
+	removing.spawnclass =
+	removing.classname =
+	removing.declclass = __NULL__;
+	removing.identity = 0;
+	removing.modelindex = 0;
+	removing.movetype = 0;
+	removing.solid = 0;
+	removing.removed = true;
+	removing.customphysics =
+	removing.think = __NULL__;
+	removing.nextthink = 0.0f;
+	remove(removing);
 }
 
 string
@@ -608,6 +621,12 @@ ncIO::SpawnKey(string keyName, string setValue)
 #ifdef SERVER
 	case "script_gametype":
 		m_gameModeFilter = ReadString(setValue);
+		break;
+	case "vscripts":
+		m_scriptFiles = ReadString(setValue);
+		break;
+	case "thinkfunction":
+		m_scriptThink = ReadString(setValue);
 		break;
 	/* Input/Output system */
 	case "OnSpawn":

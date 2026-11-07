@@ -133,6 +133,13 @@ private:
 
 	vector m_vecLastOrigin;
 
+	/* death cam: when it started, and the freeze cam's fixed shot */
+	bool m_deathCamActive;
+	float m_deathCamStart;
+	bool m_deathCamFrozen;
+	vector m_deathCamFreezeFrom;
+	vector m_deathCamFreezeAt;
+
 	/* the entity we're targetting */
 	ncEntity m_viewTarget;
 

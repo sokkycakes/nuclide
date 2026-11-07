@@ -24,6 +24,7 @@
 /* for full description check the docs. */
 var bool autocvar_bot_enable = true;
 var bool autocvar_bot_pause = false;
+var int autocvar_bot_forceAttack = 0i; /* developer: 1/2 tap primary/secondary attack, 3/4 hold it */
 var bool autocvar_bot_noChat = false;
 var bool autocvar_bot_fastChat = false;
 var bool autocvar_bot_developer = false;
@@ -43,5 +44,7 @@ var bool autocvar_bot_crouch = false;
 var bool autocvar_bot_walk = false;
 var bool autocvar_bot_prone = false;
 var bool autocvar_bot_dont_shoot = false;
+var float autocvar_bot_followDist = 180;	/* follow mode: how close a bot keeps to its leader */
+var float autocvar_bot_followLeash = 600;	/* follow mode: foes further than this from the leader aren't chased */
 
 /** @} */ // end of bot_cvars

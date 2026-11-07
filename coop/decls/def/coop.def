@@ -1,0 +1,8 @@
+entityDef info_monster_spawn
+{
+	"spawnclass" "ncSpawnPoint"
+	"editor_mins" "-16 -16 -36"
+	"editor_maxs" "16 16 36"
+	"editor_description" "Co-op monster spawn point. The wave director picks one at random for each monster."
+	"editor_color" "1 0.5 0"
+}

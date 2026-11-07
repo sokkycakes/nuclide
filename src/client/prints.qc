@@ -57,8 +57,8 @@ Print_DrawCenterprint(void)
 	vecPos[1] = g_hudmins[1] + (g_hudres[1] / 2) - (pSeat->m_iCenterprintLines - 4) - 69;
 
 	for (int i = 0; i < (pSeat->m_iCenterprintLines); i++) {
-		vecPos[0] = g_hudmins[0] + (g_hudres[0] / 2) - (stringwidth(pSeat->m_strCenterprintBuffer[i], TRUE, '18 18') / 2);
+		vecPos[0] = g_hudmins[0] + (g_hudres[0] / 2) - (Font_StringWidth(pSeat->m_strCenterprintBuffer[i], TRUE, FONT_CENTERPRINT) / 2);
 		Font_DrawText_A(vecPos, pSeat->m_strCenterprintBuffer[i], pSeat->m_flCenterprintAlpha, FONT_CENTERPRINT);
-		vecPos[1] += 8;
+		vecPos[1] += FONT_CENTERPRINT.iScaleY;
 	}
 }

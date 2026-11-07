@@ -24,10 +24,12 @@
  *  @{
  */
 
+/* the cache starts out holding the vectors of '0 0 0', so the first
+   query for those angles doesn't return zero vectors */
 var vector g_vectorCacheLast;
-var vector g_vectorCacheForward;
-var vector g_vectorCacheRight;
-var vector g_vectorCacheUp;
+var vector g_vectorCacheForward = [1, 0, 0];
+var vector g_vectorCacheRight = [0, -1, 0];
+var vector g_vectorCacheUp = [0, 0, 1];
 
 void AngleVectors ( vector angles )
 {

@@ -50,3 +50,5 @@
 #define VFL_VIDREMOVE			(1<<14) /**< Entity will be flushed upon vid_reload. */
 #define VFL_NOFRAMEADVANCE		(1<<15) /**< Entity will be requested not to advance in animation by itself. */
 #define VFL_HOLDING				(1<<16) /**< Entity will be requested not to advance in animation by itself. */
+#define VFL_AIRJUMPS			(7<<17) /**< Air jumps used since leaving the ground, a 3 bit counter. */
+#define VFL_AIRJUMP_ONE			(1<<17) /**< Adds one to the VFL_AIRJUMPS counter. */

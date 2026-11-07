@@ -15,7 +15,7 @@
  */
 
 void
-CodeCallback_Precaches(void)
+CodeCallback_Precache(void)
 {
 	precache.Entity("player");
 }
@@ -83,4 +83,28 @@ CodeCallback_ImpulseCommand(entity playerTarget, float impulseNum)
 	}
 
 	return (true);
+}
+
+void
+CodeCallback_PlayerDamage(entity playerTarget, entity attacker, entity damageDecl)
+{
+	Util_PlayerPainSound(playerTarget);
+}
+
+void
+CodeCallback_PlayerKilled(entity playerTarget, entity inflictor, entity attacker, string weapon)
+{
+	Util_PlayerDeathSound(playerTarget);
+
+	/* same bookkeeping as the default rules */
+	playerTarget.deaths++;
+	userinfo.SetString(playerTarget, "*deaths", ftos(playerTarget.deaths));
+
+	if (is.Player(attacker)) {
+		if (playerTarget == attacker) {
+			attacker.frags--;
+		} else {
+			attacker.frags++;
+		}
+	}
 }

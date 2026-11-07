@@ -205,10 +205,10 @@ ncActor::ReloadCachedAttributes(void)
 	}
 
 	m_sndLandSoft = GetSpawnString("snd_landSoft");
+	m_sndLandHard = GetSpawnString("snd_landHard");
 
-	if (STRING_SET(m_sndLandSoft)) {
-		m_sndLandHard = GetSpawnString("snd_landHard");
-	} else {
+	/* either one may be set on its own (a quiet soft landing is common) */
+	if (!STRING_SET(m_sndLandSoft) && !STRING_SET(m_sndLandHard)) {
 		m_sndLandSoft =
 		m_sndLandHard = GetSpawnString("snd_land");
 	}
@@ -706,6 +706,12 @@ ncActor::Input(entity eAct, string strInput, string strData)
 	case "RemoveActiveWeapon":
 		RemoveItem(GetCurrentWeapon());
 		break;
+	case "RemoveAllItems":
+		RemoveAllItems(false);
+		break;
+	case "RemoveItem":
+		RemoveItem(strData);
+		break;
 	case "SwitchToWeapon":
 		SwitchToWeapon(strData);
 		break;
@@ -810,6 +816,9 @@ ncActor::Input(entity eAct, string strInput, string strData)
 		float randomYaw = random(45.0f,180.0f) - 90.0f;
 		angles[1] += randomYaw;
 		v_angle = angles;
+		break;
+	case "GoToPosition":
+		RouteToPosition(stov(strData));
 		break;
 	case "GoForward":
 		float distance = stof(strData);
@@ -1823,43 +1832,61 @@ bool
 ncActor::RemoveAllItems(bool ignoreWeapons)
 {
 	ncItem linkedList = __NULL__;
+	ncItem keptFirst = __NULL__;
+	ncItem keptLast = __NULL__;
 
 	/* we posess nothing. auto return false. */
 	if (!m_itemList) {
 		return (false);
 	}
 
-	/* since we have something in the inventory, start there */
+	/* take the whole chain off first, then hand back what we keep.
+	   removing items one by one through RemoveItem() left the list
+	   pointing at a removed item, so nothing could be given after. */
 	linkedList = m_itemList;
+	m_itemList = __NULL__;
 
-	/* iterate through the inventory, then figure out if we already have it*/
 	while (linkedList) {
 		ncItem nextItem = (ncItem)linkedList.m_nextItem;
 
+		/* already gone */
 		if (!STRING_SET(linkedList.declclass)) {
-			linkedList = __NULL__;
-			break;
-		}
-
-		/* respect weapon filter */
-		if (!(ignoreWeapons && is.Weapon(linkedList) == true)) {
-			/* is this our active weapon? give it a chance to do work first */
-			if (m_activeWeapon == linkedList) {
-				m_activeWeapon._SwitchedFromCallback();
-				m_activeWeapon = __NULL__;
-			}
-
-			if (is.Item(linkedList) == true) {
-				RemoveItem(linkedList.declclass);
-			}
-
 			linkedList = nextItem;
 			continue;
 		}
 
+		/* respect weapon filter */
+		if (ignoreWeapons && is.Weapon(linkedList) == true) {
+			linkedList.m_nextItem = __NULL__;
+
+			if (keptLast) {
+				keptLast.m_nextItem = linkedList;
+			} else {
+				keptFirst = linkedList;
+			}
+
+			keptLast = linkedList;
+			linkedList = nextItem;
+			continue;
+		}
+
+		/* is this our active weapon? give it a chance to do work first */
+		if (m_activeWeapon == linkedList) {
+			m_activeWeapon._SwitchedFromCallback();
+			m_activeWeapon = __NULL__;
+		}
+
+		linkedList._RemovedCallback();
 		linkedList = nextItem;
 	}
 
+	m_itemList = keptFirst;
+
+	if (!m_itemList) {
+		m_firstWeapon = __NULL__;
+	}
+
+	SortWeaponChain();
 	return (true);
 }
 
@@ -1892,8 +1919,9 @@ ncActor::RemoveAllWeapons(void)
 				m_activeWeapon = __NULL__;
 			}
 
-			linkedList._RemovedCallback();
-			continue;
+			/* unlink it like RemoveAllItems does; calling _RemovedCallback
+			   alone left it in the list and looped on it forever */
+			RemoveItem(linkedList.declclass);
 		}
 
 		linkedList = nextItem;
@@ -1946,6 +1974,10 @@ ncActor::SwitchToExactWeapon(ncWeapon item)
 {
 	if (is.Weapon(item) == false) {
 		return;
+	}
+
+	if (m_activeWeapon && m_activeWeapon != item) {
+		m_lastWeapon = m_activeWeapon;
 	}
 
 	m_activeWeapon = item;
@@ -2105,8 +2137,13 @@ ncActor::GetPreviousWeapon(void)
 ncWeapon
 ncActor::GetLastWeapon(void)
 {
-	/* TODO: Finish this */
-	return (m_activeWeapon);
+	/* the weapon held before this one, while we still have it;
+	   otherwise the previous one in the inventory */
+	if (m_lastWeapon && m_lastWeapon != m_activeWeapon && HasExactItem(m_lastWeapon)) {
+		return (m_lastWeapon);
+	}
+
+	return (GetPreviousWeapon());
 }
 
 void

@@ -206,6 +206,9 @@ env_muzzleflash::predraw(void)
 
 	setorigin(this, muzzlePos);
 
+	/* a flash on a view model is drawn the way the view model is */
+	renderflags = m_eOwner.renderflags & (RF_DEPTHHACK | RF_FIRSTPERSON);
+
 	if (m_forceAdditive) {
 	 	effects = EF_ADDITIVE;
 	}

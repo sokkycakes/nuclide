@@ -1,0 +1,14 @@
+#pragma PROGS_DAT  "../../hud.dat"
+
+#define TF_NO_FIELDS
+
+#includelist
+../../../src/hud.src
+../shared/tf_api.h
+nameplates.qc
+tf_hud.qc
+vgui.qc
+tf_vguiobjectives.qc
+tf_vguihud.qc
+hud_base.qc
+#endlist

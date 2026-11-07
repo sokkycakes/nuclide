@@ -50,19 +50,33 @@ vguiView::Add(vguiWidget wNew)
 void vguiView::Draw(void)
 {
 	vguiWidget wNext = this;
+	vguiWidget wPopup = __NULL__;
 	g_vguiWidgetCount = 0;
 	do {
 		wNext = wNext.m_children;
 		if (wNext && wNext.Visible() && wNext.m_parent.Visible()) {
 			g_vguiWidgetCount++;
-			wNext.Draw();
+
+			/* an open drop-down goes over the children after it */
+			if (wNext == g_vguiPopup)
+				wPopup = wNext;
+			else
+				wNext.Draw();
 		}
 	} while (wNext);
+
+	if (wPopup)
+		wPopup.Draw();
 }
 
 bool vguiView::Input (float flEVType, float flKey, float flChar, float flDevID)
 {
 	float ret = false;
+
+	/* an open drop-down among the children gets the first look */
+	if (g_vguiPopup && g_vguiPopup.m_parent == this && g_vguiPopup.Visible())
+		if (g_vguiPopup.Input(flEVType, flKey, flChar, flDevID))
+			return true;
 
 	vguiWidget wNext = this;
 	do {

@@ -24,6 +24,8 @@ public:
 	virtual void Touch(entity);
 	nonvirtual void SetImpactDecal(string);
 	nonvirtual void KeepMoving(void);
+	nonvirtual void StartFadeOut(void);
+	nonvirtual void FadeOut(void);
 
 private:
 	string m_decalImpact;

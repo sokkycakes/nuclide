@@ -127,6 +127,7 @@ server/scripted_sentence.qc
 server/scripted_sequence.qc
 server/sky_camera.qc
 server/stubs.qc
+server/script_entity.qc
 server/targ_speaker.qc
 server/target_cdaudio.qc
 server/target_speaker.qc

@@ -78,10 +78,20 @@ View_ClearEvents(void)
 	pSeat->m_eViewModel.frame1time = 0.0f;
 }
 
+vector(float seat) splitscreen_pos = #0:splitscreen_pos;
+vector(float seat) splitscreen_size = #0:splitscreen_size;
+
 void
 View_CalcViewport(int s, float fWinWidth, float fWinHeight)
 {
-	switch (numclientseats) {
+	/* Bulwark lays out split screen views itself, by the player's
+	   cl_splitscreen* settings: as fractions of the screen */
+	if (checkbuiltin(splitscreen_pos) && numclientseats > 1) {
+		vector frac = splitscreen_pos((float)s);
+		vector fracSize = splitscreen_size((float)s);
+		g_viewSeats[s].SetViewSize([rint(fWinWidth * fracSize[0]), rint(fWinHeight * fracSize[1])]);
+		g_viewSeats[s].SetViewPosition([rint(fWinWidth * frac[0]), rint(fWinHeight * frac[1])]);
+	} else switch (numclientseats) {
 	case 3:
 		if (!s) {
 	case 2:
@@ -283,9 +293,18 @@ View_DrawViewModel(void)
 
 		/* we only calculate bob on the right model, to avoid double speed bobbing */
 		Viewmodel_CalcBob();
-		makevectors(currentAngle);
-		Viewmodel_ApplyBob(m_eViewModel);
-		Viewmodel_ApplyBob(m_eViewModelL);
+
+		/* the game's bob still runs above, its camera bob reads from it */
+		if (ViewBob_QuakeEnabled()) {
+			ViewBob_QuakeCalc(currentAngle);
+			makevectors(currentAngle);
+			ViewBob_QuakeApply(m_eViewModel);
+			ViewBob_QuakeApply(m_eViewModelL);
+		} else {
+			makevectors(currentAngle);
+			Viewmodel_ApplyBob(m_eViewModel);
+			Viewmodel_ApplyBob(m_eViewModelL);
+		}
 	} else {
 		m_eViewModelL.origin = pl.m_xrInputLeft.GetOrigin();
 		m_eViewModel.origin = pl.m_xrInputRight.GetOrigin();
@@ -333,6 +352,12 @@ View_DrawViewModel(void)
 
 		m_eViewModelL.renderflags = RF_DEPTHHACK | RF_FIRSTPERSON;
 		m_eViewModel.renderflags = RF_DEPTHHACK | RF_FIRSTPERSON;
+
+		/* view models built for the other hand */
+		if (pl.m_activeWeapon && stof(EntityDef_GetKeyValue(pl.m_activeWeapon.declclass, "model_viewMirror")) != 0) {
+			m_eViewModel.renderflags |= RF_MIRROR;
+			m_eViewModelL.renderflags |= RF_MIRROR;
+		}
 
 
 		m_eViewModel.bonecontrol1 = m_eViewModel.m_studioBoneController1;

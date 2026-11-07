@@ -36,7 +36,7 @@ _ncTimerWrapper(entity receiver, void() func)
 void
 ncTimer::_TimerThink(void)
 {
-	if (!m_eReceiver) {
+	if (!m_eReceiver || wasfreed(m_eReceiver)) {
 		Destroy();
 		return;
 	}
@@ -50,6 +50,13 @@ ncTimer::_TimerThink(void)
 void
 ncTimer::_TempTimerThink(void)
 {
+	/* the receiver went away: its slot may already hold something else */
+	if (!m_eReceiver || wasfreed(m_eReceiver)) {
+		think = Destroy;
+		nextthink = time;
+		return;
+	}
+
 	_ncTimerWrapper(m_eReceiver, _m_ncTimerFunc);
 
 	if (m_bRepeats == true)

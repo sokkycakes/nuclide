@@ -1,0 +1,100 @@
+// Justice Task Force: what the heroes' placed things look like (coop_heroes 1).
+//
+// The rules (src/rules/hero_abilities.qc) create these with ents.Create and
+// move them about; an entity the rules spawn themselves isn't drawn.
+// Half-Life models and sprites stand in.
+
+entityDef jtf_vis_model
+{
+	"spawnclass"	"prop_dynamic"
+	"solid"			"0"
+}
+
+entityDef jtf_vis_sprite
+{
+	"spawnclass"	"env_sprite"
+	"spawnflags"	"1"
+	"rendermode"	"5"
+	"renderamt"		"255"
+	"rendercolor"	"255 255 255"
+	"scale"			"0.5"
+}
+
+// Dispatch's orders: HOLD and PUSH
+entityDef jtf_vis_hold
+{
+	"inherit"		"jtf_vis_sprite"
+	"model"			"sprites/yelflare1.spr"
+	"scale"			"0.7"
+}
+
+entityDef jtf_vis_push
+{
+	"inherit"		"jtf_vis_sprite"
+	"model"			"sprites/redflare1.spr"
+	"scale"			"0.7"
+}
+
+// Dispatch's Courier drone
+entityDef jtf_vis_drone
+{
+	"inherit"		"jtf_vis_model"
+	"model"			"models/sphere.mdl"
+}
+
+// Bulkhead's door: Half-Life has no riot shield, so a big crate
+entityDef jtf_vis_door
+{
+	"inherit"		"jtf_vis_model"
+	"model"			"models/w_weaponbox.mdl"
+	"modelscale"	"1.6"
+}
+
+// Stray's Racket
+entityDef jtf_vis_racket
+{
+	"inherit"		"jtf_vis_model"
+	"model"			"models/w_grenade.mdl"
+}
+
+// Ledger's cache and jump pad
+entityDef jtf_vis_cache
+{
+	"inherit"		"jtf_vis_model"
+	"model"			"models/w_weaponbox.mdl"
+}
+
+entityDef jtf_vis_pad
+{
+	"inherit"		"jtf_vis_model"
+	"model"			"models/teleporter_orange_rings.mdl"
+}
+
+// Tripwire's mine and snare
+entityDef jtf_vis_mine
+{
+	"inherit"		"jtf_vis_model"
+	"model"			"models/w_satchel.mdl"
+}
+
+entityDef jtf_vis_snare
+{
+	"inherit"		"jtf_vis_model"
+	"model"			"models/w_sqknest.mdl"
+}
+
+// Vector's beacon and Longhand's weak point, riding on a foe
+entityDef jtf_vis_beacon
+{
+	"inherit"		"jtf_vis_sprite"
+	"model"			"sprites/redflare1.spr"
+	"scale"			"0.4"
+}
+
+entityDef jtf_vis_weakpoint
+{
+	"inherit"		"jtf_vis_sprite"
+	"model"			"sprites/glow01.spr"
+	"rendercolor"	"255 60 30"
+	"scale"			"0.25"
+}

@@ -36,23 +36,6 @@ weapon_supershotgun.shoot
 	sample weapons/shotgn2.wav
 }
 
-sfx_impact.flesh
-{
-	alerts
-	sample weapons/ric1.wav
-	sample weapons/ric2.wav
-	sample weapons/ric3.wav
-}
-
-sfx_impact.default
-{
-	alerts
-	sample weapons/ric1.wav
-	sample weapons/ric2.wav
-	sample weapons/ric3.wav
-}
-
-
 weapon_nailgun.ricochet
 {
 	alerts

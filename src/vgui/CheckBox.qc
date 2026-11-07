@@ -81,17 +81,7 @@ void vguiCheckbox::Draw(void)
 {
 	vguiTheme theme = GetTheme();
 
-	theme.DrawControlBackground(m_parent.m_vecOrigin + m_vecOrigin, m_vecSize, VGUI_STATE_ACTIVE);
-	
-	if (m_iFlags & CHECKBOX_DOWN) {
-		theme.DrawBorder(m_parent.m_vecOrigin + m_vecOrigin, m_vecSize, VGUI_BORDER_INSET, __NULL__);
-	}
-	
-	if (m_iFlags & CHECKBOX_CHECKED) {
-		drawpic(m_parent.m_vecOrigin + m_vecOrigin, "gfx/icon16/bullet_toggle_plus", [16,16], [1,1,1], 1.0f, 0);
-	} else {
-		drawpic(m_parent.m_vecOrigin + m_vecOrigin, "gfx/icon16/bullet_black", [16,16], [1,1,1], 1.0f, 0);
-	}
+	theme.DrawCheckbox(m_parent.m_vecOrigin + m_vecOrigin, m_vecSize, (m_iFlags & CHECKBOX_CHECKED) ? true : false, (m_iFlags & CHECKBOX_DOWN) ? VGUI_STATE_ACTIVE : VGUI_STATE_NORMAL);
 
 	if (m_strTitle) {
 		theme.DrawText(m_parent.m_vecOrigin + m_vecOrigin + [24, 3], m_strTitle, m_vecSize, g_fntDefault);

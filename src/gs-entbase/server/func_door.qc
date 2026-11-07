@@ -389,6 +389,9 @@ func_door::Respawn(void)
 	ReleaseThink();
 
 	RestoreAngles();
+	/* a round restart can catch the door mid-move */
+	SetMoverState(MOVER_POS1);
+	SetVelocity([0, 0, 0]);
 	SetMoverPosition1(GetSpawnVector("origin"));
 	SetMoverPosition2(GetDirectionalPosition(GetAngles(), m_flLip));
 	ClearAngles();
@@ -443,11 +446,24 @@ func_door::Input(entity eAct, string strInput, string strData)
 	case "Unlock":
 		Unlock();
 		break;
+	/* Source I/O: Open and Close turn a door around mid-move, so a door
+	   driven by a trigger's OnStartTouchAll/OnEndTouchAll can't get stuck
+	   shut with players waiting in front of it */
 	case "Open":
-		Trigger(eAct, TRIG_ON);
+		if (GetMoverState() == MOVER_2TO1) {
+			SetMoverState(MOVER_POS1);
+			MoveToPosition(GetMoverPosition2(), m_flSpeed);
+		} else {
+			Trigger(eAct, TRIG_ON);
+		}
 		break;
 	case "Close":
-		Trigger(eAct, TRIG_OFF);
+		if (GetMoverState() == MOVER_1TO2) {
+			SetMoverState(MOVER_POS2);
+			MoveToPosition(GetMoverPosition1(), m_flSpeed);
+		} else {
+			Trigger(eAct, TRIG_OFF);
+		}
 		break;
 	case "Toggle":
 		Trigger(eAct, TRIG_TOGGLE);
@@ -560,6 +576,12 @@ func_door::Trigger(entity act, triggermode_t triggerstate)
 	}
 
 	if ((GetMoverState() == MOVER_1TO2) || (GetMoverState() == MOVER_2TO1)) {
+		return;
+	}
+
+	/* already there: moving to the end we're at would overwrite the other
+	   end's position with this one, and the door would never move again */
+	if ((triggerstate == TRIG_ON && GetMoverState() == MOVER_POS2) || (triggerstate == TRIG_OFF && GetMoverState() == MOVER_POS1)) {
 		return;
 	}
 

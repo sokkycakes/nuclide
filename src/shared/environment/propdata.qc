@@ -949,7 +949,7 @@ PropData_Finish(void)
 /* BreakModel related helper API */
 #ifdef CLIENT
 void
-BreakModel_SpawnID(vector smins, vector smaxs, vector dir, float speed, int count, int index)
+BreakModel_SpawnID(vector smins, vector smaxs, vector dir, float speed, int count, int index, float gibHealth)
 {
 	float x = tokenize(g_breakmodel[index].data);
 	int modelcount = x / 2;
@@ -962,6 +962,12 @@ BreakModel_SpawnID(vector smins, vector smaxs, vector dir, float speed, int coun
 
 	if (speed < 200) {
 		speed = 200;
+	}
+
+	/* gibs from a body fly the way Quake's do (ThrowGib) and never use
+	   rigid body physics */
+	if (gibHealth < 0) {
+		usePhysics = false;
 	}
 
 	//print(sprintf("breaking into %i models\n", modelcount));
@@ -1037,9 +1043,14 @@ BreakModel_SpawnID(vector smins, vector smaxs, vector dir, float speed, int coun
 			}
 		}
 
-		endpos[0] = smins[0] + ( random() * ( smaxs[0] - smins[0] ) );
-		endpos[1] = smins[1] + ( random() * ( smaxs[1] - smins[1] ) );
-		endpos[2] = smins[2] + ( random() * ( smaxs[2] - smins[2] ) );
+		if (gibHealth < 0) {
+			/* Quake throws every gib from the body's origin */
+			endpos = (smins + smaxs) * 0.5f;
+		} else {
+			endpos[0] = smins[0] + ( random() * ( smaxs[0] - smins[0] ) );
+			endpos[1] = smins[1] + ( random() * ( smaxs[1] - smins[1] ) );
+			endpos[2] = smins[2] + ( random() * ( smaxs[2] - smins[2] ) );
+		}
 
 		gib = BreakModel_Next();
 		gib.SetModel(mname);
@@ -1051,7 +1062,30 @@ BreakModel_SpawnID(vector smins, vector smaxs, vector dir, float speed, int coun
 		gib.SetOrigin(endpos);
 		gib.SetScale(1.0f);
 
-		if (usePhysics == false) {
+		if (gibHealth < 0) {
+			/* Quake's VelocityForDamage: random, whatever hit the body,
+			   and faster the further below zero its health went */
+			vector gibVelocity;
+			gibVelocity[0] = 100 * crandom();
+			gibVelocity[1] = 100 * crandom();
+			gibVelocity[2] = 200 + 100 * random();
+
+			if (gibHealth > -50) {
+				gibVelocity *= 0.7f;
+			} else if (gibHealth > -200) {
+				gibVelocity *= 2.0f;
+			} else {
+				gibVelocity *= 10.0f;
+			}
+
+			gib.SetSize([0,0,0],[0,0,0]);
+			gib.velocity = gibVelocity;
+			gib.SetAngularVelocity([random() * 600, random() * 600, random() * 600]);
+			gib.SetMovetype(MOVETYPE_BOUNCE);
+			gib.SetSolid(SOLID_NOT);
+			/* Quake removes them after 10 to 20 seconds */
+			fadetime = 10.0f + random() * 10.0f;
+		} else if (usePhysics == false) {
 			gib.SetSize([-2,-2,-2],[2,2,2]);
 			gib.velocity = (dir * (speed * 0.75));
 			gib.velocity[0] += (random() - 0.5) * (speed * 0.5);
@@ -1081,7 +1115,7 @@ BreakModel_SpawnID(vector smins, vector smaxs, vector dir, float speed, int coun
 			gib.ApplyForceOffset(dir * speed, endpos);
 		}
 
-		gib.ScheduleThink(ncEntity::Disappear, fadetime);
+		gib.ScheduleThink(ncDebris::StartFadeOut, fadetime);
 		gib.SetImpactDecal(impactDecal);
 		//print(sprintf("%S\n", mname));
 
@@ -1101,6 +1135,7 @@ BreakModel_Receive(void)
 	float speed;
 	int count;
 	int index;
+	float gibHealth;
 
 	index = readbyte();
 	smins[0] = readcoord();
@@ -1117,6 +1152,7 @@ BreakModel_Receive(void)
 
 	speed = readfloat();
 	count = readbyte();
+	gibHealth = readfloat();
 
 	/* sanity check */
 	if (index >= g_breakmodel_count) {
@@ -1124,7 +1160,7 @@ BreakModel_Receive(void)
 		return;
 	}
 
-	BreakModel_SpawnID(smins, smaxs, dir, speed, count, index);
+	BreakModel_SpawnID(smins, smaxs, dir, speed, count, index, gibHealth);
 }
 
 void
@@ -1159,21 +1195,10 @@ BreakModel_SendClientData(entity targetEnt)
 	multicast(g_vec_null, MULTICAST_ONE_R);
 }
 
-void
-BreakModel_Spawn(vector smins, vector smaxs, vector dir, float speed, int count, string type)
+static void
+BreakModel_Send(int index, vector smins, vector smaxs, vector dir, float speed, int count, float gibHealth)
 {
-	int index;
-	vector pvsPosition;
-	index = (int)hash_get(g_hashbreakmodel, type, -1i);
-
-	if (index == -1i) {
-		ncError("Type %S not defined in BreakableModels.", type);
-		return;
-	}
-
-	pvsPosition = (smins + ( 0.5 * ( smaxs - smins )));
-
-	ncLog("Spawning %i %S gibs @ %v and %d up/s", count, type, pvsPosition, speed);
+	vector pvsPosition = (smins + ( 0.5 * ( smaxs - smins )));
 
 	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
 	WriteByte(MSG_MULTICAST, EV_BREAKMODEL);
@@ -1189,7 +1214,37 @@ BreakModel_Spawn(vector smins, vector smaxs, vector dir, float speed, int count,
 	WriteFloat(MSG_MULTICAST, dir[2]);
 	WriteFloat(MSG_MULTICAST, speed);
 	WriteByte(MSG_MULTICAST, count);
+	/* below zero: thrown as body gibs, see BreakModel_SpawnID */
+	WriteFloat(MSG_MULTICAST, gibHealth);
 	multicast(pvsPosition, MULTICAST_PVS);
+}
+
+void
+BreakModel_Spawn(vector smins, vector smaxs, vector dir, float speed, int count, string type)
+{
+	int index = (int)hash_get(g_hashbreakmodel, type, -1i);
+
+	if (index == -1i) {
+		ncError("Type %S not defined in BreakableModels.", type);
+		return;
+	}
+
+	ncLog("Spawning %i %S gibs @ %v and %d up/s", count, type, (smins + smaxs) * 0.5f, speed);
+	BreakModel_Send(index, smins, smaxs, dir, speed, count, 0.0f);
+}
+
+void
+BreakModel_Gib(vector smins, vector smaxs, int count, string type, float bodyHealth)
+{
+	int index = (int)hash_get(g_hashbreakmodel, type, -1i);
+
+	if (index == -1i) {
+		ncError("Type %S not defined in BreakableModels.", type);
+		return;
+	}
+
+	/* health 0 would mean debris to the client */
+	BreakModel_Send(index, smins, smaxs, g_vec_null, 0.0f, count, min(bodyHealth, -1.0f));
 }
 
 void
@@ -1204,20 +1259,20 @@ BreakModel_Entity(ncSurfacePropEntity target, vector dir, float speed)
 		return;
 	}
 
-	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
-	WriteByte(MSG_MULTICAST, EV_BREAKMODEL);
-	WriteByte(MSG_MULTICAST, index);
-	WriteCoord(MSG_MULTICAST, pos[0] + target.mins[0]);
-	WriteCoord(MSG_MULTICAST, pos[1] + target.mins[1]);
-	WriteCoord(MSG_MULTICAST, pos[2] + target.mins[2]);
-	WriteCoord(MSG_MULTICAST, pos[0] + target.maxs[0]);
-	WriteCoord(MSG_MULTICAST, pos[1] + target.maxs[1]);
-	WriteCoord(MSG_MULTICAST, pos[2] + target.maxs[2]);
-	WriteFloat(MSG_MULTICAST, dir[0]);
-	WriteFloat(MSG_MULTICAST, dir[1]);
-	WriteFloat(MSG_MULTICAST, dir[2]);
-	WriteFloat(MSG_MULTICAST, speed);
-	WriteByte(MSG_MULTICAST, count);
-	multicast(pos, MULTICAST_PVS);
+	BreakModel_Send(index, pos + target.mins, pos + target.maxs, dir, speed, count, 0.0f);
+}
+
+void
+BreakModel_GibEntity(ncSurfacePropEntity target)
+{
+	string type = Prop_GetInfo(target.m_propdataID, PROPINFO_BREAKMODEL);
+	int count = Prop_GetInfo(target.m_propdataID, PROPINFO_BREAKCOUNT);
+	vector pos = target.GetOrigin();
+
+	if (STRING_SET(type) == false) {
+		return;
+	}
+
+	BreakModel_Gib(pos + target.mins, pos + target.maxs, count, type, target.GetHealth());
 }
 #endif

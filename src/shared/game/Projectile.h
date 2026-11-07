@@ -65,6 +65,8 @@ in the game to spawn a projectile. Refer to ncEntity its own documentation for d
 - "thrust_end" : When to stop accel, in seconds.
 - "linear_friction" : Air friction.
 - "bounce" : Bounce to speed multiplier.
+- "bounce_factor" : How much of its speed into a surface a bouncing projectile keeps, 0.5 by default.
+- "bounce_stop" : A bouncing projectile comes to rest on a floor below this upward speed, as a fraction of its gravity (60/800 by default).
 - "gravity" : 0 means no gravity.
 - "fuse" : Fuse time in seconds.
 - "detonate_on_fuse" : When 1, will detonate when fuse runs out. 
@@ -75,6 +77,7 @@ in the game to spawn a projectile. Refer to ncEntity its own documentation for d
 - "smoke_fly" : Particle effect to use when flying.
 - "fx_path" : Particle trail to use when flying.
 - "model_detonate" : Particle effect to play when the projectile explodes.
+- "model_detonate_air" : Particle effect to play instead when nothing solid is next to it (TF2's ExplosionCore_MidAir).
 - "smoke_bounce" : Smoke effect to play when bouncing around.
 - "smoke_fuse" : Particle effect to play when the fuse timer runs out.
 - "projectile_debris" : Another projectile to spawn when this one detonates.
@@ -101,10 +104,15 @@ in the game to spawn a projectile. Refer to ncEntity its own documentation for d
 - "offset" : Offset position from the owner. In units from face. Vector axis are [forward] [right] [up].
 - "damage" : Damage upon direct impact, respected when "def_damage" is not set.
 - "thrown" : Will not fly like a rocket, but be thrown like a grenade. Hold-time will be passed as a fuse.
+- "throw_speed" : When thrown, units per second for each degree the throw aims above straight down (default 5).
+- "throw_speed_max" : When thrown, the fastest throw (default 1000).
 - "reflects" : When 1, will reflect off surfaces.
 - "trackEnemy" : When 1, will track the nearest enemy.
 - "trackJitter" : Will jitter movement when tracking by this many units per second.
 - "trackDelay" : Delay between tracking position updates.
+- "trackRadius" : How far a player's projectile looks for something to track (default 1024).
+- "trackFOV" : A player's projectile only picks targets within this cone ahead of it, as a dot product (default -1, any direction).
+- "trackTurn" : Turn half-way towards the target on each update instead of straight at it, as HL's hornets do. Jitter then only applies to a monster's projectiles.
 - "def_planeImpact" : When set, will spawn an entity at the position of impact aligned towards the impact surface's normal.
 - "noFX" : Disable impact effects.
 
@@ -239,6 +247,7 @@ public:
 	virtual void HasExploded(void);
 
 	virtual void _LaunchHitscan(vector, vector, float);
+	nonvirtual void _LaunchSweep(vector, vector, entity);
 
 	/* launch the projectile into the world */
 	virtual void Launch(vector, vector, float, float, float);
@@ -276,6 +285,7 @@ private:
 	/* temp */
 	float m_flDmgMultiplier;
 	float m_trackDelayTime;
+	entity m_trackTarget;
 
 	/* defAPI */
 	string m_defDamage;
@@ -286,6 +296,8 @@ private:
 	float m_flThrustEnd;
 	float m_flFrictionLinear;
 	float m_flBounce;
+	float m_flBounceFactor;
+	float m_flBounceStop;
 	float m_flMass;
 	float m_flGravity;
 	float m_flFuse;
@@ -301,6 +313,8 @@ private:
 	string m_partSmokeFly;
 	string m_partFXPath;
 	string m_partModelDetonate;
+	string m_partModelDetonateAir;
+	string m_partHitActor;	/* "model_hitActor": particle where it hits something alive */
 	string m_partSmokeDetonate;
 	string m_partSmokeBounce; 
 	string m_partSmokeFuse;
@@ -312,6 +326,8 @@ private:
 	vector m_vecDamageOffset;
 	vector m_vecImpactPos;
 	bool m_bThrown;
+	float m_flThrowSpeed;
+	float m_flThrowSpeedMax;
 	float m_timeUntilNextDamage;
 	float m_damageDelay;
 
@@ -338,6 +354,8 @@ private:
 	float m_flDamage;
 	string m_strDecalGroup;
 	float m_flRange;
+	float m_flSweepAngle;
+	int m_iSweepMax;
 
 	/* Nuclide additions */
 	bool m_bStickToWorld;
@@ -348,6 +366,9 @@ private:
 	bool m_bTrackEnemy;
 	vector m_trackJitter;
 	float m_trackDelay;
+	float m_trackRadius;
+	float m_trackFOV;
+	bool m_trackTurn;
 	string m_defPlaneImpact;
 	string m_sndHitActor;
 	string m_sndHitWorld;
@@ -359,6 +380,7 @@ private:
 
 	nonvirtual void _AnimateThink(void);
 	nonvirtual void _ThrustThink(void);
+	nonvirtual entity _TrackTarget(void);
 	nonvirtual void _AnimateThinkDead(void);
 
 	virtual void _ApplyDamage(void);
@@ -373,3 +395,16 @@ ncProjectile ncProjectile_SpawnDef(string entityDef, ncActor theOwner);
 ncProjectile ncProjectile_SpawnDefAtPosition(string entityDef, ncActor theOwner, vector vecOrigin, vector vecAngles);
 ncProjectile ncProjectile_SpawnDefAttachment(string entityDef, ncActor theOwner, int attachmentID);
 #endif
+
+/** Melee sweep: what a swing aimed along angles from start can reach. Every
+vulnerable thing whose box is within range, inside a cone of coneDeg degrees
+around the aim (a half-angle) and not behind world geometry, up to maxTargets,
+nearest to the aim first. Teammates (teamplay without sv_friendlyFire) and,
+with sv_allyDamage 0, allied characters of a player are left out. The
+results are in g_meleeSweep[] and g_meleeSweepPos[] (where each is hit).
+Projectile defs use it with "sweepAngle" (and "sweepMax"); weapons whose
+def_onFire has it count a swing as hitting when it finds anything. */
+#define MELEE_SWEEP_MAX 16
+entity g_meleeSweep[MELEE_SWEEP_MAX];
+vector g_meleeSweepPos[MELEE_SWEEP_MAX];
+int Melee_Sweep(entity attacker, vector start, vector angles, float range, float coneDeg, int maxTargets);

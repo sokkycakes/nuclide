@@ -365,6 +365,44 @@ CLPF_weapon_GetClip(entity activeWeapon)
 	return 0;
 }
 
+float
+CLPF_weapon_GetReloadProgress(entity activeWeapon)
+{
+	ncActor owner = (ncActor)pSeat->m_ePlayer;
+	ncWeapon weapon;
+
+	if (activeWeapon == __NULL__) {
+		weapon = owner.m_activeWeapon;
+	} else {
+		weapon = (ncWeapon)activeWeapon;
+	}
+
+	if (weapon) {
+		return (weapon.ReloadProgress());
+	}
+
+	return -1.0f;
+}
+
+int
+CLPF_weapon_GetReloadRound(entity activeWeapon)
+{
+	ncActor owner = (ncActor)pSeat->m_ePlayer;
+	ncWeapon weapon;
+
+	if (activeWeapon == __NULL__) {
+		weapon = owner.m_activeWeapon;
+	} else {
+		weapon = (ncWeapon)activeWeapon;
+	}
+
+	if (weapon) {
+		return (weapon.ReloadRound());
+	}
+
+	return 0i;
+}
+
 int
 CLPF_weapon_MaxAmmo(entity activeWeapon)
 {

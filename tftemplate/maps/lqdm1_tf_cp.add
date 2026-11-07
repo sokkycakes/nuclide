@@ -1,0 +1,53 @@
+// Three-point symmetric Control Points on lqdm1. Each team starts owning
+// its last point; the middle one is neutral. A team must own the middle
+// point before it can capture the enemy's last point.
+{
+"classname" "team_control_point"
+"targetname" "cp_red"
+"origin" "176 -752 0"
+"point_index" "0"
+"point_printname" "RED Base"
+"point_default_owner" "2"
+"team_previouspoint_3_0" "cp_mid"
+}
+{
+"classname" "trigger_capture_area"
+"origin" "176 -752 24"
+"mins" "-80 -80 -32"
+"maxs" "80 80 96"
+"area_cap_point" "cp_red"
+"area_time_to_cap" "6"
+}
+{
+"classname" "team_control_point"
+"targetname" "cp_mid"
+"origin" "672 -512 -32"
+"point_index" "1"
+"point_printname" "Middle"
+"point_default_owner" "0"
+}
+{
+"classname" "trigger_capture_area"
+"origin" "672 -512 -8"
+"mins" "-80 -80 -32"
+"maxs" "80 80 96"
+"area_cap_point" "cp_mid"
+"area_time_to_cap" "8"
+}
+{
+"classname" "team_control_point"
+"targetname" "cp_blu"
+"origin" "928 -896 0"
+"point_index" "2"
+"point_printname" "BLU Base"
+"point_default_owner" "3"
+"team_previouspoint_2_0" "cp_mid"
+}
+{
+"classname" "trigger_capture_area"
+"origin" "928 -896 24"
+"mins" "-80 -80 -32"
+"maxs" "80 80 96"
+"area_cap_point" "cp_blu"
+"area_time_to_cap" "6"
+}

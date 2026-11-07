@@ -77,6 +77,20 @@ public:
 	virtual void DrawText(vector, string, vector, font_s);
 	/** Draw a window body. */
 	virtual void DrawWindow(vector, vector, VGUIDrawState_t);
+	/** Draw the box of a text entry field. */
+	virtual void DrawTextEntry(vector, vector, VGUIDrawState_t);
+	/** Draw the text inside a text entry field. */
+	virtual void DrawTextEntryText(vector, string, vector, font_s);
+	/** Draw a button's title. The position and size are the button's. */
+	virtual void DrawButtonTitle(vector, vector, string, font_s, VGUIDrawState_t);
+	/** Draw a check box's box (not its label). */
+	virtual void DrawCheckbox(vector, vector, bool, VGUIDrawState_t);
+	/** Draw a closed combo box, without its text. */
+	virtual void DrawComboBox(vector, vector, VGUIDrawState_t);
+	/** Draw the background of a drop-down list. */
+	virtual void DrawMenuBackground(vector, vector);
+	/** Draw one row of a drop-down list: armed is the row under the pointer, selected the current choice. */
+	virtual void DrawMenuItem(vector, vector, string, font_s, bool, bool);
 
 private:
 	vguiColor m_controlBackgroundColor;
@@ -300,4 +314,69 @@ vguiTheme::DrawWindowTitle(vector atPos, vector withSize, string titleText, stri
 			DrawText(atPos + [8, 8], titleText, withSize, textFont);
 		}
 	}
+}
+
+void
+vguiTheme::DrawTextEntry(vector atPos, vector withSize, VGUIDrawState_t drawStyle)
+{
+	drawfill(atPos, withSize, [0,0,0], 0.25f);
+	drawfill(atPos, [withSize[0], 1], [0,0,0], 0.5f);
+	drawfill(atPos + [0, withSize[1] - 1], [withSize[0], 1], [1,1,1], 0.5f);
+	drawfill(atPos + [0, 1], [1, withSize[1] - 2], [0,0,0], 0.5f);
+	drawfill(atPos + [withSize[0] - 1, 1], [1, withSize[1] - 2], [1,1,1], 0.5f);
+}
+
+void
+vguiTheme::DrawTextEntryText(vector atPos, string withText, vector boundSize, font_s textFont)
+{
+	DrawText(atPos, withText, boundSize, textFont);
+}
+
+void
+vguiTheme::DrawButtonTitle(vector atPos, vector withSize, string titleText, font_s textFont, VGUIDrawState_t drawStyle)
+{
+	DrawText(atPos + [8, 8], titleText, withSize, textFont);
+}
+
+void
+vguiTheme::DrawCheckbox(vector atPos, vector withSize, bool checked, VGUIDrawState_t drawStyle)
+{
+	DrawControlBackground(atPos, withSize, VGUI_STATE_ACTIVE);
+
+	if (drawStyle == VGUI_STATE_ACTIVE)
+		DrawBorder(atPos, withSize, VGUI_BORDER_INSET, __NULL__);
+
+	if (checked)
+		drawpic(atPos, "gfx/icon16/bullet_toggle_plus", [16,16], [1,1,1], 1.0f, 0);
+	else
+		drawpic(atPos, "gfx/icon16/bullet_black", [16,16], [1,1,1], 1.0f, 0);
+}
+
+void
+vguiTheme::DrawComboBox(vector atPos, vector withSize, VGUIDrawState_t drawStyle)
+{
+	vector arrowPos = atPos + [withSize[0] - withSize[1], 0];
+
+	DrawTextBackground(atPos, withSize, VGUI_STATE_NORMAL);
+	DrawBorder(atPos, withSize, VGUI_BORDER_INSET, __NULL__);
+	DrawButton(arrowPos, [withSize[1], withSize[1]], drawStyle);
+	drawstring(arrowPos + [withSize[1] / 2 - 4, withSize[1] / 2 - 4], "v", [8,8], UI_FGCOLOR, 1.0f, 0);
+}
+
+void
+vguiTheme::DrawMenuBackground(vector atPos, vector withSize)
+{
+	/* opaque, so the controls under the list don't show through */
+	drawfill(atPos, withSize, UI_MAINCOLOR, 1.0f);
+	DrawWindowBackground(atPos, withSize, VGUI_STATE_NORMAL);
+	DrawBorder(atPos, withSize, VGUI_BORDER_OUTSET, __NULL__);
+}
+
+void
+vguiTheme::DrawMenuItem(vector atPos, vector withSize, string itemText, font_s textFont, bool armed, bool selected)
+{
+	if (armed || selected)
+		drawfill(atPos, withSize, UI_HICOLOR, selected ? 0.25f : 0.125f);
+
+	DrawText(atPos + [6, withSize[1] / 2 - 6], itemText, withSize, textFont);
 }

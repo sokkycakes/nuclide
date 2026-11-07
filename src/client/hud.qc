@@ -6,11 +6,14 @@ var void(void) g_hudInit;
 var void(void) g_hudDraw;
 var void(void) g_hudDrawSpectator;
 var void(void) g_hudDrawIntermission;
+var void(void) g_hudDrawScores;
 var void(string, string) g_hudSendStat;
 var void(string) g_hudSwitchedWeapon;
 var void(string) g_hudPickedUpItem;
 var float(float) g_hudInputFrame;
 var bool(string) g_hudConsoleCommand;
+var bool(float, float, float, float, vector) g_hudInputEvent;
+var bool(void) g_hudWantsCursor;
 var void(string, string, string, string) g_hudObituary;
 var void(void) g_hudReloadVideoResources;
 var void(vector, int, int) g_hudDamageReceived;
@@ -32,10 +35,13 @@ HUDProgs_Init(void)
 		g_hudDraw = externvalue(g_flHUDProgs, "HUD_Draw");
 		g_hudDrawSpectator = externvalue(g_flHUDProgs, "HUD_DrawSpectator");
 		g_hudDrawIntermission = externvalue(g_flHUDProgs, "HUD_DrawIntermission");
+		g_hudDrawScores = externvalue(g_flHUDProgs, "HUD_DrawScores");
 		g_hudSendStat = externvalue(g_flHUDProgs, "HUD_SendStat");
 		g_hudSwitchedWeapon = externvalue(g_flHUDProgs, "HUD_WeaponSwitched");
 		g_hudInputFrame = externvalue(g_flHUDProgs, "HUD_InputFrame");
 		g_hudConsoleCommand = externvalue(g_flHUDProgs, "HUD_ConsoleCommand");
+		g_hudInputEvent = externvalue(g_flHUDProgs, "HUD_InputEvent");
+		g_hudWantsCursor = externvalue(g_flHUDProgs, "HUD_WantsCursor");
 		g_hudReloadVideoResources = externvalue(g_flHUDProgs, "HUD_ReloadVideoResources");
 		g_hudPickedUpItem = externvalue(g_flHUDProgs, "HUD_PickedUpItem");
 		g_hudDamageReceived = externvalue(g_flHUDProgs, "HUD_DamageReceived");
@@ -78,13 +84,20 @@ HUDProgs_Draw(void)
 
 	if (g_flHUDProgs > 0) {
 		if (g_hudDraw) {
-			externset(g_flHUDProgs, clframetime, "clframetime");
-			externset(g_flHUDProgs, frametime, "frametime");
-			externset(g_flHUDProgs, time, "time");
-			externset(g_flHUDProgs, cltime, "cltime");
+			HUDProgs_SetTime();
 			g_hudDraw();
 		}
 	}
+}
+
+/* the HUD progs has its own copies of the time globals */
+void
+HUDProgs_SetTime(void)
+{
+	externset(g_flHUDProgs, clframetime, "clframetime");
+	externset(g_flHUDProgs, frametime, "frametime");
+	externset(g_flHUDProgs, time, "time");
+	externset(g_flHUDProgs, cltime, "cltime");
 }
 
 void
@@ -96,6 +109,7 @@ HUDProgs_DrawSpectator(void)
 
 	if (g_flHUDProgs > 0) {
 		if (g_hudDrawSpectator) {
+			HUDProgs_SetTime();
 			g_hudDrawSpectator();
 		}
 	}
@@ -110,9 +124,24 @@ HUDProgs_DrawIntermission(void)
 
 	if (g_flHUDProgs > 0) {
 		if (g_hudDrawIntermission) {
+			HUDProgs_SetTime();
 			g_hudDrawIntermission();
 		}
 	}
+}
+
+/* the score board: the HUD progs' HUD_DrawScores when it has one, else the
+   game's Scores_Draw */
+void
+HUDProgs_DrawScores(void)
+{
+	if (g_flHUDProgs > 0 && g_hudDrawScores) {
+		HUDProgs_SetTime();
+		g_hudDrawScores();
+		return;
+	}
+
+	Scores_Draw();
 }
 
 void
@@ -163,6 +192,34 @@ HUDProgs_ConsoleCommand(string commandString)
 	if (g_flHUDProgs > 0) {
 		if (g_hudConsoleCommand) {
 			return g_hudConsoleCommand(commandString);
+		}
+	}
+
+	return (false);
+}
+
+/* input for the HUD progs' own menus: the event plus the client's mouse
+   position. true when the HUD progs used the event. */
+bool
+HUDProgs_InputEvent(float eventType, float key, float character, float deviceID)
+{
+	if (g_flHUDProgs > 0) {
+		if (g_hudInputEvent) {
+			HUDProgs_SetTime();
+			return g_hudInputEvent(eventType, key, character, deviceID, g_vecMousePos);
+		}
+	}
+
+	return (false);
+}
+
+/* true while the HUD progs shows something that needs the mouse */
+bool
+HUDProgs_WantsCursor(void)
+{
+	if (g_flHUDProgs > 0) {
+		if (g_hudWantsCursor) {
+			return g_hudWantsCursor();
 		}
 	}
 
