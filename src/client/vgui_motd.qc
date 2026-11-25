@@ -14,6 +14,83 @@
  * OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+/* cg_motd 0: never show the message of the day; 1 (default): show it when
+   joining someone else's server, but not on a single-player map or to the
+   host of a listen server (their own console map); 2: always. The server
+   can also send none (g_nomotd 1). */
+var float autocvar_cg_motd = 1;
+
+static vguiWindow g_motdWindow;
+void VGUI_ShowMOTD(void);
+
+/* The VGUI fonts carry no typographic dashes or quotes; a motd.txt written
+   in a word processor would show gaps. */
+string
+VGUI_MOTD_PlainText(string text)
+{
+	text = strreplace("\xe2\x80\x94", "-", text);	/* em dash */
+	text = strreplace("\xe2\x80\x93", "-", text);	/* en dash */
+	text = strreplace("\xe2\x80\x98", "'", text);
+	text = strreplace("\xe2\x80\x99", "'", text);
+	text = strreplace("\xe2\x80\x9c", "\"", text);
+	text = strreplace("\xe2\x80\x9d", "\"", text);
+	text = strreplace("\xe2\x80\xa6", "...", text);	/* ellipsis */
+	return (text);
+}
+
+/* the window gets out of the way of the team and hero pickers */
+void
+VGUI_HideMOTD(void)
+{
+	if (g_motdWindow) {
+		g_motdWindow.Hide();
+	}
+}
+
+/* what closing the window does: arena and team modes go on to the team
+   (join) page so a joiner is never left waiting with no way in */
+static void
+VGUI_MOTD_Proceed(void)
+{
+	int playerTeam = player.GetTeam();
+	bool teamSelect = ((playerTeam == TEAM_UNASSIGNED) || (playerTeam == TEAM_SPECTATOR)) ? (true) : (false);
+
+	if (playerTeam == 0) {
+		teamSelect = true;
+	}
+
+	/* arena modes (duel): a joiner waits on a team with no way in
+	 * until they pick JOIN MATCH, which the team selection opens */
+	bool arenaMode = STRING_SET(serverkey("arena_state"));
+
+	if (arenaMode || ((teams.TeamCount() > 0i) && (teamSelect == true))) {
+		printf("Opening Team Selection\n");
+		localcmd("showTeamSelectionMenu\n");
+	}
+}
+
+/* on connect: show it only to someone joining another person's server */
+void
+VGUI_AutoMOTD(void)
+{
+	bool show = true;
+
+	if (autocvar_cg_motd <= 0) {
+		show = false;
+	} else if (autocvar_cg_motd < 2) {
+		/* single player (one slot) or our own listen server */
+		if (serverkeyfloat("sv_playerslots") <= 1 || isserver()) {
+			show = false;
+		}
+	}
+
+	if (show) {
+		VGUI_ShowMOTD();
+	} else {
+		VGUI_MOTD_Proceed();
+	}
+}
+
 void
 VGUI_ShowMOTD(void)
 {
@@ -25,25 +102,11 @@ VGUI_ShowMOTD(void)
 	
 	static void VGUI_ShowMOTD_Close(void)
 	{
-		int playerTeam = player.GetTeam();
-		bool teamSelect = ((playerTeam == TEAM_UNASSIGNED) || (playerTeam == TEAM_SPECTATOR)) ? (true) : (false);
-
-		if (playerTeam == 0) {
-			teamSelect = true;
-		}
-
-		/* arena modes (duel): a joiner waits on a team with no way in
-		 * until they pick JOIN MATCH, which the team selection opens */
-		bool arenaMode = STRING_SET(serverkey("arena_state"));
-
-		if (arenaMode || ((teams.TeamCount() > 0i) && (teamSelect == true))) {
-			printf("Opening Team Selection\n");
-			localcmd("showTeamSelectionMenu\n");
-		}
-
 		if (winMotd) {
 			winMotd.Hide();
 		}
+
+		VGUI_MOTD_Proceed();
 	}
 
 	if (MOTD_GetLineCount() < 1i) {
@@ -58,6 +121,7 @@ VGUI_ShowMOTD(void)
 		winMotd.SetStyleMask(vguiWindowBorderless | vguiWindowFullscreen);
 		winMotd.SetSize('424 312');
 		winMotd.SetStyleMask(0);
+		g_motdWindow = winMotd;
 
 		winMotdClose = spawn(vguiButton);
 		winMotdClose.SetTitle("OK");
@@ -66,12 +130,11 @@ VGUI_ShowMOTD(void)
 		winMotdClose.SetFunc(VGUI_ShowMOTD_Close);
 
 		winMotdHostname = spawn(vguiLabel);
-		winMotdHostname.SetTitle(serverkey("hostname"));
 		winMotdHostname.SetTextSize(19);
 		winMotdHostname.SetPos([16, 20]);
+		winMotdHostname.SetSize([392, 24]);	/* a label draws inside its size */
 
 		winMotdBody = spawn(vguiLabel);
-		winMotdBody.SetTitle(MOTD_GetTextBody());
 		winMotdBody.SetPos([16, 48]);
 		winMotdBody.SetSize([392, 210]);
 
@@ -80,6 +143,15 @@ VGUI_ShowMOTD(void)
 		winMotd.Add(winMotdHostname);
 		winMotd.Add(winMotdBody);
 	}
+
+	/* the server's name and message as they are now, not as they were the
+	   first time the window opened (or before serverinfo arrived) */
+	string hostName = serverkey("hostname");
+	if (!STRING_SET(hostName)) {
+		hostName = cvar_string("hostname");
+	}
+	winMotdHostname.SetTitle(VGUI_MOTD_PlainText(hostName));
+	winMotdBody.SetTitle(VGUI_MOTD_PlainText(MOTD_GetTextBody()));
 
 	winMotd.Show();
 	winMotd.SetPos((g_vidsize / 2) - (winMotd.GetSize() / 2));
