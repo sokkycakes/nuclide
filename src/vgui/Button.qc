@@ -60,6 +60,8 @@ public:
 	virtual void Draw(void);
 	virtual bool Input(float,float,float,float);
 	virtual void Spawned(void);
+	virtual bool PadFocusable(void);
+	virtual void PadActivate(void);
 private:
 	vector m_vecIMGSize;
 	vector m_vecColor;
@@ -274,4 +276,26 @@ vguiButton::Input(float flEVType, float flKey, float flChar, float flDevID)
 		}
 	}
 	return (ret);
+}
+
+bool
+vguiButton::PadFocusable(void)
+{
+	/* subclasses act in OnMouseUp, so a button with no function or
+	 * command can still do something: any shown, enabled one counts */
+	return (Visible() && IsEnabled());
+}
+
+/* what a click does, for a controller's A button */
+void
+vguiButton::PadActivate(void)
+{
+	OnMouseUp();
+
+	if (m_clickFunc)
+		m_clickFunc();
+
+	if (STRING_SET(m_strExec)) {
+		localcmd(sprintf("%s\n", m_strExec));
+	}
 }

@@ -304,3 +304,14 @@ void
 vguiWidget::Spawned(void)
 {
 }
+
+bool
+vguiWidget::PadFocusable(void)
+{
+	return (false);
+}
+
+void
+vguiWidget::PadActivate(void)
+{
+}
