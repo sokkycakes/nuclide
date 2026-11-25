@@ -1,0 +1,16 @@
+{
+  "title": "Stiletto Proto",
+  "subtitle": "PLAYTEST BUILD",
+  "manifest_url": "{MANIFEST_URL}",
+  "install_dir": "game",
+  "close_on_play": true,
+  "auto_update": true,
+  "connections": 8,
+  "theme": {
+    "background": "#121016",
+    "panel": "#1e1a24",
+    "accent": "#e8405a",
+    "text": "#f0ecf2",
+    "dim": "#8e8796"
+  }
+}

@@ -1,0 +1,23 @@
+HOW TO PLAY THE PLAYTEST
+========================
+
+1. Unzip this folder anywhere you like (Desktop is fine).
+2. Double-click the game's .exe in this folder.
+3. The first time, it downloads the game. Wait for the bar to finish.
+4. Press PLAY.
+
+Every time you start it, it checks for a new build and downloads only
+what changed, so you are always on the latest version.
+
+Controller: D-pad or left stick to move, A to choose, B to quit.
+Keyboard: arrow keys, Enter, Esc. The mouse works too.
+
+If Windows shows "Windows protected your PC", click "More info" and then
+"Run anyway". That happens because the launcher is new and not code-signed
+yet; it only needs to be done once.
+
+Something broken? Choose REPAIR GAME FILES. It checks every file and
+re-downloads any that are damaged.
+
+The game is installed in the "game" folder next to the launcher. To
+uninstall, delete this whole folder.
