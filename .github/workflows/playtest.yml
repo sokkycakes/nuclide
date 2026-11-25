@@ -23,8 +23,11 @@ jobs:
   publish:
     runs-on: ubuntu-22.04   # older glibc, so the Linux launcher runs on more distros
     env:
-      # Bulwark branch the Linux build runs Stiletto on
-      BULWARK_REF: claude/project-thread-ir3p0a
+      # Bulwark branch the Linux build runs Stiletto on. It must hold the
+      # dedicated-server work (typed console, game configs, -port, -dedicated)
+      # that PLAYTESTERS.txt and host-server.sh describe: the integration
+      # branch, once Bulwark's w2-ded is merged into it.
+      BULWARK_REF: claude/project-thread-qcj4d0
     timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
