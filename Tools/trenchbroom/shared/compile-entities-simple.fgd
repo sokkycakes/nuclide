@@ -3,8 +3,6 @@
 
 @SolidClass base(BrushCompile) color(0 128 204) = func_group : "Brushes grouped in the editor. The compiler merges them back into the world." []
 
-@SolidClass base(BrushCompile) color(0 128 204) = func_detail : "Detail brushes: solid walls and props that don't cut up the level for visibility. Use it for small or complex shapes to keep compiles fast." []
-
 @PointClass color(255 128 0) size(-8 -8 -8, 8 8 8) model({ "path": model, "skin": skin, "scale": modelscale }) = misc_model : "A model baked into the level as solid world geometry."
 [
 	model(string) : "Model" : "" : "Path to the model (md3, obj, iqm, ase)."

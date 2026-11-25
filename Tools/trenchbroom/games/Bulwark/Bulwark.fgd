@@ -296,6 +296,7 @@
 
 @PointClass base(NuclideIO, BulwarkScripted) color(255 128 0) size(-8 -8 -8, 8 8 8) = env_cubemap : "Specifies a location for which a cubemap will be generated when the buildcubemaps console command is executed."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 	scale(string) : "Scale" : "32" : "Texture dimension at which to render the cubemap. Default is '32'."
 ]
 
@@ -571,6 +572,7 @@
 
 @PointClass base(NuclideIO, BulwarkScripted) color(255 128 0) size(-8 -8 -8, 8 8 8) = env_particle : "Client-side particle effect. Active at runtime, fully client-side. Cannot be triggered. Repeats automatically."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 	message(string) : "Message" : "" : "Particle material to use."
 	wait(string) : "Wait" : "" : "Delay between emits."
 	target(target_destination) : "Target" : "" : "Name of target, like an info_notnull (client-side)"
@@ -727,12 +729,14 @@
 
 @PointClass base(NuclideIO, BulwarkScripted) color(255 128 0) size(-8 -8 -8, 8 8 8) = env_sound : "Environmental audio reverb modifier. Notes: This works only with the OpenAL sound backend. ## Room types - 0 - Default. - 1 - Generic location. - 2 - small room, out of metal. - 3 - Medium room, out of metal. - 4 - Large room, out of metal. - 5 - Small tunnel. - 6 - Medium tunnel. - 7 - Large tunnel. - 8 - Small chamber. - 9 - Medium chamber. - 10 - Large chamber. - 11 - Small, 'bright' room. - 12 - Medium, 'bright' room. - 13 - Large, 'bright' room. - 14 - Underwater, style #1. - 15 - Underwater, style #2. - 16 - Underwater, style #3. - 17 - Small concrete room. - 18 - Medium concrete room. - 19 - Large concrete room. - 20 - Big room style #1. - 21 - Big room style #2. - 22 - Big room style #3. - 23 - Small cavern. - 24 - Medium cavern. - 25 - Large cavern. - 26 - Weirdo preset #1. - 27 - Weirdo preset #2. - 28 - Weirdo preset #3."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 	radius(string) : "Radius" : "" : "Radius in units."
 	roomtype(string) : "Roomtype" : "" : "See room type list."
 ]
 
 @PointClass base(NuclideIO, BulwarkScripted) color(255 128 0) size(-8 -8 -8, 8 8 8) = env_soundscape : "Client-side environmental soundscape modifier."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 	radius(string) : "Radius" : "" : "Radius in units."
 	shader(string) : "Shader" : "" : "Sound shader to play."
 ]
@@ -831,6 +835,7 @@
 
 @SolidClass base(NuclideIO, BrushCompile, BulwarkScripted) color(0 128 204) = func_areaportalwindow : "Manages a space between two areas, but only renders when a player is in the specified range. Requires a helper func_brush entity that should be textured simple, and have 'Solidty' set to '1'. This entity will render instead of the culled area, and needs a targetname to be called by the areaportalwindow."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 	target(target_destination) : "Target" : "" : "The targetname of the helper func_brush entity."
 	FadeStartDist(string) : "Fade Start Dist" : "" : "Sets the distance for rendering the helper entity."
 	FadeDist(string) : "Fade Dist" : "" : "Sets the distance for closing the portal."
@@ -914,14 +919,16 @@
 	]
 ]
 
-@SolidClass base(NuclideIO, BrushCompile, BulwarkScripted) color(0 128 204) = func_detail : "A 'fake' entity for level editors. All geometry that's turned into a func_detail will be ignored during VIS. This will speed up compile time and reduce tesselation, in theory. Notes: If you don't want this entity to have collision, consider using func_detail_illusionary."
+@SolidClass base(NuclideIO, BrushCompile, BulwarkScripted) color(0 128 204) = func_detail : "A 'fake' entity for level editors. All geometry that's turned into a func_detail will be ignored during VIS. This will speed up compile time and reduce tesselation, in theory. Notes: If you don't want this entity to have collision, consider using func_detail_illusionary. Compiler note: Nuclide's vmap merges func_detail into the world, but q3map2 leaves it as a brush model with no game class, so it disappears in game. With q3map2, use the Detail content flag (Face inspector) on world brushes instead."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 	_rs(string) : "Rs" : "" : "Specifies if the geometry will recieve shadows (RAD lighting)."
 	_cs(string) : "Cs" : "" : "Specifies if the geometry will cast shadows (RAD lighting)."
 ]
 
-@SolidClass base(NuclideIO, BrushCompile, BulwarkScripted) color(0 128 204) = func_detail_illusionary : "A 'fake' entity for level editors. It is almost identical to func_detail except that it has no collision. Think of it as an alternative to func_illusionary and nonsolid surfaceparms, except that it does not use an entity slot or require custom materials. Notes: If you want this entity to have collision, consider using func_detail."
+@SolidClass base(NuclideIO, BrushCompile, BulwarkScripted) color(0 128 204) = func_detail_illusionary : "A 'fake' entity for level editors. It is almost identical to func_detail except that it has no collision. Think of it as an alternative to func_illusionary and nonsolid surfaceparms, except that it does not use an entity slot or require custom materials. Notes: If you want this entity to have collision, consider using func_detail. Compiler note: needs Nuclide's vmap; q3map2 leaves it as a brush model with no game class."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 	_rs(string) : "Rs" : "" : "Specifies if the geometry will recieve shadows (RAD lighting)."
 	_cs(string) : "Cs" : "" : "Specifies if the geometry will cast shadows (RAD lighting)."
 ]
@@ -984,6 +991,7 @@
 
 @SolidClass base(NuclideIO, BrushCompile, BulwarkScripted) color(0 128 204) = func_dustcloud : "Dust cloud emitting brush volume."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 	count(string) : "Count" : "" : "Number of cloud particles that will float around on average."
 	Alpha(string) : "Alpha" : "" : "Transparency of the clouds. Value from 0 to 255."
 	SizeMin(string) : "Size Min" : "" : "Minimum size of each cloud. In Quake units."
@@ -992,6 +1000,7 @@
 
 @SolidClass base(NuclideIO, BrushCompile, BulwarkScripted) color(0 128 204) = func_dustmotes : "Dustmote emitting brush volume."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 	count(string) : "Count" : "" : "Number of dustmote particles that will float around on average."
 ]
 
@@ -1003,6 +1012,7 @@
 
 @SolidClass base(NuclideIO, BrushCompile, BulwarkScripted) color(0 0 0) = func_group : "A 'fake' entity for level editors, used to group together patches and brushes for easy moving. All geometry in the group will become worldspawn upon compile."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @SolidClass base(NuclideIO, BrushCompile, BulwarkScripted) color(0 128 204) = func_guntarget : "Brushes that triggers a target once they 'die'. It moves around."
@@ -1187,6 +1197,7 @@
 
 @SolidClass base(NuclideIO, BrushCompile, BulwarkScripted) color(0 128 204) = func_smokevolume : "Smoke cloud emitting brush volume."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 	ParticleDrawWidth(string) : "Particle Draw Width" : "" : "Size of the particles in Quake units."
 	SizeMax(string) : "Size Max" : "" : "Maximum size of each cloud. In Quake units."
 	Color1(string) : "Color1" : "" : "Primary color"
@@ -1605,6 +1616,7 @@
 
 @PointClass base(NuclideIO, BulwarkScripted) color(255 0 0) size(-8 -8 -8, 8 8 8) = info_teleport_destination : "Entity designed to designate a destination for a trigger_teleport."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO, BulwarkScripted) color(0 255 0) size(-8 -8 -8, 8 8 8) = info_waypoint : "When active, will display an icon and text at its position that can be seen by players."
@@ -1626,6 +1638,7 @@
 
 @PointClass base(NuclideIO, BulwarkScripted) color(76 76 255) size(-17 -17 -15, 17 17 15) model("models/ammo/crate/crate.vvm") = item_ammo_crate : "item_ammo_crate"
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @SolidClass base(NuclideIO, BrushCompile, BulwarkScripted) color(0 128 204) = item_eyescanner : "An Iris Scanner that animates and triggers different targets depending on who's using it."
@@ -1668,6 +1681,7 @@
 
 @PointClass base(NuclideIO, BulwarkScripted) color(255 0 0) size(-8 -8 -8, 8 8 8) = item_item_crate : "Server-side Item Supply Crate which can also have physics."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 	model(string) : "Model" : "" : "Model that represents the crate entity."
 	ItemClass(string) : "Item Class" : "" : "Name of the entity class to spawn upon breaking."
 	ItemCount(string) : "Item Count" : "" : "Total number of items dropped upon breaking."
@@ -1752,6 +1766,7 @@
 
 @PointClass base(NuclideIO, LightCompile, BulwarkScripted) color(0 255 0) size(-8 -8 -8, 8 8 8) = light_environment : "Defines the overall ambient skylight in the map. Notes: Only one is effective per map. Sun light generally is white, unless the atmosphere/horizon is coloring it. The ambientcolor should generally be set to that of the skybox for the most realistic depiction of the world. As mentioned before, the 'sunspreadangle' and 'filterradius' keys only work if 'samples' is set to something higher than 1, as those are parameters for said behaviour. There's no point in setting 'samples' to something higher than 1 if you aren't bothering to supply a valid 'sunspreadangle' and 'filterradius' key either. For cloudly/overcast skies, I'd recommend setting the 'pitch' to '-45', then 'samples' to at least '4' and 'sunspreadangle to '360' with a 'filterradius' of at least '1'. This will ensure that the sunlight will be cast diagonally from 4 positions across the entire horizon - thus eliminating any harsh shadows."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 	color(color1) : "Color" : "1,1,1" : "Normalized RGB color value. Default is [1,1,1]"
 	color255(color255) : "Color255" : "" : "RGB255 color value. e.g. '255 255 255' for white"
 	ambientcolor(color1) : "Ambientcolor" : "1,1,1" : "Shadow color. Normalized RGB color value. Default is [1,1,1]"
@@ -2115,6 +2130,7 @@
 
 @PointClass base(NuclideIO, BulwarkScripted) color(255 0 0) size(-8 -8 -8, 8 8 8) = phys_rope : "Physics rope entity."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 	spawnflags(flags) =
 	[
 		1 : "ROPE_VERTICAL" : 0 : "ROPE_VERTICAL"
@@ -2176,6 +2192,7 @@
 
 @PointClass base(NuclideIO, BulwarkScripted) color(51 255 51) size(-8 -8 -8, 8 8 8) = point_message : "Client-side overlay/message that is projected in relation to its position in 3D space. Notes: Used for zoo and test maps in which less interactive overlays are desired."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 	message(string) : "Message" : "" : "The message to display."
 	radius(string) : "Radius" : "" : "The radius in which it will appear."
 ]
@@ -2235,6 +2252,7 @@
 
 @PointClass base(NuclideIO, BulwarkScripted) color(255 0 0) size(-8 -8 -8, 8 8 8) model({ "path": model, "skin": skin, "frame": sequence }) = prop_dynamic : "Client-side decorative model entity."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 	model(string) : "Model" : "" : "Model file that will be displayed by the entity."
 	modelscale(string) : "Modelscale" : "1" : "Scale modifier of the model. Default is '1'."
 	angles(string) : "Angles" : "" : "Sets the pitch, yaw and roll angles of the model."
@@ -2263,6 +2281,7 @@
 
 @PointClass base(NuclideIO, BulwarkScripted) color(255 0 0) size(-8 -8 -8, 8 8 8) = prop_rope : "Client-side decorative rope entity. Connect the entity to a named info_notnull and watch it swing around."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 	sag(string) : "Sag" : "" : "Multiplier on how much sagginess will be applied to the rope."
 	segments(string) : "Segments" : "16" : "Number of total segments. Default is '16'."
 	material(string) : "Material" : "" : "The texture to use on the rope."
@@ -2276,6 +2295,7 @@
 
 @PointClass base(NuclideIO, BulwarkScripted) color(255 0 0) size(-8 -8 -8, 8 8 8) model({ "path": model, "skin": skin, "frame": sequence }) = prop_static : "Decorative model entity that gets baked into the level file. Notes: After compilation, the source model is no longer required and the resulting entity is removed. This ensures that models are rendered in the same batch as the world. This makes sense for one giant unique model in the map, but for multiple repetitive uses of the same model you'll actually waste disk space and memory. Use wisely."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 	model(string) : "Model" : "" : "Model file that will be displayed by the entity."
 	modelscale(string) : "Modelscale" : "1" : "Scale modifier of the model. Default is '1'."
 	modelscale_vec(string) : "Modelscale vec" : "" : "Scale modifier, but in vector format"
@@ -2409,6 +2429,7 @@
 
 @PointClass base(NuclideIO, BulwarkScripted) color(255 76 255) size(-8 -8 -8, 8 8 8) = sky_camera : "Defines the position of a skyroom camera. Notes: You want to put this into a dedicated room that contains a 3D skybox. The scale modifier is more like a divider. You want to keep these divisable by 2 to avoid any precision funkyness."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 	scale(string) : "Scale" : "16" : "Scale modifier. Default is '16'."
 ]
 
@@ -2534,6 +2555,7 @@
 
 @SolidClass base(NuclideIO, BrushCompile, BulwarkScripted) color(128 128 128) = trigger_gravity : "Volume that will, when an entity enters it, permanently alters how it experiences gravity. Notes: Entities leaving the volume will NOT lose the gravity modifier. If you don't desire this behaviour, then make sure a trigger_gravity with a modifier value of '1.0' surrounds the aforementioned volume so it can reset itself. Other than that gravity will naturally reset when the entity respawns."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @SolidClass base(NuclideIO, BrushCompile, BulwarkScripted) color(128 128 128) = trigger_hurt : "Trigger volume that damages everything it touches."
@@ -2705,9 +2727,6 @@
 // ---- compile-entities.fgd (classes the game code doesn't define)
 // Entities the compiler acts on that the game code doesn't define itself.
 // Each class here is only written out when the game has none of that name.
-
-
-
 
 
 

@@ -107,6 +107,12 @@ PROFILES = [
     },
 ]
 
+# Notes added to a class's description, for things a mapper trips over.
+NOTES = {
+    "func_detail": "Compiler note: Nuclide's vmap merges func_detail into the world, but q3map2 leaves it as a brush model with no game class, so it disappears in game. With q3map2, use the Detail content flag (Face inspector) on world brushes instead.",
+    "func_detail_illusionary": "Compiler note: needs Nuclide's vmap; q3map2 leaves it as a brush model with no game class.",
+}
+
 # entityDefs that are data tables, attacks or characters rather than map entities
 DEF_SKIP_PREFIXES = (
     "projectile_", "damage_", "melee_", "ranged_", "fireInfo_", "fireinfo_",
@@ -540,6 +546,10 @@ def lua_classes(root):
 
 def finish(ent, scripting):
     """Infers property types and attaches the shared base classes."""
+    # every Nuclide entity reads targetname, documented or not; without it
+    # TrenchBroom can't draw or check links to it (info_teleport_destination)
+    if ent.name != "worldspawn" and not ent.prop("targetname"):
+        ent.props.insert(0, Prop("targetname", "Name other entities use to target this one.", label="Name"))
     for p in ent.props:
         k = p.key.lower()
         if p.kind != "string":
@@ -744,6 +754,8 @@ def build(args):
             for name in sorted(merged, key=lambda n: (n != "worldspawn", n.lower())):
                 ent = copy.deepcopy(merged[name])
                 finish(ent, prof["scripting"])
+                if name in NOTES:
+                    ent.desc = (ent.desc.rstrip() + " " + NOTES[name]).strip()
                 gen.append(ent)
             names = set(merged)
             out = [

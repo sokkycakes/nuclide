@@ -46,9 +46,19 @@ Then in TrenchBroom's Preferences, for each game:
     mods (the Mods list in the Map inspector) for Half-Life co-op maps.
 - **Compilation tools**: the path to `q3map2` (Stiletto ships it as
   `Tools/q3map2/q3map2.exe`; Nuclide's `vmap` works too). The Compat
-  profiles also take the ericw-tools (`qbsp`, `vis`, `light`, shipped in
-  Stiletto's `Tools/ericw-tools-win64/`) and VHLT (`hlcsg`, `hlbsp`,
-  `hlvis`, `hlrad`).
+  profiles also take the ericw-tools (`qbsp`, `vis`, `light`) and VHLT
+  (`hlcsg`, `hlbsp`, `hlvis`, `hlrad`). Git leaves out `.dll` files, so the
+  Windows tools in a fresh Stiletto checkout don't start on their own:
+  extract `Tools/ericw-tools-win64/ericw-tools.zip` (it has `embree.dll` and
+  `tbb.dll`) and use that `bin/`, and give `q3map2.exe` the DLLs it was
+  built with (`libglib-2.0-0.dll`, `libpng14-14.dll`, `MSVCR110.dll`) or
+  point the tool at another q3map2 build.
+- **q3map2 and the Nuclide framework** (the Bulwark profiles): Nuclide's
+  `base/` describes its tool textures in `.mat` files, which only vmap
+  reads. For q3map2, copy `q3map2/scripts/common.shader` from this folder
+  into `<game path>/base/scripts/` once, or caulk, clip, hint, trigger and
+  sky faces compile as plain walls. Stiletto Proto has its own
+  `base/scripts/common.shader` already.
 - **Engines** (Run > Launch): set the path of `bulwark` or `fteqw64`.
 
 ## Simple profiles
@@ -70,7 +80,18 @@ Then in TrenchBroom's Preferences, for each game:
 - **Entities**: the same pool as the Compat profiles (QuakeC classes,
   entityDefs, scripted entities, I/O and Bulwark's script keys), minus the
   internal `nc*` base classes, with only the compiler keys most maps need.
-  Use `func_detail` for small or complex shapes to keep compiles fast.
+- **Detail brushes** (small or complex shapes that shouldn't slow down
+  visibility): select the brushes and tick **Detail** under Content Flags
+  in the Face inspector. `func_detail` only works with Nuclide's vmap;
+  q3map2 leaves it as an entity the game doesn't know, so it vanishes.
+- **Sky**: put `common/skyportal` on the faces and set worldspawn's
+  `skyname` (for example `dune`).
+- **Lights** are baked into the map and then removed from it. To switch a
+  light on and off in game, set worldspawn's *Keep lights in game*
+  (`_keepLights 1`).
+- TrenchBroom's Issues list reports "unused link target" for entities that
+  only I/O outputs (`OnTrigger` and the rest) aim at, since it doesn't read
+  output values. Those are fine.
 
 ## Compat profiles
 
@@ -157,6 +178,26 @@ only" rewrites the entity lump of the BSP already in the game's maps
 folder, so it needs a full compile first. For quick entity edits without
 any compile, Bulwark also reads `maps/<map>.ent` in place of the BSP's
 entities.
+
+## What has been tested
+
+With TrenchBroom 2026.2, q3map2 from NetRadiant-custom, Bulwark and FTEQW
+built from source, on Linux:
+
+- A test map with a door and button, trigger, `logic_relay` and output
+  chains, teleporter, push pad, platform, rotating fan with an origin
+  brush, breakable, func_wall, ladder, detail, clip, hint, sky, a patch
+  mesh, coloured lights, pickups, a TrenchBroom group and Bulwark `vscripts`
+  with `CallScriptFunction`.
+- In TrenchBroom (Stiletto Proto (Bulwark) and (FTEQW)): open, place
+  entities from the right-click menu, save, then Run > Compile *Build and
+  play* and *Quick build*: export, compile, copy into `base/maps/` and
+  start Bulwark or FTEQW in the map.
+- In Bulwark and FTEQW: every entity spawns (checked with `edicts`), the
+  map draws with its textures, lightmaps, sky and patch, and the script
+  hooks run on the Nuclide framework.
+- The Compat q3map2 commands, *entities only*, and an ericw-tools BSP2 build
+  (through Wine) loaded in Bulwark.
 
 ## Rebuilding the entity definitions
 

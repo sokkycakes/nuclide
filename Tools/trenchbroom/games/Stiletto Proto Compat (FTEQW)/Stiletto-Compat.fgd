@@ -570,6 +570,7 @@
 
 @BaseClass = Def_ncWeapon
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 	model(string) : "Model" : "" : "Item/pickup model in world."
 	model_view(string) : "Model view" : "" : "First-person view model."
 	model_flash(string) : "Model flash" : "" : "muzzleflash model/sprite to use."
@@ -687,18 +688,22 @@
 
 @PointClass base(NuclideIO, Def_ambient_generic) color(76 26 153) size(-8 -8 -8, 8 8 8) = ambient_comp_hum : "entityDef spawned as ambient_generic. Plays a sound sample of whatever format the engine is configured to support. Notes: If you want it to loop, you have to give the sound file itself a loop flag."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO, Def_ambient_generic) color(76 26 153) size(-8 -8 -8, 8 8 8) = ambient_drip : "entityDef spawned as ambient_generic. Plays a sound sample of whatever format the engine is configured to support. Notes: If you want it to loop, you have to give the sound file itself a loop flag."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO, Def_ambient_generic) color(76 26 153) size(-8 -8 -8, 8 8 8) = ambient_drone : "entityDef spawned as ambient_generic. Plays a sound sample of whatever format the engine is configured to support. Notes: If you want it to loop, you have to give the sound file itself a loop flag."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO, Def_ambient_generic) color(76 26 153) size(-8 -8 -8, 8 8 8) = ambient_flouro_buzz : "entityDef spawned as ambient_generic. Plays a sound sample of whatever format the engine is configured to support. Notes: If you want it to loop, you have to give the sound file itself a loop flag."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO) color(76 26 153) size(-8 -8 -8, 8 8 8) = ambient_generic : "Plays a sound sample of whatever format the engine is configured to support. Notes: If you want it to loop, you have to give the sound file itself a loop flag."
@@ -722,22 +727,27 @@
 
 @PointClass base(NuclideIO, Def_ambient_generic) color(76 26 153) size(-8 -8 -8, 8 8 8) = ambient_light_buzz : "entityDef spawned as ambient_generic. Plays a sound sample of whatever format the engine is configured to support. Notes: If you want it to loop, you have to give the sound file itself a loop flag."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO, Def_ambient_generic) color(76 26 153) size(-8 -8 -8, 8 8 8) = ambient_suck_wind : "entityDef spawned as ambient_generic. Plays a sound sample of whatever format the engine is configured to support. Notes: If you want it to loop, you have to give the sound file itself a loop flag."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO, Def_ambient_generic) color(76 26 153) size(-8 -8 -8, 8 8 8) = ambient_swamp1 : "entityDef spawned as ambient_generic. Plays a sound sample of whatever format the engine is configured to support. Notes: If you want it to loop, you have to give the sound file itself a loop flag."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO, Def_ambient_generic) color(76 26 153) size(-8 -8 -8, 8 8 8) = ambient_swamp2 : "entityDef spawned as ambient_generic. Plays a sound sample of whatever format the engine is configured to support. Notes: If you want it to loop, you have to give the sound file itself a loop flag."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO, Def_ambient_generic) color(76 26 153) size(-8 -8 -8, 8 8 8) = ambient_thunder : "entityDef spawned as ambient_generic. Plays a sound sample of whatever format the engine is configured to support. Notes: If you want it to loop, you have to give the sound file itself a loop flag."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @SolidClass base(NuclideIO, BrushCompile) color(0 128 204) = button_target : "Non-moving button that can either be used by hand, or shot."
@@ -754,10 +764,12 @@
 
 @PointClass base(NuclideIO) color(200 200 200) size(-16 -16 0, 16 16 72) model("models/flag.mdl") = ctf_baseflag : "entityDef spawned as ncCaptureItem."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO, Def_ncItem) color(0 204 204) size(-16 -16 0, 16 16 72) model("models/flag.mdl") = ctf_flag : "entityDef spawned as ncItem. Represents any item within the players' inventory. These can be used, or be dormant. Some configurations will simply increase your statistics upon touch."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO) color(255 0 0) size(-8 -8 -8, 8 8 8) model({ "path": model, "skin": skin, "frame": sequence }) = cycler : "Model animation cycler entity. For development purposes mainly. Notes: Upon damage, the cycler will switch between all available animation sequences. This is really for test-maps and showroom entities."
@@ -795,6 +807,7 @@
 
 @PointClass base(NuclideIO) color(200 200 200) size(-16 -16 0, 16 16 64) model("progs/quaddama.mdl") = domination_area : "entityDef spawned as trigger_capture_point."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO) color(255 128 0) size(-8 -8 -8, 8 8 8) = env_beam : "Controllable beam effect, akin to lightning. Also known as env_lightning."
@@ -876,6 +889,7 @@
 
 @PointClass base(NuclideIO) color(255 128 0) size(-8 -8 -8, 8 8 8) = env_cubemap : "Specifies a location for which a cubemap will be generated when the buildcubemaps console command is executed."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 	scale(string) : "Scale" : "32" : "Texture dimension at which to render the cubemap. Default is '32'."
 ]
 
@@ -1151,6 +1165,7 @@
 
 @PointClass base(NuclideIO) color(255 128 0) size(-8 -8 -8, 8 8 8) = env_particle : "Client-side particle effect. Active at runtime, fully client-side. Cannot be triggered. Repeats automatically."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 	message(string) : "Message" : "" : "Particle material to use."
 	wait(string) : "Wait" : "" : "Delay between emits."
 	target(target_destination) : "Target" : "" : "Name of target, like an info_notnull (client-side)"
@@ -1307,12 +1322,14 @@
 
 @PointClass base(NuclideIO) color(255 128 0) size(-8 -8 -8, 8 8 8) = env_sound : "Environmental audio reverb modifier. Notes: This works only with the OpenAL sound backend. ## Room types - 0 - Default. - 1 - Generic location. - 2 - small room, out of metal. - 3 - Medium room, out of metal. - 4 - Large room, out of metal. - 5 - Small tunnel. - 6 - Medium tunnel. - 7 - Large tunnel. - 8 - Small chamber. - 9 - Medium chamber. - 10 - Large chamber. - 11 - Small, 'bright' room. - 12 - Medium, 'bright' room. - 13 - Large, 'bright' room. - 14 - Underwater, style #1. - 15 - Underwater, style #2. - 16 - Underwater, style #3. - 17 - Small concrete room. - 18 - Medium concrete room. - 19 - Large concrete room. - 20 - Big room style #1. - 21 - Big room style #2. - 22 - Big room style #3. - 23 - Small cavern. - 24 - Medium cavern. - 25 - Large cavern. - 26 - Weirdo preset #1. - 27 - Weirdo preset #2. - 28 - Weirdo preset #3."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 	radius(string) : "Radius" : "" : "Radius in units."
 	roomtype(string) : "Roomtype" : "" : "See room type list."
 ]
 
 @PointClass base(NuclideIO) color(255 128 0) size(-8 -8 -8, 8 8 8) = env_soundscape : "Client-side environmental soundscape modifier."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 	radius(string) : "Radius" : "" : "Radius in units."
 	shader(string) : "Shader" : "" : "Sound shader to play."
 ]
@@ -1411,6 +1428,7 @@
 
 @SolidClass base(NuclideIO, BrushCompile) color(0 128 204) = func_areaportalwindow : "Manages a space between two areas, but only renders when a player is in the specified range. Requires a helper func_brush entity that should be textured simple, and have 'Solidty' set to '1'. This entity will render instead of the culled area, and needs a targetname to be called by the areaportalwindow."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 	target(target_destination) : "Target" : "" : "The targetname of the helper func_brush entity."
 	FadeStartDist(string) : "Fade Start Dist" : "" : "Sets the distance for rendering the helper entity."
 	FadeDist(string) : "Fade Dist" : "" : "Sets the distance for closing the portal."
@@ -1494,14 +1512,16 @@
 	]
 ]
 
-@SolidClass base(NuclideIO, BrushCompile) color(0 128 204) = func_detail : "A 'fake' entity for level editors. All geometry that's turned into a func_detail will be ignored during VIS. This will speed up compile time and reduce tesselation, in theory. Notes: If you don't want this entity to have collision, consider using func_detail_illusionary."
+@SolidClass base(NuclideIO, BrushCompile) color(0 128 204) = func_detail : "A 'fake' entity for level editors. All geometry that's turned into a func_detail will be ignored during VIS. This will speed up compile time and reduce tesselation, in theory. Notes: If you don't want this entity to have collision, consider using func_detail_illusionary. Compiler note: Nuclide's vmap merges func_detail into the world, but q3map2 leaves it as a brush model with no game class, so it disappears in game. With q3map2, use the Detail content flag (Face inspector) on world brushes instead."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 	_rs(string) : "Rs" : "" : "Specifies if the geometry will recieve shadows (RAD lighting)."
 	_cs(string) : "Cs" : "" : "Specifies if the geometry will cast shadows (RAD lighting)."
 ]
 
-@SolidClass base(NuclideIO, BrushCompile) color(0 128 204) = func_detail_illusionary : "A 'fake' entity for level editors. It is almost identical to func_detail except that it has no collision. Think of it as an alternative to func_illusionary and nonsolid surfaceparms, except that it does not use an entity slot or require custom materials. Notes: If you want this entity to have collision, consider using func_detail."
+@SolidClass base(NuclideIO, BrushCompile) color(0 128 204) = func_detail_illusionary : "A 'fake' entity for level editors. It is almost identical to func_detail except that it has no collision. Think of it as an alternative to func_illusionary and nonsolid surfaceparms, except that it does not use an entity slot or require custom materials. Notes: If you want this entity to have collision, consider using func_detail. Compiler note: needs Nuclide's vmap; q3map2 leaves it as a brush model with no game class."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 	_rs(string) : "Rs" : "" : "Specifies if the geometry will recieve shadows (RAD lighting)."
 	_cs(string) : "Cs" : "" : "Specifies if the geometry will cast shadows (RAD lighting)."
 ]
@@ -1564,6 +1584,7 @@
 
 @SolidClass base(NuclideIO, BrushCompile) color(0 128 204) = func_dustcloud : "Dust cloud emitting brush volume."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 	count(string) : "Count" : "" : "Number of cloud particles that will float around on average."
 	Alpha(string) : "Alpha" : "" : "Transparency of the clouds. Value from 0 to 255."
 	SizeMin(string) : "Size Min" : "" : "Minimum size of each cloud. In Quake units."
@@ -1572,6 +1593,7 @@
 
 @SolidClass base(NuclideIO, BrushCompile) color(0 128 204) = func_dustmotes : "Dustmote emitting brush volume."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 	count(string) : "Count" : "" : "Number of dustmote particles that will float around on average."
 ]
 
@@ -1583,6 +1605,7 @@
 
 @SolidClass base(NuclideIO, BrushCompile) color(0 0 0) = func_group : "A 'fake' entity for level editors, used to group together patches and brushes for easy moving. All geometry in the group will become worldspawn upon compile."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @SolidClass base(NuclideIO, BrushCompile) color(0 128 204) = func_guntarget : "Brushes that triggers a target once they 'die'. It moves around."
@@ -1611,6 +1634,7 @@
 
 @SolidClass base(NuclideIO, BrushCompile, Def_func_ladder) color(0 128 204) = func_ladder : "entityDef spawned as func_ladder. Ladder volume. Climb up ladders with this one simple brush."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @SolidClass base(NuclideIO, BrushCompile) color(0 128 204) = func_lod : "Level of Detail brush entity, disappears at a set distance. Useful for when VIS is impossible or not enough."
@@ -1766,6 +1790,7 @@
 
 @SolidClass base(NuclideIO, BrushCompile) color(0 128 204) = func_smokevolume : "Smoke cloud emitting brush volume."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 	ParticleDrawWidth(string) : "Particle Draw Width" : "" : "Size of the particles in Quake units."
 	SizeMax(string) : "Size Max" : "" : "Maximum size of each cloud. In Quake units."
 	Color1(string) : "Color1" : "" : "Primary color"
@@ -2098,6 +2123,7 @@
 
 @PointClass base(NuclideIO, Def_ncItem) color(0 0 0) size(-16 -16 -36, 16 16 36) model("progs/flag.mdl") = info_flag : "Gray Flag (OneTeam). entityDef spawned as ncItem. Represents any item within the players' inventory. These can be used, or be dormant. Some configurations will simply increase your statistics upon touch."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO) color(0 0 0) size(-8 -8 -8, 8 8 8) = info_hint : "Helper entity for the AI routines. Defines where to go for sensible defense/offensive or other hints. Notes: The 'hinttype' field can be one of these integer values: - HINT_NONE = 0 - HINT_WORLD_WINDOW = 2 - HINT_WORLD_WORK_POSITION = 12 - HINT_WORLD_VISUALLY_INTERESTING = 13 - HINT_WORLD_VISUALLY_INTERESTING_DONT_AIM = 14 - HINT_WORLD_INHIBIT_COMBINE_MINES = 15 - HINT_WORLD_VISUALLY_INTERESTING_STEALTH = 16 - HINT_TACTICAL_COVER_MED = 100 - HINT_TACTICAL_COVER_LOW = 101 - HINT_TACTICAL_WASTESCANNER = 102 - HINT_TACTICAL_PINCH = 103 - HINT_TACTICAL_GUARD_POINT = 104 - HINT_TACTICAL_ENEMY_DISADVANTAGED = 105 - HINT_HEALTH_KIT = 106 - HINT_ANTLION_BURROW_POINT = 400 - HINT_ANTLION_THUMPER_FLEE_POINT = 401 - HINT_HEADCRAB_BURROW_POINT = 450 - HINT_CROW_FLYTO_POINT = 700 - HINT_CROW_PERCH_POINT = 701 - HINT_FOLLOW_WAIT_POINT = 900 - HINT_JUMP_OVERRIDE = 901 - HINT_PLAYER_SQUAD_TRANSITON_POINT = 902 - HINT_NPC_EXIT_POINT = 903 - HINT_STRIDER_NODE = 904 - HINT_PLAYER_ALLY_MOVE_AWAY_DEST = 950 - HINT_PLAYER_ALLY_FEAR_DEST = 951 - HINT_WORLD_MACHINERY = 1000 - HINT_WORLD_BLINKING_LIGHT = 1001 - HINT_WORLD_HUMAN_BLOOD = 1002 - HINT_WORLD_ALIEN_BLOOD = 1003 The 'IgnoreFacing' field can be one of 3 values: - IGNORE_NO = 0 - IGNORE_YES = 1 - IGNORE_DEFAULT = 2 The 'MinimumState' and 'MaximumState' field can be one of 3 values: - AISTATE_IDLE = 0 - AISTATE_ALERT = 1 - AISTATE_COMBAT = 2"
@@ -2173,26 +2199,32 @@
 
 @PointClass base(NuclideIO, Def_info_player_coop) color(255 0 0) size(-16 -16 -36, 16 16 36) = info_player_coop : "Cooperative Spawn Point. entityDef spawned as ncSpawnPoint (keys of info_player_coop). Player spawn position for cooperative games. Notes: In order for a player to spawn here, the game needs to take place on a map for singleplayer with cooperative multiplayer enabled. If this entity isn't present on such a mode, info_player_start will be the fallback spawn-point. Mods may choose to have additional fields that are not documented here as part of the entity, keep that in mind."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO, Def_info_player_deathmatch) color(255 0 0) size(-16 -16 -36, 16 16 36) = info_player_deathmatch : "Deathmatch Spawn Point. entityDef spawned as ncSpawnPoint (keys of info_player_deathmatch). Player spawn position for deathmatch games. Notes: This entity is also used in Counter-Strike (2000) and its beta versions to mark spawn-positions for the Terrorist team. In order for a player to spawn here, the game needs to be in a compatible multiplayer mode. This (with the exception of Counter-Strike) excludes team based modes. Mods may choose to have additional fields that are not documented here as part of the entity, keep that in mind."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO, Def_info_player_start) color(255 0 0) size(-16 -16 -36, 16 16 36) = info_player_start : "Singleplayer Spawn Point. entityDef spawned as ncSpawnPoint (keys of info_player_start). Player spawn position for single-player games. Notes: This entity is also used in Counter-Strike (2000) and its beta versions to mark spawn-positions for the Counter-Terrorist team. In order for a player to spawn here, the game needs to be in singleplayer mode or multiplayer coop (if info_player_coop spawn points don't exist). Mods may choose to have additional fields that are not documented here as part of the entity, keep that in mind."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO) color(255 0 0) size(-16 -16 -36, 16 16 36) = info_player_team1 : "Red Team Spawn Point. entityDef spawned as ncSpawnPoint."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO) color(0 0 255) size(-16 -16 -36, 16 16 36) = info_player_team2 : "Blue Team Spawn Point. entityDef spawned as ncSpawnPoint."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO) color(255 0 0) size(-8 -8 -8, 8 8 8) = info_teleport_destination : "Entity designed to designate a destination for a trigger_teleport."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO) color(0 255 0) size(-8 -8 -8, 8 8 8) = info_waypoint : "When active, will display an icon and text at its position that can be seen by players."
@@ -2214,22 +2246,27 @@
 
 @PointClass base(NuclideIO) color(76 76 255) size(-17 -17 -15, 17 17 15) model("models/ammo/crate/crate.vvm") = item_ammo_crate : "item_ammo_crate"
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO, Def_ncItem) color(0 204 204) size(-16 -16 0, 16 16 16) model("progs/armor.mdl") = item_armor1 : "(Green) Armor item that gives you 100 armor points. entityDef spawned as ncItem. Represents any item within the players' inventory. These can be used, or be dormant. Some configurations will simply increase your statistics upon touch."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO, Def_ncItem) color(0 204 204) size(-16 -16 0, 16 16 16) model("progs/armor.mdl") = item_armor2 : "(Yellow) Armor item that gives you 150 armor points. entityDef spawned as ncItem. Represents any item within the players' inventory. These can be used, or be dormant. Some configurations will simply increase your statistics upon touch."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO, Def_ncItem) color(0 204 204) size(-16 -16 0, 16 16 16) model("progs/armor.mdl") = item_armorInv : "(Red) Armor item that gives you 200 armor points. entityDef spawned as ncItem. Represents any item within the players' inventory. These can be used, or be dormant. Some configurations will simply increase your statistics upon touch."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO, Def_ncItem) color(0 204 204) size(-12 -12 0, 12 12 12) model("maps/b_batt0.bsp") = item_cells : "Cells for the Lightning Gun. entityDef spawned as ncItem. Represents any item within the players' inventory. These can be used, or be dormant. Some configurations will simply increase your statistics upon touch."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @SolidClass base(NuclideIO, BrushCompile) color(0 128 204) = item_eyescanner : "An Iris Scanner that animates and triggers different targets depending on who's using it."
@@ -2245,10 +2282,12 @@
 
 @PointClass base(NuclideIO) color(200 200 200) size(-16 -16 0, 16 16 72) model("models/flag.mdl") = item_flag_team1 : "entityDef spawned as ncCaptureItem."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO) color(200 200 200) size(-16 -16 0, 16 16 72) model("models/flag.mdl") = item_flag_team2 : "entityDef spawned as ncCaptureItem."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO) color(255 0 0) size(-8 -8 -8, 8 8 8) = item_food : "This is a food item that will give the user 1 health when touched."
@@ -2270,6 +2309,7 @@
 
 @PointClass base(NuclideIO, Def_ncItem) color(0 204 204) size(-16 -16 0, 16 16 16) model("maps/b_bh25.bsp") = item_health : "Gives players 25 Health Points. entityDef spawned as ncItem. Represents any item within the players' inventory. These can be used, or be dormant. Some configurations will simply increase your statistics upon touch."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @SolidClass base(NuclideIO, BrushCompile) color(0 128 204) = item_healthcharger : "Brush that fills up your health when used, to a maximum of 100 HP. ![A working item_healthcharger, mounted against a wall](@ref item_healthcharger.jpg)"
@@ -2284,6 +2324,7 @@
 
 @PointClass base(NuclideIO) color(255 0 0) size(-8 -8 -8, 8 8 8) = item_item_crate : "Server-side Item Supply Crate which can also have physics."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 	model(string) : "Model" : "" : "Model that represents the crate entity."
 	ItemClass(string) : "Item Class" : "" : "Name of the entity class to spawn upon breaking."
 	ItemCount(string) : "Item Count" : "" : "Total number of items dropped upon breaking."
@@ -2301,18 +2342,22 @@
 
 @PointClass base(NuclideIO, Def_ncItem) color(0 204 204) size(-12 -12 0, 12 12 12) model("maps/b_rock0.bsp") = item_rockets : "Rockets for the Grenade & Rocket Launcher. entityDef spawned as ncItem. Represents any item within the players' inventory. These can be used, or be dormant. Some configurations will simply increase your statistics upon touch."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO, Def_ncItem) color(0 204 204) size(-12 -12 0, 12 12 12) model("maps/b_shell0.bsp") = item_shells : "Shells for the (Double Barrel) Shotgun. entityDef spawned as ncItem. Represents any item within the players' inventory. These can be used, or be dormant. Some configurations will simply increase your statistics upon touch."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO, Def_ncItem) color(0 204 204) size(-12 -12 0, 12 12 12) model("maps/b_nail0.bsp") = item_spikes : "Nails for the (Super) Nail Gun. entityDef spawned as ncItem. Represents any item within the players' inventory. These can be used, or be dormant. Some configurations will simply increase your statistics upon touch."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO, Def_ncItem) color(0 204 204) size(-16 -16 0, 16 16 16) model("models/w_suit.mdl") = item_suit : "entityDef spawned as ncItem. Represents any item within the players' inventory. These can be used, or be dormant. Some configurations will simply increase your statistics upon touch."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO, LightCompile) color(0 255 0) size(-8 -8 -8, 8 8 8) = light : "Infinitely small point of light illuminating the scene. Notes: In idTech 2/GoldSrc etc. `'spawnflag' '1'` in the light entity data means it starts off, disabled, dark. This uses the lightstyle feature from Quake, where an area of a level can be handled by up to 4 overlapping lightmap sheets from lights with different 'style' values. This doesn't exist in idTech3 because lightstyles were not a thing originally. While there are Q3 BSP compilers that try to address this, it's a significant source of of lightmap abuse. As a general piece of advice, please consider using light_dynamic or env_projectedtexture for toggled or flickering lights."
@@ -2386,6 +2431,7 @@
 
 @PointClass base(NuclideIO, LightCompile) color(0 255 0) size(-8 -8 -8, 8 8 8) = light_environment : "Defines the overall ambient skylight in the map. Notes: Only one is effective per map. Sun light generally is white, unless the atmosphere/horizon is coloring it. The ambientcolor should generally be set to that of the skybox for the most realistic depiction of the world. As mentioned before, the 'sunspreadangle' and 'filterradius' keys only work if 'samples' is set to something higher than 1, as those are parameters for said behaviour. There's no point in setting 'samples' to something higher than 1 if you aren't bothering to supply a valid 'sunspreadangle' and 'filterradius' key either. For cloudly/overcast skies, I'd recommend setting the 'pitch' to '-45', then 'samples' to at least '4' and 'sunspreadangle to '360' with a 'filterradius' of at least '1'. This will ensure that the sunlight will be cast diagonally from 4 positions across the entire horizon - thus eliminating any harsh shadows."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 	color(color1) : "Color" : "1,1,1" : "Normalized RGB color value. Default is [1,1,1]"
 	color255(color255) : "Color255" : "" : "RGB255 color value. e.g. '255 255 255' for white"
 	ambientcolor(color1) : "Ambientcolor" : "1,1,1" : "Shadow color. Normalized RGB color value. Default is [1,1,1]"
@@ -2400,26 +2446,32 @@
 
 @PointClass base(NuclideIO, LightCompile) color(200 200 200) size(-16 -16 -16, 16 16 16) model("progs/flame2.mdl") = light_flame : "entityDef spawned as ncProjectile."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO, LightCompile) color(200 200 200) size(-16 -16 -16, 16 16 16) model("progs/flame2.mdl") = light_flame_large_white : "entityDef spawned as ncProjectile."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO, LightCompile) color(200 200 200) size(-16 -16 -16, 16 16 16) model("progs/flame2.mdl") = light_flame_large_yellow : "entityDef spawned as ncProjectile."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO, LightCompile) color(200 200 200) size(-16 -16 -16, 16 16 16) model("progs/flame.mdl") = light_flame_small_walltorch : "entityDef spawned as ncProjectile."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO, LightCompile) color(200 200 200) size(-16 -16 -16, 16 16 16) model("progs/flame2.mdl") = light_flame_small_white : "entityDef spawned as ncProjectile."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO, LightCompile) color(200 200 200) size(-16 -16 -16, 16 16 16) model("progs/flame2.mdl") = light_flame_small_yellow : "entityDef spawned as ncProjectile."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO, LightCompile) color(0 255 0) size(-8 -8 -8, 8 8 8) = light_surface : "Material property modifier related to lighting. Available in our vmap compiler. Notes: Instead of having hundreds of off-shoot materials for your level, you can use this to quickly make sure an existing material is adjusted for your level. The backsplash_fraction key can be set to 100 (percent) to ensure it's mostly illuminated, however since the lights are round you might have some slightly darker parts in the corners of a perfectly square surface. Keep this in mind. If you have round surfaces, especially patches, you should definitely adjust the backsplash_distance key to make sure the light is spawning out far enough. One giant, half circle patch surface might see issues otherwise. Not tested though."
@@ -2438,10 +2490,12 @@
 
 @PointClass base(NuclideIO, Def_game_text) color(255 0 0) size(-8 -8 -8, 8 8 8) = lms_endmessage : "entityDef spawned as game_text. This entity displays a message of your choice on-screen. Notes: Line breaks inside 'message' can be added with a /n character."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO, Def_game_text) color(255 0 0) size(-8 -8 -8, 8 8 8) = lms_outmessage : "entityDef spawned as game_text. This entity displays a message of your choice on-screen. Notes: Line breaks inside 'message' can be added with a /n character."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO) color(76 26 153) size(-8 -8 -8, 8 8 8) = logic_achievement : "Unlocks achievements or aids in the progression of them. Notes: Ensure to prefix the value of the `AchievementEvent` key with `ACHIEVEMENT_EVENT_`. For example, if you are using SteamWorks and have your achievement on there named `FOOBAR` then you want the value to be `ACHIEVEMENT_EVENT_FOOBAR`."
@@ -2570,22 +2624,27 @@
 
 @SolidClass base(NuclideIO, BrushCompile, Def_func_button) color(0 128 204) = mayhem_func_button : "entityDef spawned as func_button. A brush entity which can be used either by touching, interaction (via a games' use-key/button or other targetting methods. It will then travel, similar to a door to a specified direction. Once it's fully pushed in, it'll trigger its targets, then return back to its original position."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @SolidClass base(NuclideIO, BrushCompile, Def_trigger_teleport) color(128 128 128) = mayhem_trigger_teleport : "entityDef spawned as trigger_teleport. Teleportation volume. Teleports anything it touches to the position of any entity set as the 'target'. Notes: Works best with info_teleport_destination, but you can in theory use any other point entity as well."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO, Def_func_breakable) color(0 128 204) size(0 0 0, 32 32 64) model("maps/b_explob.bsp") = misc_explobox : "entityDef spawned as func_breakable. Brush volume that can break into lots of little pieces. Notes: The strength of the explosion decides the radius (magnitude * 2.5) and the maximum damage the explosion will do in the center. It has a linear fall-off. Material-list: - 0 : Glass - 1 : Wood - 2 : Metal - 3 : Flesh - 4 : Cinder - 5 : Tile - 6 ; Computer - 7 : Glass (Unbreakable) - 8 : Rock - 9 : None"
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO, Def_func_breakable) color(0 128 204) size(0 0 0, 32 32 64) model("maps/b_exbox2.bsp") = misc_explobox2 : "entityDef spawned as func_breakable. Brush volume that can break into lots of little pieces. Notes: The strength of the explosion decides the radius (magnitude * 2.5) and the maximum damage the explosion will do in the center. It has a linear fall-off. Material-list: - 0 : Glass - 1 : Wood - 2 : Metal - 3 : Flesh - 4 : Cinder - 5 : Tile - 6 ; Computer - 7 : Glass (Unbreakable) - 8 : Rock - 9 : None"
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO, Def_env_shooter) color(255 128 0) size(-8 -8 -8, 8 8 8) = misc_fireball : "entityDef spawned as env_shooter. Shoots model entities from its location."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @SolidClass base(NuclideIO, BrushCompile) color(0 128 204) = momentary_door : "Dynamic door that will move back down if it's not being used."
@@ -2611,90 +2670,112 @@
 
 @PointClass base(NuclideIO, Def_ncTalkMonster) color(0 204 204) size(-32 -32 0, 32 32 64) model("models/controller.mdl") = monster_alien_controller : "Alien Controller. entityDef spawned as ncTalkMonster. This class represents ncMonsters that talk. They need to network extra information and can speak more complicated dialogue using the [Sentences](@ref sentences) system. They also can communicate with other ncTalkMonster based entities."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO, Def_ncMonster) color(0 204 204) size(-16 -16 0, 16 16 72) model("models/agrunt.mdl") = monster_alien_grunt : "Alien Grunt. entityDef spawned as ncMonster. This entity class represents non-player characters. They have the ability to move around (or stand still) but are all capable of fighting if prompted to."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO, Def_ncMonster) color(0 204 204) size(-16 -16 0, 16 16 72) model("models/islave.mdl") = monster_alien_slave : "Vortigaunt. entityDef spawned as ncMonster. This entity class represents non-player characters. They have the ability to move around (or stand still) but are all capable of fighting if prompted to."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO, Def_ncTalkMonster) color(0 204 204) size(-32 -32 0, 32 32 64) model("models/apache.mdl") = monster_apache : "Apache. entityDef spawned as ncTalkMonster. This class represents ncMonsters that talk. They need to network extra information and can speak more complicated dialogue using the [Sentences](@ref sentences) system. They also can communicate with other ncTalkMonster based entities."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO, Def_ncMonster) color(0 204 204) size(-16 -16 0, 16 16 16) model("models/archer.mdl") = monster_archerfish : "Archer Fish. entityDef spawned as ncMonster. This entity class represents non-player characters. They have the ability to move around (or stand still) but are all capable of fighting if prompted to."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO, Def_ncMonster) color(0 204 204) size(-16 -16 -24, 16 16 40) model("progs/soldier.mdl") = monster_army : "Grunt. entityDef spawned as ncMonster. This entity class represents non-player characters. They have the ability to move around (or stand still) but are all capable of fighting if prompted to."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO, Def_ncMonster) color(0 204 204) size(-16 -16 0, 16 16 72) model("models/baby_headcrab.mdl") = monster_babycrab : "Headcrab. entityDef spawned as ncMonster. This entity class represents non-player characters. They have the ability to move around (or stand still) but are all capable of fighting if prompted to."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO, Def_ncMonster) color(0 204 204) size(-16 -16 -32, 16 16 0) model("models/barnacle.mdl") = monster_barnacle : "Barnacle. entityDef spawned as ncMonster. This entity class represents non-player characters. They have the ability to move around (or stand still) but are all capable of fighting if prompted to."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO, Def_ncTalkMonster) color(0 204 204) size(-16 -16 0, 16 16 72) model("models/barney.mdl") = monster_barney : "Barney. entityDef spawned as ncTalkMonster. This class represents ncMonsters that talk. They need to network extra information and can speak more complicated dialogue using the [Sentences](@ref sentences) system. They also can communicate with other ncTalkMonster based entities."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO, Def_ncTalkMonster) color(0 204 204) size(-16 -16 0, 16 16 72) model("models/barney.mdl") = monster_barney_dead : "Barney. entityDef spawned as ncTalkMonster. This class represents ncMonsters that talk. They need to network extra information and can speak more complicated dialogue using the [Sentences](@ref sentences) system. They also can communicate with other ncTalkMonster based entities."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO, Def_ncMonster) color(0 204 204) size(-16 -16 0, 16 16 72) model("models/big_mom.mdl") = monster_bigmomma : "Big Momma. entityDef spawned as ncMonster. This entity class represents non-player characters. They have the ability to move around (or stand still) but are all capable of fighting if prompted to."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO, Def_ncMonster) color(0 204 204) size(-16 -16 0, 16 16 72) model("models/floater.mdl") = monster_bloater : "Flocking Floater. entityDef spawned as ncMonster. This entity class represents non-player characters. They have the ability to move around (or stand still) but are all capable of fighting if prompted to."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO, Def_ncMonster) color(0 204 204) size(-16 -16 0, 16 16 72) model("models/bullsquid.mdl") = monster_bullchicken : "Bullsquid. entityDef spawned as ncMonster. This entity class represents non-player characters. They have the ability to move around (or stand still) but are all capable of fighting if prompted to."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO, Def_ncMonster) color(0 204 204) size(-16 -16 0, 16 16 72) model("models/charger.mdl") = monster_charger : "Charger. entityDef spawned as ncMonster. This entity class represents non-player characters. They have the ability to move around (or stand still) but are all capable of fighting if prompted to."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO, Def_ncMonster) color(0 204 204) size(-16 -16 0, 16 16 16) model("models/chumtoad.mdl") = monster_chumtoad : "Chumtoad. entityDef spawned as ncMonster. This entity class represents non-player characters. They have the ability to move around (or stand still) but are all capable of fighting if prompted to."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO, Def_ncTalkMonster) color(0 204 204) size(-8 -8 0, 8 8 8) model("models/roach.mdl") = monster_cockroach : "Cockroach. entityDef spawned as ncTalkMonster. This class represents ncMonsters that talk. They need to network extra information and can speak more complicated dialogue using the [Sentences](@ref sentences) system. They also can communicate with other ncTalkMonster based entities."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO, Def_ncMonster) color(0 204 204) size(-32 -32 -24, 32 32 64) model("progs/demon.mdl") = monster_demon1 : "Fiend. entityDef spawned as ncMonster. This entity class represents non-player characters. They have the ability to move around (or stand still) but are all capable of fighting if prompted to."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO, Def_ncMonster) color(0 204 204) size(-32 -32 -24, 32 32 40) model("progs/dog.mdl") = monster_dog : "Rottweiler. entityDef spawned as ncMonster. This entity class represents non-player characters. They have the ability to move around (or stand still) but are all capable of fighting if prompted to."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO, Def_ncMonster) color(0 204 204) size(-16 -16 -24, 16 16 40) model("progs/enforcer.mdl") = monster_enforcer : "Enforcer. entityDef spawned as ncMonster. This entity class represents non-player characters. They have the ability to move around (or stand still) but are all capable of fighting if prompted to."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO, Def_ncMonster) color(0 204 204) size(-16 -16 -24, 16 16 24) model("progs/fish.mdl") = monster_fish : "Rotfish. entityDef spawned as ncMonster. This entity class represents non-player characters. They have the ability to move around (or stand still) but are all capable of fighting if prompted to."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO, Def_ncTalkMonster) color(0 204 204) size(-16 -16 0, 16 16 72) model("models/aflock.mdl") = monster_flyer : "Flyer Flock. entityDef spawned as ncTalkMonster. This class represents ncMonsters that talk. They need to network extra information and can speak more complicated dialogue using the [Sentences](@ref sentences) system. They also can communicate with other ncTalkMonster based entities."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO, Def_ncTalkMonster) color(0 204 204) size(-16 -16 0, 16 16 72) model("models/aflock.mdl") = monster_flyer_flock : "Flyer Flock. entityDef spawned as ncTalkMonster. This class represents ncMonsters that talk. They need to network extra information and can speak more complicated dialogue using the [Sentences](@ref sentences) system. They also can communicate with other ncTalkMonster based entities."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO) color(255 0 0) size(-8 -8 -8, 8 8 8) model({ "path": model, "skin": skin, "frame": sequence }) = monster_furniture : "Used for props to be animated within a scripted sequence."
@@ -2707,6 +2788,7 @@
 
 @PointClass base(NuclideIO, Def_ncMonster) color(0 204 204) size(-32 -32 0, 32 32 128) model("models/garg.mdl") = monster_gargantua : "Gargantua. entityDef spawned as ncMonster. This entity class represents non-player characters. They have the ability to move around (or stand still) but are all capable of fighting if prompted to."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO) color(255 0 0) size(-8 -8 -8, 8 8 8) model({ "path": model, "skin": skin, "frame": sequence }) = monster_generic : "A 'monster' that is able to bleed, speak and follow scripted sequences."
@@ -2722,162 +2804,202 @@
 
 @PointClass base(NuclideIO, Def_ncTalkMonster) color(0 204 204) size(-16 -16 0, 16 16 72) model("models/gman.mdl") = monster_gman : "G-Man. entityDef spawned as ncTalkMonster. This class represents ncMonsters that talk. They need to network extra information and can speak more complicated dialogue using the [Sentences](@ref sentences) system. They also can communicate with other ncTalkMonster based entities."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO, Def_ncMonster) color(0 204 204) size(-16 -16 0, 16 16 72) model("models/headcrab.mdl") = monster_headcrab : "Headcrab. entityDef spawned as ncMonster. This entity class represents non-player characters. They have the ability to move around (or stand still) but are all capable of fighting if prompted to."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO, Def_ncMonster) color(0 204 204) size(-16 -16 -24, 16 16 40) model("progs/hknight.mdl") = monster_hell_knight : "Death Knight. entityDef spawned as ncMonster. This entity class represents non-player characters. They have the ability to move around (or stand still) but are all capable of fighting if prompted to."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO, Def_ncMonster) color(0 204 204) size(-16 -16 0, 16 16 72) model("models/player.mdl") = monster_hevsuit_dead : "Dead H.E.V. Scientist. entityDef spawned as ncMonster. This entity class represents non-player characters. They have the ability to move around (or stand still) but are all capable of fighting if prompted to."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO, Def_ncMonster) color(0 204 204) size(-16 -16 0, 16 16 72) model("models/hgrunt.mdl") = monster_hgrunt_dead : "Dead Human Grunt. entityDef spawned as ncMonster. This entity class represents non-player characters. They have the ability to move around (or stand still) but are all capable of fighting if prompted to."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO, Def_ncMonster) color(0 204 204) size(-16 -16 0, 16 16 72) model("models/houndeye.mdl") = monster_houndeye : "Houndeye. entityDef spawned as ncMonster. This entity class represents non-player characters. They have the ability to move around (or stand still) but are all capable of fighting if prompted to."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO, Def_ncTalkMonster) color(0 204 204) size(-16 -16 0, 16 16 72) model("models/hassassin.mdl") = monster_human_assassin : "Human Assassin. entityDef spawned as ncTalkMonster. This class represents ncMonsters that talk. They need to network extra information and can speak more complicated dialogue using the [Sentences](@ref sentences) system. They also can communicate with other ncTalkMonster based entities."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO, Def_ncMonster) color(0 204 204) size(-16 -16 0, 16 16 72) model("models/hassault.mdl") = monster_human_assault : "Human Assault. entityDef spawned as ncSquadMonster (keys of ncMonster). This entity class represents non-player characters. They have the ability to move around (or stand still) but are all capable of fighting if prompted to."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO, Def_ncTalkMonster) color(0 204 204) size(-16 -16 0, 16 16 72) model("models/hgrunt.mdl") = monster_human_grunt : "Grunt. entityDef spawned as ncTalkMonster. This class represents ncMonsters that talk. They need to network extra information and can speak more complicated dialogue using the [Sentences](@ref sentences) system. They also can communicate with other ncTalkMonster based entities."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO, Def_ncTalkMonster) color(0 204 204) size(-16 -16 0, 16 16 72) model("models/icky.mdl") = monster_ichthyosaur : "Ichthyosaur. entityDef spawned as ncTalkMonster. This class represents ncMonsters that talk. They need to network extra information and can speak more complicated dialogue using the [Sentences](@ref sentences) system. They also can communicate with other ncTalkMonster based entities."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO, Def_ncMonster) color(0 204 204) size(-16 -16 0, 16 16 16) model("models/kingpin.mdl") = monster_kingpin : "Kingpin. entityDef spawned as ncMonster. This entity class represents non-player characters. They have the ability to move around (or stand still) but are all capable of fighting if prompted to."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO, Def_ncMonster) color(0 204 204) size(-16 -16 -24, 16 16 40) model("progs/knight.mdl") = monster_knight : "Knight. entityDef spawned as ncMonster. This entity class represents non-player characters. They have the ability to move around (or stand still) but are all capable of fighting if prompted to."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO, Def_ncTalkMonster) color(0 204 204) size(-8 -8 0, 8 8 8) model("models/leech.mdl") = monster_leech : "Leech. entityDef spawned as ncTalkMonster. This class represents ncMonsters that talk. They need to network extra information and can speak more complicated dialogue using the [Sentences](@ref sentences) system. They also can communicate with other ncTalkMonster based entities."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO, Def_ncTalkMonster) color(0 204 204) size(-16 -16 0, 16 16 16) model("models/miniturret.mdl") = monster_miniturret : "Mini-Turret. entityDef spawned as ncTalkMonster. This class represents ncMonsters that talk. They need to network extra information and can speak more complicated dialogue using the [Sentences](@ref sentences) system. They also can communicate with other ncTalkMonster based entities."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO, Def_ncMonster) color(0 204 204) size(-16 -16 0, 16 16 16) model("models/friendly.mdl") = monster_mrfriendly : "Mr. Friendly. entityDef spawned as ncMonster. This entity class represents non-player characters. They have the ability to move around (or stand still) but are all capable of fighting if prompted to."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO, Def_ncTalkMonster) color(0 204 204) size(-16 -16 0, 16 16 72) model("models/nihilanth.mdl") = monster_nihilanth : "Nihilanth. entityDef spawned as ncTalkMonster. This class represents ncMonsters that talk. They need to network extra information and can speak more complicated dialogue using the [Sentences](@ref sentences) system. They also can communicate with other ncTalkMonster based entities."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO, Def_ncMonster) color(0 204 204) size(-32 -32 -24, 32 32 64) model("progs/ogre.mdl") = monster_ogre : "Ogre. entityDef spawned as ncMonster. This entity class represents non-player characters. They have the ability to move around (or stand still) but are all capable of fighting if prompted to."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO, Def_ncMonster) color(0 204 204) size(-160 -128 -24, 160 128 256) model("progs/oldone.mdl") = monster_oldone : "Shub-Nuggirath. entityDef spawned as ncMonster. This entity class represents non-player characters. They have the ability to move around (or stand still) but are all capable of fighting if prompted to."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO, Def_ncTalkMonster) color(0 204 204) size(-16 -16 0, 16 16 72) model("models/osprey.mdl") = monster_osprey : "Osprey. entityDef spawned as ncTalkMonster. This class represents ncMonsters that talk. They need to network extra information and can speak more complicated dialogue using the [Sentences](@ref sentences) system. They also can communicate with other ncTalkMonster based entities."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO, Def_ncMonster) color(0 204 204) size(-16 -16 0, 16 16 72) model("models/panther.mdl") = monster_panther : "Panther Eye. entityDef spawned as ncMonster. This entity class represents non-player characters. They have the ability to move around (or stand still) but are all capable of fighting if prompted to."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO, Def_ncTalkMonster) color(0 204 204) size(-16 -16 0, 16 16 16) model("models/bigrat.mdl") = monster_rat : "Rat. entityDef spawned as ncTalkMonster. This class represents ncMonsters that talk. They need to network extra information and can speak more complicated dialogue using the [Sentences](@ref sentences) system. They also can communicate with other ncTalkMonster based entities."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO, Def_ncTalkMonster) color(0 204 204) size(-16 -16 0, 16 16 72) model("models/scientist.mdl") = monster_scientist : "Scientist. entityDef spawned as HLScientist (keys of ncTalkMonster). This class represents ncMonsters that talk. They need to network extra information and can speak more complicated dialogue using the [Sentences](@ref sentences) system. They also can communicate with other ncTalkMonster based entities."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO, Def_ncMonster) color(0 204 204) size(-16 -16 0, 16 16 72) model("models/scientist.mdl") = monster_scientist_dead : "Dead Scientist. entityDef spawned as ncMonster. This entity class represents non-player characters. They have the ability to move around (or stand still) but are all capable of fighting if prompted to."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO, Def_ncTalkMonster) color(0 204 204) size(-16 -16 0, 16 16 72) model("models/sentry.mdl") = monster_sentry : "Sentry. entityDef spawned as ncTalkMonster. This class represents ncMonsters that talk. They need to network extra information and can speak more complicated dialogue using the [Sentences](@ref sentences) system. They also can communicate with other ncTalkMonster based entities."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO, Def_ncMonster) color(0 204 204) size(-32 -32 -24, 32 32 64) model("progs/shalrath.mdl") = monster_shalrath : "Vore. entityDef spawned as ncMonster. This entity class represents non-player characters. They have the ability to move around (or stand still) but are all capable of fighting if prompted to."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO, Def_ncMonster) color(0 204 204) size(-32 -32 -24, 32 32 64) model("progs/shambler.mdl") = monster_shambler : "Shambler. entityDef spawned as ncMonster. This entity class represents non-player characters. They have the ability to move around (or stand still) but are all capable of fighting if prompted to."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO, Def_ncTalkMonster) color(0 204 204) size(-16 -16 -8, 16 16 72) model("models/scientist.mdl") = monster_sitting_scientist : "Seated Scientist. entityDef spawned as ncTalkMonster. This class represents ncMonsters that talk. They need to network extra information and can speak more complicated dialogue using the [Sentences](@ref sentences) system. They also can communicate with other ncTalkMonster based entities."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO, Def_ncMonster) color(0 204 204) size(-16 -16 0, 16 16 72) model("models/skeleton.mdl") = monster_skeleton_dead : "Skeleton. entityDef spawned as ncMonster. This entity class represents non-player characters. They have the ability to move around (or stand still) but are all capable of fighting if prompted to."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO, Def_ncMonster) color(0 204 204) size(-16 -16 0, 16 16 16) model("models/snapbug.mdl") = monster_snapbug : "Snapbug. entityDef spawned as ncMonster. This entity class represents non-player characters. They have the ability to move around (or stand still) but are all capable of fighting if prompted to."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO, Def_ncMonster) color(0 204 204) size(-4 -4 0, 4 4 8) model("models/w_squeak.mdl") = monster_snark : "Snark. entityDef spawned as ncMonster. This entity class represents non-player characters. They have the ability to move around (or stand still) but are all capable of fighting if prompted to."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO, Def_ncMonster) color(0 204 204) size(-16 -16 0, 16 16 16) model("models/sphere.mdl") = monster_sphere : "Vortigaunt Control Sphere. entityDef spawned as ncMonster. This entity class represents non-player characters. They have the ability to move around (or stand still) but are all capable of fighting if prompted to."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO, Def_ncMonster) color(0 204 204) size(-16 -16 0, 16 16 16) model("models/stukabat.mdl") = monster_stukabat : "Stukabat. entityDef spawned as ncMonster. This entity class represents non-player characters. They have the ability to move around (or stand still) but are all capable of fighting if prompted to."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO, Def_ncMonster) color(0 204 204) size(-16 -16 -24, 16 16 40) model("progs/tarbaby.mdl") = monster_tarbaby : "Spawn. entityDef spawned as ncMonster. This entity class represents non-player characters. They have the ability to move around (or stand still) but are all capable of fighting if prompted to."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO, Def_ncTalkMonster) color(0 204 204) size(-16 -16 0, 16 16 72) model("models/tentacle2.mdl") = monster_tentacle : "Tentacle. entityDef spawned as ncTalkMonster. This class represents ncMonsters that talk. They need to network extra information and can speak more complicated dialogue using the [Sentences](@ref sentences) system. They also can communicate with other ncTalkMonster based entities."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO, Def_cycler) color(255 0 0) size(-16 -16 0, 16 16 16) model("models/maw.mdl") = monster_tentaclemaw : "Tentacle Maw. entityDef spawned as cycler. Model animation cycler entity. For development purposes mainly. Notes: Upon damage, the cycler will switch between all available animation sequences. This is really for test-maps and showroom entities."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO) color(200 200 200) size(-16 -16 -16, 16 16 16) model("models/v_tripmine.mdl") = monster_tripmine : "entityDef spawned as hlTripmine."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO, Def_ncTalkMonster) color(0 204 204) size(-16 -16 0, 16 16 32) model("models/turret.mdl") = monster_turret : "Turret. entityDef spawned as ncTalkMonster. This class represents ncMonsters that talk. They need to network extra information and can speak more complicated dialogue using the [Sentences](@ref sentences) system. They also can communicate with other ncTalkMonster based entities."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO, Def_ncMonster) color(0 204 204) size(-16 -16 -24, 16 16 40) model("progs/vomit.mdl") = monster_vomit : "Vomitus. entityDef spawned as ncMonster. This entity class represents non-player characters. They have the ability to move around (or stand still) but are all capable of fighting if prompted to."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO, Def_ncMonster) color(0 204 204) size(-16 -16 -24, 16 16 40) model("progs/wizard.mdl") = monster_wizard : "Scrag. entityDef spawned as ncMonster. This entity class represents non-player characters. They have the ability to move around (or stand still) but are all capable of fighting if prompted to."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO, Def_ncMonster) color(0 204 204) size(-16 -16 -24, 16 16 40) model("progs/zombie.mdl") = monster_zombie : "Zombie. entityDef spawned as ncMonster. This entity class represents non-player characters. They have the ability to move around (or stand still) but are all capable of fighting if prompted to."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO) color(255 0 0) size(-8 -8 -8, 8 8 8) = monstermaker : "The monster maker is the end-all solution to timed/controlled spawning of monster entities."
@@ -2929,6 +3051,7 @@
 
 @PointClass base(NuclideIO) color(255 128 0) size(-8 -8 -8, 8 8 8) = ncDecal : "ncDecal"
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO) color(0 204 204) size(-16 -16 0, 16 16 72) = ncItem : "Represents any item within the players' inventory. These can be used, or be dormant. Some configurations will simply increase your statistics upon touch."
@@ -3054,6 +3177,7 @@
 
 @PointClass base(NuclideIO) color(255 128 0) size(-8 -8 -8, 8 8 8) = ncSoundScape : "Environmental soundscape and reverb controller."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 	efx_file(string) : "Efx file" : "" : "File to load EFX values from. See @ref decl_efx"
 	density(string) : "Density" : "" : "See SetDensity()"
 	diffusion(string) : "Diffusion" : "" : "See SetDiffusion()"
@@ -3130,6 +3254,7 @@
 
 @PointClass base(NuclideIO) color(0 204 204) size(-16 -16 0, 16 16 32) = ncWeapon : "This entity class represents weapon based items. It is based on ncItem. The only difference is that the attack related keys get forwarded only to items of this class. This is not a class that you can instantiate using level entity data due to its complexity, you will almost exclusively enter the data using [entityDef](@ref entitydef) instead. ## FireInfo Weapon firing events are split into optional decl titled 'FireInfo' that are queried for implemented attack types. The 'def_fireInfo' key points to the decl containing the primary-attack FireInfo. If that doesn't exist, the keys that would be queried from there are read from the main decl. This goes for any key that is not present in a FireInfo. The 'def_altFireInfo' key points to the decl containing the secondary-attack FireInfo. If that does not exist, secondary attacks are not possible."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 	model(string) : "Model" : "" : "Item/pickup model in world."
 	model_view(string) : "Model view" : "" : "First-person view model."
 	model_flash(string) : "Model flash" : "" : "muzzleflash model/sprite to use."
@@ -3324,6 +3449,7 @@
 
 @PointClass base(NuclideIO) color(255 0 0) size(-8 -8 -8, 8 8 8) = phys_rope : "Physics rope entity."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 	spawnflags(flags) =
 	[
 		1 : "ROPE_VERTICAL" : 0 : "ROPE_VERTICAL"
@@ -3385,6 +3511,7 @@
 
 @PointClass base(NuclideIO) color(51 255 51) size(-8 -8 -8, 8 8 8) = point_message : "Client-side overlay/message that is projected in relation to its position in 3D space. Notes: Used for zoo and test maps in which less interactive overlays are desired."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 	message(string) : "Message" : "" : "The message to display."
 	radius(string) : "Radius" : "" : "The radius in which it will appear."
 ]
@@ -3444,6 +3571,7 @@
 
 @PointClass base(NuclideIO) color(255 0 0) size(-8 -8 -8, 8 8 8) model({ "path": model, "skin": skin, "frame": sequence }) = prop_dynamic : "Client-side decorative model entity."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 	model(string) : "Model" : "" : "Model file that will be displayed by the entity."
 	modelscale(string) : "Modelscale" : "1" : "Scale modifier of the model. Default is '1'."
 	angles(string) : "Angles" : "" : "Sets the pitch, yaw and roll angles of the model."
@@ -3472,6 +3600,7 @@
 
 @PointClass base(NuclideIO) color(255 0 0) size(-8 -8 -8, 8 8 8) = prop_rope : "Client-side decorative rope entity. Connect the entity to a named info_notnull and watch it swing around."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 	sag(string) : "Sag" : "" : "Multiplier on how much sagginess will be applied to the rope."
 	segments(string) : "Segments" : "16" : "Number of total segments. Default is '16'."
 	material(string) : "Material" : "" : "The texture to use on the rope."
@@ -3485,6 +3614,7 @@
 
 @PointClass base(NuclideIO) color(255 0 0) size(-8 -8 -8, 8 8 8) model({ "path": model, "skin": skin, "frame": sequence }) = prop_static : "Decorative model entity that gets baked into the level file. Notes: After compilation, the source model is no longer required and the resulting entity is removed. This ensures that models are rendered in the same batch as the world. This makes sense for one giant unique model in the map, but for multiple repetitive uses of the same model you'll actually waste disk space and memory. Use wisely."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 	model(string) : "Model" : "" : "Model file that will be displayed by the entity."
 	modelscale(string) : "Modelscale" : "1" : "Scale modifier of the model. Default is '1'."
 	modelscale_vec(string) : "Modelscale vec" : "" : "Scale modifier, but in vector format"
@@ -3618,6 +3748,7 @@
 
 @PointClass base(NuclideIO) color(255 76 255) size(-8 -8 -8, 8 8 8) = sky_camera : "Defines the position of a skyroom camera. Notes: You want to put this into a dedicated room that contains a 3D skybox. The scale modifier is more like a divider. You want to keep these divisable by 2 to avoid any precision funkyness."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 	scale(string) : "Scale" : "16" : "Scale modifier. Default is '16'."
 ]
 
@@ -3743,6 +3874,7 @@
 
 @SolidClass base(NuclideIO, BrushCompile) color(128 128 128) = trigger_gravity : "Volume that will, when an entity enters it, permanently alters how it experiences gravity. Notes: Entities leaving the volume will NOT lose the gravity modifier. If you don't desire this behaviour, then make sure a trigger_gravity with a modifier value of '1.0' surrounds the aforementioned volume so it can reset itself. Other than that gravity will naturally reset when the entity respawns."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @SolidClass base(NuclideIO, BrushCompile) color(128 128 128) = trigger_hurt : "Trigger volume that damages everything it touches."
@@ -3913,98 +4045,122 @@
 
 @PointClass base(NuclideIO, Def_ncWeapon) color(76 76 255) size(-16 -16 0, 16 16 32) model("progs/g_nail.mdl") = weapon_angel_sniper : "Angel sniper (hitscan). entityDef spawned as ncWeapon. This entity class represents weapon based items. It is based on ncItem. The only difference is that the attack related keys get forwarded only to items of this class. This is not a class that you can instantiate using level entity data due to its complexity, you will almost exclusively enter the data using [entityDef](@ref entitydef) instead. ## FireInfo Weapon firing events are split into optional decl titled 'FireInfo' that are queried for implemented attack types. The 'def_fireInfo' key points to the decl containing the primary-attack FireInfo. If that doesn't exist, the keys that would be queried from there are read from the main decl. This goes for any key that is not present in a FireInfo. The 'def_altFireInfo' key points to the decl containing the secondary-attack FireInfo. If that does not exist, secondary attacks are not possible."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO, Def_ncWeapon) color(76 76 255) size(-16 -16 -16, 16 16 16) = weapon_archstiletto : "Archstiletto melee (axe-derived) + lunge. entityDef spawned as ncWeaponBaseMelee (keys of ncWeapon). This entity class represents weapon based items. It is based on ncItem. The only difference is that the attack related keys get forwarded only to items of this class. This is not a class that you can instantiate using level entity data due to its complexity, you will almost exclusively enter the data using [entityDef](@ref entitydef) instead. ## FireInfo Weapon firing events are split into optional decl titled 'FireInfo' that are queried for implemented attack types. The 'def_fireInfo' key points to the decl containing the primary-attack FireInfo. If that doesn't exist, the keys that would be queried from there are read from the main decl. This goes for any key that is not present in a FireInfo. The 'def_altFireInfo' key points to the decl containing the secondary-attack FireInfo. If that does not exist, secondary attacks are not possible."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO, Def_ncWeapon) color(76 76 255) size(-16 -16 -16, 16 16 16) = weapon_axe : "Axe. entityDef spawned as ncWeaponBaseMelee (keys of ncWeapon). This entity class represents weapon based items. It is based on ncItem. The only difference is that the attack related keys get forwarded only to items of this class. This is not a class that you can instantiate using level entity data due to its complexity, you will almost exclusively enter the data using [entityDef](@ref entitydef) instead. ## FireInfo Weapon firing events are split into optional decl titled 'FireInfo' that are queried for implemented attack types. The 'def_fireInfo' key points to the decl containing the primary-attack FireInfo. If that doesn't exist, the keys that would be queried from there are read from the main decl. This goes for any key that is not present in a FireInfo. The 'def_altFireInfo' key points to the decl containing the secondary-attack FireInfo. If that does not exist, secondary attacks are not possible."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO, Def_ncWeapon) color(76 76 255) size(-16 -16 0, 16 16 32) model("progs/g_nail.mdl") = weapon_beaumont_revolver : "Beaumont revolver (fast, hitscan). entityDef spawned as ncWeapon. This entity class represents weapon based items. It is based on ncItem. The only difference is that the attack related keys get forwarded only to items of this class. This is not a class that you can instantiate using level entity data due to its complexity, you will almost exclusively enter the data using [entityDef](@ref entitydef) instead. ## FireInfo Weapon firing events are split into optional decl titled 'FireInfo' that are queried for implemented attack types. The 'def_fireInfo' key points to the decl containing the primary-attack FireInfo. If that doesn't exist, the keys that would be queried from there are read from the main decl. This goes for any key that is not present in a FireInfo. The 'def_altFireInfo' key points to the decl containing the secondary-attack FireInfo. If that does not exist, secondary attacks are not possible."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO, Def_ncWeapon) color(76 76 255) size(-16 -16 0, 16 16 32) model("progs/g_nail.mdl") = weapon_collier_sidearm : "Collier sidearm (revolver cadence, nail projectile). entityDef spawned as ncWeapon. This entity class represents weapon based items. It is based on ncItem. The only difference is that the attack related keys get forwarded only to items of this class. This is not a class that you can instantiate using level entity data due to its complexity, you will almost exclusively enter the data using [entityDef](@ref entitydef) instead. ## FireInfo Weapon firing events are split into optional decl titled 'FireInfo' that are queried for implemented attack types. The 'def_fireInfo' key points to the decl containing the primary-attack FireInfo. If that doesn't exist, the keys that would be queried from there are read from the main decl. This goes for any key that is not present in a FireInfo. The 'def_altFireInfo' key points to the decl containing the secondary-attack FireInfo. If that does not exist, secondary attacks are not possible."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO, Def_ncWeapon) color(76 76 255) size(-16 -16 0, 16 16 32) model("progs/g_rock.mdl") = weapon_grenadelauncher : "Grenade Launcher. entityDef spawned as ncWeapon. This entity class represents weapon based items. It is based on ncItem. The only difference is that the attack related keys get forwarded only to items of this class. This is not a class that you can instantiate using level entity data due to its complexity, you will almost exclusively enter the data using [entityDef](@ref entitydef) instead. ## FireInfo Weapon firing events are split into optional decl titled 'FireInfo' that are queried for implemented attack types. The 'def_fireInfo' key points to the decl containing the primary-attack FireInfo. If that doesn't exist, the keys that would be queried from there are read from the main decl. This goes for any key that is not present in a FireInfo. The 'def_altFireInfo' key points to the decl containing the secondary-attack FireInfo. If that does not exist, secondary attacks are not possible."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO, Def_ncWeapon) color(76 76 255) size(-16 -16 0, 16 16 32) model("progs/g_nail.mdl") = weapon_juliet_charge : "Juliet charge ball. entityDef spawned as ncWeapon. This entity class represents weapon based items. It is based on ncItem. The only difference is that the attack related keys get forwarded only to items of this class. This is not a class that you can instantiate using level entity data due to its complexity, you will almost exclusively enter the data using [entityDef](@ref entitydef) instead. ## FireInfo Weapon firing events are split into optional decl titled 'FireInfo' that are queried for implemented attack types. The 'def_fireInfo' key points to the decl containing the primary-attack FireInfo. If that doesn't exist, the keys that would be queried from there are read from the main decl. This goes for any key that is not present in a FireInfo. The 'def_altFireInfo' key points to the decl containing the secondary-attack FireInfo. If that does not exist, secondary attacks are not possible."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO, Def_ncWeapon) color(76 76 255) size(-16 -16 0, 16 16 32) model("progs/g_light.mdl") = weapon_lightning : "Lightning Gun. entityDef spawned as ncWeapon. This entity class represents weapon based items. It is based on ncItem. The only difference is that the attack related keys get forwarded only to items of this class. This is not a class that you can instantiate using level entity data due to its complexity, you will almost exclusively enter the data using [entityDef](@ref entitydef) instead. ## FireInfo Weapon firing events are split into optional decl titled 'FireInfo' that are queried for implemented attack types. The 'def_fireInfo' key points to the decl containing the primary-attack FireInfo. If that doesn't exist, the keys that would be queried from there are read from the main decl. This goes for any key that is not present in a FireInfo. The 'def_altFireInfo' key points to the decl containing the secondary-attack FireInfo. If that does not exist, secondary attacks are not possible."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO, Def_ncWeapon) color(76 76 255) size(-16 -16 0, 16 16 32) model("progs/g_rock2.mdl") = weapon_motionblue_slug : "Motionblue slug (explosive). entityDef spawned as ncWeapon. This entity class represents weapon based items. It is based on ncItem. The only difference is that the attack related keys get forwarded only to items of this class. This is not a class that you can instantiate using level entity data due to its complexity, you will almost exclusively enter the data using [entityDef](@ref entitydef) instead. ## FireInfo Weapon firing events are split into optional decl titled 'FireInfo' that are queried for implemented attack types. The 'def_fireInfo' key points to the decl containing the primary-attack FireInfo. If that doesn't exist, the keys that would be queried from there are read from the main decl. This goes for any key that is not present in a FireInfo. The 'def_altFireInfo' key points to the decl containing the secondary-attack FireInfo. If that does not exist, secondary attacks are not possible."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO, Def_ncWeapon) color(76 76 255) size(-16 -16 0, 16 16 32) model("progs/g_nail.mdl") = weapon_nailgun : "Nailgun. entityDef spawned as ncWeapon. This entity class represents weapon based items. It is based on ncItem. The only difference is that the attack related keys get forwarded only to items of this class. This is not a class that you can instantiate using level entity data due to its complexity, you will almost exclusively enter the data using [entityDef](@ref entitydef) instead. ## FireInfo Weapon firing events are split into optional decl titled 'FireInfo' that are queried for implemented attack types. The 'def_fireInfo' key points to the decl containing the primary-attack FireInfo. If that doesn't exist, the keys that would be queried from there are read from the main decl. This goes for any key that is not present in a FireInfo. The 'def_altFireInfo' key points to the decl containing the secondary-attack FireInfo. If that does not exist, secondary attacks are not possible."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO, Def_ncWeapon) color(76 76 255) size(-16 -16 0, 16 16 32) model("progs/g_rock2.mdl") = weapon_rocketlauncher : "Rocket Launcher. entityDef spawned as ncWeapon. This entity class represents weapon based items. It is based on ncItem. The only difference is that the attack related keys get forwarded only to items of this class. This is not a class that you can instantiate using level entity data due to its complexity, you will almost exclusively enter the data using [entityDef](@ref entitydef) instead. ## FireInfo Weapon firing events are split into optional decl titled 'FireInfo' that are queried for implemented attack types. The 'def_fireInfo' key points to the decl containing the primary-attack FireInfo. If that doesn't exist, the keys that would be queried from there are read from the main decl. This goes for any key that is not present in a FireInfo. The 'def_altFireInfo' key points to the decl containing the secondary-attack FireInfo. If that does not exist, secondary attacks are not possible."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO, Def_ncWeapon) color(76 76 255) size(-16 -16 -16, 16 16 16) model("progs/g_shot1.mdl") = weapon_shotgun : "Shotgun. entityDef spawned as ncWeapon. This entity class represents weapon based items. It is based on ncItem. The only difference is that the attack related keys get forwarded only to items of this class. This is not a class that you can instantiate using level entity data due to its complexity, you will almost exclusively enter the data using [entityDef](@ref entitydef) instead. ## FireInfo Weapon firing events are split into optional decl titled 'FireInfo' that are queried for implemented attack types. The 'def_fireInfo' key points to the decl containing the primary-attack FireInfo. If that doesn't exist, the keys that would be queried from there are read from the main decl. This goes for any key that is not present in a FireInfo. The 'def_altFireInfo' key points to the decl containing the secondary-attack FireInfo. If that does not exist, secondary attacks are not possible."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO, Def_ncWeapon) color(76 76 255) size(-16 -16 0, 16 16 32) model("progs/g_nail.mdl") = weapon_skipstream_burst : "Skipstream burst revolver. entityDef spawned as ncWeapon. This entity class represents weapon based items. It is based on ncItem. The only difference is that the attack related keys get forwarded only to items of this class. This is not a class that you can instantiate using level entity data due to its complexity, you will almost exclusively enter the data using [entityDef](@ref entitydef) instead. ## FireInfo Weapon firing events are split into optional decl titled 'FireInfo' that are queried for implemented attack types. The 'def_fireInfo' key points to the decl containing the primary-attack FireInfo. If that doesn't exist, the keys that would be queried from there are read from the main decl. This goes for any key that is not present in a FireInfo. The 'def_altFireInfo' key points to the decl containing the secondary-attack FireInfo. If that does not exist, secondary attacks are not possible."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO, Def_ncWeapon) color(76 76 255) size(-16 -16 -16, 16 16 16) model("progs/g_shot1.mdl") = weapon_stiletto_boot : "Stiletto air kick. entityDef spawned as ncWeapon. This entity class represents weapon based items. It is based on ncItem. The only difference is that the attack related keys get forwarded only to items of this class. This is not a class that you can instantiate using level entity data due to its complexity, you will almost exclusively enter the data using [entityDef](@ref entitydef) instead. ## FireInfo Weapon firing events are split into optional decl titled 'FireInfo' that are queried for implemented attack types. The 'def_fireInfo' key points to the decl containing the primary-attack FireInfo. If that doesn't exist, the keys that would be queried from there are read from the main decl. This goes for any key that is not present in a FireInfo. The 'def_altFireInfo' key points to the decl containing the secondary-attack FireInfo. If that does not exist, secondary attacks are not possible."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO, Def_ncWeapon) color(76 76 255) size(-16 -16 -16, 16 16 16) model("progs/g_shot1.mdl") = weapon_stiletto_grapple : "Stiletto grapple. entityDef spawned as ncWeapon. This entity class represents weapon based items. It is based on ncItem. The only difference is that the attack related keys get forwarded only to items of this class. This is not a class that you can instantiate using level entity data due to its complexity, you will almost exclusively enter the data using [entityDef](@ref entitydef) instead. ## FireInfo Weapon firing events are split into optional decl titled 'FireInfo' that are queried for implemented attack types. The 'def_fireInfo' key points to the decl containing the primary-attack FireInfo. If that doesn't exist, the keys that would be queried from there are read from the main decl. This goes for any key that is not present in a FireInfo. The 'def_altFireInfo' key points to the decl containing the secondary-attack FireInfo. If that does not exist, secondary attacks are not possible."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO, Def_ncWeapon) color(76 76 255) size(-16 -16 0, 16 16 32) model("progs/g_nail2.mdl") = weapon_supernailgun : "Super Nailgun. entityDef spawned as ncWeapon. This entity class represents weapon based items. It is based on ncItem. The only difference is that the attack related keys get forwarded only to items of this class. This is not a class that you can instantiate using level entity data due to its complexity, you will almost exclusively enter the data using [entityDef](@ref entitydef) instead. ## FireInfo Weapon firing events are split into optional decl titled 'FireInfo' that are queried for implemented attack types. The 'def_fireInfo' key points to the decl containing the primary-attack FireInfo. If that doesn't exist, the keys that would be queried from there are read from the main decl. This goes for any key that is not present in a FireInfo. The 'def_altFireInfo' key points to the decl containing the secondary-attack FireInfo. If that does not exist, secondary attacks are not possible."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO, Def_ncWeapon) color(76 76 255) size(-16 -16 -16, 16 16 16) model("progs/g_shot.mdl") = weapon_supershotgun : "Super Shotgun. entityDef spawned as ncWeapon. This entity class represents weapon based items. It is based on ncItem. The only difference is that the attack related keys get forwarded only to items of this class. This is not a class that you can instantiate using level entity data due to its complexity, you will almost exclusively enter the data using [entityDef](@ref entitydef) instead. ## FireInfo Weapon firing events are split into optional decl titled 'FireInfo' that are queried for implemented attack types. The 'def_fireInfo' key points to the decl containing the primary-attack FireInfo. If that doesn't exist, the keys that would be queried from there are read from the main decl. This goes for any key that is not present in a FireInfo. The 'def_altFireInfo' key points to the decl containing the secondary-attack FireInfo. If that does not exist, secondary attacks are not possible."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO, Def_ncWeapon) color(76 76 255) size(-16 -16 -16, 16 16 16) = weapon_vagrant_knife : "Vagrant knife (throw + melee + bullet cutter). entityDef spawned as ncWeaponVagrantKnife (keys of ncWeapon). This entity class represents weapon based items. It is based on ncItem. The only difference is that the attack related keys get forwarded only to items of this class. This is not a class that you can instantiate using level entity data due to its complexity, you will almost exclusively enter the data using [entityDef](@ref entitydef) instead. ## FireInfo Weapon firing events are split into optional decl titled 'FireInfo' that are queried for implemented attack types. The 'def_fireInfo' key points to the decl containing the primary-attack FireInfo. If that doesn't exist, the keys that would be queried from there are read from the main decl. This goes for any key that is not present in a FireInfo. The 'def_altFireInfo' key points to the decl containing the secondary-attack FireInfo. If that does not exist, secondary attacks are not possible."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO) color(200 200 200) size(-8 -8 0, 8 8 32) model("models/hair.mdl") = xen_hair : "Xen Hair. entityDef spawned as ncSurfacePropEntity."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO) color(200 200 200) size(-48 -48 0, 48 48 32) model("models/light.mdl") = xen_plantlight : "Xen Plant Light. entityDef spawned as ncSurfacePropEntity."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO) color(200 200 200) size(-90 -90 0, 90 90 220) model("models/fungus(large).mdl") = xen_spore_large : "Xen Spore (Large). entityDef spawned as ncSurfacePropEntity."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO) color(200 200 200) size(-40 -40 0, 40 40 120) model("models/fungus.mdl") = xen_spore_medium : "Xen Spore (Medium). entityDef spawned as ncSurfacePropEntity."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO) color(200 200 200) size(-16 -16 0, 16 16 64) model("models/fungus(small).mdl") = xen_spore_small : "Xen Spore (Small). entityDef spawned as ncSurfacePropEntity."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 @PointClass base(NuclideIO, Def_ncMonster) color(0 204 204) size(-24 -24 0, 24 24 188) model("models/tree.mdl") = xen_tree : "Xen Tree. entityDef spawned as ncMonster. This entity class represents non-player characters. They have the ability to move around (or stand still) but are all capable of fighting if prompted to."
 [
+	targetname(target_source) : "Name" : "" : "Name other entities use to target this one."
 ]
 
 // ---- compile-entities.fgd (classes the game code doesn't define)
