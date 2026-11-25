@@ -561,9 +561,22 @@ initents(void)
 	forceinfokey(world, "teams", "");
 	forceinfokey(world, "teamplay", "");
 	forceinfokey(world, "coop", "");
-	/* dm_lobby's lobby state: left set, the next mode would still draw
-	 * the lobby overlay over play */
+	/* Serverinfo outlives the map. Mode state left set follows the player
+	 * into the next mode: dm_lobby's lobby_state drew the lobby overlay,
+	 * and the arena's arena_state made every later hero prompt open the
+	 * Duel arena page, over a deathmatch, taking the input. The mode that
+	 * owns them sets them again when it starts. */
 	forceinfokey(world, "lobby_state", "");
+	{
+		int arenaKeyCount = tokenize("arena_state arena_round arena_ready "
+			"arena_score1 arena_score2 arena_winner arena_result arena_heroes "
+			"arena_deadline arena_lock arena_ents arena_vote arena_set "
+			"arena_set_serial arena_set_closed arena_set_left arena_set_log");
+
+		for (int i = 0i; i < arenaKeyCount; i++) {
+			forceinfokey(world, argv(i), "");
+		}
+	}
 
 	/* clean up... */
 	for (int teamID = 1; teamID < 1000; teamID++) {
