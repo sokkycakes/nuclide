@@ -87,3 +87,13 @@ input { -webkit-user-select: text; user-select: text; }
 .limit-row input:disabled { color: #888; }
 .leave-dialog { width: 400px; }
 @media (prefers-reduced-motion: reduce) { .lobby-focus-bar { transition-duration: .01ms; } }
+/* server settings (the Server type row) and the guest's password prompt */
+.server-settings .limit-row { margin: 8px 0; }
+.server-settings .limit-row input.wide { width: 220px; }
+.toggle { margin-left: 8px; min-width: 90px; padding: 4px 8px; border: 1px solid #666; color: #adadad; font: 18px/24px var(--menu-font); text-transform: uppercase; }
+.limit-row .toggle.push { margin-left: auto; }
+.toggle[aria-pressed="true"] { color: #adc4df; border-color: #adc4df; }
+.toggle:disabled { color: #6e6e6e; }
+#ServerNote { min-height: 57px; }
+#ServerNote.error { color: #ffb3a9; }
+#JoinPassword { display: block; width: 100%; box-sizing: border-box; margin: 0 0 12px; border: 1px solid #898989; border-radius: 0; background: #333; color: white; padding: 6px; font: 16px/20px var(--body-font); }
