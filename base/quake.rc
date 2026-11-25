@@ -5,3 +5,6 @@ exec default_mayhem.cfg
 exec fte.cfg
 exec config.cfg
 exec autoexec.cfg
+// the controller layout, if config.cfg left every pad button unbound
+// (the menu registers this; an engine without it just says so)
+pad_defaults_ifunbound

@@ -413,6 +413,9 @@ vguiWindow::PadStep(vguiWidget from, int dir)
 	bool seen = false;
 
 	for (vguiWidget w = m_children; w; w = w.m_children) {
+		/* the title bar's close X isn't content: B already closes */
+		if (w == m_btnClose)
+			continue;
 		if (w.PadFocusable() == false)
 			continue;
 		if (!first)
@@ -454,6 +457,13 @@ vguiWindow::PadInput(float flEVType, float flKey)
 
 	if (isPad == false)
 		return (false);
+
+#ifdef CLIENT
+	/* the windows are the first player's: in split screen another seat's
+	 * controller keeps its own binds (jump, dash, hero actions...) */
+	if (getproperty(VF_ACTIVESEAT) != 0)
+		return (false);
+#endif
 
 	/* the release of a button the window used isn't the game's either */
 	if (flEVType != IE_KEYDOWN)
