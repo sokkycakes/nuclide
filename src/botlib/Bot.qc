@@ -443,8 +443,10 @@ ncBot::RunAI(void)
 
 		if (m_wtWeaponType == WPNTYPE_RANGED) {
 			if (m_eTarget) {
-				other = world;
-				tracebox(origin, m_eTarget.origin, mins, maxs, MOVE_OTHERONLY, this);
+				/* tracebox takes (start, mins, maxs, end). The old call passed
+				 * the target as mins and traced MOVE_OTHERONLY against world,
+				 * an inverted box that crashed FTE's server on Q3 BSPs. */
+				tracebox(origin, mins, maxs, m_eTarget.origin, MOVE_NORMAL, this);
 
 				/* walk _directly_ towards the enemy if we're less than 512 units away */
 				if (trace_fraction >= 1.0 && m_eTarget && enemyVisible && m_eTarget.health < 50 && m_flEnemyDist < 512) {

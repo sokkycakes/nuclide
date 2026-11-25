@@ -2837,7 +2837,17 @@ ncPlayer::Footsteps_Update(void)
 
 	//tracebox(origin, PHY_HULL_MIN, PHY_HULL_MAX, origin + [0,0,-48], MOVE_NORMAL, target);
 	traceline(origin + view_ofs, origin + [0,0,-48], MOVE_NORMAL, this);
-	tex_name = getsurfacetexture(trace_ent, getsurfacenearpoint(trace_ent, trace_endpos));
+	/* The trace already names the surface. getsurfacenearpoint needs render
+	 * surfaces, which FTE's dedicated server does not load for Q3-family
+	 * BSPs (duel_alley): there it dereferences NULL and the server crashes
+	 * on the first footstep. Only fall back on map formats where it's safe. */
+	tex_name = trace_surfacename;
+	if (STRING_SET(tex_name) == false) {
+		float bspVer = serverkeyfloat("*bspversion");
+		if (bspVer != BSPVER_Q2 && bspVer != BSPVER_Q2W && bspVer != BSPVER_Q3 && bspVer != BSPVER_RTCW && bspVer != BSPVER_RBSP) {
+			tex_name = getsurfacetexture(trace_ent, getsurfacenearpoint(trace_ent, trace_endpos));
+		}
+	}
 
 	/* don't step in air */
 	if (HasFlags(FL_ONGROUND) == false && HasVFlags(VFL_ONLADDER) == false) {
@@ -2962,6 +2972,9 @@ ncPlayer::Damage(entity inflictor, entity attacker, ncDict damageDecl, float dam
 			damagePoints = postArmorDamage;
 		}
 	}
+
+	/* Archstiletto-mode boss: mid-air hits count double (stiletto_combat.qc) */
+	damagePoints *= Stiletto_Combat_DamageScale(this);
 
 	damagePoints = rint(damagePoints);
 	SetHealth(GetHealth() - damagePoints);

@@ -1152,6 +1152,29 @@ Arena_Promote(void)
 		if (result == ARENARESULT_WIN && winnerSlot > 0i) {
 			winner = g_arenaCompetitor[winnerSlot - 1i];
 		}
+		/* 2v2: the whole winning team stays, in seat order */
+		if (winner && g_arenaShape == ARENASHAPE_2V2) {
+			/* split the seats that played, not g_arenaSlotCount: a mode may
+			   grow the roster in MATCH_END (a 1v1 fill-down becoming 2v2) */
+			int teamHalf = 0i;
+			for (i = 0i; i < ARENA_MAXSLOTS; i++) {
+				if (g_arenaCompetitor[i]) {
+					teamHalf = i + 1i;
+				}
+			}
+			teamHalf = (teamHalf + 1i) / 2i;
+			bool winFirstHalf = ((winnerSlot - 1i) < teamHalf);
+			for (i = g_arenaSlotCount - 1i; i >= 0i; i--) {
+				c = g_arenaCompetitor[i];
+				if (!c || (i < teamHalf) != winFirstHalf) {
+					continue;
+				}
+				g_arenaCompetitor[i] = __NULL__;
+				g_arenaPoints[i] = 0i;
+				Arena_SetPlayerState(c, ARENASTATE_READY);
+				Arena_QueuePushFront(c);
+			}
+		}
 		for (i = 0i; i < ARENA_MAXSLOTS; i++) {
 			c = g_arenaCompetitor[i];
 			g_arenaCompetitor[i] = __NULL__;
@@ -1450,4 +1473,35 @@ Arena_OnClientCommand(entity pl, string command)
 		return (false);
 	}
 	return (false);
+}
+
+/* =========================================================================
+ * Roster sizing for team / boss modes (see arena.h)
+ * ========================================================================= */
+bool
+Arena_SetRosterSize(int slotCount, int roundLimit)
+{
+	if (slotCount < 2i) {
+		slotCount = 2i;
+	}
+	if (slotCount > ARENA_MAXSLOTS) {
+		slotCount = ARENA_MAXSLOTS;
+	}
+
+	/* only between matches: no countdown or round is running on these seats */
+	if (g_arenaState != ARENA_WARMUP && g_arenaState != ARENA_MATCH_END) {
+		return (false);
+	}
+	/* in MATCH_END seats are still held: growing is safe, shrinking would
+	   orphan a competitor past the new count */
+	if (g_arenaState == ARENA_MATCH_END && slotCount < g_arenaSlotCount) {
+		return (false);
+	}
+
+	g_arenaSlotCount = slotCount;
+	g_arenaMinReady = slotCount;
+	if (roundLimit > 0i) {
+		g_arenaRoundLimit = roundLimit;
+	}
+	return (true);
 }

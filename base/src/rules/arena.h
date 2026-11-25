@@ -139,6 +139,13 @@ void Arena_SetSpawnClass(string className);
    Match-start still uses autocvar_arena_countdownTime at 1s ticks.
    count <= 0 keeps the match-start countdown; step <= 0 keeps 1s ticks. */
 void Arena_SetRoundCountdown(float count, float step);
+
+/* Resize the competitor roster (2..ARENA_MAXSLOTS) for modes whose seat count
+   depends on who is present: Freeze Tag fills down to 1v1, Archstiletto seats
+   one boss plus every challenger. Shrinking is only allowed in WARMUP (no seat
+   is held); growing also in MATCH_END, so the next match can seat new arrivals.
+   roundLimit <= 0 keeps the current limit. Returns false when refused. */
+bool Arena_SetRosterSize(int slotCount, int roundLimit);
 void Arena_FrameStart(void);
 void Arena_OnPlayerConnect(entity pl);
 void Arena_OnPlayerSpawn(entity pl);
