@@ -282,3 +282,53 @@ Hero_HandleClientCommand(entity pl, string command)
 		return (false);
 	}
 }
+
+/* =========================================================================
+ * Player colours in team modes
+ *
+ * Team modes paint a player's topcolor/bottomcolor user info keys in the
+ * team colour (the hero tint shows it). The player's own colours are kept in
+ * _topcolor/_bottomcolor, and _teamcolor remembers what the mode wrote. Any
+ * map start puts the player's own colours back (PutClientInServer in
+ * src/server/entry.qc reads the same keys), so leaving a team mode, or a
+ * team mode's spectator path (Colors_Restore), never leaves the team colour
+ * behind. A colour the player picks while on a team wins: it no longer
+ * matches _teamcolor, so it is the one kept.
+ * ========================================================================= */
+
+/** Paints a player in a team colour, keeping their own colours first. */
+void
+Colors_SetTeam(entity playerEntity, string teamColor)
+{
+	string marker = userinfo.GetString(playerEntity, "_teamcolor");
+	string top = userinfo.GetString(playerEntity, "topcolor");
+	string bottom = userinfo.GetString(playerEntity, "bottomcolor");
+
+	/* a key still holding the last team colour is not the player's own */
+	if (!STRING_SET(marker) || top != marker)
+		userinfo.SetString(playerEntity, "_topcolor", top);
+	if (!STRING_SET(marker) || bottom != marker)
+		userinfo.SetString(playerEntity, "_bottomcolor", bottom);
+
+	userinfo.SetString(playerEntity, "topcolor", teamColor);
+	userinfo.SetString(playerEntity, "bottomcolor", teamColor);
+	userinfo.SetString(playerEntity, "_teamcolor", teamColor);
+}
+
+/** Gives a player their own colours back, if a team mode changed them. */
+void
+Colors_Restore(entity playerEntity)
+{
+	string marker = userinfo.GetString(playerEntity, "_teamcolor");
+
+	if (!STRING_SET(marker))
+		return;
+
+	/* only the keys still in the team colour: a colour picked since stays */
+	if (userinfo.GetString(playerEntity, "topcolor") == marker)
+		userinfo.SetString(playerEntity, "topcolor", userinfo.GetString(playerEntity, "_topcolor"));
+	if (userinfo.GetString(playerEntity, "bottomcolor") == marker)
+		userinfo.SetString(playerEntity, "bottomcolor", userinfo.GetString(playerEntity, "_bottomcolor"));
+
+	userinfo.SetString(playerEntity, "_teamcolor", "");
+}

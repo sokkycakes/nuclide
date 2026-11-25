@@ -23,7 +23,7 @@ entity dom_team2WinMessage;
 
 static string g_tfPlayerColor[5] = {
 	"0xffffff",
-	"0xff1800"
+	"0xff1800",
 	"0x9aff"
 };
 
@@ -134,8 +134,7 @@ CodeCallback_PlayerRequestRespawn(entity playerEntity)
 {
 	if (is.Alive(playerEntity) == false) {
 		ents.ChangeToClass(playerEntity, playerEntity.classname);
-		userinfo.SetString(playerEntity, "topcolor", g_tfPlayerColor[playerEntity.team]);
-		userinfo.SetString(playerEntity, "bottomcolor", g_tfPlayerColor[playerEntity.team]);
+		Colors_SetTeam(playerEntity, g_tfPlayerColor[playerEntity.team]);
 		game.TeleportToSpawn(playerEntity);
 		music.PlayOnceOnClient(precache.Music("music/track05.ogg"), playerEntity);
 	}
@@ -151,12 +150,10 @@ CodeCallback_CallRequestTeam(entity playerEntity, int teamNum)
 	if (is.Alive(playerEntity) == false) {
 		if (playerEntity.team == 1) {
 			ents.ChangeToClass(playerEntity, "player_enforcer");
-			userinfo.SetString(playerEntity, "topcolor", "0xff1800");
-			userinfo.SetString(playerEntity, "bottomcolor", "0xff1800");
+			Colors_SetTeam(playerEntity, "0xff1800");
 		} else {
 			ents.ChangeToClass(playerEntity, "player_mp");
-			userinfo.SetString(playerEntity, "topcolor", "0x9aff");
-			userinfo.SetString(playerEntity, "bottomcolor", "0x9aff");
+			Colors_SetTeam(playerEntity, "0x9aff");
 		}
 
 		game.TeleportToSpawn(playerEntity);
