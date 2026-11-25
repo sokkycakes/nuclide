@@ -1,0 +1,105 @@
+// Entities the compilers act on that the game code doesn't define itself.
+// Each class here is only written out when no QuakeC class, entityDef or
+// script of the same name exists, so the game's own definition always wins.
+
+@SolidClass base(BrushCompile) color(0 128 204) = func_group : "Brushes grouped in the editor. The compilers merge them back into the world (TrenchBroom's groups and layers are func_groups too)." []
+
+@SolidClass base(BrushCompile) color(0 128 204) = func_detail : "Detail brushes: solid world geometry that doesn't split the BSP or block vis. q3map2, ericw qbsp and VHLT (with zhlt_detaillevel) all merge it into the world." []
+
+@SolidClass base(BrushCompile) color(0 128 204) = func_detail_illusionary : "ericw qbsp: detail brushes with no collision." []
+
+@SolidClass base(BrushCompile) color(0 128 204) = func_detail_wall : "ericw qbsp: detail brushes that only clip against world brushes, not other detail." []
+
+@SolidClass base(BrushCompile) color(0 128 204) = func_detail_fence : "ericw qbsp: detail brushes for fence ({) textures." []
+
+@SolidClass base(BrushCompile) color(0 128 204) = func_illusionary_visblocker : "ericw qbsp: not solid, but blocks vis like a wall (for water surfaces seen from inside)." []
+
+@PointClass color(255 128 0) size(-8 -8 -8, 8 8 8) model({ "path": model, "skin": skin, "frame": _frame, "scale": modelscale }) = misc_model : "q3map2: a model baked into the BSP as world triangles. Not an entity in game."
+[
+	model(string) : "Model" : "" : "Path to the model (md3, ase, obj, iqm and the formats q3map2 reads)."
+	modelscale(float) : "Scale" : "1" : ""
+	modelscale_vec(string) : "Scale (x y z)" : "" : ""
+	angles(string) : "Pitch yaw roll" : "0 0 0" : ""
+	_frame(integer) : "Frame" : 0 : ""
+	skin(integer) : "Skin" : 0 : ""
+	_remap(string) : "Material remap" : "" : "'old;new' material remap. Use _remap2, _remap3 for more."
+	_lightmapscale(string) : "Lightmap scale" : "" : ""
+	_castshadows(choices) : "Cast shadows" : 1 : "" =
+	[
+		0 : "None"
+		1 : "World"
+		-1 : "All entities"
+	]
+	_receiveshadows(choices) : "Receive shadows" : 1 : "" =
+	[
+		0 : "None"
+		1 : "World"
+		-1 : "All entities"
+	]
+	_celshader(string) : "Cel shader" : "" : ""
+	_patchMeta(choices) : "Make patch meshes" : 0 : "Turn the model into patch meshes." =
+	[
+		0 : "No"
+		1 : "Yes"
+	]
+	_shadeangle(string) : "Shade angle" : "" : ""
+	_nonsolid(choices) : "Not solid" : 0 : "" =
+	[
+		0 : "No"
+		1 : "Yes"
+	]
+]
+
+@PointClass color(255 128 0) size(-8 -8 -8, 8 8 8) = misc_external_map : "ericw qbsp: pulls the brushes of another .map in at this spot (prefabs)."
+[
+	_external_map(string) : "Map file" : "" : "Path to the .map, relative to this one."
+	_external_map_classname(string) : "Turn into" : "func_detail" : "Classname the imported brushes get."
+	_external_map_angle(float) : "Yaw" : "0" : ""
+	_external_map_angles(string) : "Pitch yaw roll" : "" : ""
+	_external_map_scale(string) : "Scale" : "1" : ""
+]
+
+@PointClass color(255 128 0) size(-16 -16 -16, 16 16 16) = _skybox : "q3map2: a 3D sky box. The area around this point is drawn as the sky, scaled by _scale."
+[
+	angles(string) : "Pitch yaw roll" : "0 0 0" : ""
+	_scale(float) : "Scale" : "64" : ""
+]
+
+@PointClass base(LightCompile) color(255 255 128) size(-8 -8 -8, 8 8 8) = light_spot : "Spot light, as Source maps and Source-converted maps place it. Points along pitch/angles; _cone and _inner_cone are the outer and inner angles."
+[
+	targetname(target_source) : "Name" : "" : ""
+	target(target_destination) : "Aim at" : "" : ""
+	angles(string) : "Pitch yaw roll" : "0 0 0" : ""
+	pitch(float) : "Pitch" : "-90" : ""
+	_cone(float) : "Outer angle" : "45" : ""
+	_inner_cone(float) : "Inner angle" : "30" : ""
+	_exponent(float) : "Focus" : "1" : ""
+	_color(color1) : "Colour (0-1)" : "" : "q3map2 colour."
+	light(float) : "Intensity" : "300" : ""
+	radius(float) : "Spot radius" : "64" : "q3map2: radius of the spot at its target."
+	style(integer) : "Light style" : 0 : ""
+]
+
+@PointClass color(255 255 0) size(-8 -8 -8, 8 8 8) = info_texlights : "VHLT hlrad: makes textures emit light. Each key is a texture name and its value 'r g b brightness'." []
+
+@PointClass color(255 255 0) size(-8 -8 -8, 8 8 8) = info_compile_parameters : "VHLT: compile settings stored in the map."
+[
+	priority(choices) : "Priority" : 0 : "" =
+	[
+		-1 : "Low"
+		0 : "Normal"
+		1 : "High"
+	]
+	wadautodetect(choices) : "Only used WADs" : 0 : "" =
+	[
+		0 : "No"
+		1 : "Yes"
+	]
+	wadconfig(string) : "WAD config" : "" : ""
+	texdata(string) : "Texture memory (KB)" : "" : ""
+	estimate(choices) : "Estimate times" : 1 : "" =
+	[
+		0 : "No"
+		1 : "Yes"
+	]
+]
