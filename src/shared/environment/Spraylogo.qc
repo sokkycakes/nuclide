@@ -98,6 +98,46 @@ Spray_Parse(void)
 	spSelf.m_strName = sprintf("spray_%i_%d", spSelf.m_iOwnerID, spSelf.m_bMonochrome);
 	spSelf.m_m_strPath = sprintf("simg_%i_%d", spSelf.m_iOwnerID, spSelf.m_bMonochrome);
 	spSelf.m_vecColor = stov(getplayerkeyvalue(spSelf.m_iOwnerID, "spraycolor"));
+
+	/* no spraycolor key: draw the image as it is, not black */
+	if (spSelf.m_vecColor == g_vec_null)
+		spSelf.m_vecColor = [1,1,1];
+}
+
+/** Sends the local player's spray as user info: the image in
+   _cl_playerspray (a path such as logos/fte.png; a bare name is looked
+   for in logos/) as the "spray" blob, plus spraycolor and spraytype.
+   Runs as the client game starts, so a spray works on any engine without
+   a menu having to set it first. */
+void
+Spray_InitLocalKeys(void)
+{
+	string sprayFile = cvar_string("_cl_playerspray");
+	string extension;
+
+	if (!STRING_SET(sprayFile))
+		return;
+
+	if (strstrofs(sprayFile, "/") < 0)
+		sprayFile = strcat("logos/", sprayFile);
+
+	/* search, rather than fopen: QC file reads may be limited to data/ */
+	searchhandle sprayFind = search_begin(sprayFile, SEARCH_NAMESORT, TRUE);
+	int sprayFound = (int)search_getsize(sprayFind);
+	search_end(sprayFind);
+
+	if (sprayFound <= 0i) {
+		ncWarning("Spray %S not found.", sprayFile);
+		return;
+	}
+
+	/* bmp sprays are monochrome, everything else is full colour */
+	extension = strtolower(substring(sprayFile, strlen(sprayFile) - 3, 3));
+	localcmd(sprintf("setinfoblob spray \"%s\"\n", sprayFile));
+	localcmd(sprintf("setinfo spraytype %d\n", (extension == "bmp") ? 1 : 0));
+
+	if (getlocaluserinfo(0, "spraycolor") == "")
+		localcmd("setinfo spraycolor \"1 1 1\"\n");
 }
 
 #else

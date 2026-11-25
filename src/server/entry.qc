@@ -228,6 +228,23 @@ PutClientInServer(void)
 
 	ncStats::Enter(ourPlayer);
 
+	/* A team mode may have painted this player in a team colour on an
+	   earlier map: give them their own colours back before the new mode
+	   decides. The keys are the ones a game's rules write with
+	   Colors_SetTeam (_teamcolor, the colour it set; _topcolor and
+	   _bottomcolor, the player's own). A colour the player picked since
+	   no longer matches _teamcolor and is kept. */
+	if (STRING_SET(infokey(ourPlayer, "_teamcolor"))) {
+		string teamColor = infokey(ourPlayer, "_teamcolor");
+
+		if (infokey(ourPlayer, "topcolor") == teamColor)
+			forceinfokey(ourPlayer, "topcolor", infokey(ourPlayer, "_topcolor"));
+		if (infokey(ourPlayer, "bottomcolor") == teamColor)
+			forceinfokey(ourPlayer, "bottomcolor", infokey(ourPlayer, "_bottomcolor"));
+
+		forceinfokey(ourPlayer, "_teamcolor", "");
+	}
+
 	if (g_grMode) {
 		g_grMode.PlayerSpawn(ourPlayer);
 	}

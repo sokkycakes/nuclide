@@ -922,6 +922,90 @@ ncPlayer::UpdatePlayerAttachments(bool visible)
 
 }
 
+#ifdef CLIENT
+/* Player colours.
+
+   topcolor and bottomcolor are user info keys. Stiletto writes them in FTE's
+   24-bit form, "0xRRGGBB"; Quake's palette rows 0-13 are still read for old
+   configs. The hero models (CS-style GoldSrc models and IQMs) have no
+   remappable shirt/pants textures, so neither FTE nor Bulwark could show the
+   colours through a colormap. The game shows them as a tint instead: the
+   upper colour tints the hero, the lower colour tints what they carry.
+   Team modes paint both keys in the team colour (see base/src/rules).
+
+   cg_playerColorTint sets the strength: 0 is off, 1 the full colour. The
+   colour is scaled to full brightness first, so greys and black give no
+   tint and a dark red tints as strongly as a bright one. */
+
+/* the value of one hex digit, or -1 */
+int
+Player_HexDigit(float c)
+{
+	if (c >= 48 && c <= 57)
+		return (int)(c - 48);
+	if (c >= 97 && c <= 102)
+		return (int)(c - 87);
+	if (c >= 65 && c <= 70)
+		return (int)(c - 55);
+	return -1i;
+}
+
+/** Returns a player colour value as RGB in 0-1, or [-1,-1,-1] when unset. */
+vector
+Player_ParseColor(string colorValue)
+{
+	/* the middle of each of Quake's 14 player colour rows */
+	static vector quakeRows[14] = {
+		[0.55, 0.55, 0.55], [0.56, 0.44, 0.22], [0.56, 0.56, 0.84], [0.42, 0.42, 0.06],
+		[0.78, 0.13, 0.13], [0.69, 0.56, 0.13], [0.84, 0.56, 0.42], [0.81, 0.53, 0.75],
+		[0.69, 0.38, 0.63], [0.75, 0.66, 0.53], [0.47, 0.69, 0.56], [0.94, 0.89, 0.24],
+		[0.25, 0.37, 0.88], [0.94, 0.56, 0.06]
+	};
+	int len = (int)strlen(colorValue);
+	int start = 0i;
+	int rgb = 0i;
+
+	if (len <= 0i)
+		return [-1, -1, -1];
+
+	if (substring(colorValue, 0, 2) == "0x" || substring(colorValue, 0, 2) == "0X")
+		start = 2i;
+	else if (substring(colorValue, 0, 1) == "#")
+		start = 1i;
+
+	if (start == 0i) {
+		float row = stof(colorValue);
+		if (row < 0 || row > 13)
+			return [-1, -1, -1];
+		return quakeRows[(int)row];
+	}
+
+	for (int i = start; i < len; i++) {
+		int d = Player_HexDigit(str2chr(colorValue, i));
+		if (d < 0i)
+			break;
+		rgb = (rgb << 4i) | d;
+	}
+
+	return [(float)((rgb >> 16i) & 255i), (float)((rgb >> 8i) & 255i), (float)(rgb & 255i)] / 255;
+}
+
+/** The colormod for one of a player's colour keys. */
+vector
+Player_ColorTint(float playerSlot, string infoKey)
+{
+	float strength = bound(0.0f, autocvar(cg_playerColorTint, 0.5f), 1.0f);
+	vector color = Player_ParseColor(getplayerkeyvalue(playerSlot, infoKey));
+	float peak = max(color[0], max(color[1], color[2]));
+
+	if (strength <= 0.0f || peak <= 0.0f)
+		return [1, 1, 1];
+
+	color /= peak;
+	return [1, 1, 1] + ([color[0] - 1, color[1] - 1, color[2] - 1] * strength);
+}
+#endif
+
 float
 ncPlayer::predraw(void)
 {
@@ -994,6 +1078,10 @@ ncPlayer::predraw(void)
 	/* apply any necessary filters from ncRenderableEntity */
 	RenderFXPass();
 
+	/* the player's colours, as a tint (only over plain rendering) */
+	if (GetRenderMode() == RM_NORMAL)
+		colormod = Player_ColorTint(entnum - 1, "topcolor");
+
 	/* apply any fire effects, if we're burning (we're of type ncSurfacePropEntity that can burn) */
 	RenderFire();
 
@@ -1047,6 +1135,9 @@ ncPlayer::predraw(void)
 	if (p_model) {
 		p_model.entnum = entnum;
 		p_model.drawmask = 0;
+
+		if (p_model.GetRenderMode() == RM_NORMAL)
+			p_model.colormod = Player_ColorTint(entnum - 1, "bottomcolor");
 
 		if (p_model.GetRenderMode() != RM_DONTRENDER)
 			addentity(p_model);
@@ -2186,6 +2277,46 @@ ncPlayer::Death(entity inflictor, entity attacker, int damagePoints, vector dir,
 	Juliet_ChargeReset(this);
 }
 
+#ifdef SERVER
+/* The player model choice (the "model" user info key, which the menus set
+   from _cl_playermodel).
+
+   Heroes own their look, so the choice only replaces a hero model that is
+   one of the shared GoldSrc stand-ins below: those share one skeleton and
+   animation set, so any of them can stand in for another. A hero with its
+   own model (an IQM, the Archstiletto) keeps it. */
+static string g_playerModelChoices[4] = { "alice2", "jennifer2", "natasha2", "yuri2" };
+
+static bool
+Player_IsStandInModel(string modelName)
+{
+	for (int i = 0i; i < 4i; i++) {
+		if (modelName == sprintf("models/player/%s/%s.mdl", g_playerModelChoices[i], g_playerModelChoices[i])) {
+			return (true);
+		}
+	}
+
+	return (false);
+}
+
+void
+Player_ApplyChosenModel(ncPlayer pl)
+{
+	string chosen = infokey(pl, "model");
+	string chosenPath;
+
+	if (!STRING_SET(chosen) || Player_IsStandInModel(pl.model) == false)
+		return;
+
+	chosenPath = sprintf("models/player/%s/%s.mdl", chosen, chosen);
+
+	if (chosenPath == pl.model || Player_IsStandInModel(chosenPath) == false)
+		return;
+
+	pl.SetModel(chosenPath);
+}
+#endif
+
 void
 ncPlayer::MakePlayer(void)
 {
@@ -2216,6 +2347,10 @@ ncPlayer::MakePlayer(void)
 	SetGravity(1.0f);
 	SendFlags = UPDATE_ALL;
 	customphysics = Empty;
+#ifdef SERVER
+	/* the player's chosen model, where the hero allows it */
+	Player_ApplyChosenModel(this);
+#endif
 	/* Per-hero visual size (e.g. Smash IQM vs Quake hull). Missing key → 0. */
 	float modelScale = GetSpawnFloat("modelscale");
 	if (modelScale <= 0)

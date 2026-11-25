@@ -92,8 +92,7 @@ CodeCallback_CallRequestTeam(entity playerEntity, int teamNum)
 
 		ents.Input(playerEntity, "SetTeam", itos(TEAM_SPECTATOR), playerEntity);
 		ents.ChangeToClass(playerEntity, "spectator");
-		userinfo.SetString(playerEntity, "topcolor", "0xffffff");
-		userinfo.SetString(playerEntity, "bottomcolor", "0xffffff");
+		Colors_Restore(playerEntity);
 		game.TeleportToSpawn(playerEntity);
 		return (true);
 	}
