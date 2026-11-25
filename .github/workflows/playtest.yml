@@ -69,6 +69,7 @@ jobs:
       - name: Build every QuakeC progs from source
         # The game modules (progs.dat, csprogs.dat, hud.dat, menu.dat) and
         # the rules progs g_gametype <mode> loads (base/progs/<mode>.dat)
+        # and the per-map progs a map loads (base/maps/<map>.dat)
         # are committed binaries, and a branch that changes the .qc but not
         # the binary ships the old code with no merge conflict to warn
         # anyone (a duel.qc or vgui_motd.qc change, say). duel.dat was also
@@ -82,14 +83,20 @@ jobs:
             echo "building base/src/$mod"
             (cd "base/src/$mod" && "$qcc" -I../../../src/common/ progs.src) || { echo "::error::base/src/$mod did not compile"; exit 1; }
           done
-          cd base/src/rules
-          for src in *.src; do
-            dat=$(sed -n 's/^#pragma[[:space:]]\+PROGS_DAT[[:space:]]\+"\(.*\)"/\1/p' "$src" | head -1)
-            [ -n "$dat" ] || continue
-            echo "building $src -> $dat"
-            rm -f "$dat"
-            "$qcc" -I../../../src/common/ "$src"
-            [ -f "$dat" ] || { echo "::error::$src did not produce $dat"; exit 1; }
+          # rules progs (base/progs/<mode>.dat) and per-map progs
+          # (base/maps/<map>.dat: Domination's capture points on the lqdm maps)
+          for dir in base/src/rules base/src/maps; do
+            (
+              cd "$dir"
+              for src in *.src; do
+                dat=$(sed -n 's/^#pragma[[:space:]]\+PROGS_DAT[[:space:]]\+"\(.*\)"/\1/p' "$src" | head -1)
+                [ -n "$dat" ] || continue
+                echo "building $dir/$src -> $dat"
+                rm -f "$dat"
+                "$qcc" -I../../../src/common/ "$src"
+                [ -f "$dat" ] || { echo "::error::$dir/$src did not produce $dat"; exit 1; }
+              done
+            ) || exit 1
           done
 
       - name: Work out the channel and release notes

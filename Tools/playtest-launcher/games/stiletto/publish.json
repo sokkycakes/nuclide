@@ -21,7 +21,7 @@
     "**/Thumbs.db", "**/.DS_Store",
     "base/mapsrc/**", "base/modelsrc/**", "base/src/**", "base/saves/**", "base/tools/**",
     "base/PLUGINS", "base/PROJECT", "base/README.md", "base/FuncGodot.fgd",
-    "base/*.png", "base/*.txt", "base/*.qwd.gz", "base/*.json",
+    "base/*.png", "base/*qcc*.txt", "base/stilettohudsvg.txt", "base/readme.txt", "base/*.qwd.gz", "base/*.json",
     "base/_bench*.cfg", "base/lobby_*.cfg",
     "base/config.cfg", "base/fte.cfg", "base/conhistory.txt", "base/installed.lst",
     "base/**/autosave/**", "base/**/autosaves/**", "base/**/logs/**"
