@@ -1,0 +1,48 @@
+// Shared by every profile: Nuclide's entity I/O and the engine's own
+// worldspawn keys.
+
+// ------------------------------------------------------------------ I/O
+
+@BaseClass = NuclideIO
+[
+	parentname(target_destination) : "Parent" : "" : "Entity to move with (Source's parentname). 'movewith' is the Spirit of Half-Life spelling."
+	movewith(target_destination) : "Move with (SoHL)" : "" : "Spirit of Half-Life's name for parentname."
+	script_gametype(string) : "Game types" : "" : "Only spawn in these game types (space separated). Empty spawns in every one."
+	output OnSpawn(void) : "Fired when the entity spawns."
+	output OnKilled(void) : "Fired when the entity is removed or killed."
+	output OnTrigger(void) : "Fired when the entity is triggered."
+	output OnUser1(void) : "Fired by the FireUser1 input."
+	output OnUser2(void) : "Fired by the FireUser2 input."
+	output OnUser3(void) : "Fired by the FireUser3 input."
+	output OnUser4(void) : "Fired by the FireUser4 input."
+	input FireUser1(void) : "Fires OnUser1."
+	input FireUser2(void) : "Fires OnUser2."
+	input FireUser3(void) : "Fires OnUser3."
+	input FireUser4(void) : "Fires OnUser4."
+	input Use(void) : "Uses (triggers) the entity."
+	input Kill(void) : "Removes the entity."
+	input KillHierarchy(void) : "Removes the entity and everything parented to it."
+	input SetParent(string) : "Parents the entity to the named entity."
+	input SetParentAttachment(string) : "Attaches the entity to the named attachment of its parent."
+	input ClearParent(void) : "Removes the parent."
+	input SetOrigin(string) : "Moves the entity to 'x y z'."
+	input Show(void) : "Makes the entity visible."
+	input Hide(void) : "Makes the entity invisible."
+	input Respawn(void) : "Respawns the entity."
+	input DropToFloor(void) : "Drops the entity to the floor below it."
+	input SpawnDef(string) : "Spawns the named entityDef at the entity."
+]
+
+// ------------------------------------------------------------------ worldspawn
+
+@BaseClass = WorldEngine
+[
+	_fog(string) : "Fog" : "" : "Fog in the playable area: 'density r g b [alpha depthbias]'. 'fog' is read too."
+	_waterfog(string) : "Water fog" : "" : "Fog under water: 'density r g b [alpha depthbias]'. 'waterfog' is read too."
+	_skyroomfog(string) : "Sky room fog" : "" : "Fog in the sky_camera area: 'density r g b [alpha depthbias]'."
+	skyname(string) : "Sky" : "" : "Sky box name, looked up under gfx/env/ and as a material ('sky' is read too)."
+	gridsize(string) : "Light grid size" : "64 64 128" : "Size of the Q3 BSP light grid cells (used by q3map2 and the renderer)."
+	light(string) : "Minimum light (Quake)" : "" : "Quake-style minimum light level for the whole map."
+	_tb_def(string) : "Entity definitions" : "" : "Set by TrenchBroom: which entity definition file the map uses."
+	_tb_mod(string) : "Mods" : "" : "Set by TrenchBroom: extra game directories loaded for this map."
+]

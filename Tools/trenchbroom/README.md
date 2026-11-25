@@ -1,13 +1,23 @@
 # TrenchBroom profiles
 
 Game profiles for [TrenchBroom](https://trenchbroom.github.io/) 2026.2 or
-newer:
+newer. Each game comes in two flavours:
 
-| Profile | Game | Map formats | Entity definitions |
-| --- | --- | --- | --- |
-| **Bulwark** | any Bulwark game on the Nuclide framework | Valve 220, Quake 3 (Valve and legacy), Standard | `Bulwark.fgd` (framework), `Bulwark-HalfLife.fgd` (adds Rad-Therapy and the Sven Co-op style co-op game) |
-| **Stiletto Proto (Bulwark)** | Stiletto Proto running on Bulwark | Quake 3 (Valve and legacy), Valve 220 | `Stiletto.fgd` |
-| **Stiletto Proto (FTEQW)** | Stiletto Proto running on FTEQW | Quake 3 (Valve and legacy), Valve 220 | `Stiletto.fgd` |
+- **Simple** (start here): textures are plain images, there is one map
+  format and one compiler, and Run > Compile has three choices. New maps
+  start as a small lit room with a player start.
+- **Compat**: everything the simple profile has plus Q3 shader scripts, WAD
+  textures, more map formats and the ericw-tools and VHLT compilers, for
+  working on Quake, Half-Life and Quake 3 style maps.
+
+| Profile | Game | Entity definitions |
+| --- | --- | --- |
+| **Bulwark** | any Bulwark game on the Nuclide framework | `Bulwark.fgd` |
+| **Stiletto Proto (Bulwark)** | Stiletto Proto running on Bulwark | `Stiletto.fgd` |
+| **Stiletto Proto (FTEQW)** | Stiletto Proto running on FTEQW | `Stiletto.fgd` |
+| **Bulwark Compat** | as Bulwark, plus Half-Life maps | `Bulwark-Compat.fgd`, `Bulwark-Compat-HalfLife.fgd` (adds Rad-Therapy and the Sven Co-op style co-op game) |
+| **Stiletto Proto Compat (Bulwark)** | as above | `Stiletto-Compat.fgd` |
+| **Stiletto Proto Compat (FTEQW)** | as above | `Stiletto-Compat.fgd` |
 
 Each profile is a folder under `games/` holding its `GameConfig.cfg`,
 icon, entity definitions, compile profiles (`CompilationProfiles.cfg`) and
@@ -32,17 +42,46 @@ Then in TrenchBroom's Preferences, for each game:
     `base/`).
   - Bulwark: the folder that holds `base/` and your game. For the games in
     bulwark-engine that is `bulwark-engine/games` after
-    `games/link-nuclide.sh`. Add `valve` and `coop` as mods (the Mods list in the Map inspector) for
-    Half-Life co-op maps.
-- **Compilation tools**: paths to `q3map2`, and to the ericw-tools (`qbsp`,
-  `vis`, `light`) and VHLT (`hlcsg`, `hlbsp`, `hlvis`, `hlrad`) you use.
-  Stiletto ships q3map2 in `Tools/q3map2/` and ericw-tools in
-  `Tools/ericw-tools-win64/`.
+    `games/link-nuclide.sh`. In Bulwark Compat, add `valve` and `coop` as
+    mods (the Mods list in the Map inspector) for Half-Life co-op maps.
+- **Compilation tools**: the path to `q3map2` (Stiletto ships it as
+  `Tools/q3map2/q3map2.exe`; Nuclide's `vmap` works too). The Compat
+  profiles also take the ericw-tools (`qbsp`, `vis`, `light`, shipped in
+  Stiletto's `Tools/ericw-tools-win64/`) and VHLT (`hlcsg`, `hlbsp`,
+  `hlvis`, `hlrad`).
 - **Engines** (Run > Launch): set the path of `bulwark` or `fteqw64`.
 
-## Materials
+## Simple profiles
 
-The profiles read both kinds of texture at once:
+- **Textures** are the images under `<game>/textures/` (png, jpg, tga). Drop
+  a picture into a subfolder there and it shows up in the material browser.
+  Normal, gloss and other helper maps (`_norm`, `_gloss`, ...) are hidden.
+  `common/` holds the tool textures: `caulk` (faces nobody sees), `clip`
+  (invisible wall), `trigger`, `hint`, `skip`, `nodraw`, `origin`. The view
+  menu's tag filters hide or show them, and trigger brushes get `common/trigger`
+  when you make them.
+- **Map format** is Quake 3 (the classic brush format every q3map2 reads).
+- **Compile** (Run > Compile) has three choices, all of which put the BSP in
+  `<game path>/<last mod>/maps/` and then start the engine on it:
+  - *Build and play*: quick lighting, for testing.
+  - *Final build*: full visibility and soft, bounced lighting. It doesn't
+    start the engine unless you tick the last step.
+  - *Quick build (no lighting)*: for checking layout; the map is fullbright.
+- **Entities**: the same pool as the Compat profiles (QuakeC classes,
+  entityDefs, scripted entities, I/O and Bulwark's script keys), minus the
+  internal `nc*` base classes, with only the compiler keys most maps need.
+  Use `func_detail` for small or complex shapes to keep compiles fast.
+
+## Compat profiles
+
+Map formats: Bulwark Compat offers Valve 220, Quake 3 (Valve and legacy)
+and Standard; the Stiletto Compat profiles offer Quake 3 (legacy) first,
+because the q3map2 2.5.17 Stiletto ships reads only that brush format,
+then Quake 3 (Valve) and Valve 220 for a newer q3map2 or the ericw-tools.
+
+### Materials
+
+The Compat profiles read both kinds of texture at once:
 
 - Loose images under `<game>/textures/` (tga, png, jpg, dds, ktx) with Q3
   shader scripts from `<game>/scripts/*.shader`, as q3map2 and Nuclide use
@@ -55,7 +94,7 @@ Smart tags hide or highlight clip, caulk, skip, nodraw, null, hint, origin,
 trigger and areaportal faces, sky and liquids (by name for WADs, by
 surfaceparm for shaders), detail brushes and trigger and detail entities.
 
-## Entities
+### Entities
 
 The FGDs list every entity the game can spawn, from the three places
 Bulwark spawns entities from:
@@ -82,7 +121,7 @@ Every entity also gets:
   (`door1,Open,,0,-1,light1,TurnOn,,0.5,-1`); Nuclide splits them every five
   fields. TrenchBroom keeps only one key of a name per entity, so repeated
   keys as Hammer writes them don't survive an edit.
-- **Bulwark's script layer** (the two Bulwark profiles): `vscripts` and
+- **Bulwark's script layer** (every profile that runs on Bulwark): `vscripts` and
   `thinkfunction`, and the `RunScriptCode`, `RunScriptFile`,
   `CallScriptFunction` and `SetThinkFunction` inputs, as in Valve's VScript.
   Worldspawn's `vscripts` runs in the root scope. See
@@ -100,9 +139,9 @@ Every entity also gets:
   `light_spot` (as Source-converted maps place it), and VHLT's
   `info_texlights` and `info_compile_parameters`.
 
-## Compiling
+### Compiling
 
-Compile profiles (Run > Compile) export the map as
+The compile profiles export the map as
 `<map>-compile.map` next to it, compile that, and move the BSP to
 `<game path>/<last mod>/maps/<map>.bsp`:
 
@@ -112,7 +151,7 @@ Compile profiles (Run > Compile) export the map as
 | Quake BSP2 (ericw): full, fast | qbsp, vis, light | BSP2 with WAD textures |
 | Half-Life BSP30 (VHLT): full, fast (Bulwark only) | hlcsg, hlbsp, hlvis, hlrad | GoldSrc BSP30 with WAD3 textures |
 
-Each profile ends with a **Launch engine** task, off by default: tick it to
+Each one ends with a **Launch engine** task, off by default: tick it to
 start the map in Bulwark or FTEQW (`+devmap`) once it's built. "Entities
 only" rewrites the entity lump of the BSP already in the game's maps
 folder, so it needs a full compile first. For quick entity edits without
@@ -123,8 +162,10 @@ entities.
 
 The FGDs are generated. After changing entities in Nuclide, a game's
 `decls/def/` or its scripted entities, or the hand-written pieces in
-`shared/` (compiler keys in `common.fgd`, script hooks in `bulwark.fgd`,
-compile-only classes in `compile-entities.fgd`), rebuild them:
+`shared/` (entity I/O and engine keys in `io.fgd`, compiler keys in
+`compile-simple.fgd` and `compile-compat.fgd`, script hooks in
+`bulwark.fgd`, compile-only classes in `compile-entities-simple.fgd` and
+`compile-entities-compat.fgd`), rebuild them:
 
     python3 build_fgd.py \
         --framework <nuclide checkout with the script hooks> \

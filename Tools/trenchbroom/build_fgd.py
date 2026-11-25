@@ -39,35 +39,70 @@ GAMES = os.path.join(HERE, "games")
 
 # Layers are read in order; a class in a later layer replaces an earlier one
 # of the same name. "shared:<file>" is a hand-written FGD under shared/.
+SIMPLE = ["shared:io.fgd", "shared:compile-simple.fgd"]
+COMPAT = ["shared:io.fgd", "shared:compile-compat.fgd"]
+
+# "simple" profiles leave out the nc* QuakeC base classes, which can't be
+# placed on their own, and use the short compiler key set.
 PROFILES = [
     {
         "dir": "Bulwark",
         "scripting": True,
+        "simple": True,
         "files": [
-            ("Bulwark.fgd", "Bulwark: Nuclide framework entities",
-             ["shared:common.fgd", "shared:bulwark.fgd", "nuclide:framework",
-              "shared:compile-entities.fgd"]),
-            ("Bulwark-HalfLife.fgd", "Bulwark: Half-Life (Rad-Therapy) and Sven Co-op style co-op",
-             ["shared:common.fgd", "shared:bulwark.fgd", "nuclide:framework",
-              "game:valve", "game:coop", "shared:compile-entities.fgd"]),
+            ("Bulwark.fgd", "Bulwark",
+             SIMPLE + ["shared:bulwark.fgd", "nuclide:framework",
+                       "shared:compile-entities-simple.fgd"]),
         ],
     },
     {
         "dir": "Stiletto Proto (Bulwark)",
         "scripting": True,
+        "simple": True,
         "files": [
             ("Stiletto.fgd", "Stiletto Proto on Bulwark",
-             ["shared:common.fgd", "shared:bulwark.fgd", "nuclide:stiletto",
-              "game:stiletto", "shared:compile-entities.fgd"]),
+             SIMPLE + ["shared:bulwark.fgd", "nuclide:stiletto", "game:stiletto",
+                       "shared:compile-entities-simple.fgd"]),
         ],
     },
     {
         "dir": "Stiletto Proto (FTEQW)",
         "scripting": False,
+        "simple": True,
         "files": [
             ("Stiletto.fgd", "Stiletto Proto on FTEQW",
-             ["shared:common.fgd", "nuclide:stiletto",
-              "game:stiletto", "shared:compile-entities.fgd"]),
+             SIMPLE + ["nuclide:stiletto", "game:stiletto",
+                       "shared:compile-entities-simple.fgd"]),
+        ],
+    },
+    {
+        "dir": "Bulwark Compat",
+        "scripting": True,
+        "files": [
+            ("Bulwark-Compat.fgd", "Bulwark Compat: Nuclide framework entities",
+             COMPAT + ["shared:bulwark.fgd", "nuclide:framework",
+                       "shared:compile-entities-compat.fgd"]),
+            ("Bulwark-Compat-HalfLife.fgd", "Bulwark Compat: Half-Life (Rad-Therapy) and Sven Co-op style co-op",
+             COMPAT + ["shared:bulwark.fgd", "nuclide:framework",
+                       "game:valve", "game:coop", "shared:compile-entities-compat.fgd"]),
+        ],
+    },
+    {
+        "dir": "Stiletto Proto Compat (Bulwark)",
+        "scripting": True,
+        "files": [
+            ("Stiletto-Compat.fgd", "Stiletto Proto Compat on Bulwark",
+             COMPAT + ["shared:bulwark.fgd", "nuclide:stiletto",
+                       "game:stiletto", "shared:compile-entities-compat.fgd"]),
+        ],
+    },
+    {
+        "dir": "Stiletto Proto Compat (FTEQW)",
+        "scripting": False,
+        "files": [
+            ("Stiletto-Compat.fgd", "Stiletto Proto Compat on FTEQW",
+             COMPAT + ["nuclide:stiletto",
+                       "game:stiletto", "shared:compile-entities-compat.fgd"]),
         ],
     },
 ]
@@ -704,6 +739,8 @@ def build(args):
                             merged[name] = ent
             # generated classes are finished on copies, so profiles don't share state
             gen = []
+            if prof.get("simple"):
+                merged = {n: e for n, e in merged.items() if not re.match(r"nc[A-Z]", n)}
             for name in sorted(merged, key=lambda n: (n != "worldspawn", n.lower())):
                 ent = copy.deepcopy(merged[name])
                 finish(ent, prof["scripting"])
@@ -717,7 +754,7 @@ def build(args):
             ]
             compile_only = []
             for layer, chunks in hand:
-                if layer == "shared:compile-entities.fgd":
+                if layer.startswith("shared:compile-entities"):
                     for name, text in chunks:
                         if name is None or name not in names:
                             compile_only.append(text)
