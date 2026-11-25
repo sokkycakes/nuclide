@@ -139,3 +139,33 @@ Util_GetAddress(void)
 	else
 		return host;
 }
+
+/** Console commands are case-insensitive in both engines, but the name the
+game sees is the one that was typed: `addbot` reaches the progs as "addbot",
+not "addBot". Returns the spelling from `knownNames` (a space-separated
+list) that matches `typed` ignoring case, else `typed` unchanged. */
+string
+Util_CommandName(string typed, string knownNames)
+{
+	string lowTyped = strtolower(typed);
+	int len = (int)strlen(knownNames);
+	int start = 0i;
+
+	while (start < len) {
+		int stop = (int)strstrofs(knownNames, " ", start);
+
+		if (stop < 0i) {
+			stop = len;
+		}
+
+		string word = substring(knownNames, start, stop - start);
+
+		if (strtolower(word) == lowTyped) {
+			return (word);
+		}
+
+		start = stop + 1i;
+	}
+
+	return (typed);
+}
