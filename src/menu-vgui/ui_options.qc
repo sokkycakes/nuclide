@@ -142,6 +142,15 @@ static vguiSlider sldVoipMic;
 static vguiPic picPlayerModel;
 static vguiLabel lblPlayerName;
 static vguiTextBox txbPlayerName;
+/* player setup, the same values Bulwark's Player setup page writes */
+static vguiLabel lblTopColor;
+static vguiTextBox txbTopColor;
+static vguiLabel lblBottomColor;
+static vguiTextBox txbBottomColor;
+static vguiLabel lblHeroModel;
+static vguiTextBox txbHeroModel;
+static vguiLabel lblSpray;
+static vguiTextBox txbSpray;
 static vguiLabel lblCrosshairHdr;
 static vguiCheckbox cbCrosshair;
 static vguiLabel lblCrossSize;
@@ -638,6 +647,10 @@ UI_Options_RefreshWidgetsFromEngine(void)
 	txbPlayerName.SetText(
 		STRING_SET(cvar_string("ui_name")) ?
 		cvar_string("ui_name") : cvar_string("name"));
+	txbTopColor.SetText(cvar_string("topcolor"));
+	txbBottomColor.SetText(cvar_string("bottomcolor"));
+	txbHeroModel.SetText(cvar_string("cg_heroModel"));
+	txbSpray.SetText(cvar_string("_cl_playerspray"));
 
 	cbReverseMouse.SetValue((cvar("m_pitch") < 0) ? 1 : 0);
 	cbMouseFilter.SetValue(cvar("m_filter") ? 1 : 0);
@@ -743,6 +756,14 @@ UI_Options_Multiplayer_Hide(void)
 	picPlayerModel.Hide();
 	lblPlayerName.Hide();
 	txbPlayerName.Hide();
+	lblTopColor.Hide();
+	txbTopColor.Hide();
+	lblBottomColor.Hide();
+	txbBottomColor.Hide();
+	lblHeroModel.Hide();
+	txbHeroModel.Hide();
+	lblSpray.Hide();
+	txbSpray.Hide();
 	lblCrosshairHdr.Hide();
 	cbCrosshair.Hide();
 	lblCrossSize.Hide();
@@ -899,6 +920,14 @@ UI_Options_Multiplayer_Show(void)
 	picPlayerModel.Show();
 	lblPlayerName.Show();
 	txbPlayerName.Show();
+	lblTopColor.Show();
+	txbTopColor.Show();
+	lblBottomColor.Show();
+	txbBottomColor.Show();
+	lblHeroModel.Show();
+	txbHeroModel.Show();
+	lblSpray.Show();
+	txbSpray.Show();
 	lblCrosshairHdr.Show();
 	cbCrosshair.Show();
 	lblCrossSize.Show();
@@ -995,6 +1024,53 @@ UI_Options_Btn_KbUseDefaults(void)
 	UI_Options_MarkDirty();
 }
 
+/* A colour as typed (0xRRGGBB, #RRGGBB or RRGGBB) in FTE's 24-bit form,
+   0xRRGGBB; anything else (a Quake palette number) is kept as typed. */
+static string
+UI_Options_NormalizeColor(string typed)
+{
+	string hex = strtolower(strtrim(typed));
+
+	if (substring(hex, 0, 2) == "0x")
+		hex = substring(hex, 2, -1);
+	else if (substring(hex, 0, 1) == "#")
+		hex = substring(hex, 1, -1);
+
+	if (strlen(hex) == 6) {
+		for (int i = 0i; i < 6i; i++) {
+			if (strstrofs("0123456789abcdef", substring(hex, i, 1)) < 0)
+				return strtrim(typed);
+		}
+		return strcat("0x", hex);
+	}
+
+	return strtrim(typed);
+}
+
+static void
+UI_Options_ApplyPlayerSetup(void)
+{
+	string topColor = UI_Options_NormalizeColor(txbTopColor.GetText());
+	string bottomColor = UI_Options_NormalizeColor(txbBottomColor.GetText());
+	string heroModel = strtrim(txbHeroModel.GetText());
+	string spray = strtrim(txbSpray.GetText());
+
+	if (STRING_SET(topColor))
+		localcmd(sprintf("seta topcolor %S\n", topColor));
+	if (STRING_SET(bottomColor))
+		localcmd(sprintf("seta bottomcolor %S\n", bottomColor));
+
+	/* empty: each hero wears its own model */
+	localcmd(sprintf("seta cg_heroModel %S\nsetinfo model %S\n", heroModel, heroModel));
+
+	if (STRING_SET(spray)) {
+		if (strstrofs(spray, "/") < 0)
+			spray = strcat("logos/", spray);
+		localcmd(sprintf("seta _cl_playerspray %S\nsetinfoblob spray %S\n", spray, spray));
+		localcmd(sprintf("setinfo spraytype %d\n", (strtolower(substring(spray, strlen(spray) - 4, 4)) == ".bmp") ? 1 : 0));
+	}
+}
+
 static void
 UI_Options_Apply_NoVideo(void)
 {
@@ -1002,6 +1078,7 @@ UI_Options_Apply_NoVideo(void)
 
 	cvar_set("name", playerName);
 	cvar_set("ui_name", playerName);
+	UI_Options_ApplyPlayerSetup();
 
 	if (cbReverseMouse.GetValue()) {
 		cvar_set("m_pitch", ftos(-fabs(cvar("m_pitch"))));
@@ -1480,6 +1557,39 @@ void UI_Options_Show ( void )
 		txbPlayerName.SetPos( [230, UIOPT_SHEET_TOP + 34] );
 		txbPlayerName.SetSize( [250, 24] );
 
+		/* player colours, model and spray: below the model picture */
+		lblTopColor = spawn( vguiLabel );
+		lblTopColor.SetTitle( "Upper colour" );
+		lblTopColor.SetPos( [20, UIOPT_SHEET_TOP + 230] );
+		lblTopColor.SetSize( [90, 24] );
+		txbTopColor = spawn( vguiTextBox );
+		txbTopColor.SetPos( [110, UIOPT_SHEET_TOP + 228] );
+		txbTopColor.SetSize( [110, 24] );
+
+		lblBottomColor = spawn( vguiLabel );
+		lblBottomColor.SetTitle( "Lower colour" );
+		lblBottomColor.SetPos( [20, UIOPT_SHEET_TOP + 260] );
+		lblBottomColor.SetSize( [90, 24] );
+		txbBottomColor = spawn( vguiTextBox );
+		txbBottomColor.SetPos( [110, UIOPT_SHEET_TOP + 258] );
+		txbBottomColor.SetSize( [110, 24] );
+
+		lblHeroModel = spawn( vguiLabel );
+		lblHeroModel.SetTitle( "Model" );
+		lblHeroModel.SetPos( [20, UIOPT_SHEET_TOP + 290] );
+		lblHeroModel.SetSize( [90, 24] );
+		txbHeroModel = spawn( vguiTextBox );
+		txbHeroModel.SetPos( [110, UIOPT_SHEET_TOP + 288] );
+		txbHeroModel.SetSize( [110, 24] );
+
+		lblSpray = spawn( vguiLabel );
+		lblSpray.SetTitle( "Spray" );
+		lblSpray.SetPos( [20, UIOPT_SHEET_TOP + 320] );
+		lblSpray.SetSize( [90, 24] );
+		txbSpray = spawn( vguiTextBox );
+		txbSpray.SetPos( [110, UIOPT_SHEET_TOP + 318] );
+		txbSpray.SetSize( [110, 24] );
+
 		lblCrosshairHdr = spawn( vguiLabel );
 		lblCrosshairHdr.SetTitle( SRC_GAMEUI_CROSSHAIR_HDR );
 		lblCrosshairHdr.SetPos( [230, UIOPT_SHEET_TOP + 64] );
@@ -1590,6 +1700,14 @@ void UI_Options_Show ( void )
 		winOptions.Add( picPlayerModel );
 		winOptions.Add( lblPlayerName );
 		winOptions.Add( txbPlayerName );
+		winOptions.Add( lblTopColor );
+		winOptions.Add( txbTopColor );
+		winOptions.Add( lblBottomColor );
+		winOptions.Add( txbBottomColor );
+		winOptions.Add( lblHeroModel );
+		winOptions.Add( txbHeroModel );
+		winOptions.Add( lblSpray );
+		winOptions.Add( txbSpray );
 		winOptions.Add( lblCrosshairHdr );
 		winOptions.Add( cbCrosshair );
 		winOptions.Add( lblCrossSize );
@@ -1621,6 +1739,10 @@ void UI_Options_Show ( void )
 	txbPlayerName.SetText(
 		STRING_SET(cvar_string( "ui_name" )) ?
 		cvar_string( "ui_name" ) : cvar_string( "name" ) );
+	txbTopColor.SetText(cvar_string("topcolor"));
+	txbBottomColor.SetText(cvar_string("bottomcolor"));
+	txbHeroModel.SetText(cvar_string("cg_heroModel"));
+	txbSpray.SetText(cvar_string("_cl_playerspray"));
 
 	cbReverseMouse.SetValue( (cvar( "m_pitch" ) < 0) ? 1 : 0 );
 	cbMouseFilter.SetValue( cvar("m_filter") ? 1 : 0 );

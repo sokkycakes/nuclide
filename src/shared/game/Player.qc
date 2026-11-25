@@ -996,7 +996,24 @@ Player_ColorTint(float playerSlot, string infoKey)
 {
 	float strength = bound(0.0f, autocvar(cg_playerColorTint, 0.5f), 1.0f);
 	vector color = Player_ParseColor(getplayerkeyvalue(playerSlot, infoKey));
-	float peak = max(color[0], max(color[1], color[2]));
+	float peak;
+
+	/* in a mode with two or more teams (Team Deathmatch, Domination, Freeze
+	   Tag, Duel, Archstiletto...) the team colour is what tells sides apart,
+	   so it wins over the player's own pick on every engine and in every
+	   mode, including the ones that never write team colours to the keys */
+	if (teams.TeamCount() >= 2i) {
+		int playerTeam = (int)getplayerkeyfloat(playerSlot, "*team");
+
+		if (playerTeam != TEAM_SPECTATOR && playerTeam > 0i && teams.Valid(playerTeam)) {
+			vector teamColor = teams.Color(playerTeam);
+
+			if (teamColor != [0, 0, 0])
+				color = teamColor;
+		}
+	}
+
+	peak = max(color[0], max(color[1], color[2]));
 
 	if (strength <= 0.0f || peak <= 0.0f)
 		return [1, 1, 1];
@@ -2279,7 +2296,7 @@ ncPlayer::Death(entity inflictor, entity attacker, int damagePoints, vector dir,
 
 #ifdef SERVER
 /* The player model choice (the "model" user info key, which the menus set
-   from _cl_playermodel).
+   from cg_heroModel).
 
    Heroes own their look, so the choice only replaces a hero model that is
    one of the shared GoldSrc stand-ins below: those share one skeleton and

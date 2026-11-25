@@ -58,6 +58,10 @@ CodeCallback_PlayerRequestRespawn(entity playerEntity)
 		/* consume any queued hero pick / keep current hero (shared.qc) */
 		string heroID = Hero_ResolveSpawnHero(playerEntity);
 		ents.ChangeToClass(playerEntity, heroID);
+		/* repaint the team colour: a colour picked mid-match is kept
+		   (in _topcolor/_bottomcolor) for after the mode, not shown */
+		if (playerEntity.team == 1 || playerEntity.team == 2)
+			Colors_SetTeam(playerEntity, (playerEntity.team == 1) ? "0xff1800" : "0x9aff");
 		game.TeleportToSpawn(playerEntity);
 		music.PlayOnceOnClient(precache.Music("music/track05.ogg"), playerEntity);
 	}

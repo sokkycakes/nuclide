@@ -114,8 +114,8 @@ CSQC_Init(float apilevel, string enginename, float engineversion)
 	/* the player's spray, from _cl_playerspray */
 	Spray_InitLocalKeys();
 
-	/* the player's model choice, from _cl_playermodel (empty: each hero's own) */
-	localcmd(sprintf("setinfo model %S\n", cvar_string("_cl_playermodel")));
+	/* the player's model choice, from cg_heroModel (empty: each hero's own; not _cl_playermodel, which old configs still hold as alice2) */
+	localcmd(sprintf("setinfo model %S\n", cvar_string("cg_heroModel")));
 
 	/* because the engine will do really bad hacks to our models otherwise. e.g. R6284 */
 	cvar_set("r_fullbrightSkins", "0");

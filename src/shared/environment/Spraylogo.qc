@@ -124,6 +124,7 @@ Spray_InitLocalKeys(void)
 	/* search, rather than fopen: QC file reads may be limited to data/ */
 	searchhandle sprayFind = search_begin(sprayFile, SEARCH_NAMESORT, TRUE);
 	int sprayFound = (int)search_getsize(sprayFind);
+	float spraySize = (sprayFound > 0i) ? search_getfilesize(sprayFind, 0) : 0;
 	search_end(sprayFind);
 
 	if (sprayFound <= 0i) {
@@ -133,6 +134,18 @@ Spray_InitLocalKeys(void)
 
 	/* bmp sprays are monochrome, everything else is full colour */
 	extension = strtolower(substring(sprayFile, strlen(sprayFile) - 3, 3));
+
+	/* engines decode png/jpg/tga/bmp; Bulwark has no webp */
+	if (extension == "ebp") {
+		ncWarning("Spray %S is a WebP image, which not every engine can draw: use png, jpg, tga or bmp.", sprayFile);
+	}
+
+	/* the blob is part of the user info: FTE servers refuse user info over
+	   sv_userinfo_bytelimit (8192 bytes by default), so the spray never
+	   reaches anyone else */
+	if (spraySize > 7680) {
+		ncWarning("Spray %S is %d bytes: servers allow about 7680 bytes for a spray, so it will not show. Pick a smaller image.", sprayFile, spraySize);
+	}
 	localcmd(sprintf("setinfoblob spray \"%s\"\n", sprayFile));
 	localcmd(sprintf("setinfo spraytype %d\n", (extension == "bmp") ? 1 : 0));
 
