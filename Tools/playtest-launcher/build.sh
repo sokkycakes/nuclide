@@ -10,7 +10,8 @@ TARGET=${1:-linux}
 SDL_VER=2.30.10
 mkdir -p out/gen
 python3 tools/embed_font.py out/gen/font_data.c src/fonts/DejaVuSans.ttf src/fonts/DejaVuSans-Bold.ttf
-SRC="src/main.c src/update.c src/json.c src/sha256.c src/platform.c out/gen/font_data.c"
+python3 tools/gen_steam_input.py out/gen/steam_input_data.c
+SRC="src/main.c src/update.c src/json.c src/sha256.c src/platform.c src/input_steam.c src/steaminput.c out/gen/font_data.c out/gen/steam_input_data.c"
 CFLAGS="-O2 -std=gnu11 -Wall -Wno-unused-function -Wno-format-truncation -Isrc"
 VERSION=${LAUNCHER_VERSION:-dev}
 case "$TARGET" in
