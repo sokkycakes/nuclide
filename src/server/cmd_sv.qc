@@ -62,7 +62,47 @@ CMD_AddBot(void)
 	float teamValue = stof(argv(2));
 	float spawnDelay = stof(argv(3));
 	string newName = argv(4);
+
+	/* no profile named: any bot not already playing */
+	if (!STRING_SET(botProfile)) {
+		BotProfile_AddRandom();
+		return;
+	}
+
 	Bot_AddBot_f(botProfile, teamValue, spawnDelay, newName);
+}
+
+/* kickBot [name]: drop the named bot, or the last bot that joined */
+static void
+CMD_KickBot(void)
+{
+	string botName = strdecolorize(argv(1));
+	entity victim = __NULL__;
+
+	/* client slots are the first edicts; a bot may be a spectator */
+	for (entity e = nextent(world); e && clienttype(e) != CLIENTTYPE_NOTACLIENT; e = nextent(e)) {
+		if (clienttype(e) != CLIENTTYPE_BOT) {
+			continue;
+		}
+		if (STRING_SET(botName)) {
+			if (strtolower(strdecolorize(userinfo.GetString(e, "name"))) == strtolower(botName)) {
+				victim = e;
+				break;
+			}
+			continue;
+		}
+		if (!victim || num_for_edict(e) > num_for_edict(victim)) {
+			victim = e;
+		}
+	}
+
+	if (!victim) {
+		print("kickBot: no such bot\n");
+		return;
+	}
+
+	print(sprintf("kickBot: %s leaves\n", userinfo.GetString(victim, "name")));
+	dropclient(victim);
 }
 
 static void
@@ -311,10 +351,14 @@ CMD_ListEntitiesByTarget(void)
 	}
 }
 
+/* every mixed-case command below, for Util_CommandName */
+#define CMDSV_MIXEDCASE_NAMES "addBot kickBot killAllBots kickAllBots resetAllBotsGoals listBotProfiles killClass killMovables listTargets teleportToClass renetworkEntities respawnEntities spawnDef propSpawn listEntityDef listSoundDef listMapTweaks traceMaterial setLightStyle listEntitiesByTarget listEntitySpawnData listEntityData listEntitiesByClass setGlobal listGlobals"
+
 bool
 Cmd_ParseServerCommand(void)
 {
-	switch (argv(0)) {
+	/* "sv addbot" works as well as "sv addBot" (Util_CommandName) */
+	switch (Util_CommandName(argv(0), CMDSV_MIXEDCASE_NAMES)) {
 	case "addon":
 		CMD_Addon_f();
 		break;
@@ -326,6 +370,9 @@ Cmd_ParseServerCommand(void)
 		break;
 	case "kickAllBots":
 		Bot_KickAllBots();
+		break;
+	case "kickBot":
+		CMD_KickBot();
 		break;
 	case "resetAllBotsGoals":
 		Bot_ResetAllBotsGoals();
@@ -368,6 +415,11 @@ Cmd_ParseServerCommand(void)
 		break;
 #ifdef BOT_INCLUDED
 	case "way":
+		/* "way autogen [spacing]" runs from the server console too */
+		if (argv(1) == "autogen") {
+			Nodes_AutoGenerate(stof(argv(2)));
+			break;
+		}
 		ncNodeEditor::Cmd();
 		break;
 #endif

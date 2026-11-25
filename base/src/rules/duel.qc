@@ -133,6 +133,10 @@ CodeCallback_StartGameType(void)
 	Arena_SetAutoJoin(false);
 	Arena_SetHooks(__NULL__, __NULL__, __NULL__, __NULL__,
 		Duel_SuddenDeath, Duel_SuddenDeathTick, Duel_PlayerPain);
+
+	/* bots (arena_modes.qc): a lone human who readies up gets a bot
+	   opponent that picks a hero and readies on its own */
+	ArenaModes_Init("DUEL");
 }
 
 void
@@ -187,11 +191,24 @@ void
 CodeCallback_FrameStart(void)
 {
 	Arena_FrameStart();
+	ArenaModes_BotTick(2i);
+}
+
+bool
+CodeCallback_ConsoleCommand(entity playerEntity, string command)
+{
+	return (ArenaModes_ConsoleCommand(command));
 }
 
 bool
 CodeCallback_CallRequestTeam(entity playerEntity, int teamNum)
 {
+	/* bots never open the hero menu: random hero, then ready (queue) */
+	if (ArenaModes_IsBot(playerEntity)) {
+		ArenaModes_BotJoin(playerEntity);
+		return (true);
+	}
+
 	if (teamNum == TEAM_SPECTATOR) {
 		Arena_SetSpectator(playerEntity);
 		return (true);
@@ -224,6 +241,11 @@ bool
 CodeCallback_ClientCommand(entity playerEntity, string command)
 {
 	tokenize(command);
+
+	/* botlib's "join <class>": the bot already picked in BotJoin */
+	if (ArenaModes_IsBot(playerEntity) && argv(0) == "join") {
+		return (true);
+	}
 
 	switch (argv(0)) {
 	case "changehero": {

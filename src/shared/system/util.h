@@ -36,6 +36,7 @@ string Util_ExtensionFromString(string);
 @param chatMessage String containing the chat message to be displayed.
 @return A colorized string with name, message and team identifier. */
 string Util_ChatFormat(float, float, string);
+string Util_CommandName(string, string);
 
 
 var int g_numplayerslots;

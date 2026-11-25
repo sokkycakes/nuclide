@@ -1,6 +1,7 @@
 #include "items/base.def"
 #include "items/armor.def"
 #include "items/health.def"
+#include "items/artifacts.def"
 
 entityDef item_suit
 {

@@ -394,11 +394,16 @@ ncWeapon_SelectWeapon(ncWeapon nextWeapon)
 	pSeat->m_flHUDWeaponSelectTime = time + 0.5f;
 }
 
+/* every mixed-case command Cmd_Parse knows, for Util_CommandName */
+#define CMD_MIXEDCASE_NAMES "kickBot showClassSelectionMenu showHeroSelectionMenu showTeamSelectionMenu showMOTD showModelSpawner showPlayerList showObservers showSpecInset showServerInfo showEditor showSunEditor killAllBots killClass killMovables listAmmo listBotProfiles listClientEntityDef listClientSoundDef listEntityData listEntityDef listEntitiesByClass listEntitySpawnData listFramegroups listInventory listMapTweaks listModels listParticles listServerEntityDef listServerSoundDef listEntitiesByTarget listSounds listTargets listTitles ragdollCreate traceMaterial addBot kickAllBots resetAllBotsGoals respawnEntities spawnDef teleportToClass nodeAdd nodeDel nodeFlags nodeLink nodeRadius nodeOffset nodeUnlink clearDecals testLight testPointLight giveInventoryItem removeInventoryItem removeAllInventoryItems joinTeam addChatLine reloadClientLocale listUserInfo"
+
 bool
 Cmd_Parse(string sCMD)
 {
 	ncClient localPlayer = (ncClient)pSeat->m_ePlayer;
-	switch (argv(0)) {
+	/* typed in any case ("addbot") the engine still calls us; match the
+	   registered spelling (see Util_CommandName) */
+	switch (Util_CommandName(argv(0), CMD_MIXEDCASE_NAMES)) {
 
 	case "slot1":
 		Textmenu_Input(0);
@@ -684,6 +689,7 @@ Cmd_Parse(string sCMD)
 
 	/* client aliases for server commands */
 	case "addBot":
+	case "kickBot":
 	case "kickAllBots":
 	case "killAllBots":
 	case "resetAllBotsGoals":
@@ -767,7 +773,8 @@ Cmd_Parse(string sCMD)
 	/* can be overriden as well */
 	case "showClassSelectionMenu":
 	case "showHeroSelectionMenu": {
-		string webcoreSelector = argv(0) == "showHeroSelectionMenu" ? "hero" : "class";
+		string webcoreSelector = strtolower(argv(0)) == "showheroselectionmenu" ? "hero" : "class";
+		VGUI_HideMOTD();
 		if (argv(1) != "vgui" && WebCoreArenaUI_OpenSelector(webcoreSelector)) {
 			break;
 		}
@@ -783,6 +790,7 @@ Cmd_Parse(string sCMD)
 		break;
 	}
 	case "showTeamSelectionMenu":
+		VGUI_HideMOTD();
 		if (argv(1) != "vgui" && WebCoreArenaUI_OpenSelector("team")) {
 			break;
 		}
@@ -798,6 +806,15 @@ Cmd_Parse(string sCMD)
 		} else {
 			localcmd("showClassSelectionMenu\n");
 		}
+		break;
+	/* the pause page's Host Menu and Call a Vote (vgui_hostmenu.qc) */
+	case "menu_hostmenu":
+		localcmd("webcore_closemenu\n");
+		VGUI_HostMenu();
+		break;
+	case "menu_callvote":
+		localcmd("webcore_closemenu\n");
+		VGUI_CallVote();
 		break;
 	case "showMOTD":
 		VGUI_ShowMOTD();
@@ -853,6 +870,8 @@ Cmd_Init(void)
 	registercommand("showTeamSelectionMenu");
 	registercommand("showMOTD");
 	registercommand("menu_changeteam");
+	registercommand("menu_hostmenu");
+	registercommand("menu_callvote");
 	registercommand("showModelSpawner");
 	registercommand("showPlayerList");
 	registercommand("showObservers");
@@ -889,6 +908,7 @@ Cmd_Init(void)
 
 	/* server commands */
 	registercommand("addBot");
+	registercommand("kickBot");
 	registercommand("kickAllBots");
 	registercommand("addon");
 	registercommand("input");

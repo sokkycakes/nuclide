@@ -63,6 +63,14 @@ CodeCallback_PlayerSpawn(entity playerTarget)
 	bool inProgress = false;
 	int bustedPlayers = 0;
 
+	/* out of lives: stays a spectator until the next map, whatever asked
+	   for the spawn ('cmd play' included) */
+	if (playerTarget.frags <= 0) {
+		sprint(playerTarget, PRINT_HIGH, "You are out of lives until the next map.\n");
+		ents.ChangeToClass(playerTarget, "spectator");
+		return;
+	}
+
 	/* gotta see if anyones left */
 	for (entity playerChain = world; (playerChain = next.Player(playerChain));) {
 		/* yep, game already in progress since more than one player doesn't have full health */

@@ -28,7 +28,12 @@ They have access to the following subcommands:
 
 Will request a map change to the proposed map. Will alert when the map does not exist on the server.
 
-### callvote kick [player id]
+### callvote gametype [mode]
+
+Requests a different game type (`g_gametype`, a rules progs in `progs/`), then
+loads the current map again with it.
+
+### callvote kick [player name]
 
 Requests a player to be kicked.
 
@@ -40,13 +45,19 @@ Requests an adjustment to the timelimit.
 
 Requests an adjustment to the fraglimit.
 
-### callvote map_restart
+### callvote map_restart (or restart)
 
 Requests the map to restart, without altering the [map cycle](@ref mapcycle).
 
 ### callvote nextmap
 
 Requests a change to the next map.
+
+Players and spectators may call and answer votes (`vote yes`, `vote no`, bound
+to F1 and F2); bots neither vote nor count. A vote passes once more than half
+of the voters say yes, or when the 30 seconds run out with more yes than no.
+In game, `menu_callvote` (the pause page's Call a Vote) opens a window with
+the maps, game types and players to vote on.
 
 @{
 

@@ -57,6 +57,13 @@ MOTD_Init(void)
 void
 MOTD_LoadDefault(void)
 {
+	/* g_nomotd 1: no message of the day (training maps, test servers) */
+	if (cvar("g_nomotd") != 0) {
+		serverinfo.SetInteger("motdlines", 0i);
+		networkEventBroadcast(EV_MOTD_CHANGED);
+		return;
+	}
+
 	MOTD_LoadFromFile(MOTD_FILE);
 }
 

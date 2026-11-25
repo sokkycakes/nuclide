@@ -413,7 +413,7 @@ CSQC_UpdateView(float w, float h, float focus)
 			g_vidsize[1] = h;
 			ClientGame_InitDone();
 			MOTD_Init();
-			VGUI_ShowMOTD();
+			VGUI_AutoMOTD();
 			Sky_Update(true);
 		}
 	}
@@ -427,6 +427,7 @@ CSQC_UpdateView(float w, float h, float focus)
 	}
 
 	/* these have to be checked every frame */
+	VGUI_HostMenu_Publish();
 	Fog_Update();
 	Sky_Update(false);
 	cvar_set("_background", serverkey("background"));
@@ -602,6 +603,15 @@ CSQC_InputEvent(float fEventType, float fKey, float fCharacter, float fDeviceID)
 	}
 
 	//g_vecMousePos = getmousepos();
+
+	/* the message of the day and the host/vote window take keys and pad
+	   buttons first (VGUI itself only knows the mouse); Escape closes them
+	   instead of opening the pause page over them */
+	if (fEventType == IE_KEYDOWN) {
+		if (VGUI_MOTD_KeyDown(fKey) || VGUI_Admin_KeyDown(fKey)) {
+			return (true);
+		}
+	}
 
 	bool vgui_pressed;
 	vgui_pressed = Commandmenu_Input(fEventType, fKey, fCharacter, fDeviceID);
