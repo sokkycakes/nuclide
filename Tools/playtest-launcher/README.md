@@ -13,7 +13,7 @@ keeps it up to date, and starts it.
   database). Keyboard and mouse work too.
 - **Fast.** Only changed files are downloaded. Files are fetched over 8
   parallel connections, big files in 8 MB chunks, small files batched into
-  ranged requests. Compressible files travel zlib-compressed. An interrupted
+  ranged requests; identical files download once. Compressible files travel zlib-compressed. An interrupted
   download picks up where it stopped. A first install of Stiletto (208 MB
   packed, 380 MB on disk) took 8 seconds from GitHub in testing.
 - **Live updates from git.** A push to the `playtest` branch runs
@@ -101,7 +101,8 @@ The end-to-end test publishes a fake game, then checks: first install with
 the controller, launch with the manifest's arguments, a delta update (60 MB
 game, 64 KB download), removed files, kept configs, repair of a corrupted
 file, launcher self-update, offline play, resume after an interrupted
-download, and Steam mode (fullscreen, game started attached).
+download, Steam mode (fullscreen, game started attached), and an install
+while the server rate-limits with HTTP 429.
 
 ## Launcher options
 
