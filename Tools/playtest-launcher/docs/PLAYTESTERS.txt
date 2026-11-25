@@ -21,3 +21,43 @@ re-downloads any that are damaged.
 
 The game is installed in the "game" folder next to the launcher. To
 uninstall, delete this whole folder.
+
+HOSTING A SERVER
+================
+
+Quick game on your own machine: in the game, Create Lobby (LAN), or open
+the console (~) and type for example
+    g_gametype duel
+    map duel_alley
+Friends on the same network find it under Find Servers.
+
+Dedicated server (no window, others connect to it). Open the "game"
+folder next to the launcher, then:
+
+  Windows:  double-click host-server.cmd
+            (or run: fteqw64.exe -dedicated -basedir . -manifest base.fmf)
+  Linux:    ./host-server.sh   in a terminal
+            (or run: bulwark/bulwark-ded -basedir . -game base,
+             or:     bulwark/bulwark -dedicated -basedir . -game base)
+
+Settings (server name, player slots, game mode, time limit, password)
+are in game/base/server.cfg. Updates never overwrite that file. Options
+after the command win over it, for example:
+    host-server.cmd -port 27600 +set g_gametype freezetag +map duel_alley
+    ./host-server.sh -port 27600 +set g_gametype freezetag +map duel_alley
+
+Type commands into the server window while it runs:
+    status                  who is on, the map, the port
+    serverinfo              the server's settings
+    map duel_alley          change map (set g_gametype first to change mode)
+    kick <name or slot>     remove a player
+    addBot <name>           add a bot (names are in base/scripts/bots.txt)
+    say <text>              message everyone
+    password <word>         players then need: setinfo password <word>
+    quit                    stop the server
+
+Players join from the game's console with
+    connect <server address>:27500
+(27500 is the default port; open UDP 27500 on your router for players
+outside your network). There is no public server list yet, so share the
+address directly.

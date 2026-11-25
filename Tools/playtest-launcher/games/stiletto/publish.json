@@ -2,7 +2,7 @@
   "game": "stiletto",
   "title": "Stiletto Proto",
   "release_title": "Stiletto Proto playtest",
-  "require": ["fteqw64.exe", "base.fmf", "base/progs.dat", "base/csprogs.dat", "base/menu.dat", "bulwark/bulwark"],
+  "require": ["fteqw64.exe", "base.fmf", "base/progs.dat", "base/csprogs.dat", "base/menu.dat", "bulwark/bulwark", "bulwark/bulwark-ded"],
   "require_soon": ["fteplug_webcore_x64.dll", "ftewebcore.dll", "cairo-2.dll", "resources/icudt67l.dat",
                    "msvcp140.dll", "vcruntime140.dll", "vcruntime140_1.dll"],
   "require_hint": "Engine runtime files are gitignored. On Windows, on the playtest branch, run Tools/playtest-launcher/games/stiletto/add-runtime.ps1 and push.",
@@ -10,6 +10,8 @@
     "fteqw64.exe",
     "*.dll",
     "base.fmf",
+    "host-server.sh",
+    "host-server.cmd",
     "v8_context_snapshot.bin",
     "vk_swiftshader_icd.json",
     "resources/**",
@@ -26,11 +28,11 @@
     "base/config.cfg", "base/fte.cfg", "base/conhistory.txt", "base/installed.lst",
     "base/**/autosave/**", "base/**/autosaves/**", "base/**/logs/**"
   ],
-  "keep": [],
-  "exec": ["bulwark/bulwark"],
+  "keep": ["base/server.cfg"],
+  "exec": ["bulwark/bulwark", "bulwark/bulwark-ded", "host-server.sh"],
   "only": {
-    "windows": ["fteqw64.exe", "*.dll", "resources/**", "v8_context_snapshot.bin", "vk_swiftshader_icd.json"],
-    "linux": ["bulwark/**"]
+    "windows": ["fteqw64.exe", "*.dll", "resources/**", "v8_context_snapshot.bin", "vk_swiftshader_icd.json", "host-server.cmd"],
+    "linux": ["bulwark/**", "host-server.sh"]
   },
   "run": {
     "windows": {"exe": "fteqw64.exe", "args": ["-basedir", ".", "-manifest", "base.fmf"]},
