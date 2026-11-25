@@ -613,10 +613,11 @@ CSQC_InputEvent(float fEventType, float fKey, float fCharacter, float fDeviceID)
 	/* spectator scroll wheel cycles players (not view modes) */
 	if (!vgui_pressed && fEventType == IE_KEYDOWN
 		&& Client_LocalUsesSpectatorControls()) {
-		if (fKey == K_MWHEELUP) {
+		/* a controller's bumpers do what the wheel does */
+		if (fKey == K_MWHEELUP || fKey == K_GP_RSHOULDER) {
 			pSeat->m_iSpecWheelPending = 1;
 			return true;
-		} else if (fKey == K_MWHEELDOWN) {
+		} else if (fKey == K_MWHEELDOWN || fKey == K_GP_LSHOULDER) {
 			pSeat->m_iSpecWheelPending = -1;
 			return true;
 		}
@@ -681,6 +682,12 @@ CSQC_Input_Frame(void)
 	}
 
 	if (Client_LocalUsesSpectatorControls()) {
+		/* Stiletto binds the right mouse button and the left trigger to
+		 * the hero tool: for a spectator that is the "mode-" button */
+		if (pSeat->m_iInputHeroTool || pSeat->m_iInputAttack2) {
+			input_buttons |= INPUT_SECONDARY;
+		}
+
 		/* relay scroll-wheel target changes via impulse (handled server-side) */
 		if (pSeat->m_iSpecWheelPending > 0) {
 			input_impulse = IMPULSE_SPEC_NEXT;
