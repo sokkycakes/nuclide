@@ -250,7 +250,10 @@ ncView::GetHUDCanvasPos(void)
 	if (autocvar_cg_hudAspect <= 0) {
 		return m_vecPosition;
 	} else {
-		return [m_vecPosition[0] + ((m_vecSize[0] / 2) - ((m_vecSize[1] * autocvar_cg_hudAspect) / 2)), m_vecPosition[1]];
+		/* never wider than the view: a narrow split screen view (side by
+		   side) would otherwise draw its HUD into its neighbour's */
+		float hudWidth = min(m_vecSize[0], m_vecSize[1] * autocvar_cg_hudAspect);
+		return [m_vecPosition[0] + ((m_vecSize[0] / 2) - (hudWidth / 2)), m_vecPosition[1]];
 	}
 }
 
@@ -260,7 +263,7 @@ ncView::GetHUDCanvasSize(void)
 	if (autocvar_cg_hudAspect <= 0) {
 		return m_vecSize;
 	} else {
-		return [m_vecSize[1] * autocvar_cg_hudAspect, m_vecSize[1]];
+		return [min(m_vecSize[0], m_vecSize[1] * autocvar_cg_hudAspect), m_vecSize[1]];
 	}
 }
 

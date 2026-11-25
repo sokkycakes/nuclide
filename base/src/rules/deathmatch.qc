@@ -54,7 +54,11 @@ CodeCallback_Precaches(void)
 void
 CodeCallback_StartGameType(void)
 {
-	motd.LoadDefault();
+	/* no message box when the host says so (g_nomotd: Local Play, where
+	   it would cover every player's view and only the first could close it) */
+	if (cvar("g_nomotd") == 0) {
+		motd.LoadDefault();
+	}
 	game.SetSpawnPoint("info_player_deathmatch");
 
 	/* Name team 1 directly (no teams.SetUp -> no "teams" count -> not
