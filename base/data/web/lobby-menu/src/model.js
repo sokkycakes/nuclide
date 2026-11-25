@@ -28,6 +28,8 @@ export function normalize(data) {
     hostname: settings.hostname || '',
     maxplayers: settings.maxplayers || data.max || 16,
     bots: settings.bots == null ? 0 : settings.bots,
+    // The rules' own bots, nothing set by the lobby (an empty Bots box).
+    botsDefault: settings.botsDefault === true,
     listed: !!settings.public,
     locked: !!settings.password,
     passwordText: settings.passwordText || '',
@@ -87,7 +89,7 @@ export function serverDraftError(d, s) {
   if (!/^\d{1,2}$/.test(max) || Number(max) < 1 || Number(max) > seats) return 'Max players is 1 to ' + seats;
   if (Number(max) < s.players.length) return 'There are already ' + s.players.length + ' players in the lobby';
   const free = Math.max(0, Number(max) - s.players.length);
-  if (!d.fill && (!/^\d{1,2}$/.test(bots) || Number(bots) > free)) return 'Bots: 0 to ' + free + ' (free player slots), or Fill';
+  if (!d.fill && bots !== '' && (!/^\d{1,2}$/.test(bots) || Number(bots) > free)) return 'Bots: 0 to ' + free + ' (free player slots), or Fill';
   if (/["\\;]/.test(d.name + d.password)) return 'Names and passwords can’t have quotes, backslashes or semicolons';
   return '';
 }

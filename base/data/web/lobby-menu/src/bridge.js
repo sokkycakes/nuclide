@@ -54,7 +54,7 @@ export function encodeHex(text) {
 // setserver:<listen|dedicated>:<max>:<bots|fill>:<public 0|1>:<name hex>:<password hex>
 export function setServer(d) {
   return actionError('setserver:' + (d.dedicated ? 'dedicated' : 'listen') + ':' + Number(d.max) + ':' +
-    (d.fill ? 'fill' : Number(d.bots)) + ':' + (d.listed ? 1 : 0) + ':' + encodeHex(d.name.trim()) + ':' + encodeHex(d.password));
+    (d.fill ? 'fill' : String(d.bots) === '' ? '' : Number(d.bots)) + ':' + (d.listed ? 1 : 0) + ':' + encodeHex(d.name.trim()) + ':' + encodeHex(d.password));
 }
 // A guest the host asked for a password joins again with it.
 export function joinWithPassword(text) { return actionError('joinpass:' + encodeHex(text)); }

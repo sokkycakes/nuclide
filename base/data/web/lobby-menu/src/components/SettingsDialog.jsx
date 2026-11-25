@@ -7,7 +7,7 @@ import { setServer } from '../bridge';
 // The Server type row: listen or dedicated, name, seats, password, bots, listing.
 function ServerSettings({ snapshot: s, close, setNotice }) {
   const [d, setD] = useState({ dedicated: s.dedicated, name: s.hostname, max: s.maxplayers, password: s.passwordText,
-    bots: s.bots < 0 ? 0 : s.bots, fill: s.bots < 0, listed: s.listed });
+    bots: s.botsDefault ? '' : s.bots < 0 ? 0 : s.bots, fill: s.bots < 0, listed: s.listed });
   const on = s.canConfigure;
   const set = patch => setD({ ...d, ...patch });
   const err = serverDraftError(d, s);
@@ -15,7 +15,9 @@ function ServerSettings({ snapshot: s, close, setNotice }) {
     ? 'Starts the dedicated server program on this computer and joins it. It keeps running after you leave.'
     : 'Your game hosts the match: it ends when you leave.');
   if (!err && d.listed) note += ' Public: listed on the master servers (sv_public 1).';
-  if (!err && seatBots(s)) note += ' ' + rulesetTitle(s.ruleset, s) + ' seats its own bots (0 turns them off).';
+  const nobots = !d.fill && String(d.bots) === '';
+  if (!err && seatBots(s)) note += ' ' + rulesetTitle(s.ruleset, s) + ' seats its own bots' + (nobots ? '.' : ' (0 turns them off, empty leaves them on).');
+  else if (!err && nobots) note += ' Bots: empty leaves them to the game (no bots of the lobby’s own).';
   else if (!err && d.fill) note += ' Bots fill every free player slot.';
   function apply() {
     const why = setServer(d);
@@ -31,7 +33,7 @@ function ServerSettings({ snapshot: s, close, setNotice }) {
     <label className="limit-row">Max players <input id="MaxPlayers" type="number" min="1" max={(s.hosting && s.hosting.maxSeats) || 16} value={d.max} disabled={!on} onInput={e => set({ max: e.currentTarget.value })}/><span>1 – {(s.hosting && s.hosting.maxSeats) || 16}</span></label>
     <label className="limit-row">Password <input id="ServerPassword" className="wide" maxLength="63" value={d.password} disabled={!on} onInput={e => set({ password: e.currentTarget.value })}/></label>
     <div className="limit-row">Bots
-      <input id="BotCount" type="number" min="0" max="15" value={d.bots} disabled={!on || d.fill} onInput={e => set({ bots: e.currentTarget.value })} aria-label="Bots"/>
+      <input id="BotCount" type="number" min="0" max="15" placeholder="Game" value={d.bots} disabled={!on || d.fill} onInput={e => set({ bots: e.currentTarget.value })} aria-label="Bots"/>
       <Button className="toggle" id="BtnBotFill" aria-pressed={d.fill} disabled={!on} onClick={() => set({ fill: !d.fill })}>Fill</Button>
     </div>
     <div className="limit-row">Public listing
