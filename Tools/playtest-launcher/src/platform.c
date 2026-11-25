@@ -128,6 +128,31 @@ int pl_spawn(const char *exe, const char *const *argv, const char *cwd)
 	return 0;
 }
 
+int pl_run_attached(const char *exe, const char *const *argv, const char *cwd)
+{
+	static wchar_t cmd[32768];
+	STARTUPINFOW si;
+	PROCESS_INFORMATION pi;
+	DWORD code = 0;
+	wchar_t *wexe = widen(exe), *wcwd = cwd ? widen(cwd) : NULL;
+	BOOL ok;
+	cmd[0] = 0;
+	for (int i = 0; argv[i]; i++) {
+		wchar_t *a = i == 0 ? widen(argv[i]) : widen_raw(argv[i]);
+		if (a) { append_quoted(cmd, 32768, a); free(a); }
+	}
+	memset(&si, 0, sizeof(si));
+	si.cb = sizeof(si);
+	ok = CreateProcessW(wexe, cmd, NULL, NULL, FALSE, 0, NULL, wcwd, &si, &pi);
+	free(wexe); free(wcwd);
+	if (!ok) return -1;
+	CloseHandle(pi.hThread);
+	WaitForSingleObject(pi.hProcess, INFINITE);
+	GetExitCodeProcess(pi.hProcess, &code);
+	CloseHandle(pi.hProcess);
+	return (int)code;
+}
+
 void pl_make_executable(const char *path) { (void)path; }
 
 void pl_open_folder(const char *path)
@@ -194,6 +219,13 @@ int pl_spawn(const char *exe, const char *const *argv, const char *cwd)
 	return access(exe, X_OK) == 0 ? 0 : -1;
 }
 
+int pl_run_attached(const char *exe, const char *const *argv, const char *cwd)
+{
+	if (cwd && chdir(cwd) != 0) return -1;
+	execv(exe, (char *const *)argv);
+	return -1;
+}
+
 void pl_make_executable(const char *path) { chmod(path, 0755); }
 
 void pl_open_folder(const char *path)
@@ -204,6 +236,47 @@ void pl_open_folder(const char *path)
 #endif
 
 int pl_exists(const char *path) { return pl_stat(path, NULL, NULL) == 0; }
+
+void pl_prune_dirs(const char *file, const char *stop)
+{
+	char d[4096];
+	size_t sl = strlen(stop);
+	if (strlen(file) >= sizeof(d)) return;
+	strcpy(d, file);
+	for (;;) {
+		pl_dirname(d);
+		if (strlen(d) <= sl || strncmp(d, stop, sl) != 0) return;
+#ifdef _WIN32
+		{
+			wchar_t *w = widen(d);
+			BOOL ok = w ? RemoveDirectoryW(w) : FALSE;
+			free(w);
+			if (!ok) return;
+		}
+#else
+		if (rmdir(d) != 0) return;
+#endif
+	}
+}
+
+static int env_set(const char *name)
+{
+	const char *v = getenv(name);
+	return v && v[0] && strcmp(v, "0") != 0;
+}
+
+int pl_is_gamescope(void)
+{
+	const char *d = getenv("XDG_CURRENT_DESKTOP");
+	return env_set("GAMESCOPE_WAYLAND_DISPLAY") || (d && strstr(d, "gamescope")) || (env_set("SteamDeck") && env_set("SteamGamepadUI"));
+}
+
+int pl_under_steam(void)
+{
+	/* SteamGameId is set for every game Steam starts, non-Steam shortcuts included;
+	 * Proton passes the environment through to Windows programs. */
+	return env_set("SteamGameId") || env_set("SteamAppId") || env_set("SteamClientLaunch") || pl_is_gamescope();
+}
 
 int pl_mkdirs(const char *dir)
 {

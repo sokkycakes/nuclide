@@ -191,6 +191,22 @@ check "resume finishes the install" "grep -q 'TEST RESULT: PASS' s6b.log && cmp 
 FULL=$(python3 -c "import json;print(sum(p['size'] for p in json.load(open('rel/playtest/manifest.json'))['packs']))")
 check "resume skips finished chunks (full $FULL, first try $FIRST, second $SECOND bytes)" "[ $FIRST -gt 0 ] && [ $SECOND -lt $((FULL / 2)) ]"
 
+# ---- 7. Steam non-Steam-game / SteamOS Game Mode: fullscreen, controller, game keeps Steam's process
+rm -f client2/game/launched.txt
+cat > s7.txt <<'EOF'
+wait ready 120
+expect_focus play
+shot shot-steam.bmp
+press a
+EOF
+if [ "$TARGET" = windows ]; then
+	run_in client2 --steam --test-script s7.txt > s7.log
+	check "steam mode: game started and waited on" "grep -q 'steam mode' s7.log && grep -q 'launched .*(attached)' s7.log && [ -f client2/game/launched.txt ]"
+else
+	SteamGameId=12345678 run_in client2 --test-script s7.txt > s7.log
+	check "steam mode detected from SteamGameId, launcher replaced by the game" "grep -q 'steam mode' s7.log && grep -q '^exec ' s7.log && grep -q 'launched: -game base +map start' client2/game/launched.txt"
+fi
+
 echo
 if [ $FAILS -eq 0 ]; then echo "ALL PASSED ($TARGET)"; else echo "$FAILS FAILED ($TARGET); logs in $WORK"; fi
 exit $FAILS

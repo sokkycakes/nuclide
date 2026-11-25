@@ -14,13 +14,35 @@ keeps it up to date, and starts it.
 - **Fast.** Only changed files are downloaded. Files are fetched over 8
   parallel connections, big files in 8 MB chunks, small files batched into
   ranged requests. Compressible files travel zlib-compressed. An interrupted
-  download picks up where it stopped.
+  download picks up where it stopped. A first install of Stiletto (208 MB
+  packed, 380 MB on disk) took 8 seconds from GitHub in testing.
 - **Live updates from git.** A push to the `playtest` branch runs
   `.github/workflows/playtest.yml`, which publishes to the `playtest` GitHub
   release. Every launcher sees it the next time it starts.
 - **Safe.** Every file is checked against its SHA-256 before it replaces the
   old one. Files the game writes itself (configs, saves) are never touched.
   The launcher updates itself the same way.
+
+## Steam Deck, Steam Machine and other SteamOS devices
+
+Add the launcher to Steam as a non-Steam game (Desktop Mode: Steam >
+Games > Add a Non-Steam Game, pick `Stiletto Proto.exe`). For a Windows-only
+game like Stiletto, open the shortcut's Properties > Compatibility and force
+Proton; the launcher and the game then run in the same Proton prefix.
+
+When Steam starts it (the `SteamGameId` variable is set, or it is running
+under gamescope), the launcher:
+
+- opens fullscreen with the mouse cursor hidden, sized for 1280x800;
+- works with the built-in controls and any pad, no keyboard needed
+  (nothing in the launcher asks for typing);
+- hides Open Game Folder in Game Mode, where there is no file manager;
+- starts the game so Steam keeps tracking it: the Linux build replaces itself
+  with the game process, the Windows build (Proton) hides its window and
+  waits for the game to exit. Steam's overlay, controller layout and the
+  "playing" state stay on the whole time.
+
+`--steam` forces this mode and `--fullscreen` gives fullscreen alone.
 
 ## How a build reaches testers
 
@@ -78,8 +100,8 @@ tests/e2e.sh windows  # runs the .exe under Wine
 The end-to-end test publishes a fake game, then checks: first install with
 the controller, launch with the manifest's arguments, a delta update (60 MB
 game, 64 KB download), removed files, kept configs, repair of a corrupted
-file, launcher self-update, offline play, and resume after an interrupted
-download.
+file, launcher self-update, offline play, resume after an interrupted
+download, and Steam mode (fullscreen, game started attached).
 
 ## Launcher options
 
@@ -87,6 +109,8 @@ download.
 | --- | --- |
 | `--config FILE` | Use another `launcher.json`. |
 | `--verify` | Re-hash every file on start (same as Repair). |
+| `--steam` | Behave as if started by Steam (fullscreen, game keeps the launcher's process). |
+| `--fullscreen` | Start fullscreen. |
 | `--test-script FILE` | Drive the UI from a script with a virtual controller (tests). |
 
 ## Manifest format

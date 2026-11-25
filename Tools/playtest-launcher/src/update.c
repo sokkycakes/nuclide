@@ -871,7 +871,7 @@ static int update_thread(void *unused)
 		if (!found) {
 			char full[1200];
 			pl_join(full, sizeof(full), g.cfg.install_dir, old[i].path);
-			pl_remove(full);
+			if (pl_remove(full) == 0) pl_prune_dirs(full, g.cfg.install_dir);
 		}
 	}
 

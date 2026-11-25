@@ -229,6 +229,9 @@ typedef struct {
 	int launched;
 	char launch_error[256];
 	int quit;
+	int steam;           /* started by Steam / SteamOS Game Mode */
+	int exec_game;       /* POSIX: exec the game after shutting down SDL */
+	SDL_Window *win;
 	/* speed estimate */
 	double speed, last_t;
 	uint64_t last_bytes;
@@ -242,6 +245,7 @@ static int button_enabled(ui *u, int b)
 	case B_PLAY: return !busy && u->st.installed && u->st.run_exe[0];
 	case B_CHECK: return !busy;
 	case B_VERIFY: return !busy;
+	case B_FOLDER: return !pl_is_gamescope(); /* no file manager in Game Mode */
 	default: return 1;
 	}
 }
@@ -304,7 +308,7 @@ static float draw_hint(ui *u, float right, float y, const char *glyph, const cha
 	return x - 28;
 }
 
-static void render(ui *u)
+static void draw_frame(ui *u)
 {
 	SDL_Renderer *r = u->r;
 	app_config *c = &u->cfg;
@@ -398,7 +402,12 @@ static void render(ui *u)
 			draw_hint(u, x, 676, "Arrows", "Move");
 		}
 	}
-	SDL_RenderPresent(r);
+}
+
+static void render(ui *u)
+{
+	draw_frame(u);
+	SDL_RenderPresent(u->r);
 }
 
 /* ---------- actions ---------- */
@@ -411,9 +420,12 @@ static void start_update(ui *u, int verify)
 	update_start(&up);
 }
 
+static char g_exec_exe[1200];
+static const char *g_exec_argv[20];
+
 static void play(ui *u)
 {
-	char exe[1200];
+	static char exe[1200];
 	const char *argv[20];
 	int n = 0;
 	update_snapshot(&u->st);
@@ -421,7 +433,32 @@ static void play(ui *u)
 	argv[n++] = exe;
 	for (int i = 0; i < u->st.run_argc && n < 19; i++) argv[n++] = u->st.run_args[i];
 	argv[n] = NULL;
-	if (!pl_exists(exe) || pl_spawn(exe, argv, u->cfg.up.install_dir) != 0) {
+	if (!pl_exists(exe)) {
+		snprintf(u->launch_error, sizeof(u->launch_error), "Could not find %s. Try Repair Game Files.", u->st.run_exe);
+		return;
+	}
+	if (u->steam) {
+		/* Steam must keep seeing the game as the process it started, or it
+		 * thinks the game quit and Game Mode drops the window and controller
+		 * layout. POSIX: hand our process over to the game. Windows/Proton:
+		 * hide the launcher and wait for the game. */
+#ifdef _WIN32
+		u->launched = 1;
+		printf("launched %s (attached)\n", exe);
+		fflush(stdout);
+		SDL_HideWindow(u->win);
+		pl_run_attached(exe, argv, u->cfg.up.install_dir);
+		u->quit = 1;
+#else
+		snprintf(g_exec_exe, sizeof(g_exec_exe), "%s", exe);
+		memcpy(g_exec_argv, argv, sizeof(argv));
+		u->exec_game = 1;
+		u->launched = 1;
+		u->quit = 1;
+#endif
+		return;
+	}
+	if (pl_spawn(exe, argv, u->cfg.up.install_dir) != 0) {
 		snprintf(u->launch_error, sizeof(u->launch_error), "Could not start %s. Try Repair Game Files.", u->st.run_exe);
 		return;
 	}
@@ -531,7 +568,7 @@ static void script_step(ui *u)
 		SDL_Surface *s;
 		SDL_GetRendererOutputSize(u->r, &w, &h);
 		s = SDL_CreateRGBSurfaceWithFormat(0, w, h, 32, SDL_PIXELFORMAT_ARGB8888);
-		render(u);
+		draw_frame(u); /* read before present: D3D discards the back buffer on present */
 		SDL_RenderReadPixels(u->r, NULL, SDL_PIXELFORMAT_ARGB8888, s->pixels, s->pitch);
 		SDL_SaveBMP(s, arg);
 		SDL_FreeSurface(s);
@@ -624,7 +661,7 @@ int main(int argc, char **argv)
 	char cfgpath[1200] = "", err[512];
 	const char *test_path = NULL;
 	SDL_Window *win;
-	int verify = 0, after_self = 0;
+	int verify = 0, after_self = 0, force_steam = 0, fullscreen = 0;
 	Uint32 dir_held_since = 0, dir_last_rep = 0;
 	int dir_held = 0, axis_dir = 0;
 
@@ -634,6 +671,8 @@ int main(int argc, char **argv)
 		else if (!strcmp(argv[i], "--test-script") && i + 1 < argc) test_path = argv[++i];
 		else if (!strcmp(argv[i], "--verify")) verify = 1;
 		else if (!strcmp(argv[i], "--after-self-update")) after_self = 1;
+		else if (!strcmp(argv[i], "--steam")) force_steam = 1;
+		else if (!strcmp(argv[i], "--fullscreen")) fullscreen = 1;
 	}
 	if (pl_exe_path(u.cfg.up.exe_path, sizeof(u.cfg.up.exe_path)) == 0) {
 		snprintf(u.cfg.exe_dir, sizeof(u.cfg.exe_dir), "%s", u.cfg.up.exe_path);
@@ -659,10 +698,15 @@ int main(int argc, char **argv)
 	}
 	remove_old_exe(u.cfg.up.exe_path);
 
+	u.steam = pl_under_steam() || force_steam;
+	if (u.steam) printf("steam mode%s\n", pl_is_gamescope() ? " (gamescope)" : "");
 	win = SDL_CreateWindow(u.cfg.title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, VW, VH,
-	                       SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
+	                       SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI |
+	                       ((u.steam || fullscreen) ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0));
 	if (!win) { fprintf(stderr, "window: %s\n", SDL_GetError()); return 1; }
-	{
+	u.win = win;
+	if (u.steam || fullscreen) SDL_ShowCursor(SDL_DISABLE);
+	if (!(u.steam || fullscreen)) {
 		SDL_Rect usable;
 		if (SDL_GetDisplayUsableBounds(0, &usable) == 0 && (usable.w < VW || usable.h < VH)) {
 			float s = SDL_min(usable.w * 0.9f / VW, usable.h * 0.9f / VH);
@@ -713,6 +757,7 @@ int main(int argc, char **argv)
 			case SDL_QUIT: u.quit = 1; break;
 			case SDL_CONTROLLERDEVICEADDED: open_pad(e.cdevice.which); break;
 			case SDL_CONTROLLERBUTTONDOWN:
+				if (u.steam) SDL_ShowCursor(SDL_DISABLE);
 				switch (e.cbutton.button) {
 				case SDL_CONTROLLER_BUTTON_DPAD_UP: move_focus(&u, -1); dir_held = -1; dir_held_since = now; break;
 				case SDL_CONTROLLER_BUTTON_DPAD_DOWN: move_focus(&u, 1); dir_held = 1; dir_held_since = now; break;
@@ -747,6 +792,7 @@ int main(int argc, char **argv)
 				break;
 			case SDL_MOUSEMOTION: {
 				SDL_Point p = { e.motion.x, e.motion.y };
+				if (!pl_is_gamescope()) SDL_ShowCursor(SDL_ENABLE);
 				for (int b = 0; b < B_COUNT; b++) if (SDL_PointInRect(&p, &u.btn[b]) && button_enabled(&u, b)) u.focus = b;
 				u.hover_lock = 1;
 				break;
@@ -784,9 +830,25 @@ int main(int argc, char **argv)
 			u.was_busy = busy;
 		}
 		if (u.st.state == US_RESTART && !update_busy()) {
-			const char *av[] = { u.cfg.up.exe_path, "--after-self-update", test_path ? "--test-script" : NULL, test_path, NULL };
+			const char *av[8];
+			int k = 0;
+			av[k++] = u.cfg.up.exe_path;
+			av[k++] = "--after-self-update";
+			if (force_steam) av[k++] = "--steam";
+			if (test_path) { av[k++] = "--test-script"; av[k++] = test_path; }
+			av[k] = NULL;
 			printf("restarting after self-update\n");
 			fflush(stdout);
+			if (u.steam) {
+				/* stay the process Steam is tracking */
+				SDL_Quit();
+#ifdef _WIN32
+				exit(pl_run_attached(u.cfg.up.exe_path, av, u.cfg.exe_dir) < 0 ? 1 : 0);
+#else
+				pl_run_attached(u.cfg.up.exe_path, av, u.cfg.exe_dir);
+				return 1;
+#endif
+			}
 			pl_spawn(u.cfg.up.exe_path, av, u.cfg.exe_dir);
 			break;
 		}
@@ -817,5 +879,12 @@ int main(int argc, char **argv)
 		fflush(stdout);
 	}
 	SDL_Quit();
+	if (u.exec_game && !(test_path && T.failed)) {
+		printf("exec %s\n", g_exec_exe);
+		fflush(stdout);
+		pl_run_attached(g_exec_exe, g_exec_argv, u.cfg.up.install_dir);
+		fprintf(stderr, "could not start %s\n", g_exec_exe);
+		return 1;
+	}
 	return (test_path && T.failed) ? 1 : 0;
 }
