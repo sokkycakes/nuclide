@@ -215,6 +215,10 @@ Move the player to a spawn entity or a nearby floor slot. Never stack players
 vertically or commit an occupied/startsolid position.
 =================
 */
+/* Source spawn points (info_player_teamspawn) sit at the player's feet;
+ * Nuclide's own sit at the hull centre. Set while placing at those. */
+static float g_spawnFeetOrigin;
+
 static bool
 Spawn_PlaceAtSpot(entity targetEnt, entity spawnPoint)
 {
@@ -250,6 +254,11 @@ Spawn_PlaceAtSpot(entity targetEnt, entity spawnPoint)
 		}
 
 		testorg = spawnPoint.origin + offset;
+
+		if (g_spawnFeetOrigin) {
+			testorg[2] += 1.0f - targetEnt.mins[2];
+		}
+
 		tracebox(testorg, targetEnt.mins, targetEnt.maxs, testorg, MOVE_NORMAL, targetEnt);
 
 		/* Occupied by a player, world brush, or any other solid: try another
@@ -360,6 +369,14 @@ Spawn_TryFallbackChain(entity targetEnt)
 		return (true);
 	}
 
+	/* Source / TF2 maps (arch_crux_test) only carry team spawns */
+	g_spawnFeetOrigin = true;
+	if (Spawn_TryClassname(targetEnt, "info_player_teamspawn", false)) {
+		g_spawnFeetOrigin = false;
+		return (true);
+	}
+	g_spawnFeetOrigin = false;
+
 	/* trigger_camera (with target look-at) or a lone info_player_start */
 	Spawn_ObserverCam((ncPlayer)targetEnt);
 	if (vlen(targetEnt.origin) > 0.1) {
@@ -392,6 +409,14 @@ Spawn_TeleportToSpawn(entity targetEnt)
 	}
 
 	print("^1Error: no player spawn points found on this map.\n");
+
+	/* rather than drop the player into the void forever, let them fly
+	 * around the map they asked for */
+	if (is.Player(targetEnt)) {
+		centerprint(targetEnt, "This map has no player spawn points.\nFlying (noclip) so you can look around.");
+		targetEnt.movetype = MOVETYPE_NOCLIP;
+		targetEnt.velocity = [0,0,0];
+	}
 }
 
 bool

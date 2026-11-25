@@ -318,7 +318,6 @@ ncRuleDelegate::IntermissionEnd(void)
 {
 	if (!m_iIntermission)
 		return;
-
 	if (time < m_flIntermissionTime)
 		return;
 
@@ -479,10 +478,21 @@ RuleC_Init(void)
 		return;
 	}
 
-	string gameType = g_ruleCName = Game_DefaultRules();
+	string gameType = Game_DefaultRules();
 	string pathToProgs;
 
 	pathToProgs = strcat("progs/", gameType, ".dat");
+
+	/* A g_gametype with no progs behind it (a typo, or a mode this build
+	 * did not ship) would leave the server with no rules at all: nobody
+	 * can spawn. Say so, and play deathmatch instead. */
+	if (fileExists(pathToProgs) == false) {
+		ncError("Progs at %S does not exist. Playing deathmatch instead.", pathToProgs);
+		gameType = "deathmatch";
+		pathToProgs = "progs/deathmatch.dat";
+	}
+
+	g_ruleCName = gameType;
 
 	/* No progs .dat, exit out */
 	if (fileExists(pathToProgs) == false) {

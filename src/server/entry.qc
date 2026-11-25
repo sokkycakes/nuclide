@@ -385,6 +385,14 @@ SV_RunClientCommand(void)
 		return;
 	}
 
+	/* After a match IntermissionStart parks every player as a spectator,
+	 * whose input never reaches ncPlayer::ProcessInput, so "fire or jump
+	 * to continue" was never heard and the match never left intermission.
+	 * Hear it here, for every client. */
+	if (g_grMode && g_grMode.InIntermission() == true) {
+		g_grMode.IntermissionEnd();
+	}
+
 	/* real free-fly spectators are not is.Player() — route input here */
 	if (cl.classname == "spectator") {
 		ncSpectator spec = (ncSpectator)cl;
@@ -546,9 +554,16 @@ initents(void)
 	ncRuleDelegate currentRule;
 	ncMapDelegate currentMap;
 
+	/* make g_gametype a real cvar, so "g_gametype duel" typed at the
+	 * console sets it instead of being an unknown command */
+	registercvar("g_gametype", "");
+
 	forceinfokey(world, "teams", "");
 	forceinfokey(world, "teamplay", "");
 	forceinfokey(world, "coop", "");
+	/* dm_lobby's lobby state: left set, the next mode would still draw
+	 * the lobby overlay over play */
+	forceinfokey(world, "lobby_state", "");
 
 	/* clean up... */
 	for (int teamID = 1; teamID < 1000; teamID++) {
@@ -603,7 +618,11 @@ initents(void)
 	if (cvars.GetBool("sv_background") == true) {
 		/* trade them in. */
 		serverinfo.SetBool("background", true);
-		localcmd("sv_background 0\n");
+		/* map_background runs the backdrop with g_gametype singleplayer
+		 * and coop 1. Hand those back, or the next map started from the
+		 * console inherits singleplayer rules (no hero pick, and death
+		 * waits on a quicksave that isn't there). */
+		localcmd("sv_background 0\nset g_gametype \"\"\nset coop 0\n");
 		g_menuBackgroundMapMode = true;
 	} else {
 		serverinfo.SetBool("background", false);
