@@ -241,6 +241,7 @@ static vguiWindow g_adminWindow;
 static vguiList g_adminList;
 static vguiScrollBar g_adminScroll;
 static vguiLabel g_adminStatus;
+static vguiLabel g_adminKeyHint;
 static vguiButton g_adminTabButtons[3];
 static vguiButton g_adminActionButton;
 static vguiButton g_adminRestartButton;
@@ -475,6 +476,7 @@ Admin_Refresh(void)
 		g_adminExtra2Button.Show();
 		g_adminYesButton.Hide();
 		g_adminNoButton.Hide();
+		g_adminKeyHint.SetTitle("^8Up/Down: pick   Enter/A: do it   Tab, LB/RB: tabs\n^81/X: restart   2/Y: add bot   3: remove bot   Esc/B: close");
 	} else {
 		g_adminWindow.SetTitle("Call a Vote");
 		g_adminRestartButton.SetTitle("Vote restart");
@@ -482,6 +484,7 @@ Admin_Refresh(void)
 		g_adminExtra2Button.Hide();
 		g_adminYesButton.Show();
 		g_adminNoButton.Show();
+		g_adminKeyHint.SetTitle("^8Up/Down: pick   Enter/A: vote   Tab, LB/RB: tabs\n^81/X: vote restart   2/Y: vote next map   Esc/B: close");
 	}
 
 	if (voteRunning) {
@@ -516,7 +519,7 @@ Admin_Open(bool hostMode)
 
 		g_adminWindow = spawn(vguiWindow);
 		g_adminWindow.SetTitle("Host Menu");
-		g_adminWindow.SetSize([480, 392]);
+		g_adminWindow.SetSize([480, 412]);
 		g_adminWindow.SetStyleMask(vguiWindowStyleDefault);
 		g_adminWindow.SetIcon("gfx/icon16/server");
 		g_uiDesktop.Add(g_adminWindow);
@@ -551,6 +554,11 @@ Admin_Open(bool hostMode)
 		g_adminStatus.SetPos([16, 336]);
 		g_adminStatus.SetSize([448, 40]);
 		g_adminWindow.Add(g_adminStatus);
+
+		g_adminKeyHint = spawn(vguiLabel);
+		g_adminKeyHint.SetPos([16, 372]);
+		g_adminKeyHint.SetSize([448, 32]);
+		g_adminWindow.Add(g_adminKeyHint);
 	}
 
 	g_adminHostMode = hostMode;
@@ -558,6 +566,151 @@ Admin_Open(bool hostMode)
 	g_adminWindow.Show();
 	g_adminWindow.Focus();	/* in front of a team or hero picker */
 	g_adminWindow.SetPos((g_vidsize / 2) - (g_adminWindow.GetSize() / 2));
+}
+
+/* -------------------------------------------------------------------------
+ * Keyboard and controller. VGUI buttons only take mouse clicks, so the
+ * window reads its own keys (CSQC_InputEvent asks first while it is open):
+ *   Up/Down, D-pad, left stick   move the list highlight
+ *   Enter, A                     the main button (Change map, Vote kick...)
+ *   Tab, Left/Right, LB/RB       next or previous tab
+ *   1 / X                        Restart map (or Vote restart)
+ *   2 / Y                        Add bot (or Vote next map)
+ *   3                            Remove bot (host)
+ *   Escape, B, Menu (Start)      close
+ * F1/F2 (vote yes/no) are binds and pass through.
+ * ------------------------------------------------------------------------- */
+
+static void
+Admin_MoveSelection(int dir)
+{
+	int count = g_adminListCount;
+
+	if (count <= 0i) {
+		return;
+	}
+
+	int sel = g_adminList.GetSelected();
+
+	if (sel < 0i) {
+		sel = (dir > 0i) ? 0i : count - 1i;
+	} else {
+		sel += dir;
+	}
+
+	if (sel < 0i) {
+		sel = 0i;
+	} else if (sel >= count) {
+		sel = count - 1i;
+	}
+
+	g_adminList.SetSelected(sel);
+
+	/* keep the highlight in view */
+	int rows = (int)floor(g_adminList.GetSize()[1] / 20);
+	int offset = g_adminList.GetOffset();
+
+	if (sel < offset) {
+		offset = sel;
+	} else if (rows > 0i && sel >= offset + rows) {
+		offset = sel - rows + 1i;
+	}
+
+	g_adminList.SetOffset(offset, FALSE);
+	g_adminScroll.SetValue(g_adminList.GetOffset());
+}
+
+static void
+Admin_CycleTab(int dir)
+{
+	int tab = g_adminTab + dir;
+
+	if (tab < ADMINTAB_MAPS) {
+		tab = ADMINTAB_PLAYERS;
+	} else if (tab > ADMINTAB_PLAYERS) {
+		tab = ADMINTAB_MAPS;
+	}
+
+	Admin_SelectTab(tab);
+}
+
+bool
+VGUI_Admin_Visible(void)
+{
+	return (g_adminWindow && g_adminWindow.Visible());
+}
+
+void
+VGUI_Admin_Close(void)
+{
+	if (VGUI_Admin_Visible()) {
+		g_adminWindow.Hide();
+	}
+}
+
+/* a key went down while the window is open: true when the window used it */
+bool
+VGUI_Admin_KeyDown(float key)
+{
+	if (!VGUI_IsFrontWindow(g_adminWindow)) {
+		return (false);
+	}
+
+	switch (key) {
+	case K_ESCAPE:
+	case K_GP_B:
+	case K_GP_MENU:
+	case K_GP_VIEW:
+		Admin_Close();
+		return (true);
+	case K_ENTER:
+	case K_KP_ENTER:
+	case K_GP_A:
+		Admin_Action();
+		return (true);
+	case K_UPARROW:
+	case K_GP_DPAD_UP:
+	case K_GP_LTHUMB_UP:
+		Admin_MoveSelection(-1i);
+		return (true);
+	case K_DOWNARROW:
+	case K_GP_DPAD_DOWN:
+	case K_GP_LTHUMB_DOWN:
+		Admin_MoveSelection(1i);
+		return (true);
+	case K_PGUP:
+		Admin_MoveSelection(-8i);
+		return (true);
+	case K_PGDN:
+		Admin_MoveSelection(8i);
+		return (true);
+	case K_TAB:
+	case K_RIGHTARROW:
+	case K_GP_RSHOULDER:
+	case K_GP_DPAD_RIGHT:
+	case K_GP_LTHUMB_RIGHT:
+		Admin_CycleTab(1i);
+		return (true);
+	case K_LEFTARROW:
+	case K_GP_LSHOULDER:
+	case K_GP_DPAD_LEFT:
+	case K_GP_LTHUMB_LEFT:
+		Admin_CycleTab(-1i);
+		return (true);
+	case '1':
+	case K_GP_X:
+		Admin_Restart();
+		return (true);
+	case '2':
+	case K_GP_Y:
+		Admin_Extra1();
+		return (true);
+	case '3':
+		Admin_Extra2();
+		return (true);
+	}
+
+	return (false);
 }
 
 /* menu_hostmenu: the host's admin window; anyone else gets the vote window */

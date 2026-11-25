@@ -69,6 +69,59 @@ VGUI_MOTD_Proceed(void)
 	}
 }
 
+/* true when 'win' is showing and is the front-most window on the desktop:
+   a window left open behind another (a hero picker, say) must not take
+   the keys meant for the one in front */
+bool
+VGUI_IsFrontWindow(vguiWidget win)
+{
+	vguiWidget front = __NULL__;
+
+	if (!win || !win.Visible()) {
+		return (false);
+	}
+
+	for (vguiWidget w = g_uiDesktop.m_next; w; w = w.m_next) {
+		if (w.m_parent == g_uiDesktop && w.Visible()) {
+			front = w;
+		}
+	}
+
+	return (front == win);
+}
+
+bool
+VGUI_MOTD_Visible(void)
+{
+	return (VGUI_IsFrontWindow(g_motdWindow));
+}
+
+/* the OK button, from a key: Enter, Space, Escape or a pad's A/B/Start all
+   close the window and go on to the team or join page, so nobody needs a
+   mouse to get past it */
+bool
+VGUI_MOTD_KeyDown(float key)
+{
+	if (!VGUI_MOTD_Visible()) {
+		return (false);
+	}
+
+	switch (key) {
+	case K_ENTER:
+	case K_KP_ENTER:
+	case K_SPACE:
+	case K_ESCAPE:
+	case K_GP_A:
+	case K_GP_B:
+	case K_GP_MENU:
+		g_motdWindow.Hide();
+		VGUI_MOTD_Proceed();
+		return (true);
+	}
+
+	return (false);
+}
+
 /* on connect: show it only to someone joining another person's server */
 void
 VGUI_AutoMOTD(void)
@@ -124,7 +177,7 @@ VGUI_ShowMOTD(void)
 		g_motdWindow = winMotd;
 
 		winMotdClose = spawn(vguiButton);
-		winMotdClose.SetTitle("OK");
+		winMotdClose.SetTitle("OK (Enter)");
 		winMotdClose.SetPos([16, 266]);
 		winMotdClose.SetSize([160, 30]);
 		winMotdClose.SetFunc(VGUI_ShowMOTD_Close);

@@ -598,6 +598,15 @@ CSQC_InputEvent(float fEventType, float fKey, float fCharacter, float fDeviceID)
 
 	//g_vecMousePos = getmousepos();
 
+	/* the message of the day and the host/vote window take keys and pad
+	   buttons first (VGUI itself only knows the mouse); Escape closes them
+	   instead of opening the pause page over them */
+	if (fEventType == IE_KEYDOWN) {
+		if (VGUI_MOTD_KeyDown(fKey) || VGUI_Admin_KeyDown(fKey)) {
+			return (true);
+		}
+	}
+
 	bool vgui_pressed;
 	vgui_pressed = Commandmenu_Input(fEventType, fKey, fCharacter, fDeviceID);
 
