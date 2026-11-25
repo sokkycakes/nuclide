@@ -45,10 +45,9 @@ static int write_if_changed(const char *path, const char *text)
 	return fclose(f);
 }
 
-int steam_input_init(const char *exe_dir, const char *game_dir, const char *state_dir, unsigned appid)
+int steam_input_init(const char *const *libdirs, const char *state_dir, unsigned appid)
 {
 	char dir[1200], path[1400], manifest[1400] = "";
-	const char *libdirs[3] = { exe_dir, game_dir, NULL };
 	si_config_t cfg;
 	memset(&S, 0, sizeof(S));
 	pl_join(dir, sizeof(dir), state_dir, "steam_input");

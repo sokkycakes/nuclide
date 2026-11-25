@@ -4,6 +4,8 @@
 #   OUT/bulwark            the client (SDL2 and libstdc++ linked in)
 #   OUT/bwplug_*.so        engine plugins (loaded from next to the exe)
 #   OUT/data/              engine data (Panorama ports of the web menus, fonts)
+#   OUT/libsteam_api.so    Steam's API, for Steam Input (tools/fetch_steam_api.sh;
+#                          NO_STEAM_API=1 leaves it out, and input falls back to SDL)
 # Usage: tools/build_bulwark.sh /path/to/bulwark-engine OUT
 # Needs the static SDL2 that ./build.sh linux builds into .deps/sdl-linux.
 set -eu
@@ -29,6 +31,9 @@ for p in "$BUILD"/bwplug_*.so; do [ -f "$p" ] && cp "$p" "$OUT/" && strip "$OUT/
 rm -rf "$OUT/data"
 cp -r "$SRC/data" "$OUT/data"
 (cd "$SRC" && git rev-parse HEAD 2>/dev/null) > "$OUT/VERSION.txt" || true
+if [ "${NO_STEAM_API:-0}" != 1 ]; then
+	"$HERE/tools/fetch_steam_api.sh" "$OUT" || echo "warning: no libsteam_api.so; Steam Input falls back to SDL" >&2
+fi
 echo "built $OUT ($(du -sh "$OUT" | cut -f1))"
 # anything beyond libc/libm would have to be on every tester's machine
 if ldd "$OUT/bulwark" | grep -v -E 'linux-vdso|libc\.so|libm\.so|ld-linux' | grep -q '=>'; then

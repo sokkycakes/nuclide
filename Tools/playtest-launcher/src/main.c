@@ -834,10 +834,20 @@ int main(int argc, char **argv)
 	if (after_self) u.cfg.up.allow_self_update = 0;
 	/* Steam Input first: whether it runs decides how SDL treats Valve's pads */
 	u.glyphs = SI_SET_XBOX;
+	update_read_local(&u.cfg.up);
+	update_snapshot(&u.st);
 	if (u.cfg.steam_input) {
-		char state[1100];
+		/* libsteam_api beside the launcher, in the game folder, or beside
+		 * the installed game's executable (Bulwark ships it there) */
+		char state[1100], gamebin[1200];
+		const char *libdirs[4] = { u.cfg.exe_dir, u.cfg.up.install_dir, NULL, NULL };
 		pl_join(state, sizeof(state), u.cfg.up.install_dir, ".launcher");
-		steam_input_init(u.cfg.exe_dir, u.cfg.up.install_dir, state, u.cfg.steam_input_appid);
+		if (u.st.run_exe[0]) {
+			pl_join(gamebin, sizeof(gamebin), u.cfg.up.install_dir, u.st.run_exe);
+			pl_dirname(gamebin);
+			libdirs[2] = gamebin;
+		}
+		steam_input_init(libdirs, state, u.cfg.steam_input_appid);
 	}
 	/* buttons by position, as Steam Input names them: A is the bottom button
 	 * on every pad, a Switch pad's B included, so the prompts line up */
@@ -896,8 +906,6 @@ int main(int argc, char **argv)
 	}
 	for (int i = 0; i < SDL_NumJoysticks(); i++) open_pad(&u, i);
 
-	update_read_local(&u.cfg.up);
-	update_snapshot(&u.st);
 	if (u.cfg.auto_update || !u.st.installed) start_update(&u, verify);
 	u.focus = B_PLAY;
 	u.last_state = US_IDLE;

@@ -58,8 +58,10 @@ free controller prompts (CC0, `src/glyphs/`).
   starts, it shuts Steam Input down and puts back the environment Steam
   gave it, so the game starts Steam Input itself.
 - **Needs `steam_api64.dll` (Windows, Proton) or `libsteam_api.so` (Linux)**
-  beside the launcher or in the game folder. Bulwark games ship it next to
-  the engine, so it is there once the game is installed. Without it, or
+  beside the launcher, in the game folder or beside the game's executable.
+  The Linux Stiletto build ships `bulwark/libsteam_api.so`
+  (`tools/fetch_steam_api.sh`, run by `tools/build_bulwark.sh`), so after
+  the first install both the launcher and the game have it. Without it, or
   without Steam, the launcher reads controllers through SDL. Steam's virtual
   gamepad and its `SteamVirtualGamepadInfo` file still give the right
   prompts there, a Deck's included.
