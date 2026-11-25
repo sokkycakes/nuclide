@@ -11,6 +11,30 @@ import { SettingsDialog } from './components/SettingsDialog';
 import { installNavigation, focusFirst } from './navigation';
 import escapeKey from '../assets/key-esc.png';
 
+// The host asked this guest for a password: type it and join again, or leave.
+function PasswordPrompt({ snapshot: s, setNotice, refresh }) {
+  const [text, setText] = useState('');
+  const field = useRef();
+  useEffect(() => { if (field.current) field.current.focus(); }, []);
+  function submit(e) {
+    if (e) e.preventDefault();
+    if (!text) return;
+    bridge.menuSound('confirm');
+    const why = bridge.joinWithPassword(text);
+    setNotice(why ? 'Unable to join: ' + why : 'Joining…');
+    if (!why) { setText(''); refresh(); }
+  }
+  return <div id="PasswordPrompt" className="dialog-backdrop" role="dialog" aria-modal="true" aria-labelledby="PasswordTitle">
+    <form className="dialog-panel leave-dialog" onSubmit={submit}>
+      <h2 id="PasswordTitle">Password</h2>
+      <p>{(s.joinTarget || 'This lobby') + ' needs a password.'}{s.error && !/needs a password/i.test(s.error) ? ' (' + s.error + ')' : ''}</p>
+      <input id="JoinPassword" ref={field} type="password" maxLength="63" value={text} onInput={e => setText(e.currentTarget.value)}/>
+      <Button id="BtnJoinPassword" className="choice" disabled={!text} onClick={submit}>Join</Button>
+      <Button id="BtnPasswordLeave" className="choice" onClick={() => { if (!bridge.leave()) setNotice('Unable to leave the lobby.'); }}>Leave</Button>
+    </form>
+  </div>;
+}
+
 function LobbyApp() {
   const [snapshot, setSnapshot] = useState(EMPTY);
   const [notice, setNotice] = useState('');
@@ -107,8 +131,9 @@ function LobbyApp() {
         </Button>
       </footer>
     </section>
-    <div id="StatusLine" role="status" className={'status-line ' + (snapshot.error ? 'error' : '')}>{snapshot.error || connectionError || notice || (snapshot.phase === 'JOINING' || snapshot.phase === 'CLOSING' ? snapshot.status : '')}</div>
-    {dialog && dialog !== 'leave' && snapshot.isHost && <SettingsDialog key={dialog} kind={dialog} snapshot={snapshot} close={closeDialog} run={run} onReady={toggleReady}/>}
+    <div id="StatusLine" role="status" className={'status-line ' + (snapshot.error ? 'error' : '')}>{snapshot.error || connectionError || notice || (snapshot.phase === 'JOINING' || snapshot.phase === 'CLOSING' ? snapshot.status : '') || snapshot.warning}</div>
+    {dialog && dialog !== 'leave' && snapshot.isHost && <SettingsDialog key={dialog} kind={dialog} snapshot={snapshot} close={closeDialog} run={run} onReady={toggleReady} setNotice={setNotice}/>}
+    {snapshot.needPassword && dialog !== 'leave' && <PasswordPrompt snapshot={snapshot} setNotice={setNotice} refresh={() => setTimeout(refresh, 50)}/>}
     {dialog === 'leave' && <div id="LeaveConfirm" className="dialog-backdrop" role="dialog" aria-modal="true" aria-labelledby="LeaveConfirmTitle">
       <Button className="dismiss-overlay" aria-label="Stay in lobby" onClick={closeDialog} tabIndex={-1}/>
       <section className="dialog-panel leave-dialog">
