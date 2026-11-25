@@ -1700,7 +1700,43 @@
     }
   });
 
+  // Arrow keys (and a controller's d-pad, where the engine passes it on as
+  // arrows) light the nearest button that way; Enter (A) presses it.
+  function padMove(dx, dy) {
+    if (!hits.length) return;
+    const cur = hits.find((h) => h.id === state.hover);
+    if (!cur) {
+      const first = hits.slice().sort((a, b) => (a.y - b.y) || (a.x - b.x))[0];
+      state.hover = first.id;
+      return;
+    }
+    const cx = cur.x + cur.w / 2, cy = cur.y + cur.h / 2;
+    let best = null, bestScore = Infinity;
+    for (const h of hits) {
+      if (h === cur) continue;
+      const ox = h.x + h.w / 2 - cx, oy = h.y + h.h / 2 - cy;
+      const along = ox * dx + oy * dy, across = Math.abs(ox * dy) + Math.abs(oy * dx);
+      if (along <= 0) continue;
+      const score = along + across * 2;
+      if (score < bestScore) { bestScore = score; best = h; }
+    }
+    if (best) state.hover = best.id;
+  }
+
+  const PAD_DIRS = { ArrowUp: [0, -1], ArrowDown: [0, 1], ArrowLeft: [-1, 0], ArrowRight: [1, 0] };
+
   window.addEventListener("keydown", (e) => {
+    if (PAD_DIRS[e.key]) {
+      e.preventDefault();
+      padMove(PAD_DIRS[e.key][0], PAD_DIRS[e.key][1]);
+      return;
+    }
+    if (e.key === "Enter") {
+      e.preventDefault();
+      const h = hits.find((x) => x.id === state.hover);
+      if (h) h.onClick(); else padMove(0, 1);
+      return;
+    }
     if (arenaFixture) {
       if (e.key === "1") {
         arenaSnapshot = makeArenaFixture("waiting");
