@@ -5,5 +5,6 @@
 ../../../src/rules.src
 shared.qc
 arena.qc
+arena_modes.qc
 duel.qc
 #endlist
