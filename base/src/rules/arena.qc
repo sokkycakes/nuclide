@@ -58,6 +58,24 @@ var int g_arenaPoints[ARENA_MAXSLOTS];
 entity g_arenaQueue[ARENA_MAXQUEUE];
 var int g_arenaQueueCount;
 
+/* --- set play state (see arena.h) --- */
+var int g_setFirstTo;			/* 0 = no set play */
+var int g_setWins[3];			/* by side, 1 and 2 */
+var int g_setGame;				/* 1-based game of the current set, 0 = no set */
+var int g_setRunbacks;			/* rematches in a row between these competitors */
+var int g_setResult;
+var int g_setWinnerSide;
+var int g_setCounterSide;		/* SELECT: only this side may change hero (0 = both) */
+var string g_setLog;
+var int g_setSerial;
+var string g_setClosed;
+var string g_setLeft;
+var int g_setLock[ARENA_MAXSLOTS];
+var int g_setVote[ARENA_MAXSLOTS];
+var int g_setGamesWon[ARENA_MAXSLOTS];
+entity g_setSeat[ARENA_MAXSLOTS];		/* who sat in each slot this set (survives a departure) */
+var int g_arenaDepartSlot = -1;
+
 static int
 Arena_PlayerState(entity pl)
 {
@@ -84,6 +102,10 @@ static void Arena_SetupRound(void);
 static void Arena_AssignSlot(entity pl, int slot);
 static void Arena_ReleaseSlot(entity pl);
 static void Arena_ClearMatchBookkeeping(void);
+static void Arena_SetForfeit(int departSlot);
+static void Arena_SetClose(string why);
+static void Arena_SetReport(void);
+static void Arena_BeginGame(void);
 
 /* =========================================================================
  * Configuration
@@ -110,6 +132,18 @@ Arena_Configure(int teamShape, int promotionPolicy, int roundLimit)
 
 	g_arenaMinReady = g_arenaSlotCount;
 	g_arenaAutoJoin = false;
+
+	g_setFirstTo = (int)autocvar_arena_setFirstTo;
+	if (g_setFirstTo < 0i) {
+		g_setFirstTo = 0i;
+	}
+	g_setGame = 0i;
+	g_setRunbacks = 0i;
+	g_setResult = SETRESULT_NONE;
+	g_setSerial = 0i;
+	g_setClosed = "";
+	g_setLeft = "";
+	g_setLog = "";
 	g_arenaSpawnClass = "";
 	g_arenaRoundCountdownTime = 0.0f;
 	g_arenaRoundCountdownStep = 1.0f;
@@ -153,7 +187,23 @@ Arena_SetHooks(void() roundStart, void(entity, entity) playerDeath, int() roundW
 void
 Arena_SetAutoJoin(bool enabled)
 {
-	g_arenaAutoJoin = enabled;
+	/* set play is always matchmade: whoever connects is there to play */
+	g_arenaAutoJoin = enabled || (g_setFirstTo > 0i);
+}
+
+bool
+Arena_SetPlay(void)
+{
+	return (g_setFirstTo > 0i);
+}
+
+static int
+Arena_SideForSlot(int slot)
+{
+	if (g_arenaShape == ARENASHAPE_2V2) {
+		return ((slot < (g_arenaSlotCount / 2i)) ? 1i : 2i);
+	}
+	return ((slot == 0i) ? 1i : 2i);
 }
 
 void
@@ -487,6 +537,10 @@ Arena_StateName(void)
 		return ("ROUND END");
 	case ARENA_MATCH_END:
 		return ("MATCH END");
+	case ARENA_SELECT:
+		return ("SELECT");
+	case ARENA_SET_END:
+		return ("SET END");
 	}
 	return ("?");
 }
@@ -532,6 +586,48 @@ Arena_BroadcastState(void)
 	serverinfo.SetInteger("arena_score2", g_arenaPoints[1]);
 	serverinfo.SetString("arena_result", Arena_ResultName(g_arenaResult));
 	serverinfo.SetInteger("arena_winner", g_arenaWinnerSlot);
+
+	if (g_setFirstTo > 0i) {
+		string locks = "";
+		string votes = "";
+		bool hidden = false;
+		for (int s = 0i; s < g_arenaSlotCount; s++) {
+			locks = strcat(locks, (s > 0i) ? " " : "", itos(g_setLock[s]));
+			votes = strcat(votes, (s > 0i) ? " " : "", itos(g_setVote[s]));
+		}
+		/* picks stay hidden until every competitor has locked */
+		if (g_arenaState == ARENA_SELECT) {
+			hidden = false;
+			for (int s2 = 0i; s2 < g_arenaSlotCount; s2++) {
+				if (g_setLock[s2] == 0i) {
+					hidden = true;
+				}
+			}
+		}
+		serverinfo.SetString("arena_set", strcat(
+			sprintf("%i %i %i %i ", g_setFirstTo, g_setGame, g_setWins[1], g_setWins[2]),
+			sprintf("%i %i %i %i", g_setRunbacks, g_setResult, g_setWinnerSide, g_setCounterSide)));
+		serverinfo.SetInteger("arena_set_serial", g_setSerial);
+		serverinfo.SetString("arena_set_closed", g_setClosed);
+		serverinfo.SetString("arena_set_log", g_setLog);
+		serverinfo.SetString("arena_set_left", g_setLeft);
+		serverinfo.SetString("arena_lock", locks);
+		serverinfo.SetString("arena_vote", votes);
+		if (g_arenaState == ARENA_SELECT || g_arenaState == ARENA_MATCH_END || g_arenaState == ARENA_SET_END) {
+			serverinfo.SetInteger("arena_deadline", (int)ceil(max(0, g_arenaDeadline - time)));
+		} else {
+			serverinfo.SetString("arena_deadline", "");
+		}
+		for (int h = 0i; h < g_arenaSlotCount; h++) {
+			entity hc = g_arenaCompetitor[h];
+			string heroKey = sprintf("arena_hero%i", h + 1i);
+			if (hc && hidden == false) {
+				serverinfo.SetString(heroKey, userinfo.GetString(hc, "*hero"));
+			} else {
+				serverinfo.SetString(heroKey, "");
+			}
+		}
+	}
 
 	for (int i = 0i; i < 2i; i++) {
 		entity c = g_arenaCompetitor[i];
@@ -672,9 +768,16 @@ Arena_TransitionAllowed(int from, int to)
 		return (true);
 	}
 
+	/* a forfeit ends a set from any point of it */
+	if (to == ARENA_SET_END && from != ARENA_WARMUP && from != ARENA_SET_END) {
+		return (g_setFirstTo > 0i);
+	}
+
 	switch (from) {
 	case ARENA_WARMUP:
-		return (to == ARENA_COUNTDOWN);
+		return (to == ARENA_COUNTDOWN || to == ARENA_SELECT);
+	case ARENA_SELECT:
+		return (to == ARENA_COUNTDOWN || to == ARENA_WARMUP);
 	case ARENA_COUNTDOWN:
 		return (to == ARENA_LIVE || to == ARENA_SUDDEN_DEATH
 			|| to == ARENA_WARMUP || to == ARENA_MATCH_END);
@@ -686,7 +789,9 @@ Arena_TransitionAllowed(int from, int to)
 	case ARENA_ROUND_END:
 		return (to == ARENA_COUNTDOWN || to == ARENA_MATCH_END);
 	case ARENA_MATCH_END:
-		return (to == ARENA_COUNTDOWN || to == ARENA_WARMUP);
+		return (to == ARENA_COUNTDOWN || to == ARENA_WARMUP || to == ARENA_SELECT);
+	case ARENA_SET_END:
+		return (to == ARENA_SELECT || to == ARENA_WARMUP);
 	}
 	return (false);
 }
@@ -805,7 +910,77 @@ Arena_EnterState(int newState, int oldState)
 		g_arenaDeadline = time + autocvar_arena_roundEndTime;
 		break;
 
+	case ARENA_SELECT:
+		/* the caller set g_setLock[] and g_setCounterSide */
+		{
+			bool allLocked = true;
+			for (int ls = 0i; ls < g_arenaSlotCount; ls++) {
+				if (g_setLock[ls] == 0i) {
+					allLocked = false;
+				}
+				g_setVote[ls] = SETVOTE_NONE;
+				if (g_arenaCompetitor[ls]) {
+					Arena_SpawnWaitingView(g_arenaCompetitor[ls]);
+				}
+			}
+			if (allLocked) {
+				g_arenaDeadline = time + autocvar_arena_revealTime;
+			} else if (g_setCounterSide > 0i) {
+				g_arenaDeadline = time + autocvar_arena_counterpickTime;
+				Arena_CenterprintAll("CHANGE HERO?");
+			} else {
+				g_arenaDeadline = time + autocvar_arena_selectTime;
+				Arena_CenterprintAll("CHOOSE YOUR HERO");
+			}
+		}
+		break;
+
+	case ARENA_SET_END:
+		for (int vs = 0i; vs < ARENA_MAXSLOTS; vs++) {
+			g_setVote[vs] = SETVOTE_NONE;
+		}
+		if (g_setResult == SETRESULT_FORFEIT) {
+			g_arenaDeadline = time + autocvar_arena_forfeitTime;
+		} else {
+			g_arenaDeadline = time + autocvar_arena_voteTime;
+		}
+		break;
+
 	case ARENA_MATCH_END:
+		if (g_setFirstTo > 0i) {
+			g_arenaDeadline = time + autocvar_arena_gameEndTime;
+			if (g_arenaResult == ARENARESULT_WIN && g_arenaWinnerSlot > 0i) {
+				int gside = Arena_SideForSlot(g_arenaWinnerSlot - 1i);
+				int lead = 0i;
+				int trail = 0i;
+				for (int ps = 0i; ps < g_arenaSlotCount; ps++) {
+					if (Arena_SideForSlot(ps) == gside) {
+						if (g_arenaPoints[ps] > lead) { lead = g_arenaPoints[ps]; }
+						g_setGamesWon[ps]++;
+					} else {
+						if (g_arenaPoints[ps] > trail) { trail = g_arenaPoints[ps]; }
+					}
+				}
+				g_setWins[gside]++;
+				g_setLog = strcat(g_setLog, STRING_SET(g_setLog) ? " " : "",
+					(gside == 1i) ? sprintf("%i-%i", lead, trail) : sprintf("%i-%i", trail, lead));
+				if (g_setWins[gside] >= g_setFirstTo) {
+					g_setResult = SETRESULT_COMPLETE;
+					g_setWinnerSide = gside;
+					Arena_CenterprintAll(sprintf("%s ^7WINS THE SET %i-%i",
+						g_arenaCompetitor[g_arenaWinnerSlot - 1i].netname,
+						g_setWins[gside], g_setWins[3i - gside]));
+					Arena_SetReport();
+				} else {
+					Arena_CenterprintAll(sprintf("%s ^7WINS GAME %i",
+						g_arenaCompetitor[g_arenaWinnerSlot - 1i].netname, g_setGame));
+				}
+			} else if (g_arenaResult == ARENARESULT_DRAW) {
+				g_setLog = strcat(g_setLog, STRING_SET(g_setLog) ? " " : "", "draw");
+				Arena_CenterprintAll("GAME DRAWN");
+			}
+			break;
+		}
 		g_arenaDeadline = time + autocvar_arena_matchEndTime;
 		if (g_arenaResult == ARENARESULT_VOID) {
 			Arena_CenterprintAll("MATCH ENDED - NO RESULT");
@@ -872,6 +1047,23 @@ Arena_VoidMatch(int reason)
 static void
 Arena_HandleCompetitorDeparture(int reason)
 {
+	if (g_setFirstTo > 0i && g_setGame > 0i) {
+		if (g_arenaState == ARENA_SET_END) {
+			if (g_arenaDepartSlot >= 0i) {
+				g_setVote[g_arenaDepartSlot] = SETVOTE_LEAVE;
+			}
+			return;
+		}
+		if (g_setResult == SETRESULT_NONE && g_arenaState != ARENA_WARMUP) {
+			Arena_SetForfeit(g_arenaDepartSlot);
+			return;
+		}
+		if (g_arenaState == ARENA_MATCH_END) {
+			/* the set was decided; the leaver just skips the vote */
+			return;
+		}
+	}
+
 	switch (g_arenaState) {
 	case ARENA_WARMUP:
 		break;
@@ -933,6 +1125,7 @@ Arena_ChangeParticipation(entity pl, int newState, int reason)
 	}
 
 	Arena_QueueRemove(pl);
+	g_arenaDepartSlot = Arena_SlotForPlayer(pl);
 	if (wasCompetitor && newState != ARENASTATE_COMPETITOR) {
 		Arena_ReleaseSlot(pl);
 	}
@@ -1120,7 +1313,298 @@ Arena_BeginMatch(void)
 	g_arenaRoundWinnerSlot = 0;
 	g_arenaTiebreaker = false;
 	g_arenaSuddenNoTimer = false;
+
+	if (g_setFirstTo > 0i) {
+		/* a new set between whoever was seated */
+		g_setGame = 1i;
+		g_setWins[1] = 0i;
+		g_setWins[2] = 0i;
+		g_setRunbacks = 0i;
+		g_setResult = SETRESULT_NONE;
+		g_setWinnerSide = 0i;
+		g_setCounterSide = 0i;
+		g_setLog = "";
+		g_setLeft = "";
+		for (slot = 0i; slot < ARENA_MAXSLOTS; slot++) {
+			g_setLock[slot] = 0i;
+			g_setVote[slot] = SETVOTE_NONE;
+			g_setGamesWon[slot] = 0i;
+			g_setSeat[slot] = g_arenaCompetitor[slot];
+		}
+		Arena_Transition(ARENA_SELECT, ARENAREASON_NORMAL);
+		return;
+	}
+
 	Arena_Transition(ARENA_COUNTDOWN, ARENAREASON_NORMAL);
+}
+
+/* next game of a set, or the first game of a rematch: same competitors */
+static void
+Arena_BeginGame(void)
+{
+	for (int i = 0i; i < ARENA_MAXSLOTS; i++) {
+		g_arenaPoints[i] = 0i;
+	}
+	g_arenaRound = 1;
+	g_arenaMatchHasGoneLive = false;
+	g_arenaResult = ARENARESULT_NONE;
+	g_arenaWinnerSlot = 0;
+	g_arenaRoundResult = ARENARESULT_NONE;
+	g_arenaRoundWinnerSlot = 0;
+	g_arenaTiebreaker = false;
+	g_arenaSuddenNoTimer = false;
+	Arena_Transition(ARENA_SELECT, ARENAREASON_NORMAL);
+}
+
+static string
+Arena_RandomHero(void)
+{
+	int total = teams.TotalClasses(1);
+	if (total <= 0i) {
+		return ("");
+	}
+	return (teams.ClassForIndex(1, (int)floor(random() * total) % total));
+}
+
+static void
+Arena_TickSelect(void)
+{
+	bool allLocked = true;
+	int i;
+	entity c;
+
+	for (i = 0i; i < g_arenaSlotCount; i++) {
+		if (g_setLock[i] == 0i) {
+			allLocked = false;
+		}
+	}
+
+	/* everyone locked: show both picks for a moment, then fight */
+	if (allLocked && g_arenaDeadline > time + autocvar_arena_revealTime) {
+		g_arenaDeadline = time + autocvar_arena_revealTime;
+		Arena_BroadcastState();
+	}
+
+	if (time < g_arenaDeadline) {
+		return;
+	}
+
+	for (i = 0i; i < g_arenaSlotCount; i++) {
+		c = g_arenaCompetitor[i];
+		if (!c) {
+			continue;
+		}
+		if (STRING_SET(userinfo.GetString(c, "*hero")) == false) {
+			Hero_TrySelectEx(c, Arena_RandomHero(), false);
+		}
+		g_setLock[i] = 1i;
+	}
+
+	Arena_Transition(ARENA_COUNTDOWN, ARENAREASON_NORMAL);
+}
+
+bool
+Arena_HeroLocked(entity pl)
+{
+	int slot;
+
+	if (g_setFirstTo <= 0i) {
+		return (false);
+	}
+	slot = Arena_SlotForPlayer(pl);
+	if (slot < 0i) {
+		return (false);
+	}
+	/* heroes change only during SELECT, and only while unlocked */
+	if (g_arenaState != ARENA_SELECT) {
+		return (true);
+	}
+	return (g_setLock[slot] != 0i);
+}
+
+static void
+Arena_LockHero(entity pl)
+{
+	int slot = Arena_SlotForPlayer(pl);
+
+	if (g_arenaState != ARENA_SELECT || slot < 0i) {
+		return;
+	}
+	if (STRING_SET(userinfo.GetString(pl, "*hero")) == false) {
+		centerprint(pl, "Pick a hero first");
+		return;
+	}
+	g_setLock[slot] = 1i;
+	Arena_BroadcastState();
+}
+
+static bool
+Arena_SideBehind(int side)
+{
+	int mine = g_setWins[side];
+	int theirs = g_setWins[3i - side];
+	int myPts = 0i;
+	int theirPts = 0i;
+
+	if (mine != theirs) {
+		return (mine < theirs);
+	}
+	for (int i = 0i; i < g_arenaSlotCount; i++) {
+		if (Arena_SideForSlot(i) == side) {
+			if (g_arenaPoints[i] > myPts) { myPts = g_arenaPoints[i]; }
+		} else {
+			if (g_arenaPoints[i] > theirPts) { theirPts = g_arenaPoints[i]; }
+		}
+	}
+	return (myPts < theirPts);
+}
+
+static void
+Arena_SetForfeit(int departSlot)
+{
+	int side;
+	entity leaver;
+
+	if (departSlot < 0i) {
+		/* not a seated competitor after all: the roster is broken */
+		Arena_SetClose("void");
+		return;
+	}
+
+	side = Arena_SideForSlot(departSlot);
+	leaver = g_setSeat[departSlot];
+	g_setResult = SETRESULT_FORFEIT;
+	g_setWinnerSide = 3i - side;
+	g_setLeft = sprintf("%s %s", leaver ? leaver.netname : "?",
+		Arena_SideBehind(side) ? "behind" : "even");
+	g_setVote[departSlot] = SETVOTE_LEAVE;
+	Arena_SetReport();
+	Arena_CenterprintAll(sprintf("%s ^7LEFT THE SET", leaver ? leaver.netname : "?"));
+	Arena_Transition(ARENA_SET_END, ARENAREASON_PARTICIPANT_LEFT);
+}
+
+/* tells the engine about a finished set (Bulwark Live fighter records) */
+static void
+Arena_SetReport(void)
+{
+	int outcome;
+	int side;
+	entity c;
+
+	for (int i = 0i; i < g_arenaSlotCount; i++) {
+		c = g_setSeat[i];
+		if (!c) {
+			continue;
+		}
+		side = Arena_SideForSlot(i);
+		if (g_setResult == SETRESULT_FORFEIT && g_setVote[i] == SETVOTE_LEAVE) {
+			outcome = 2i;	/* left; the engine knows whether it was a quit or a drop */
+		} else if (side == g_setWinnerSide) {
+			outcome = 0i;
+		} else {
+			outcome = 1i;
+		}
+		localcmd(sprintf("live_set_seat %i %i %i %i %i %s\n", (int)num_for_edict(c), side, outcome,
+			(outcome == 2i && Arena_SideBehind(side)) ? 1i : 0i, g_setGamesWon[i],
+			userinfo.GetString(c, "*hero")));
+	}
+	localcmd(sprintf("live_set_report %i %i %i\n", (g_setResult == SETRESULT_FORFEIT) ? 1i : 0i,
+		g_setFirstTo, (g_setRunbacks > 0i) ? 1i : 0i));
+}
+
+static void
+Arena_SetClose(string why)
+{
+	entity c;
+
+	g_setSerial++;
+	g_setClosed = why;
+	g_setGame = 0i;
+	g_setResult = SETRESULT_NONE;
+	g_setCounterSide = 0i;
+
+	for (int i = 0i; i < ARENA_MAXSLOTS; i++) {
+		c = g_arenaCompetitor[i];
+		g_arenaCompetitor[i] = __NULL__;
+		g_arenaPoints[i] = 0i;
+		g_setLock[i] = 0i;
+		g_setVote[i] = SETVOTE_NONE;
+		g_setSeat[i] = __NULL__;
+		if (c) {
+			/* never auto-join them again: they are on their way out */
+			userinfo.SetString(c, "*arena_setdone", "1");
+			Arena_SetPlayerState(c, ARENASTATE_NOTREADY);
+		}
+	}
+	Arena_CenterprintAll((why == "time" || why == "rematch declined") ? "SET OVER" : "");
+	Arena_Transition(ARENA_WARMUP, ARENAREASON_SET_CLOSED);
+}
+
+static void
+Arena_SetVote(entity pl, int vote)
+{
+	int slot = Arena_SlotForPlayer(pl);
+
+	if (g_arenaState != ARENA_SET_END || slot < 0i) {
+		return;
+	}
+	if (g_setResult == SETRESULT_FORFEIT && vote != SETVOTE_LEAVE) {
+		return;	/* nobody to rematch */
+	}
+	g_setVote[slot] = vote;
+	Arena_BroadcastState();
+}
+
+static void
+Arena_TickSetEnd(void)
+{
+	bool everyone = true;
+	bool anyLeave = false;
+	int i;
+
+	if (g_setResult == SETRESULT_FORFEIT) {
+		if (time >= g_arenaDeadline) {
+			Arena_SetClose("left");
+		}
+		return;
+	}
+
+	for (i = 0i; i < g_arenaSlotCount; i++) {
+		if (!g_arenaCompetitor[i] || g_setVote[i] == SETVOTE_LEAVE) {
+			anyLeave = true;
+		} else if (g_setVote[i] == SETVOTE_NONE) {
+			everyone = false;
+		}
+	}
+
+	if (anyLeave) {
+		Arena_SetClose("rematch declined");
+		return;
+	}
+
+	if (everyone) {
+		/* runback: same competitors, a fresh set */
+		g_setRunbacks++;
+		g_setGame = 1i;
+		g_setWins[1] = 0i;
+		g_setWins[2] = 0i;
+		g_setResult = SETRESULT_NONE;
+		g_setWinnerSide = 0i;
+		g_setCounterSide = 0i;
+		g_setLog = "";
+		g_setLeft = "";
+		for (i = 0i; i < ARENA_MAXSLOTS; i++) {
+			g_setLock[i] = (g_setVote[i] == SETVOTE_REMATCH) ? 1i : 0i;
+			g_setGamesWon[i] = 0i;
+		}
+		Arena_CenterprintAll("REMATCH!");
+		Arena_BeginGame();
+		return;
+	}
+
+	if (time >= g_arenaDeadline) {
+		Arena_SetClose("time");
+	}
 }
 
 static void
@@ -1187,6 +1671,20 @@ Arena_Promote(void)
 static void
 Arena_TickWarmup(void)
 {
+	/* set play is matchmade: everyone who came in is there to play, except
+	   those whose set just closed (they are on their way out) */
+	if (g_setFirstTo > 0i) {
+		for (entity p = world; (p = next.Player(p));) {
+			if (Arena_PlayerState(p) != ARENASTATE_NOTREADY) {
+				continue;
+			}
+			if (STRING_SET(userinfo.GetString(p, "*arena_setdone"))) {
+				continue;
+			}
+			Arena_ChangeParticipation(p, ARENASTATE_READY, ARENAREASON_NORMAL);
+		}
+	}
+
 	if (Arena_ReadyCount() >= g_arenaMinReady) {
 		Arena_BeginMatch();
 	}
@@ -1279,6 +1777,15 @@ Arena_TickRoundEnd(void)
 		return;
 	}
 
+	/* set play: a game is first to a majority of its rounds */
+	if (g_setFirstTo > 0i && g_arenaTiebreaker == false) {
+		leader = Arena_LeaderSlot();
+		if (leader > 0i && g_arenaPoints[leader - 1i] * 2i > g_arenaRoundLimit) {
+			Arena_ResolveMatch(ARENARESULT_WIN, leader, ARENAREASON_MATCH_COMPLETE);
+			return;
+		}
+	}
+
 	if (g_arenaRound >= g_arenaRoundLimit) {
 		leader = Arena_LeaderSlot();
 		if (leader > 0i) {
@@ -1300,6 +1807,25 @@ static void
 Arena_TickMatchEnd(void)
 {
 	if (time < g_arenaDeadline) {
+		return;
+	}
+	if (g_setFirstTo > 0i && g_setGame > 0i) {
+		if (g_arenaResult == ARENARESULT_VOID) {
+			Arena_SetClose("void");
+		} else if (g_setResult != SETRESULT_NONE) {
+			Arena_Transition(ARENA_SET_END, ARENAREASON_MATCH_COMPLETE);
+		} else {
+			int loser = 0i;
+			if (g_arenaResult == ARENARESULT_WIN && g_arenaWinnerSlot > 0i) {
+				loser = 3i - Arena_SideForSlot(g_arenaWinnerSlot - 1i);
+			}
+			g_setGame++;
+			g_setCounterSide = loser;
+			for (int i = 0i; i < ARENA_MAXSLOTS; i++) {
+				g_setLock[i] = (loser == 0i || Arena_SideForSlot(i) == loser) ? 0i : 1i;
+			}
+			Arena_BeginGame();
+		}
 		return;
 	}
 	Arena_Promote();
@@ -1326,6 +1852,12 @@ Arena_FrameStart(void)
 		break;
 	case ARENA_MATCH_END:
 		Arena_TickMatchEnd();
+		break;
+	case ARENA_SELECT:
+		Arena_TickSelect();
+		break;
+	case ARENA_SET_END:
+		Arena_TickSetEnd();
 		break;
 	}
 
@@ -1383,7 +1915,8 @@ Arena_OnPlayerSpawn(entity pl)
 			} else {
 				Arena_SpawnWaitingView(pl);
 			}
-		} else if (g_arenaAutoJoin && Arena_PlayerState(pl) == ARENASTATE_NOTREADY) {
+		} else if (g_arenaAutoJoin && Arena_PlayerState(pl) == ARENASTATE_NOTREADY
+			&& STRING_SET(userinfo.GetString(pl, "*arena_setdone")) == false) {
 			Arena_SetReady(pl);
 			if (STRING_SET(userinfo.GetString(pl, "*hero"))) {
 				Arena_SpawnFreeplay(pl);
@@ -1445,6 +1978,18 @@ Arena_OnClientCommand(entity pl, string command)
 		return (true);
 	case "notready":
 		Arena_SetNotReady(pl);
+		return (true);
+	case "lockhero":
+		Arena_LockHero(pl);
+		return (true);
+	case "set_rematch":
+		Arena_SetVote(pl, SETVOTE_REMATCH);
+		return (true);
+	case "set_rematch_hero":
+		Arena_SetVote(pl, SETVOTE_REMATCH_HERO);
+		return (true);
+	case "set_leave":
+		Arena_SetVote(pl, SETVOTE_LEAVE);
 		return (true);
 	default:
 		return (false);

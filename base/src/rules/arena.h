@@ -68,6 +68,8 @@
 #define ARENA_SUDDEN_DEATH	3
 #define ARENA_ROUND_END		4
 #define ARENA_MATCH_END		5
+#define ARENA_SELECT		6	/* set play: both sides pick a hero (blind) */
+#define ARENA_SET_END		7	/* set play: results, rematch vote */
 
 /* team shapes (drive minimum-ready + promotion fill counts) */
 #define ARENASHAPE_1V1		0
@@ -100,6 +102,52 @@
 #define ARENAREASON_DISCONNECT		6
 #define ARENAREASON_INVALID_ROSTER	7
 #define ARENAREASON_MATCH_COMPLETE	8
+#define ARENAREASON_SET_CLOSED		9
+
+/* =========================================================================
+ * Set play (fighting-game style; on when arena_setFirstTo > 0)
+ *
+ * A set is first-to-N games between the same competitors; each game is the
+ * director's usual best-of-roundLimit rounds, ending as soon as one side has
+ * a majority. Before each game the competitors pick a hero blind (SELECT);
+ * between games only the loser of the last game may change (counterpick).
+ * At the end of a set (SET_END) each competitor votes "set_rematch",
+ * "set_rematch_hero" (rematch, but pick again) or "set_leave". Everyone
+ * rematching starts a new set (a runback); a leave or the timer closes the
+ * set: its competitors become non-ready waiting players and serverinfo
+ * arena_set_serial goes up, which tells clients to leave. A competitor who
+ * leaves while a set runs forfeits it. Finished sets are reported to the
+ * engine with "live_set_seat" / "live_set_report" (Bulwark Live records),
+ * which an engine without them ignores.
+ *
+ * Serverinfo for menus (all set keys empty without set play):
+ *   arena_set        "firstTo game wins1 wins2 runbacks result winnerSide counterSide"
+ *                    result: 0 running, 1 complete, 2 forfeit
+ *   arena_set_serial number of sets closed on this map (a close tells clients to leave)
+ *   arena_set_closed why the last set closed: "rematch declined", "time", "left", "void"
+ *   arena_set_log    each finished game's rounds, e.g. "2-1 0-2"
+ *   arena_set_left   name of the player who left the set, and "behind" or "even"
+ *   arena_deadline   whole seconds left in SELECT / MATCH END / SET END, else ""
+ *   arena_lock       per slot: 1 hero locked, 0 not ("1 0")
+ *   arena_vote       per slot: 0 none, 1 rematch, 2 rematch + new hero, 3 leave
+ *   arena_heroN      slot N's hero, "" while picks are hidden
+ * ========================================================================= */
+#define SETRESULT_NONE		0
+#define SETRESULT_COMPLETE	1
+#define SETRESULT_FORFEIT	2
+
+#define SETVOTE_NONE		0
+#define SETVOTE_REMATCH		1
+#define SETVOTE_REMATCH_HERO	2
+#define SETVOTE_LEAVE		3
+
+var float autocvar_arena_setFirstTo = 0;		/* games to win a set; 0 = no sets (winner stays) */
+var float autocvar_arena_selectTime = 20.0f;	/* blind hero pick before a set's first game */
+var float autocvar_arena_counterpickTime = 10.0f;	/* loser's hero change between games */
+var float autocvar_arena_revealTime = 2.5f;		/* both locked: heroes shown before the countdown */
+var float autocvar_arena_gameEndTime = 4.0f;	/* results between games */
+var float autocvar_arena_voteTime = 15.0f;		/* rematch vote */
+var float autocvar_arena_forfeitTime = 6.0f;	/* results after a forfeit */
 
 /* sizing */
 #define ARENA_MAXSLOTS		8	/* max competitors (asymmetric-capable) */
@@ -168,5 +216,9 @@ int Arena_ReadyCount(void);
 int Arena_CompetitorCount(void);
 bool Arena_IsCompetitor(entity pl);
 int Arena_SlotForPlayer(entity pl);
+
+/* set play */
+bool Arena_SetPlay(void);
+bool Arena_HeroLocked(entity pl);
 
 #endif

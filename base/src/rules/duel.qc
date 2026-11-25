@@ -241,6 +241,11 @@ CodeCallback_ClientCommand(entity playerEntity, string command)
 				return (true);
 			}
 
+			/* set play: heroes are picked in SELECT and stay locked after */
+			if (Arena_HeroLocked(playerEntity)) {
+				return (true);
+			}
+
 			string heroID = Hero_NormalizeID(argv(1));
 
 			if (teams.Valid((int)playerEntity.team) == false) {
