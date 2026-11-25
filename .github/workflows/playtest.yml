@@ -10,9 +10,6 @@ on:
     branches:
       - playtest
       - 'playtest/**'
-      - claude/project-thread-ir3p0a   # test channel for the launcher work; remove once `playtest` exists
-    paths-ignore:
-      - '**.md'
   workflow_dispatch:
 
 permissions:
