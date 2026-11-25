@@ -1,0 +1,32 @@
+// Simple profiles: only the q3map2 (and vmap) keys most maps need, with
+// plain labels. The Compat profiles carry the full set for every compiler.
+
+@BaseClass = WorldCompile
+[
+	_ambient(string) : "Ambient light" : "" : "Light added to every surface, so no corner is pitch black. Try 5 to 20."
+	_color(color1) : "Ambient light colour" : "" : "Colour of the ambient light."
+	_minlight(string) : "Minimum light" : "" : "No surface gets darker than this."
+	_keepLights(choices) : "Keep lights in game" : 0 : "Keep the light entities in the compiled map so the game can use them for dynamic lighting." =
+	[
+		0 : "No"
+		1 : "Yes"
+	]
+	_tb_textures(string) : "TrenchBroom texture dirs" : "" : "Set by TrenchBroom."
+]
+
+@BaseClass = BrushCompile
+[
+	_castshadows(choices) : "Casts shadows" : 0 : "Whether this entity's brushes cast shadows when the map is lit." =
+	[
+		0 : "No"
+		1 : "Yes"
+	]
+	_shadeangle(string) : "Smooth shading angle" : "" : "Smooth the lighting across edges up to this angle, for round shapes. Try 60."
+	_lightmapscale(string) : "Lightmap scale" : "" : "Shadow detail on this entity: below 1 is sharper, above 1 is blurrier and cheaper."
+]
+
+@BaseClass = LightCompile
+[
+	_deviance(string) : "Soft shadow size" : "" : "Spread the light over this many units for soft shadow edges. Try 8."
+	_samples(string) : "Soft shadow samples" : "" : "Samples used for soft shadows. Try 8."
+]

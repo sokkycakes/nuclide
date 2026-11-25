@@ -1,0 +1,25 @@
+// Bulwark engine features: the script layer (Lua 5.4, JavaScript and QuakeC,
+// modelled on Valve's VScript) and the engine's own worldspawn keys.
+// See docs/spec/scripting.md in the bulwark-engine repo.
+//
+// Script keys are read by Nuclide's ncIO through Bulwark's script builtins
+// (src/common/c_script.h in Nuclide). A progs built from a Nuclide without
+// those hooks ignores them, and FTEQW ignores them too.
+
+@BaseClass = BulwarkScripted
+[
+	vscripts(string) : "Entity scripts" : "" : "Space separated script files loaded into this entity's own scope when it spawns. scripts/vscripts/ is searched first; a name with no extension tries .lua, .js and .dat. Precache() runs once they load, OnPostSpawn() once every map entity exists."
+	thinkfunction(string) : "Think function" : "" : "Script function called every 0.1 s. Returning a number above zero sets the delay to the next call."
+	input RunScriptCode(string) : "Runs code in this entity's scope, in its script's language (or script_language)."
+	input RunScriptCodeQuotable(string) : "RunScriptCode with ' turned into a double quote (map values can't hold double quotes)."
+	input RunScriptFile(string) : "Runs a script file in this entity's scope."
+	input CallScriptFunction(string) : "Calls a function this entity's scripts define."
+	input SetThinkFunction(string) : "Sets the think function; empty stops it."
+	input AddThinkFunction(string) : "Same as SetThinkFunction."
+]
+
+@BaseClass = WorldBulwark
+[
+	vscripts(string) : "World scripts" : "" : "Scripts loaded into the root scope (the world). scripts/vscripts/mapspawn.lua and mapspawn.js run there for every map, just before the entities spawn."
+	_terrain_generated(string) : "Generated terrain" : "" : "Set by Bulwark on .hmp terrain maps; leave it alone."
+]

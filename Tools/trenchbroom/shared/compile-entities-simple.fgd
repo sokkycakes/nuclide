@@ -1,0 +1,28 @@
+// Entities the compiler acts on that the game code doesn't define itself.
+// Each class here is only written out when the game has none of that name.
+
+@SolidClass base(BrushCompile) color(0 128 204) = func_group : "Brushes grouped in the editor. The compiler merges them back into the world." []
+
+@PointClass color(255 128 0) size(-8 -8 -8, 8 8 8) model({ "path": model, "skin": skin, "scale": modelscale }) = misc_model : "A model baked into the level as solid world geometry."
+[
+	model(string) : "Model" : "" : "Path to the model (md3, obj, iqm, ase)."
+	modelscale(float) : "Scale" : "1" : ""
+	angles(string) : "Pitch yaw roll" : "0 0 0" : ""
+	skin(integer) : "Skin" : 0 : ""
+	_castshadows(choices) : "Casts shadows" : 1 : "" =
+	[
+		0 : "No"
+		1 : "Yes"
+	]
+	_nonsolid(choices) : "Not solid" : 0 : "Players walk through it." =
+	[
+		0 : "No"
+		1 : "Yes"
+	]
+]
+
+@PointClass color(255 128 0) size(-16 -16 -16, 16 16 16) = _skybox : "A 3D sky: build a small scene around this point and it is drawn, scaled up, as the sky."
+[
+	angles(string) : "Pitch yaw roll" : "0 0 0" : ""
+	_scale(float) : "Scale" : "64" : ""
+]

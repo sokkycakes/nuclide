@@ -1,0 +1,198 @@
+// Compatibility profiles: the keys the map compilers read (q3map2 for Q3 BSP,
+// ericw-tools for Quake BSP2, VHLT for Half-Life BSP30, plus the Source keys
+// converted maps carry). Compilers ignore keys they don't know, so one map
+// can carry all of them.
+
+@BaseClass = WorldCompile
+[
+	// q3map2
+	_blocksize(string) : "q3map2: BSP block size" : "" : "q3map2: size of the BSP split blocks, 'x y z' or one number. 0 turns blocking off."
+	_ambient(string) : "q3map2/ericw: ambient light" : "" : "Light added to every surface."
+	_minlight(string) : "Minimum light" : "" : "q3map2 and ericw: no lightmap goes darker than this."
+	_minvertexlight(string) : "q3map2: minimum vertex light" : "" : "q3map2: minimum light for vertex-lit surfaces."
+	_mingridlight(string) : "q3map2: minimum grid light" : "" : "q3map2: minimum light in the light grid."
+	_color(color1) : "Ambient/minlight colour" : "" : "Colour of _ambient and _minlight (0-1 RGB)."
+	_keepLights(choices) : "q3map2: keep lights" : 0 : "q3map2: keep light entities in the compiled BSP, so the game can read them (Nuclide uses them for dynamic lights)." =
+	[
+		0 : "No"
+		1 : "Yes"
+	]
+	_noshadersun(choices) : "q3map2: ignore shader suns" : 0 : "q3map2: ignore q3map_sun in sky shaders." =
+	[
+		0 : "No"
+		1 : "Yes"
+	]
+	_farplanedist(string) : "q3map2: far plane distance" : "" : "q3map2: vis culls anything further than this. Use with fog."
+	_foghull(string) : "q3map2: fog hull" : "" : "q3map2: material drawn on the fog hull with _farplanedist."
+	_floodlight(string) : "q3map2: floodlight" : "" : "q3map2 -floodlight colour and settings: 'r g b distance intensity'."
+	_celshader(string) : "q3map2: cel shader" : "" : "q3map2: cel shading material for the whole world."
+	_lightmapscale(string) : "Lightmap scale" : "" : "q3map2 (_lightmapscale) and ericw (_lightmap_scale): lightmap texel size multiplier."
+	// ericw-tools (light)
+	_sunlight(string) : "ericw: sun brightness" : "" : "ericw light: brightness of the sun."
+	_sun_mangle(string) : "ericw: sun angles" : "" : "ericw light: sun direction as 'yaw pitch roll'."
+	_sunlight_color(color255) : "ericw: sun colour" : "" : "ericw light: sun colour."
+	_sunlight_penumbra(string) : "ericw: sun penumbra" : "" : "ericw light: sun penumbra width in degrees."
+	_sunlight2(string) : "ericw: sky dome light" : "" : "ericw light: brightness of the light from the whole sky."
+	_sunlight2_color(color255) : "ericw: sky dome colour" : "" : "ericw light: colour of the sky dome light."
+	_dirt(choices) : "ericw: dirtmapping (AO)" : 0 : "ericw light: ambient occlusion. -1 disables it even when -dirt is passed." =
+	[
+		-1 : "Off"
+		0 : "Default"
+		1 : "On"
+	]
+	_dirtdepth(string) : "ericw: dirt depth" : "" : ""
+	_dirtscale(string) : "ericw: dirt scale" : "" : ""
+	_dirtgain(string) : "ericw: dirt gain" : "" : ""
+	_bounce(choices) : "ericw: bounce light" : 0 : "ericw light: one bounce of indirect light." =
+	[
+		0 : "Off"
+		1 : "On"
+	]
+	_bouncescale(string) : "ericw: bounce scale" : "" : ""
+	_anglescale(string) : "ericw: angle scale" : "" : "ericw light: how much the light's angle of incidence matters (0-1)."
+	_gamma(string) : "ericw: gamma" : "" : ""
+	_range(string) : "ericw: range" : "" : "ericw light: scales every light's brightness."
+	_phong(choices) : "Phong shading (world)" : 0 : "ericw: smooth the world's lighting across faces up to _phong_angle." =
+	[
+		0 : "Off"
+		1 : "On"
+	]
+	_phong_angle(float) : "Phong angle" : "89" : ""
+	// VHLT
+	zhlt_wadautodetect(choices) : "VHLT: only used WADs" : 0 : "VHLT: embed or reference only the WADs whose textures the map uses." =
+	[
+		0 : "No"
+		1 : "Yes"
+	]
+	_tb_textures(string) : "TrenchBroom texture dirs" : "" : "Set by TrenchBroom."
+]
+
+// ------------------------------------------------------------------ brush entities
+
+@BaseClass = BrushCompile
+[
+	// q3map2
+	_lightmapscale(string) : "Lightmap scale" : "" : "q3map2: lightmap texel size multiplier for this entity (_ls)."
+	_castshadows(choices) : "q3map2: cast shadows" : 0 : "q3map2 (_cs): which entities this entity's brushes shadow." =
+	[
+		0 : "None"
+		1 : "World"
+		-1 : "All entities"
+	]
+	_receiveshadows(choices) : "q3map2: receive shadows" : 1 : "q3map2 (_rs): whose shadows fall on this entity." =
+	[
+		0 : "None"
+		1 : "World"
+		-1 : "All entities"
+	]
+	_celshader(string) : "q3map2: cel shader" : "" : ""
+	_shadeangle(string) : "q3map2: shade angle" : "" : "q3map2: smooth vertex normals across faces up to this angle (phong)."
+	// ericw-tools
+	_phong(choices) : "ericw: phong shading" : 0 : "" =
+	[
+		0 : "Off"
+		1 : "On"
+	]
+	_phong_angle(float) : "ericw: phong angle" : "89" : ""
+	_minlight(string) : "Minimum light" : "" : "ericw and Nuclide: minimum light on this entity."
+	_shadow(choices) : "ericw: casts shadows" : 0 : "ericw: brush entities don't cast shadows unless this is set." =
+	[
+		0 : "No"
+		1 : "Yes"
+		-1 : "Never"
+	]
+	_shadowself(choices) : "ericw: shadows itself" : 0 : "" =
+	[
+		0 : "No"
+		1 : "Yes"
+	]
+	_dirt(choices) : "ericw: dirt" : 0 : "" =
+	[
+		-1 : "Off"
+		0 : "Default"
+		1 : "On"
+	]
+	_lmscale(string) : "ericw: lightmap scale" : "" : "ericw (BSPX LMSCALE): lightmap texel size for this entity, 16 by default."
+	_mirrorinside(choices) : "ericw: mirror inside" : 0 : "ericw qbsp: also draw the faces from inside (for water and glass)." =
+	[
+		0 : "No"
+		1 : "Yes"
+	]
+	// VHLT
+	zhlt_lightflags(choices) : "VHLT: light flags" : 0 : "VHLT hlrad: how this entity takes and blocks light." =
+	[
+		0 : "Normal"
+		1 : "Embedded fix"
+		2 : "Opaque (blocks light)"
+		3 : "Opaque + embedded fix"
+		6 : "Opaque + concave fix"
+	]
+	zhlt_noclip(choices) : "VHLT: not solid" : 0 : "VHLT: build no clip hulls for this entity." =
+	[
+		0 : "No"
+		1 : "Yes"
+	]
+	zhlt_invisible(choices) : "VHLT: invisible" : 0 : "VHLT: solid but not drawn." =
+	[
+		0 : "No"
+		1 : "Yes"
+	]
+	zhlt_customshadow(string) : "VHLT: shadow strength" : "" : "VHLT hlrad: 0 to 1, how much light this entity lets through."
+	zhlt_embedlightmap(choices) : "VHLT: embed lightmap" : 0 : "VHLT: bake the lightmap into the texture (for translucent brushes)." =
+	[
+		0 : "No"
+		1 : "Yes"
+	]
+	zhlt_usemodel(target_destination) : "VHLT: use model of" : "" : "VHLT: share the named brush entity's model."
+	light_origin(target_destination) : "Light origin" : "" : "HL/VHLT: light this brush entity as if it stood at the named info_target."
+]
+
+// ------------------------------------------------------------------ lights
+
+@BaseClass = LightCompile
+[
+	// q3map2 / ericw
+	_deviance(string) : "Penumbra (deviance)" : "" : "q3map2 and ericw: jitter light samples over this many units for soft shadows."
+	_samples(string) : "Penumbra samples" : "" : "q3map2 and ericw: samples taken with _deviance."
+	_filterradius(string) : "q3map2: filter radius" : "" : "q3map2: blur the light's shadows over this many units."
+	_sun(choices) : "q3map2: sun" : 0 : "q3map2: a targeted light that acts as a sun (parallel light)." =
+	[
+		0 : "No"
+		1 : "Yes"
+	]
+	_anglescale(string) : "Angle scale" : "" : "ericw: how much the angle of incidence matters (0-1)."
+	wait(string) : "ericw: falloff scale" : "" : "ericw light: scales the light's falloff distance."
+	delay(choices) : "ericw: falloff" : 0 : "ericw light: attenuation formula." =
+	[
+		0 : "Linear"
+		1 : "Inverse distance"
+		2 : "Inverse square"
+		3 : "None (constant)"
+		4 : "Local minlight"
+		5 : "Inverse square B"
+	]
+	mangle(string) : "ericw: spot direction" : "" : "ericw: spotlight direction as 'yaw pitch roll'."
+	_softangle(string) : "ericw: spot soft angle" : "" : "ericw: inner cone of a spotlight."
+	_surface(string) : "ericw: surface light" : "" : "ericw: copy this light onto every face with this texture."
+	_surface_offset(string) : "ericw: surface light offset" : "" : ""
+	_project_texture(string) : "ericw: projected texture" : "" : "ericw: project this texture from the light."
+	_dirt(choices) : "ericw: dirt" : 0 : "" =
+	[
+		-1 : "Off"
+		0 : "Default"
+		1 : "On"
+	]
+	_bouncescale(string) : "ericw: bounce scale" : "" : ""
+	_falloff(string) : "ericw: falloff distance" : "" : "ericw: distance at which a linear light reaches zero."
+	// Source (converted maps, and Source-style lighting in Nuclide)
+	_light(color255) : "Source: colour and brightness" : "" : "Source: 'r g b brightness' (0-255)."
+	_lightHDR(string) : "Source: HDR colour" : "" : "Source: 'r g b brightness' for HDR, -1 -1 -1 1 copies _light."
+	_lightscaleHDR(string) : "Source: HDR scale" : "" : ""
+	_constant_attn(string) : "Source: constant attenuation" : "" : ""
+	_linear_attn(string) : "Source: linear attenuation" : "" : ""
+	_quadratic_attn(string) : "Source: quadratic attenuation" : "" : ""
+	_fifty_percent_distance(string) : "Source: 50% distance" : "" : ""
+	_zero_percent_distance(string) : "Source: 0% distance" : "" : ""
+	_hardfalloff(string) : "Source: hard falloff" : "" : ""
+	_distance(string) : "Source: max distance" : "" : ""
+]
