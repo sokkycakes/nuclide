@@ -449,6 +449,9 @@ ncRuleDelegate::LinkProgs(void)
 	}
 
 	serverinfo.SetString("mode", newRule.Title());
+	/* the id of the rules that loaded (g_gametype may name a mode that
+	 * fell back to deathmatch): the Host Menu and Call a Vote read it */
+	serverinfo.SetString("g_gametype", STRING_SET(g_ruleCName) ? g_ruleCName : "");
 	g_grMode = newRule;
 }
 
