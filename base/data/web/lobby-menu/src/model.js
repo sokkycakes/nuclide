@@ -35,12 +35,25 @@ export function countdown(s) {
   return seconds ? 'Starting in ' + seconds + '…' : 'Starting…';
 }
 
+// Fallback lists for engines whose getlobby doesn't send "maps"/"rulesets".
+// Keep in step with base/scripts/lobby.txt (Bulwark reads that file and sends
+// only the maps that are shipped). Every map here must exist as base/maps/<id>.bsp.
 export const MAPS = [
-  { id: 'envtest', name: 'Env Test' }, { id: 'lean', name: 'Lean Test' },
-  { id: 'arch_testbed', name: 'Arch Testbed' }, { id: 'arch_crux_test', name: 'Arch Crux Test' }
+  { id: 'duel_alley', name: 'Duel Alley' }, { id: 'arch_testbed', name: 'Arch Testbed' },
+  { id: 'arch_crux_test', name: 'Arch Crux Test' }, { id: 'envtest', name: 'Env Test' },
+  { id: 'lean', name: 'Lean Test' }
 ];
 export const RULESETS = [
   { id: 'DUEL', name: 'Duel' }, { id: 'DEATHMATCH', name: 'Deathmatch' },
-  { id: 'TEAMDM', name: 'Team Deathmatch' }, { id: 'DOMINATION', name: 'Domination' }
+  { id: 'TEAMDM', name: 'Team Deathmatch' }, { id: 'DOMINATION', name: 'Domination' },
+  { id: 'FREEZETAG', name: 'Freeze Tag' }, { id: 'ARCHSTILETTO', name: 'Archstiletto' }
 ];
-export function mapTitle(id) { const entry = MAPS.find(m => m.id === id); return entry ? entry.name : id || 'Waiting…'; }
+function choices(list, fallback) {
+  const valid = (Array.isArray(list) ? list : []).filter(e => e && typeof e.id === 'string' && e.id)
+    .map(e => ({ id: e.id, name: typeof e.name === 'string' && e.name ? e.name : e.id, available: e.available !== false }));
+  return valid.length ? valid : fallback;
+}
+export function mapList(s) { return choices(s && s.maps, MAPS); }
+export function rulesetList(s) { return choices(s && s.rulesets, RULESETS); }
+export function mapTitle(id, s) { const entry = mapList(s).find(m => m.id === id); return entry ? entry.name : id || 'Waiting…'; }
+export function rulesetTitle(id, s) { const entry = rulesetList(s).find(r => r.id === id); return entry ? entry.name : id; }

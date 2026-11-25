@@ -229,7 +229,8 @@ void UI_Lobby_Show ( void )
 	localcmd(sprintf("set hostname %s\n", hostName));
 	localcmd(sprintf("set lobby_maxplayers %i\n", maxPlayers));
 	localcmd("set sv_background 1\n");
-	localcmd("set lobby_defaultmap background01\n");
+	/* lobby_defaultmap is left alone: the lobby picks each ruleset's own map
+	 * (base/scripts/lobby.txt), Duel starting on duel_alley */
 	localcmd("lobby_create_lan\n");
 
 	/* Lobby view spawns on the next frame via UI_LobbyView_Update once

@@ -48,7 +48,7 @@ The lobby's five list rows reuse the active `title-menu-v2` treatment: shipped `
 - Chat is limited to 240 UTF-8 bytes. Hex encoding keeps chat text separate from console command syntax. The host validates the sender and relays messages to the other guests.
 - The selected ruleset becomes `g_gametype` before map load. Time and frag limits are applied before map load too.
 
-Only listen-server hosting is implemented by the current lobby backend. Dedicated hosting is visibly unavailable. The map catalog preserves the four choices from the previous page; edit `MAPS` in `model.js` to add supported maps. The reusable BaseMod controller in `interaction.js` is retained for existing consumers, but this page's view state belongs to its Preact components.
+Only listen-server hosting is implemented by the current lobby backend. Dedicated hosting is visibly unavailable. The map and ruleset lists come from `getlobby` (`maps`, `rulesets`: `[{id, name}]`) when the engine sends them (Bulwark builds them from `base/scripts/lobby.txt` and the maps that are shipped); otherwise the page uses `MAPS` and `RULESETS` in `model.js`. Keep those fallbacks in step with `base/scripts/lobby.txt`, and list only maps that exist as `base/maps/<id>.bsp`. The reusable BaseMod controller in `interaction.js` is retained for existing consumers, but this page's view state belongs to its Preact components.
 
 ## Verification
 
