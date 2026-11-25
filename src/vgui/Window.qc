@@ -39,6 +39,7 @@ typedef enumflags
 /* TODO: MOVE THESE INTO vguiWindow! COMPILER NEEDS TO BE FIXED FIRST HOWEVER. */
 .void(void) tmpvguiWindow1;
 .void(void) tmpvguiWindow2;
+.void(void) tmpvguiWindow3;
 
 /** VGUI: Window
 
@@ -68,6 +69,9 @@ public:
 	nonvirtual void CallOnResize(void(void) vFunc);
 	/** Called when the window has been repositioned by the user. */
 	nonvirtual void CallOnMove(void(void) vFunc);
+	/** Called when a controller's B button backs out of the window.
+	    Without one, B hides the window. */
+	nonvirtual void CallOnCancel(void(void) vFunc);
 
 	/** Will focus the window when called. */
 	nonvirtual bool Focus(void);
@@ -88,7 +92,14 @@ public:
 	virtual void Spawned(void);
 	virtual void NowVisible();
 
+	/** Controller buttons: the d-pad moves between the window's buttons,
+	    A presses the focused one (the first one when none has focus), B
+	    backs out. Returns true when it used the key. */
+	nonvirtual bool PadInput(float, float);
+	nonvirtual vguiWidget PadStep(vguiWidget, int);
+
 private:
+	vguiWidget m_padFocus;
 	vector m_vecColor;
 	float m_flAlpha;
 	vector m_vecDragOffset;
@@ -175,6 +186,12 @@ vguiWindow::CallOnResize(void(void) func)
 	//#warning "SetFunc in vguiButton is DEPRECATED. Compiler IS generating JUNK in the old way. Please override vguiButton and define a OnMouseDown/Up method instead"
 	//m_vFunc = vFunc;
 	tmpvguiWindow1 = func;
+}
+
+void
+vguiWindow::CallOnCancel(void(void) func)
+{
+	tmpvguiWindow3 = func;
 }
 
 void
@@ -273,6 +290,19 @@ void vguiWindow::Draw(void)
 
 	if (m_contentsVisible) {
 		super::Draw();
+
+		/* outline the button a controller has picked */
+		if (m_padFocus) {
+			if (m_padFocus.Visible()) {
+				vector fp = m_vecOrigin + m_padFocus.m_vecOrigin - [2,2];
+				vector fs = m_padFocus.m_vecSize + [4,4];
+				vector fc = [1.0f, 0.75f, 0.2f];
+				drawfill(fp, [fs[0], 2], fc, 1.0f, 0);
+				drawfill(fp + [0, fs[1] - 2], [fs[0], 2], fc, 1.0f, 0);
+				drawfill(fp, [2, fs[1]], fc, 1.0f, 0);
+				drawfill(fp + [fs[0] - 2, 0], [2, fs[1]], fc, 1.0f, 0);
+			}
+		}
 	}
 
 	if (m_styleMask & vguiWindowClosable) {
@@ -340,6 +370,22 @@ bool vguiWindow::Input (float flEVType, float flKey, float flChar, float flDevID
 		if (ret == false) {
 			ret = super::Input(flEVType, flKey, flChar, flDevID);
 		}
+
+		/* the pointer moving takes over from a controller's focus */
+		if (flEVType == IE_MOUSEABS || flEVType == IE_MOUSEDELTA) {
+			m_padFocus = __NULL__;
+		}
+
+		/* a controller has no pointer: it drives the buttons instead */
+		if (ret == false) {
+			ret = PadInput(flEVType, flKey);
+		}
+
+		/* the buttons re-check the pointer on every event; keep the
+		 * controller's choice lit */
+		if (m_padFocus) {
+			m_padFocus.FlagAdd(BUTTON_HOVER);
+		}
 	}
 
 	/* don't send clicks to elements behind our window */
@@ -353,4 +399,112 @@ bool vguiWindow::Input (float flEVType, float flKey, float flChar, float flDevID
 	}
 
 	return (ret);
+}
+
+/* the next (dir 1) or previous (dir -1) button a controller can stop on,
+ * in the order they were added, wrapping round; __NULL__ if none */
+vguiWidget
+vguiWindow::PadStep(vguiWidget from, int dir)
+{
+	vguiWidget first = __NULL__;
+	vguiWidget last = __NULL__;
+	vguiWidget before = __NULL__;
+	vguiWidget after = __NULL__;
+	bool seen = false;
+
+	for (vguiWidget w = m_children; w; w = w.m_children) {
+		/* the title bar's close X isn't content: B already closes */
+		if (w == m_btnClose)
+			continue;
+		if (w.PadFocusable() == false)
+			continue;
+		if (!first)
+			first = w;
+		last = w;
+		if (w == from) {
+			seen = true;
+		} else if (seen == false) {
+			before = w;
+		} else if (!after) {
+			after = w;
+		}
+	}
+
+	if (seen == false)
+		return (dir < 0) ? last : first;
+	if (dir < 0)
+		return before ? before : last;
+	return after ? after : first;
+}
+
+bool
+vguiWindow::PadInput(float flEVType, float flKey)
+{
+	bool isPad = false;
+
+	switch (flKey) {
+	case K_GP_A:
+	case K_GP_B:
+	case K_GP_DPAD_UP:
+	case K_GP_DPAD_DOWN:
+	case K_GP_DPAD_LEFT:
+	case K_GP_DPAD_RIGHT:
+		isPad = true;
+		break;
+	default:
+		break;
+	}
+
+	if (isPad == false)
+		return (false);
+
+#ifdef CLIENT
+	/* the windows are the first player's: in split screen another seat's
+	 * controller keeps its own binds (jump, dash, hero actions...) */
+	if (getproperty(VF_ACTIVESEAT) != 0)
+		return (false);
+#endif
+
+	/* the release of a button the window used isn't the game's either */
+	if (flEVType != IE_KEYDOWN)
+		return (flEVType == IE_KEYUP);
+
+	/* (QC's && doesn't short-circuit: test the focus before calling it) */
+	if (m_padFocus) {
+		if (m_padFocus.PadFocusable() == false || m_padFocus.m_parent != this)
+			m_padFocus = __NULL__;
+	}
+
+	if (flKey == K_GP_B) {
+		if (tmpvguiWindow3) {
+			tmpvguiWindow3();
+		} else {
+			Hide();
+			WindowDidClose();
+		}
+		return (true);
+	}
+
+	if (flKey == K_GP_A) {
+		vguiWidget target = m_padFocus ? m_padFocus : PadStep(__NULL__, 1);
+
+		if (target)
+			target.PadActivate();
+
+		return (true);
+	}
+
+	vguiWidget next = PadStep(m_padFocus, (flKey == K_GP_DPAD_UP || flKey == K_GP_DPAD_LEFT) ? -1 : 1);
+
+	if (m_padFocus)
+		m_padFocus.FlagRemove(BUTTON_HOVER);
+
+	m_padFocus = next;
+
+	if (next) {
+		next.FlagAdd(BUTTON_HOVER);
+		((vguiControl)next).OnMouseEntered();
+	}
+
+	return (true);
 }

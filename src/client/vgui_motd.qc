@@ -64,6 +64,8 @@ VGUI_ShowMOTD(void)
 		winMotdClose.SetPos([16, 266]);
 		winMotdClose.SetSize([160, 30]);
 		winMotdClose.SetFunc(VGUI_ShowMOTD_Close);
+		/* a controller's B dismisses it like OK (A presses OK) */
+		winMotd.CallOnCancel(VGUI_ShowMOTD_Close);
 
 		winMotdHostname = spawn(vguiLabel);
 		winMotdHostname.SetTitle(serverkey("hostname"));

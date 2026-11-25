@@ -14,6 +14,23 @@
  * OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+/* the game's controller layout (pad_defaults.cfg), but only when no
+ * controller button is bound at all: a config.cfg saved before the layout
+ * existed starts with unbindall and would otherwise leave a controller
+ * player without a single button. Custom pad binds are left alone. */
+static void
+Menu_PadDefaultsIfUnbound(void)
+{
+	/* K_GP_DPAD_UP (816) through K_GP_RTRIGGER (831): the 16 buttons */
+	for (float k = K_GP_DPAD_UP; k <= K_GP_RTRIGGER; k++) {
+		if (getkeybind(k) != "")
+			return;
+	}
+
+	print("No controller buttons bound: applying pad_defaults.cfg\n");
+	localcmd("exec pad_defaults.cfg\n");
+}
+
 void
 m_init(void)
 {
@@ -30,6 +47,11 @@ m_init(void)
 	registercommand("menu_quit");
 	registercommand("menu_music");
 	registercommand("map_background");
+	registercommand("pad_defaults_ifunbound");
+
+	/* quake.rc asks for this after config.cfg; this covers an engine that
+	 * had already run quake.rc before the menu came up */
+	localcmd("pad_defaults_ifunbound\n");
 }
 
 void
@@ -229,6 +251,9 @@ m_consolecommand(string cmd)
 		break;
 	case "packageList":
 		UI_Packages_Show();
+		break;
+	case "pad_defaults_ifunbound":
+		Menu_PadDefaultsIfUnbound();
 		break;
 	default:
 		return Platform_ConsoleCommand(cmd, c);

@@ -95,6 +95,58 @@ Spectator_DrawTopBar(vector hudMins, vector hudSize)
 	}
 }
 
+/** The key (or, after controller input, the controller button) bound to
+ * a command, short enough for the hint bar: "MOUSE1", "RT"; "" if none. */
+static string
+Spectator_HintKey(string cmd, bool pad)
+{
+	int n = (int)tokenize(findkeysforcommand(cmd));
+
+	for (int i = 0i; i < n; i++) {
+		string k = keynumtostring(stof(argv(i)));
+		bool isPad = (substring(k, 0, 3) == "GP_");
+
+		if (isPad != pad)
+			continue;
+		if (!pad)
+			return k;
+
+		switch (k) {
+		case "GP_RTRIGGER": return "RT";
+		case "GP_LTRIGGER": return "LT";
+		case "GP_RSHOULDER": return "RB";
+		case "GP_LSHOULDER": return "LB";
+		case "GP_LTHUMB": return "L3";
+		case "GP_RTHUMB": return "R3";
+		default: return substring(k, 3, -1);
+		}
+	}
+
+	return "";
+}
+
+/** The hint line, following the device the player used last (in_lastdevice:
+ * an engine without it reads 0, keyboard and mouse). */
+static string
+Spectator_HintLine(void)
+{
+	bool pad = (cvar("in_lastdevice") == 1);
+	string next = Spectator_HintKey("+attack", pad);
+	string prev = Spectator_HintKey("+hero_tool", pad);
+
+	if (prev == "")
+		prev = Spectator_HintKey("+attack2", pad);
+	if (next == "")
+		next = "?";
+	if (prev == "")
+		prev = "?";
+
+	if (pad)
+		return sprintf("%s Mode+   %s Mode-   LB/RB Target", next, prev);
+
+	return sprintf("%s Mode+   %s Mode-   Wheel Target", next, prev);
+}
+
 /** Bottom bar: compact key hints (left), watched name (center), mode (right). */
 static void
 Spectator_DrawBottomBar(vector hudMins, vector hudSize)
@@ -112,7 +164,7 @@ Spectator_DrawBottomBar(vector hudMins, vector hudSize)
 	drawfill([hudMins[0], barY], [hudSize[0], barHeight], SPECHUD_BAR_COLOR, SPECHUD_BAR_ALPHA, DRAWFLAG_NORMAL);
 
 	/* compact key hints, left-aligned in the smaller hint font */
-	string hintLine = "LMB Mode+   RMB Mode-   Wheel Target";
+	string hintLine = Spectator_HintLine();
 	float hintY = Spectator_BarTextY(barY, barHeight, hintHeight);
 	Font_DrawText_RGBA([hudMins[0] + SPECHUD_PAD_X, hintY], hintLine, SPECHUD_DIM_COLOR, 1.0f, FONT_SPEC_HINT);
 
