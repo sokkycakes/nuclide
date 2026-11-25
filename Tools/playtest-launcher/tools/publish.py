@@ -47,6 +47,7 @@ def load_rules(path):
     r.setdefault('exclude', [])
     r.setdefault('keep', [])
     r.setdefault('exec', [])
+    r.setdefault('only', {})   # os -> globs: files only that system downloads
     return r
 
 
@@ -343,7 +344,8 @@ def main():
         size = os.path.getsize(full)
         entries.append({'path': rel, 'sha256': sha256_file(full), 'size': size,
                         'x': 1 if match_any(rel, rules['exec']) else 0,
-                        'keep': 1 if match_any(rel, rules['keep']) else 0})
+                        'keep': 1 if match_any(rel, rules['keep']) else 0,
+                        'os': sorted(o for o, pats in rules['only'].items() if match_any(rel, pats))})
 
     # how much of each old pack the new build still uses
     used = {}
@@ -395,6 +397,8 @@ def main():
             del e['x']
         if not e['keep']:
             del e['keep']
+        if not e['os']:
+            del e['os']
 
     manifest = {
         'format': 1,

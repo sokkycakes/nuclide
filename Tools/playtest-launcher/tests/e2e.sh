@@ -61,10 +61,15 @@ import os
 os.makedirs('src/base/dup', exist_ok=True)
 for i in range(40):
     open(f'src/base/dup/same{i}.txt', 'w').write('same content\n' * 2000)
+# an engine build per system: each client downloads only its own
+for o in ('linux', 'windows'):
+    os.makedirs(f'src/engine-{o}', exist_ok=True)
+    open(f'src/engine-{o}/engine.txt', 'w').write(o * 100000)
 EOF
 cat > rules.json <<'EOF'
 {"game": "test", "title": "Test Game", "include": ["**"], "exclude": ["launched.txt", "*.c"],
  "exec": ["fakegame"], "keep": ["base/cfg/*.cfg"],
+ "only": {"linux": ["engine-linux/**"], "windows": ["engine-windows/**"]},
  "run": {"linux": {"exe": "fakegame", "args": ["-game", "base", "+map", "start"]},
          "windows": {"exe": "fakegame.exe", "args": ["-game", "base", "+map", "start"]}}}
 EOF
@@ -106,6 +111,8 @@ run_launcher --test-script s1.txt > s1.log
 check "first install via controller" "grep -q 'TEST RESULT: PASS' s1.log"
 check "game launched with manifest args" "grep -q 'launched: -game base +map start' client/game/launched.txt"
 check "installed files match" "cmp -s src/base/maps/big.bsp client/game/base/maps/big.bsp && cmp -s src/base/maps/m7.txt client/game/base/maps/m7.txt && [ -f client/game/base/empty.txt ] && cmp -s src/base/dup/same0.txt client/game/base/dup/same39.txt"
+OTHER=$([ "$TARGET" = linux ] && echo windows || echo linux)
+check "only this system's engine files installed" "cmp -s src/engine-$TARGET/engine.txt client/game/engine-$TARGET/engine.txt && [ ! -e client/game/engine-$OTHER ]"
 
 # ---- 2. new build: one changed file, one new, one removed; user edited a kept config
 reset_stats

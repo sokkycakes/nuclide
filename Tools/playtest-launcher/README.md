@@ -19,6 +19,7 @@ keeps it up to date, and starts it.
 - **Live updates from git.** A push to the `playtest` branch runs
   `.github/workflows/playtest.yml`, which publishes to the `playtest` GitHub
   release. Every launcher sees it the next time it starts.
+- **Per system.** Each OS downloads only the files it needs (see Bulwark below).
 - **Safe.** Every file is checked against its SHA-256 before it replaces the
   old one. Files the game writes itself (configs, saves) are never touched.
   The launcher updates itself the same way.
@@ -43,6 +44,26 @@ under gamescope), the launcher:
   "playing" state stay on the whole time.
 
 `--steam` forces this mode and `--fullscreen` gives fullscreen alone.
+
+## Bulwark Engine
+
+Stiletto's Linux build runs on [Bulwark](https://github.com/sokkycakes/bulwark-engine)
+instead of FTE. CI checks out the branch in `BULWARK_REF`
+(`.github/workflows/playtest.yml`), builds it with `tools/build_bulwark.sh`
+(SDL2 and libstdc++ linked in, so it only needs glibc), and ships it as
+`bulwark/` next to the game. Windows testers keep FTE.
+
+`publish.json`'s `only` decides which files each system downloads, so a
+Windows tester never fetches the Linux engine and the reverse:
+
+```json
+"only": {"windows": ["fteqw64.exe", "*.dll"], "linux": ["bulwark/**"]},
+"run":  {"windows": {"exe": "fteqw64.exe", "args": [...]},
+         "linux":   {"exe": "bulwark/bulwark", "args": ["-basedir", ".", "-game", "base"]}}
+```
+
+To ship a Bulwark change, push it to that Bulwark branch and re-run the
+Playtest build workflow (or push to `playtest`).
 
 ## How a build reaches testers
 

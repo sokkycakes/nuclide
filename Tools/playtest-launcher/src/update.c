@@ -799,6 +799,13 @@ static int parse_manifest(const jval *man, char *err, size_t errlen)
 	for (const jval *f = files->child; f; f = f->next) {
 		mfile *m = &g.files[i];
 		const char *path = json_str(f, "path", NULL), *sha = json_str(f, "sha256", NULL);
+		const jval *os = json_get(f, "os");
+		if (os && os->type == J_ARR) {
+			/* a file only some systems need (an engine build, its DLLs) */
+			int mine = 0;
+			for (const jval *o = os->child; o; o = o->next) mine |= o->type == J_STR && !strcmp(o->str, PL_OS);
+			if (!mine) continue;
+		}
 		if (!path || !safe_rel_path(path) || !strncmp(path, ".launcher", 9)) { snprintf(err, errlen, "unsafe path in manifest: %s", path ? path : "(none)"); return -1; }
 		if (!is_hex64(sha)) { snprintf(err, errlen, "bad checksum in manifest for %s", path); return -1; }
 		m->path = strdup(path);
@@ -815,7 +822,7 @@ static int parse_manifest(const jval *man, char *err, size_t errlen)
 		if (!m->z && m->len != m->size) { snprintf(err, errlen, "bad sizes for %s", path); return -1; }
 		i++;
 	}
-	g.nfiles = nf;
+	g.nfiles = i;
 	return 0;
 }
 
