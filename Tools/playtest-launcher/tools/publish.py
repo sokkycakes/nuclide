@@ -337,6 +337,15 @@ def main():
     if missing:
         hint = rules.get('require_hint')
         sys.exit('publish stopped, these required files are missing or excluded: ' + ', '.join(missing) + ('\n' + hint if hint else ''))
+    soon = [r for r in rules.get('require_soon', []) if r not in files]
+    if soon:
+        # published anyway, but loudly: the build is missing files it needs
+        msg = 'WARNING: missing files this build needs: ' + ', '.join(soon)
+        hint = rules.get('require_hint')
+        log(msg + ('\n' + hint if hint else ''))
+        if os.environ.get('GITHUB_STEP_SUMMARY'):
+            with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as f:
+                f.write(msg + '\n\n' + (hint or '') + '\n\n')
     log(f'{len(files)} files to publish from {a.src}')
     entries = []
     for rel in files:
