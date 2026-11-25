@@ -1,7 +1,7 @@
 import { h } from 'preact';
 import { useState } from 'preact/hooks';
 import { Button } from './Button';
-import { MAPS, RULESETS, localPlayer } from '../model';
+import { mapList, rulesetList, localPlayer } from '../model';
 
 export function SettingsDialog({ kind, snapshot: s, close, run, onReady }) {
   const [time, setTime] = useState(s.timelimit === '' ? 0 : s.timelimit);
@@ -15,9 +15,9 @@ export function SettingsDialog({ kind, snapshot: s, close, run, onReady }) {
     <section className="dialog-panel">
       <h2 id="SettingsTitle">{title}</h2>
       {(kind === 'map' || kind === 'ruleset') && <div className="choice-list" id={kind === 'map' ? 'MapChoices' : 'RulesetChoices'}>
-        {(kind === 'map' ? MAPS : RULESETS).map(item => <Button key={item.id} className="choice" data-map={kind === 'map' ? item.id : undefined}
-          disabled={!s.canConfigure} aria-pressed={(kind === 'map' ? s.map : s.ruleset) === item.id}
-          onClick={() => choose((kind === 'map' ? 'setmap:' : 'setruleset:') + item.id)}>{item.name}</Button>)}
+        {(kind === 'map' ? mapList(s) : rulesetList(s)).map(item => <Button key={item.id} className="choice" data-map={kind === 'map' ? item.id : undefined}
+          disabled={!s.canConfigure || item.available === false} aria-pressed={(kind === 'map' ? s.map : s.ruleset) === item.id}
+          onClick={() => choose((kind === 'map' ? 'setmap:' : 'setruleset:') + item.id)}>{item.available === false ? item.name + ' (not in this build)' : item.name}</Button>)}
       </div>}
       {kind === 'server' && <div className="choice-list">
         <Button className="choice" aria-pressed="true" onClick={close}>Listen server</Button>

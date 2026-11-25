@@ -1,7 +1,7 @@
 import { h } from 'preact';
 import { useRef, useState } from 'preact/hooks';
 import { Button, SettingRow } from './Button';
-import { localPlayer, mapTitle, countdown } from '../model';
+import { localPlayer, mapTitle, rulesetTitle, countdown } from '../model';
 import { GuestLock } from './GuestLock';
 import { menuSound } from '../bridge';
 
@@ -45,8 +45,8 @@ export function LobbyMenu({ snapshot: s, openSettings, run, onReady }) {
   return <nav ref={nav} className="lobby-menu" aria-label="Lobby options" data-figma-node="72:210" onWheel={wheel}>
     {s.active && <div id="LobbyFocusBar" className="lobby-focus-bar" style={{ top: barTop(guestLocked ? 4 : selected) + 'px' }} aria-hidden="true"/>}
     <SettingRow id="BtnLobbyOptions" label="Lobby options" disabled={!s.active || !s.isHost} {...row(0, () => openSettings('options'))} />
-    <SettingRow id="BtnChangeRuleset" label="Ruleset:" value={s.ruleset || '—'} disabled={!s.canConfigure || !s.uiVersion} {...row(1, () => openSettings('ruleset'))} />
-    <SettingRow id="BtnChangeMap" label="Map:" value={mapTitle(s.map)} disabled={!s.canConfigure} {...row(2, () => openSettings('map'))} />
+    <SettingRow id="BtnChangeRuleset" label="Ruleset:" value={s.ruleset ? rulesetTitle(s.ruleset, s) : '—'} disabled={!s.canConfigure || !s.uiVersion} {...row(1, () => openSettings('ruleset'))} />
+    <SettingRow id="BtnChangeMap" label="Map:" value={mapTitle(s.map, s)} disabled={!s.canConfigure} {...row(2, () => openSettings('map'))} />
     <SettingRow id="BtnServerType" label="Server type:" value={s.serverType} disabled={!s.active || !s.isHost} {...row(3, () => openSettings('server'))} />
     {guestLocked && <GuestLock/>}
     <div className="start-row">
