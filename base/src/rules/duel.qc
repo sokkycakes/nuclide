@@ -109,7 +109,11 @@ CodeCallback_Precaches(void)
 void
 CodeCallback_StartGameType(void)
 {
-	motd.LoadDefault();
+	/* no message box over a set (or a training map, g_nomotd): the
+	   match flow's own screens are up */
+	if (autocvar_arena_setFirstTo <= 0 && cvar("g_nomotd") == 0) {
+		motd.LoadDefault();
+	}
 	game.SetSpawnPoint("info_intermission");
 
 	/* both duelist slots are marked closed so the client team picker hides

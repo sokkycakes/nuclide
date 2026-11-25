@@ -129,6 +129,7 @@
  *   arena_set_left   name of the player who left the set, and "behind" or "even"
  *   arena_deadline   whole seconds left in SELECT / MATCH END / SET END, else ""
  *   arena_lock       per slot: 1 hero locked, 0 not ("1 0")
+ *   arena_ents       per slot: the competitor's entity number, 0 for none
  *   arena_vote       per slot: 0 none, 1 rematch, 2 rematch + new hero, 3 leave
  *   arena_heroN      slot N's hero, "" while picks are hidden
  * ========================================================================= */

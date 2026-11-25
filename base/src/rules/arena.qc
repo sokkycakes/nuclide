@@ -611,6 +611,11 @@ Arena_BroadcastState(void)
 		serverinfo.SetString("arena_set_closed", g_setClosed);
 		serverinfo.SetString("arena_set_log", g_setLog);
 		serverinfo.SetString("arena_set_left", g_setLeft);
+		string ents = "";
+		for (int e = 0i; e < g_arenaSlotCount; e++) {
+			ents = strcat(ents, (e > 0i) ? " " : "", g_arenaCompetitor[e] ? itos((int)num_for_edict(g_arenaCompetitor[e])) : "0");
+		}
+		serverinfo.SetString("arena_ents", ents);
 		serverinfo.SetString("arena_lock", locks);
 		serverinfo.SetString("arena_vote", votes);
 		if (g_arenaState == ARENA_SELECT || g_arenaState == ARENA_MATCH_END || g_arenaState == ARENA_SET_END) {
