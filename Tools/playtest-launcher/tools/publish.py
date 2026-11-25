@@ -18,6 +18,7 @@ import fnmatch
 import hashlib
 import json
 import os
+import re
 import sys
 import tempfile
 import time
@@ -49,16 +50,33 @@ def load_rules(path):
     return r
 
 
+_GLOB_CACHE = {}
+
+
+def glob_re(pat):
+    """Glob to regex: '*' and '?' stay inside one folder, '**' crosses folders."""
+    r = _GLOB_CACHE.get(pat)
+    if r:
+        return r
+    out, i = '', 0
+    while i < len(pat):
+        c = pat[i]
+        if pat.startswith('**/', i):
+            out += '(?:.*/)?'
+            i += 3
+            continue
+        if pat.startswith('**', i):
+            out += '.*'
+            i += 2
+            continue
+        out += {'*': '[^/]*', '?': '[^/]'}.get(c, re.escape(c))
+        i += 1
+    r = _GLOB_CACHE[pat] = re.compile(out + r'\Z')
+    return r
+
+
 def match_any(rel, pats):
-    for p in pats:
-        if fnmatch.fnmatchcase(rel, p):
-            return True
-        # "dir/**" also matches the dir's files at any depth; "**/x" also matches top-level x
-        if p.endswith('/**') and rel.startswith(p[:-2]):
-            return True
-        if p.startswith('**/') and fnmatch.fnmatchcase(rel, p[3:]):
-            return True
-    return False
+    return any(glob_re(p).match(rel) for p in pats)
 
 
 def scan(src, rules):
