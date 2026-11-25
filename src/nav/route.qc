@@ -160,6 +160,30 @@ Route_SelectRandomSpot(void)
 	return (eLastSpot);
 }
 
+/* the nearest living opponent (another team in teamplay, anyone otherwise);
+   arena maps have no items to walk to, so without this bots idle at spawns */
+static entity
+Route_SelectNearestOpponent(ncBot target)
+{
+	entity best = __NULL__;
+	float bestRange = 0.0f;
+
+	for (entity p = world; (p = next.Player(p));) {
+		if (p == target || p.health <= 0 || p.takedamage != DAMAGE_YES) {
+			continue;
+		}
+		if (teams.TeamCount() > 1 && p.team == target.team) {
+			continue;
+		}
+		float range = distanceSquared(p.origin, target.origin);
+		if (!best || range < bestRange) {
+			best = p;
+			bestRange = range;
+		}
+	}
+	return (best);
+}
+
 vector
 Route_SelectDestination(ncBot target)
 {
@@ -253,6 +277,16 @@ Route_SelectDestination(ncBot target)
 
 		if (trig)
 			return trig.absmin + (0.5 * (trig.absmax - trig.absmin));
+	}
+
+	/* go find someone to fight */
+	if (random() < 0.75) {
+		entity opponent = Route_SelectNearestOpponent(target);
+
+		if (opponent) {
+			BotLog("%s hunting %s", target.netname, opponent.netname);
+			return (opponent.origin);
+		}
 	}
 
 	/* if all else fails... select a random spot */

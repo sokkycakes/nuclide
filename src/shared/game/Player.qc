@@ -2963,6 +2963,9 @@ ncPlayer::Damage(entity inflictor, entity attacker, ncDict damageDecl, float dam
 		}
 	}
 
+	/* Archstiletto-mode boss: mid-air hits count double (stiletto_combat.qc) */
+	damagePoints *= Stiletto_Combat_DamageScale(this);
+
 	damagePoints = rint(damagePoints);
 	SetHealth(GetHealth() - damagePoints);
 

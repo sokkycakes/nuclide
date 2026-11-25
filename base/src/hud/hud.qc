@@ -493,13 +493,14 @@ WebCoreHud_Draw(void)
 	cvar_set("webcore_hud_ammo", ftos(weapon.GetAmmo1()));
 	cvar_set("webcore_hud_reload", ftos(getstatf(STAT_USER + 1)));
 
-	/* Duel/arena: match points + competitor names from serverinfo.
+	/* Arena modes (Duel, Freeze Tag, Archstiletto): match points + competitor
+	 * (or team) names from serverinfo.
 	 * Otherwise: top two frag leaders (so placeholders aren't stuck at 2/5). */
 	score1 = 0;
 	score2 = 0;
 	name1 = "";
 	name2 = "";
-	if (serverinfo.GetString("mode") == "duel") {
+	if (STRING_SET(serverinfo.GetString("arena_state"))) {
 		/* Arena_BroadcastState publishes these from g_arenaPoints. Reading them
 		 * directly avoids fragile name matching and delayed player-key frags. */
 		score1 = serverinfo.GetInteger("arena_score1");

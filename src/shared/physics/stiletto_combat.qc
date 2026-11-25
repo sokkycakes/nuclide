@@ -37,6 +37,31 @@
 #define STILETTO_PUNISH_STANDARD	1	/* zero horizontal velocity, then stun */
 #define STILETTO_PUNISH_ARCH		2	/* keep trajectory, lock control until land */
 
+#ifdef SERVER
+/** Archstiletto-mode boss (arena R-HP3 / R-HP5 / R-STUN3). The rules progs
+ * marks the boss with the userinfo key *stiletto_boss 1 and sets its 100 HP
+ * pool. The boss takes double damage while airborne instead of any tool
+ * punish, and gets no post-hit i-frames or out-of-combat heal-to-full: at
+ * 1 damage per hit, a 1.3s window and a 12s full heal would make a 100 HP
+ * pool unkillable. Every other hero keeps the normal rules. */
+bool
+Stiletto_Combat_IsArenaBoss(entity e)
+{
+	return (userinfo.GetFloat(e, "*stiletto_boss") > 0.0f);
+}
+
+/** Damage multiplier for a hit landing on e right now (1 for everyone but an
+ * airborne arena boss). */
+float
+Stiletto_Combat_DamageScale(entity e)
+{
+	if (Stiletto_Combat_IsArenaBoss(e) && !(e.flags & FL_ONGROUND)) {
+		return (2.0f);
+	}
+	return (1.0f);
+}
+#endif
+
 /** True while the hero has no movement control: airborne-pending punish, or the
  * full-stun window after landing. Used to suppress air-dodge / wall-jump. */
 bool
@@ -146,7 +171,7 @@ Stiletto_Combat_PostMove(entity e)
 	}
 
 #ifdef SERVER
-	if (is.Alive(pl) && pl.GetHealth() > 0) {
+	if (is.Alive(pl) && pl.GetHealth() > 0 && !Stiletto_Combat_IsArenaBoss(pl)) {
 		if (pl.m_stilettoLastDamageTime > 0.0f
 		    && (time - pl.m_stilettoLastDamageTime) >= STILETTO_REGEN_DELAY
 		    && pl.GetHealth() < pl.GetMaxHealth()) {
@@ -171,6 +196,10 @@ Stiletto_Combat_DamageBlocked(entity e, ncDict damageDecl)
 	}
 
 	if (damageDecl.GetBool("noGod") == true) {
+		return (false);
+	}
+
+	if (Stiletto_Combat_IsArenaBoss(pl)) {
 		return (false);
 	}
 
@@ -209,6 +238,11 @@ Stiletto_Combat_OnDamaged(entity e, float dmg)
 	bool toolActive;
 
 	if (!is.Player(pl)) {
+		return;
+	}
+
+	/* arena boss: double airborne damage replaces any tool punish */
+	if (Stiletto_Combat_IsArenaBoss(pl)) {
 		return;
 	}
 
