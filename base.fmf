@@ -1,5 +1,6 @@
 FTEMANIFEST 1	// version identifier
 GAME quake	// same as -quake via the command-line, tells the engine we're QuakeWorld
 GAMEDIR base	// mount base/ as our main game directory
+PROTOCOLNAME "StilettoSwift"	// the game's name on master servers: server browsers list only Stiletto servers
 // Console history is pinned to basedir (see Con_History_*); keep other writes local too.
 disablehomedir 1
