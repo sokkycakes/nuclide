@@ -1,5 +1,9 @@
 /* Playtest launcher: one window, five buttons, works with mouse, keyboard or
- * any controller SDL knows (Xbox, PlayStation, Switch, generic). */
+ * any controller: Steam Input (Steam Deck, Steam Controller and every pad
+ * Steam handles, non-Steam-game launches included) or SDL (Xbox,
+ * PlayStation, Switch, generic). Prompts are Xelu's, matched to the pad. */
+#include "input_steam.h"
+#include "input_steam_data.h"
 #include "json.h"
 #include "net.h"
 #include "platform.h"
@@ -37,6 +41,8 @@ typedef struct {
 	char background_image[1024];
 	char icon[1024];
 	char font_regular[1024], font_bold[1024];
+	int steam_input;            /* 0: SDL only */
+	unsigned steam_input_appid; /* app id for non-Steam-game launches (480) */
 } app_config;
 
 static SDL_Color hexcolor(const char *s, SDL_Color def)
@@ -81,6 +87,8 @@ static int load_config(app_config *c, const char *path, char *err, size_t errlen
 	c->up.allow_self_update = json_bool(j, "self_update", 1);
 	c->close_on_play = json_bool(j, "close_on_play", 1);
 	c->auto_update = json_bool(j, "auto_update", 1);
+	c->steam_input = json_bool(j, "steam_input", 1);
+	c->steam_input_appid = (unsigned)json_num(j, "steam_input_appid", 480);
 	theme = json_get(j, "theme");
 	c->bg = hexcolor(json_str(theme, "background", NULL), d_bg);
 	c->panel = hexcolor(json_str(theme, "panel", NULL), d_panel);
@@ -232,6 +240,11 @@ typedef struct {
 	int steam;           /* started by Steam / SteamOS Game Mode */
 	int exec_game;       /* POSIX: exec the game after shutting down SDL */
 	SDL_Window *win;
+	/* controller prompts: the set of the pad used last, and whether that
+	 * was a Steam Input controller (whose prompts follow its bindings) */
+	si_set_t glyphs;
+	int prompt_steam, prompt_chosen;
+	SDL_Texture *glyph_tex[SIG_SETS][SIG_BUTTONS];
 	/* speed estimate */
 	double speed, last_t;
 	uint64_t last_bytes;
@@ -295,6 +308,77 @@ static void draw_glyph(ui *u, float x, float y, const char *label, SDL_Color c)
 	float w = text_width(&u->small, label, strlen(label)) + 16;
 	fill(u->r, c, x, y, w, 28);
 	draw_str(u->r, &u->small, x + 8, y + 3, u->cfg.bg, label);
+}
+
+static int glyph_slot(si_button_t b)
+{
+	switch (b) {
+	case SI_BTN_SOUTH: return SIG_SOUTH;
+	case SI_BTN_EAST: return SIG_EAST;
+	case SI_BTN_START: return SIG_START;
+	case SI_BTN_DPAD: case SI_BTN_DUP: case SI_BTN_DDOWN: case SI_BTN_DLEFT: case SI_BTN_DRIGHT: return SIG_DPAD;
+	case SI_BTN_LB: return SIG_LB;
+	case SI_BTN_RB: return SIG_RB;
+	case SI_BTN_RSTICK: return SIG_RSTICK;
+	default: return -1;
+	}
+}
+
+static SDL_Texture *glyph_texture(ui *u, si_set_t set, si_button_t btn)
+{
+	int b = glyph_slot(btn), w, h, ch;
+	const steam_input_png *png;
+	unsigned char *px;
+	if ((int)set < 0 || set >= SIG_SETS || b < 0) return NULL;
+	if (u->glyph_tex[set][b]) return u->glyph_tex[set][b];
+	png = &steam_input_glyphs[set][b];
+	if (!png->png || !(px = stbi_load_from_memory(png->png, (int)png->len, &w, &h, &ch, 4))) return NULL;
+	{
+		SDL_Surface *s = SDL_CreateRGBSurfaceWithFormatFrom(px, w, h, 32, w * 4, SDL_PIXELFORMAT_RGBA32);
+		if (s) {
+			u->glyph_tex[set][b] = SDL_CreateTextureFromSurface(u->r, s);
+			SDL_FreeSurface(s);
+		}
+	}
+	stbi_image_free(px);
+	if (u->glyph_tex[set][b]) SDL_SetTextureScaleMode(u->glyph_tex[set][b], SDL_ScaleModeLinear);
+	return u->glyph_tex[set][b];
+}
+
+/* the prompt for a launcher action: what the player bound on a Steam Input
+ * controller, otherwise the button the launcher reads on an SDL pad */
+static void action_prompt(ui *u, int action, si_set_t *set, si_button_t *btn)
+{
+	static const si_button_t sdl_button[LA_COUNT] = {
+		SI_BTN_DPAD, SI_BTN_DPAD, SI_BTN_SOUTH, SI_BTN_EAST, SI_BTN_START, SI_BTN_LB, SI_BTN_RB,
+	};
+	if (u->prompt_steam && steam_input_glyph(action, set, btn)) return;
+	*set = u->glyphs < SI_SET_COUNT ? u->glyphs : SI_SET_XBOX;
+	*btn = sdl_button[action];
+}
+
+static void draw_glyph(ui *u, float x, float y, const char *label, SDL_Color c);
+
+static float draw_pad_hint(ui *u, float right, float y, int action, const char *what)
+{
+	si_set_t set;
+	si_button_t btn;
+	SDL_Texture *t;
+	float x = right - text_width(&u->small, what, strlen(what));
+	action_prompt(u, action, &set, &btn);
+	draw_str(u->r, &u->small, x, y + 3, u->cfg.dim, what);
+	if (!(t = glyph_texture(u, set, btn))) {
+		/* no art for that button: its name in a box */
+		const char *label = si_button_label(set, btn);
+		x -= text_width(&u->small, label, strlen(label)) + 16 + 10;
+		draw_glyph(u, x, y, label, u->cfg.dim);
+		return x - 28;
+	}
+	{
+		SDL_FRect dst = { x - 10 - 34, y - 3, 34, 34 };
+		SDL_RenderCopyF(u->r, t, NULL, &dst);
+		return dst.x - 28;
+	}
 }
 
 static float draw_hint(ui *u, float right, float y, const char *glyph, const char *what)
@@ -394,8 +478,9 @@ static void draw_frame(ui *u)
 	{
 		float x = VW - 64;
 		if (u->pad_connected) {
-			x = draw_hint(u, x, 676, "B", "Quit");
-			draw_hint(u, x, 676, "A", "Select");
+			x = draw_pad_hint(u, x, 676, LA_BACK, "Quit");
+			x = draw_pad_hint(u, x, 676, LA_SELECT, "Select");
+			draw_pad_hint(u, x, 676, LA_DOWN, "Move");
 		} else {
 			x = draw_hint(u, x, 676, "Esc", "Quit");
 			x = draw_hint(u, x, 676, "Enter", "Select");
@@ -437,6 +522,9 @@ static void play(ui *u)
 		snprintf(u->launch_error, sizeof(u->launch_error), "Could not find %s. Try Repair Game Files.", u->st.run_exe);
 		return;
 	}
+	/* the game starts Steam Input itself, and should see the environment
+	 * Steam gave us rather than the app id we named */
+	steam_input_shutdown();
 	if (u->steam) {
 		/* Steam must keep seeing the game as the process it started, or it
 		 * thinks the game quit and Game Mode drops the window and controller
@@ -563,6 +651,23 @@ static void script_step(ui *u)
 		if (!u->launched) test_fail("game was not launched%s", ""); else printf("ok: launched\n");
 	} else if (!strcmp(cmd, "expect_pad")) {
 		if (!u->pad_connected) test_fail("controller not detected%s", ""); else printf("ok: controller detected\n");
+	} else if (!strcmp(cmd, "expect_prompt")) {
+		/* expect_prompt <action> <set>/<button> */
+		static const char *names[LA_COUNT] = { "up", "down", "select", "back", "play", "notes_up", "notes_down" };
+		char act[64] = "", want[128] = "", have[128];
+		int a = -1;
+		si_set_t set;
+		si_button_t btn;
+		sscanf(arg, "%63s %127s", act, want);
+		for (int i = 0; i < LA_COUNT; i++) if (!strcmp(names[i], act)) a = i;
+		if (a < 0) { test_fail("unknown action %s", act); return; }
+		action_prompt(u, a, &set, &btn);
+		snprintf(have, sizeof(have), "%s/%s", si_set_name(set), si_button_name(btn));
+		if (strcmp(have, want)) { test_fail("prompt is not %s", want); printf("  have %s\n", have); }
+		else printf("ok: prompt %s %s\n", act, have);
+	} else if (!strcmp(cmd, "expect_steam_input")) {
+		if (steam_input_active() != atoi(arg)) { test_fail("Steam Input active is not %s", arg); printf("  %s\n", steam_input_status()); }
+		else printf("ok: steam input %s\n", arg);
 	} else if (!strcmp(cmd, "shot")) {
 		int w, h;
 		SDL_Surface *s;
@@ -615,10 +720,45 @@ static void attach_virtual_pad(void)
 
 static SDL_GameController *g_pads[8];
 
-static void open_pad(int idx)
+/* what an SDL pad really is, and so its prompts. Started by Steam (a Steam
+ * app or a non-Steam game) the launcher sees Steam's virtual gamepad; SDL
+ * 2.30 reads SteamVirtualGamepadInfo and reports the real device, and this
+ * reads the file too in case SDL didn't */
+static si_set_t pad_set(SDL_GameController *gc)
+{
+	uint16_t vid = SDL_GameControllerGetVendor(gc), pid = SDL_GameControllerGetProduct(gc);
+	int type = (int)SDL_GameControllerGetType(gc);
+	if (vid == SI_VID_VALVE && pid == SI_PID_STEAM_VIRTUAL_GAMEPAD) {
+		int slot = si_virtual_gamepad_slot(SDL_GameControllerName(gc));
+		uint16_t rv = 0, rp = 0;
+		const char *deck = getenv("SteamDeck");
+		if (slot < 0) slot = SDL_GameControllerGetPlayerIndex(gc);
+		if (si_virtual_gamepad_info(slot, &rv, &rp, NULL, 0) && rv) { vid = rv; pid = rp; type = SI_SDLTYPE_UNKNOWN; }
+		else if (deck && atoi(deck)) return SI_SET_STEAMDECK;
+	}
+	return si_set_for_device(vid, pid, type);
+}
+
+static SDL_GameController *pad_by_id(SDL_JoystickID id)
+{
+	for (int i = 0; i < 8; i++)
+		if (g_pads[i] && SDL_JoystickInstanceID(SDL_GameControllerGetJoystick(g_pads[i])) == id) return g_pads[i];
+	return NULL;
+}
+
+static void open_pad(ui *u, int idx)
 {
 	if (!SDL_IsGameController(idx)) return;
-	for (int i = 0; i < 8; i++) if (!g_pads[i]) { g_pads[i] = SDL_GameControllerOpen(idx); return; }
+	if (pad_by_id(SDL_JoystickGetDeviceInstanceID(idx))) return; /* already open */
+	for (int i = 0; i < 8; i++) if (!g_pads[i]) {
+		if ((g_pads[i] = SDL_GameControllerOpen(idx))) {
+			si_set_t set = pad_set(g_pads[i]);
+			printf("controller: %s (%s prompts)\n", SDL_GameControllerName(g_pads[i]), si_set_name(set));
+			fflush(stdout);
+			if (!u->prompt_chosen) u->glyphs = set;
+		}
+		return;
+	}
 }
 
 static int pad_count(void)
@@ -663,7 +803,7 @@ int main(int argc, char **argv)
 	SDL_Window *win;
 	int verify = 0, after_self = 0, force_steam = 0, fullscreen = 0;
 	Uint32 dir_held_since = 0, dir_last_rep = 0;
-	int dir_held = 0, axis_dir = 0;
+	int dir_held = 0, axis_dir = 0, steam_dir = 0;
 
 	memset(&u, 0, sizeof(u));
 	for (int i = 1; i < argc; i++) {
@@ -682,7 +822,7 @@ int main(int argc, char **argv)
 
 	SDL_SetHint(SDL_HINT_JOYSTICK_ALLOW_BACKGROUND_EVENTS, "1");
 	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
-	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER | SDL_INIT_EVENTS) != 0) {
+	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS) != 0) {
 		fprintf(stderr, "SDL_Init: %s\n", SDL_GetError());
 		return 1;
 	}
@@ -692,6 +832,30 @@ int main(int argc, char **argv)
 		return 1;
 	}
 	if (after_self) u.cfg.up.allow_self_update = 0;
+	/* Steam Input first: whether it runs decides how SDL treats Valve's pads */
+	u.glyphs = SI_SET_XBOX;
+	update_read_local(&u.cfg.up);
+	update_snapshot(&u.st);
+	if (u.cfg.steam_input) {
+		/* libsteam_api beside the launcher, in the game folder, or beside
+		 * the installed game's executable (Bulwark ships it there) */
+		char state[1100], gamebin[1200];
+		const char *libdirs[4] = { u.cfg.exe_dir, u.cfg.up.install_dir, NULL, NULL };
+		pl_join(state, sizeof(state), u.cfg.up.install_dir, ".launcher");
+		if (u.st.run_exe[0]) {
+			pl_join(gamebin, sizeof(gamebin), u.cfg.up.install_dir, u.st.run_exe);
+			pl_dirname(gamebin);
+			libdirs[2] = gamebin;
+		}
+		steam_input_init(libdirs, state, u.cfg.steam_input_appid);
+	}
+	/* buttons by position, as Steam Input names them: A is the bottom button
+	 * on every pad, a Switch pad's B included, so the prompts line up */
+	SDL_SetHint(SDL_HINT_GAMECONTROLLER_USE_BUTTON_LABELS, "0");
+	/* without Steam, read a Steam Controller or Deck directly (SDL leaves
+	 * them to Steam by default, since two readers fight) */
+	if (!steam_input_active() && si_launch() == SI_LAUNCH_PLAIN) SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_STEAM, "1");
+	if (SDL_InitSubSystem(SDL_INIT_GAMECONTROLLER) != 0) fprintf(stderr, "controllers: %s\n", SDL_GetError());
 	if (net_global_init(err, sizeof(err)) != 0) {
 		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, u.cfg.title, err, NULL);
 		return 1;
@@ -740,10 +904,8 @@ int main(int argc, char **argv)
 		if (script_load(test_path) != 0) { fprintf(stderr, "cannot read %s\n", test_path); return 1; }
 		attach_virtual_pad();
 	}
-	for (int i = 0; i < SDL_NumJoysticks(); i++) open_pad(i);
+	for (int i = 0; i < SDL_NumJoysticks(); i++) open_pad(&u, i);
 
-	update_read_local(&u.cfg.up);
-	update_snapshot(&u.st);
 	if (u.cfg.auto_update || !u.st.installed) start_update(&u, verify);
 	u.focus = B_PLAY;
 	u.last_state = US_IDLE;
@@ -752,12 +914,21 @@ int main(int argc, char **argv)
 		SDL_Event e;
 		Uint32 now = SDL_GetTicks();
 		int dir = 0;
+		steam_ui_input si;
+		steam_input_poll(&si);
 		while (SDL_PollEvent(&e)) {
+			/* while Steam Input has controllers, SDL's pads are Steam's
+			 * copy of the same controllers: read them once */
+			if (si.controllers && (e.type == SDL_CONTROLLERBUTTONDOWN || e.type == SDL_CONTROLLERAXISMOTION)) continue;
 			switch (e.type) {
 			case SDL_QUIT: u.quit = 1; break;
-			case SDL_CONTROLLERDEVICEADDED: open_pad(e.cdevice.which); break;
+			case SDL_CONTROLLERDEVICEADDED: open_pad(&u, e.cdevice.which); break;
 			case SDL_CONTROLLERBUTTONDOWN:
 				if (u.steam) SDL_ShowCursor(SDL_DISABLE);
+				{
+					SDL_GameController *gc = pad_by_id(e.cbutton.which);
+					if (gc) { u.glyphs = pad_set(gc); u.prompt_steam = 0; u.prompt_chosen = 1; }
+				}
 				switch (e.cbutton.button) {
 				case SDL_CONTROLLER_BUTTON_DPAD_UP: move_focus(&u, -1); dir_held = -1; dir_held_since = now; break;
 				case SDL_CONTROLLER_BUTTON_DPAD_DOWN: move_focus(&u, 1); dir_held = 1; dir_held_since = now; break;
@@ -806,18 +977,37 @@ int main(int argc, char **argv)
 			case SDL_MOUSEWHEEL: u.notes_scroll -= e.wheel.y * 60; break;
 			}
 		}
+		/* Steam Input controllers: the launcher's own actions */
+		if (si.controllers) {
+			int d = si.held[LA_UP] ? -1 : si.held[LA_DOWN] ? 1 : si.move_y < -0.5f ? -1 : si.move_y > 0.5f ? 1 : 0;
+			if (d && d != steam_dir) { move_focus(&u, d); dir_held = d; dir_held_since = now; }
+			if (!d && steam_dir) dir_held = 0;
+			steam_dir = d;
+			if (si.pressed[LA_SELECT]) activate(&u, u.focus);
+			if (si.pressed[LA_PLAY]) activate(&u, B_PLAY);
+			if (si.pressed[LA_BACK]) u.quit = 1;
+			if (si.pressed[LA_NOTES_UP]) u.notes_scroll -= 120;
+			if (si.pressed[LA_NOTES_DOWN]) u.notes_scroll += 120;
+			if (fabsf(si.scroll_y) > 0.25f) u.notes_scroll += si.scroll_y * 14;
+			if (si.used || !u.prompt_chosen) {
+				si_set_t set = steam_input_set();
+				if (set < SI_SET_COUNT) u.glyphs = set;
+				u.prompt_steam = 1;
+				if (si.used) { u.prompt_chosen = 1; u.hover_lock = 0; if (u.steam) SDL_ShowCursor(SDL_DISABLE); }
+			}
+		} else if (steam_dir) { dir_held = 0; steam_dir = 0; }
 		/* held direction repeat (d-pad or stick) */
 		if (dir_held && now - dir_held_since > 400 && now - dir_last_rep > 130) { dir = dir_held; dir_last_rep = now; }
 		if (dir) move_focus(&u, dir);
 		/* right stick scrolls notes */
-		for (int i = 0; i < 8; i++) if (g_pads[i]) {
+		for (int i = 0; i < 8; i++) if (g_pads[i] && !si.controllers) {
 			int ry = SDL_GameControllerGetAxis(g_pads[i], SDL_CONTROLLER_AXIS_RIGHTY);
 			if (abs(ry) > 8000) u.notes_scroll += ry / 32768.0f * 14;
 		}
 		if (u.notes_scroll < 0) u.notes_scroll = 0;
 
 		update_snapshot(&u.st);
-		u.pad_connected = pad_count() > 0;
+		u.pad_connected = pad_count() > 0 || si.controllers > 0;
 		{
 			/* when a check/update finishes, put the cursor where the player wants it */
 			int busy = update_busy();
@@ -839,6 +1029,7 @@ int main(int argc, char **argv)
 			av[k] = NULL;
 			printf("restarting after self-update\n");
 			fflush(stdout);
+			steam_input_shutdown();
 			if (u.steam) {
 				/* stay the process Steam is tracking */
 				SDL_Quit();
@@ -874,6 +1065,7 @@ int main(int argc, char **argv)
 		update_cancel();
 		for (int i = 0; i < 30 && update_busy(); i++) SDL_Delay(100);
 	}
+	steam_input_shutdown();
 	if (test_path) {
 		printf(T.failed ? "TEST RESULT: FAIL\n" : "TEST RESULT: PASS\n");
 		fflush(stdout);

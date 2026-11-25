@@ -45,6 +45,45 @@ under gamescope), the launcher:
 
 `--steam` forces this mode and `--fullscreen` gives fullscreen alone.
 
+## Steam Input
+
+The launcher speaks Steam Input natively, so the Steam Deck, the Steam
+Controller and every pad Steam handles drive it through its own actions, and
+the on-screen prompts match the controller in hand. The prompts are Xelu's
+free controller prompts (CC0, `src/glyphs/`).
+
+- **As a non-Steam game.** Steam gives a shortcut no app id. The launcher
+  then starts the Steam API as app `steam_input_appid` (480, Valve's
+  Spacewar, which every account can run), as Bulwark does. Before the game
+  starts, it shuts Steam Input down and puts back the environment Steam
+  gave it, so the game starts Steam Input itself.
+- **Needs `steam_api64.dll` (Windows, Proton) or `libsteam_api.so` (Linux)**
+  beside the launcher, in the game folder or beside the game's executable.
+  The Linux Stiletto build ships `bulwark/libsteam_api.so`
+  (`tools/fetch_steam_api.sh`, run by `tools/build_bulwark.sh`), so after
+  the first install both the launcher and the game have it. Without it, or
+  without Steam, the launcher reads controllers through SDL. Steam's virtual
+  gamepad and its `SteamVirtualGamepadInfo` file still give the right
+  prompts there, a Deck's included.
+- **Actions.** There is one set, `Launcher`: `ui_up`, `ui_down`, `ui_select`
+  (A), `ui_back` (B, quit), `ui_play` (Menu/Start), `ui_notes_up` and
+  `ui_notes_down` (bumpers), and the analog `ui_move` (left stick) and
+  `ui_scroll` (right stick, or the Steam Controller's right pad).
+  `tools/gen_steam_input.py` builds the manifest and a default layout per
+  controller into the executable. The launcher writes them to
+  `<game>/.launcher/steam_input/` and points Steam at that folder.
+- **Prompts follow the bindings.** On a Steam Input controller, the prompt
+  is whatever the player has bound to the action now. On an SDL pad, it is
+  that pad's button.
+- `src/steaminput.{c,h}` and `src/steaminput_origins.h` are copies of
+  Bulwark's `src/client/steaminput.*` (bulwark-engine). Change them there
+  and copy them across.
+
+| `launcher.json` | |
+| --- | --- |
+| `"steam_input": false` | SDL only |
+| `"steam_input_appid": 480` | app id for non-Steam-game launches (0: only a real Steam launch or `steam_appid.txt`) |
+
 ## Bulwark Engine
 
 Stiletto's Linux build runs on [Bulwark](https://github.com/sokkycakes/bulwark-engine)
@@ -86,6 +125,8 @@ Testers get one link, once:
 | `tools/publish.py` | Builds packs + manifest and uploads them (GitHub release or a folder). Python standard library only. |
 | `tools/test_server.py` | Local stand-in for GitHub downloads (redirects + ranges) for tests. |
 | `tests/e2e.sh` | End-to-end test, driven through a virtual controller. |
+| `tests/steam_input.sh` | Steam Input test against a stand-in `libsteam_api` (`tests/mock_steam_api.c`). |
+| `tools/gen_steam_input.py` | The Steam Input action manifest, layouts and embedded prompts. |
 | `games/stiletto/` | Stiletto's publish rules and launcher config. |
 | `docs/PLAYTESTERS.txt` | The README that goes in the tester zip. |
 
@@ -116,6 +157,7 @@ python3 tools/publish.py --src /path/to/game --rules games/stiletto/publish.json
 ./build.sh windows    # out/windows/playtest-launcher.exe (mingw-w64)
 tests/e2e.sh linux
 tests/e2e.sh windows  # runs the .exe under Wine
+tests/steam_input.sh  # Steam Input, against a stand-in Steam
 ```
 
 The end-to-end test publishes a fake game, then checks: first install with
@@ -124,6 +166,16 @@ game, 64 KB download), removed files, kept configs, repair of a corrupted
 file, launcher self-update, offline play, resume after an interrupted
 download, Steam mode (fullscreen, game started attached), and an install
 while the server rate-limits with HTTP 429.
+
+Steam can't sign in on a build machine, so `tests/steam_input.sh` runs the
+launcher against a stand-in `libsteam_api`. The stand-in loads the manifest
+the way Steam does and plays scripted presses. The test covers three cases:
+
+- A non-Steam game with Steam running. ISteamInput starts as app 480 with
+  the launcher's manifest, a Deck moves the focus, the prompts are the
+  Deck's, and Steam's copy of the pad in SDL isn't read twice.
+- Steam not running.
+- No `libsteam_api`.
 
 ## Launcher options
 
