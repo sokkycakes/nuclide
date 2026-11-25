@@ -334,7 +334,8 @@ def main():
     files = scan(a.src, rules)
     missing = [r for r in rules.get('require', []) if r not in files]
     if missing:
-        sys.exit('publish stopped, these required files are missing or excluded: ' + ', '.join(missing))
+        hint = rules.get('require_hint')
+        sys.exit('publish stopped, these required files are missing or excluded: ' + ', '.join(missing) + ('\n' + hint if hint else ''))
     log(f'{len(files)} files to publish from {a.src}')
     entries = []
     for rel in files:

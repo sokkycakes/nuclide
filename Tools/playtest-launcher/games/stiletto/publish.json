@@ -2,7 +2,10 @@
   "game": "stiletto",
   "title": "Stiletto Proto",
   "release_title": "Stiletto Proto playtest",
-  "require": ["fteqw64.exe", "base.fmf", "base/progs.dat", "base/csprogs.dat", "base/menu.dat"],
+  "require": ["fteqw64.exe", "base.fmf", "base/progs.dat", "base/csprogs.dat", "base/menu.dat",
+              "fteplug_webcore_x64.dll", "ftewebcore.dll", "cairo-2.dll", "resources/icudt67l.dat",
+              "msvcp140.dll", "vcruntime140.dll", "vcruntime140_1.dll"],
+  "require_hint": "Engine runtime files are gitignored. On Windows, on the playtest branch, run Tools/playtest-launcher/games/stiletto/add-runtime.ps1 and push.",
   "include": [
     "fteqw64.exe",
     "*.dll",
