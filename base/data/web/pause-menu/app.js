@@ -6,6 +6,21 @@
 
   var stage = document.getElementById("stage");
   var focusBar = document.getElementById("focus-bar");
+
+  /* Host Menu is for the player whose game is the server: the client game
+     publishes _cl_host (src/client/vgui_hostmenu.qc). Anyone else drops the
+     row; the rows below move up (their tops are nth-child rules). */
+  (function hideHostMenuForGuests() {
+    var host = "";
+    try {
+      if (typeof window.fte_query === "function") host = String(window.fte_query("cvar:_cl_host") || "");
+    } catch (e) { host = ""; }
+    if (host === "0") {
+      var row = document.querySelector('[data-cmd="menu_hostmenu"]');
+      if (row && row.parentNode) row.parentNode.removeChild(row);
+    }
+  })();
+
   var items = Array.prototype.slice.call(document.querySelectorAll(".menu-item"));
   var selected = 0;
 

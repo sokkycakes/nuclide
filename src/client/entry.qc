@@ -407,7 +407,7 @@ CSQC_UpdateView(float w, float h, float focus)
 			g_vidsize[1] = h;
 			ClientGame_InitDone();
 			MOTD_Init();
-			VGUI_ShowMOTD();
+			VGUI_AutoMOTD();
 			Sky_Update(true);
 		}
 	}
@@ -421,6 +421,7 @@ CSQC_UpdateView(float w, float h, float focus)
 	}
 
 	/* these have to be checked every frame */
+	VGUI_HostMenu_Publish();
 	Fog_Update();
 	Sky_Update(false);
 	cvar_set("_background", serverkey("background"));
