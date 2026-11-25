@@ -6,7 +6,8 @@ keeps it up to date, and starts it.
 
 - **No runtimes.** The Windows build is a single 3 MB `.exe` that only uses
   DLLs every Windows has (WinHTTP for downloads, SDL2 linked in). The Linux
-  build needs SDL2 and libcurl, which desktop distros already have.
+  build links SDL2 in too and only needs glibc 2.35+ and the system libcurl,
+  which every desktop distro has.
 - **Controller friendly.** D-pad or stick to move, A to choose, Start to play,
   B to quit. Xbox, PlayStation, Switch and generic pads work (SDL's controller
   database). Keyboard and mouse work too.

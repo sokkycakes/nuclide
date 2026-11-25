@@ -557,6 +557,7 @@ static int script_load(const char *path)
 
 static void attach_virtual_pad(void)
 {
+#if SDL_VERSION_ATLEAST(2, 24, 0)
 	SDL_VirtualJoystickDesc d;
 	int idx;
 	memset(&d, 0, sizeof(d));
@@ -568,6 +569,9 @@ static void attach_virtual_pad(void)
 	idx = SDL_JoystickAttachVirtualEx(&d);
 	if (idx < 0) { printf("virtual pad failed: %s\n", SDL_GetError()); return; }
 	T.vjoy = SDL_JoystickOpen(idx);
+#else
+	printf("virtual pad needs SDL 2.24 or newer\n");
+#endif
 }
 
 /* ---------- main ---------- */

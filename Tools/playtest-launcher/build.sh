@@ -15,11 +15,28 @@ CFLAGS="-O2 -std=gnu11 -Wall -Wno-unused-function -Wno-format-truncation -Isrc"
 VERSION=${LAUNCHER_VERSION:-dev}
 case "$TARGET" in
 linux)
+	# SDL2 is built from source and linked in statically, so the launcher only
+	# needs libc; SDL itself loads X11/Wayland/PulseAudio at run time.
+	# SDL2_SYSTEM=1 links the system's libSDL2 instead.
 	mkdir -p out/linux
-	cc $CFLAGS -DPL_VERSION="\"$VERSION\"" $(sdl2-config --cflags) $SRC src/net_curl.c \
+	if [ "${SDL2_SYSTEM:-0}" = 1 ]; then
+		SDL_CFLAGS=$(sdl2-config --cflags); SDL_LIBS=$(sdl2-config --libs)
+	else
+		PREFIX=$PWD/.deps/sdl-linux
+		if [ ! -f "$PREFIX/lib/libSDL2.a" ]; then
+			mkdir -p .deps
+			[ -d .deps/SDL-src ] || { curl -fsSL -o .deps/sdl-src.tgz "https://github.com/libsdl-org/SDL/releases/download/release-$SDL_VER/SDL2-$SDL_VER.tar.gz" && tar -C .deps -xzf .deps/sdl-src.tgz && mv .deps/SDL2-$SDL_VER .deps/SDL-src; }
+			cmake -S .deps/SDL-src -B .deps/sdl-build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$PREFIX" \
+				-DSDL_SHARED=OFF -DSDL_STATIC=ON -DSDL_STATIC_PIC=ON -DSDL_TEST=OFF -DSDL_RENDER_D3D=OFF >/dev/null
+			cmake --build .deps/sdl-build -j"$(nproc)" >/dev/null
+			cmake --install .deps/sdl-build >/dev/null
+		fi
+		SDL_CFLAGS="-I$PREFIX/include/SDL2 -D_REENTRANT"
+		SDL_LIBS="$PREFIX/lib/libSDL2.a $(PKG_CONFIG_PATH=$PREFIX/lib/pkgconfig pkg-config --static --libs-only-l sdl2 | sed 's/-lSDL2//')"
+	fi
+	cc $CFLAGS -DPL_VERSION="\"$VERSION\"" $SDL_CFLAGS $SRC src/net_curl.c \
 		-o out/linux/playtest-launcher \
-		-Wl,-rpath,'$ORIGIN/lib' -Wl,-rpath,'$ORIGIN/game/lib' \
-		$(sdl2-config --libs) -ldl -lm -lpthread
+		-Wl,-rpath,'$ORIGIN/lib' $SDL_LIBS -ldl -lm -lpthread
 	strip out/linux/playtest-launcher
 	echo "built out/linux/playtest-launcher"
 	;;
