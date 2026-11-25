@@ -1,0 +1,33 @@
+// Quake's power-ups, as the lqdm maps place them. Stiletto has no quad
+// damage or invisibility, so each spot gives the nearest thing it does
+// have instead of leaving a hole in the map:
+//   item_artifact_super_damage     -> mega health (100 bonus health)
+//   item_artifact_invulnerability  -> red armour
+//   item_artifact_invisibility     -> yellow armour
+//   item_artifact_envirosuit       -> green armour
+entityDef item_artifact_super_damage
+{
+	"inherit"			"item_health"
+	"editor_usage"		"Quake quad damage spot: a mega health in Stiletto."
+	"model"				"maps/b_bh100.bsp"
+	"inv_health"		"0"
+	"inv_bonushealth"	"skill:health_large"
+}
+
+entityDef item_artifact_invulnerability
+{
+	"inherit"			"item_armorInv"
+	"editor_usage"		"Quake pentagram spot: red armour in Stiletto."
+}
+
+entityDef item_artifact_invisibility
+{
+	"inherit"			"item_armor2"
+	"editor_usage"		"Quake ring of shadows spot: yellow armour in Stiletto."
+}
+
+entityDef item_artifact_envirosuit
+{
+	"inherit"			"item_armor1"
+	"editor_usage"		"Quake biosuit spot: green armour in Stiletto."
+}
