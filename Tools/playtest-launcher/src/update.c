@@ -19,7 +19,7 @@
 #define MAX_COMPRESSED_RAW (16u << 20)
 #define SPAN_MAX (24ull << 20)
 #define SPAN_GAP (256ull << 10)
-#define MAX_TRIES 4
+#define MAX_TRIES 8
 #define CHUNK (8ull << 20)     /* big raw files are fetched in parallel chunks of this size */
 
 typedef struct {
@@ -30,6 +30,7 @@ typedef struct {
 	uint64_t off, len;
 	int z, x, keep;
 	int need, done;
+	int dup_of;      /* >= 0: same content as that file, copied after it downloads */
 	/* chunked download of a big raw file */
 	int nchunks, chunks_left;
 	unsigned char *chunk_done;
@@ -43,6 +44,7 @@ typedef struct {
 	int *files;     /* indices into g.files, sorted by offset */
 	int nfiles;
 	int tries;
+	int status;     /* HTTP status of the last attempt, 0 = no response */
 	uint64_t received;
 	int chunk;      /* >= 0: this task is one chunk of files[0] */
 } span;
@@ -65,6 +67,7 @@ static struct {
 	int failed;
 	char fail_msg[256];
 	sentry *done_entries; int ndone, done_cap;
+	Uint32 backoff_until;
 } g;
 
 static void set_status(update_state s, const char *fmt, ...)
@@ -478,6 +481,7 @@ static int run_chunk(net_conn *conn, span *sp, char *err, size_t errlen)
 	c.bad = 0;
 	snprintf(url, sizeof(url), "%s%s", g.base_url, g.packs[sp->pack]);
 	r = net_get(conn, url, sp->start, sp->end - sp->start, chunk_sink, &c, &status, err, errlen);
+	sp->status = status;
 	fclose(c.out);
 	sp->received = (sp->end - sp->start) - c.left;
 	if (c.bad) { snprintf(err, errlen, "disk full? writing %s", f->path); return -1; }
@@ -525,6 +529,7 @@ static int run_span(net_conn *conn, span *sp, char *err, size_t errlen)
 	c.pos = g.files[sp->files[first]].off;
 	snprintf(url, sizeof(url), "%s%s", g.base_url, g.packs[sp->pack]);
 	r = net_get(conn, url, c.pos, sp->end - c.pos, span_sink, &c, &status, err, errlen);
+	sp->status = status;
 	if (r == 0 && c.fi < sp->nfiles && !c.bad) { r = -1; snprintf(err, errlen, "download ended early"); }
 	if (c.bad) { r = -1; snprintf(err, errlen, "%s", c.err); }
 	span_cleanup(&c);
@@ -547,6 +552,15 @@ static int worker_main(void *unused)
 		span *sp;
 		char err[256];
 		uint64_t before;
+		/* the server asked everyone to slow down */
+		for (;;) {
+			Uint32 now = SDL_GetTicks(), until;
+			SDL_LockMutex(g.lock);
+			until = g.backoff_until;
+			SDL_UnlockMutex(g.lock);
+			if (g.cancel || (Sint32)(until - now) <= 0) break;
+			sleep_ms((Sint32)(until - now) > 200 ? 200 : (int)(until - now));
+		}
 		SDL_LockMutex(g.lock);
 		if (!g.failed && !g.cancel && g.qhead < g.qtail) si = g.queue[g.qhead++];
 		SDL_UnlockMutex(g.lock);
@@ -582,8 +596,18 @@ static int worker_main(void *unused)
 		}
 		if (g.qtail == g.qcap) { g.qcap *= 2; g.queue = (int *)realloc(g.queue, sizeof(int) * (size_t)g.qcap); }
 		g.queue[g.qtail++] = si;
-		SDL_UnlockMutex(g.lock);
-		sleep_ms(500 * sp->tries);
+		{
+			/* 1, 2, 4, 8, 16, 30 s; rate limits and server errors pause every worker */
+			int ms = 1000 << (sp->tries - 1 > 5 ? 5 : sp->tries - 1);
+			if (ms > 30000) ms = 30000;
+			if (sp->status == 429 || sp->status >= 500) {
+				Uint32 until = SDL_GetTicks() + (Uint32)ms;
+				if ((Sint32)(until - g.backoff_until) > 0) g.backoff_until = until;
+				ms = 0;
+			}
+			SDL_UnlockMutex(g.lock);
+			if (ms) sleep_ms(ms);
+		}
 	}
 	net_close(conn);
 	SDL_LockMutex(g.lock);
@@ -606,9 +630,25 @@ static void build_spans(void)
 	int *need = (int *)malloc(sizeof(int) * (size_t)(g.nfiles + 1));
 	int n = 0;
 	int nchunktasks = 0;
+	/* files with the same content share one blob in the pack: download it once */
+	for (int i = 0; i < g.nfiles; i++) g.files[i].dup_of = -1;
+	for (int i = 0; i < g.nfiles; i++) need[n++] = i;
+	qsort(need, (size_t)n, sizeof(int), need_cmp);
+	{
+		int prim = -1;
+		for (int k = 0; k < n; k++) {
+			mfile *f = &g.files[need[k]];
+			if (!f->need) continue;
+			if (prim >= 0 && g.files[prim].pack == f->pack && g.files[prim].off == f->off && !strcmp(g.files[prim].sha, f->sha))
+				f->dup_of = prim;
+			else
+				prim = need[k];
+		}
+	}
+	n = 0;
 	for (int i = 0; i < g.nfiles; i++) {
 		mfile *f = &g.files[i];
-		if (!f->need) continue;
+		if (!f->need || f->dup_of >= 0) continue;
 		if (!f->z && f->size > CHUNK) {
 			if (chunks_prepare(f) == 0) { nchunktasks += f->chunks_left; continue; }
 		}
@@ -665,6 +705,23 @@ static void build_spans(void)
 		while (k >= 0 && g.spans[g.queue[k]].end - g.spans[g.queue[k]].start < len) { g.queue[k + 1] = g.queue[k]; k--; }
 		g.queue[k + 1] = v;
 	}
+}
+
+static int copy_file(const char *src, const char *dst)
+{
+	FILE *i, *o;
+	char buf[65536];
+	size_t n;
+	int bad = 0;
+	if (pl_mkparents(dst) != 0) return -1;
+	if (!(i = pl_fopen(src, "rb"))) return -1;
+	if (!(o = pl_fopen(dst, "wb"))) { fclose(i); return -1; }
+	while ((n = fread(buf, 1, sizeof(buf), i)) > 0)
+		if (fwrite(buf, 1, n, o) != n) { bad = 1; break; }
+	if (ferror(i)) bad = 1;
+	fclose(i);
+	if (fclose(o) != 0) bad = 1;
+	return bad ? -1 : 0;
 }
 
 static void free_plan(void)
@@ -742,6 +799,13 @@ static int parse_manifest(const jval *man, char *err, size_t errlen)
 	for (const jval *f = files->child; f; f = f->next) {
 		mfile *m = &g.files[i];
 		const char *path = json_str(f, "path", NULL), *sha = json_str(f, "sha256", NULL);
+		const jval *os = json_get(f, "os");
+		if (os && os->type == J_ARR) {
+			/* a file only some systems need (an engine build, its DLLs) */
+			int mine = 0;
+			for (const jval *o = os->child; o; o = o->next) mine |= o->type == J_STR && !strcmp(o->str, PL_OS);
+			if (!mine) continue;
+		}
 		if (!path || !safe_rel_path(path) || !strncmp(path, ".launcher", 9)) { snprintf(err, errlen, "unsafe path in manifest: %s", path ? path : "(none)"); return -1; }
 		if (!is_hex64(sha)) { snprintf(err, errlen, "bad checksum in manifest for %s", path); return -1; }
 		m->path = strdup(path);
@@ -758,7 +822,7 @@ static int parse_manifest(const jval *man, char *err, size_t errlen)
 		if (!m->z && m->len != m->size) { snprintf(err, errlen, "bad sizes for %s", path); return -1; }
 		i++;
 	}
-	g.nfiles = nf;
+	g.nfiles = i;
 	return 0;
 }
 
@@ -891,9 +955,26 @@ static int update_thread(void *unused)
 		if (nw > g.nspans) nw = g.nspans;
 		set_status(US_DOWNLOADING, "Downloading update...");
 		g.failed = 0;
+		g.backoff_until = SDL_GetTicks();
 		g.active_workers = nw;
 		for (int i = 0; i < nw; i++) th[i] = SDL_CreateThread(worker_main, "dl", NULL);
 		for (int i = 0; i < nw; i++) SDL_WaitThread(th[i], NULL);
+		/* fill in the files that share content with one just downloaded */
+		for (int i = 0; i < g.nfiles && !g.cancel; i++) {
+			mfile *f = &g.files[i];
+			char src[1200], dst[1200], tmp[1300];
+			if (f->dup_of < 0 || f->done || !g.files[f->dup_of].done) continue;
+			pl_join(src, sizeof(src), g.cfg.install_dir, g.files[f->dup_of].path);
+			pl_join(dst, sizeof(dst), g.cfg.install_dir, f->path);
+			snprintf(tmp, sizeof(tmp), "%s.part", dst);
+			if (copy_file(src, tmp) != 0 || pl_rename(tmp, dst) != 0) {
+				pl_remove(tmp);
+				if (!g.failed) { g.failed = 1; snprintf(g.fail_msg, sizeof(g.fail_msg), "cannot write %s", f->path); }
+				continue;
+			}
+			if (f->x) pl_make_executable(dst);
+			record_done(f, dst);
+		}
 	}
 
 	/* build the new state: unchanged entries + freshly written ones */

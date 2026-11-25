@@ -13,12 +13,13 @@ keeps it up to date, and starts it.
   database). Keyboard and mouse work too.
 - **Fast.** Only changed files are downloaded. Files are fetched over 8
   parallel connections, big files in 8 MB chunks, small files batched into
-  ranged requests. Compressible files travel zlib-compressed. An interrupted
+  ranged requests; identical files download once. Compressible files travel zlib-compressed. An interrupted
   download picks up where it stopped. A first install of Stiletto (208 MB
   packed, 380 MB on disk) took 8 seconds from GitHub in testing.
 - **Live updates from git.** A push to the `playtest` branch runs
   `.github/workflows/playtest.yml`, which publishes to the `playtest` GitHub
   release. Every launcher sees it the next time it starts.
+- **Per system.** Each OS downloads only the files it needs (see Bulwark below).
 - **Safe.** Every file is checked against its SHA-256 before it replaces the
   old one. Files the game writes itself (configs, saves) are never touched.
   The launcher updates itself the same way.
@@ -81,6 +82,26 @@ free controller prompts (CC0, `src/glyphs/`).
 | `"steam_input": false` | SDL only |
 | `"steam_input_appid": 480` | app id for non-Steam-game launches (0: only a real Steam launch or `steam_appid.txt`) |
 
+## Bulwark Engine
+
+Stiletto's Linux build runs on [Bulwark](https://github.com/sokkycakes/bulwark-engine)
+instead of FTE. CI checks out the branch in `BULWARK_REF`
+(`.github/workflows/playtest.yml`), builds it with `tools/build_bulwark.sh`
+(SDL2 and libstdc++ linked in, so it only needs glibc), and ships it as
+`bulwark/` next to the game. Windows testers keep FTE.
+
+`publish.json`'s `only` decides which files each system downloads, so a
+Windows tester never fetches the Linux engine and the reverse:
+
+```json
+"only": {"windows": ["fteqw64.exe", "*.dll"], "linux": ["bulwark/**"]},
+"run":  {"windows": {"exe": "fteqw64.exe", "args": [...]},
+         "linux":   {"exe": "bulwark/bulwark", "args": ["-basedir", ".", "-game", "base"]}}
+```
+
+To ship a Bulwark change, push it to that Bulwark branch and re-run the
+Playtest build workflow (or push to `playtest`).
+
 ## How a build reaches testers
 
 ```
@@ -141,7 +162,8 @@ The end-to-end test publishes a fake game, then checks: first install with
 the controller, launch with the manifest's arguments, a delta update (60 MB
 game, 64 KB download), removed files, kept configs, repair of a corrupted
 file, launcher self-update, offline play, resume after an interrupted
-download, and Steam mode (fullscreen, game started attached).
+download, Steam mode (fullscreen, game started attached), and an install
+while the server rate-limits with HTTP 429.
 
 Steam can't sign in on a build machine, so `tests/steam_input.sh` runs the
 launcher against a stand-in `libsteam_api`. The stand-in loads the manifest

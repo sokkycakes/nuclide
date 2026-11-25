@@ -56,10 +56,20 @@ open('src/base/cfg/default.cfg', 'w').write('bind w +forward\n')
 open('src/base/empty.txt', 'w').write('')
 for i in range(300):
     open(f'src/base/maps/m{i}.txt', 'w').write(('map %d ' % i) * random.randint(10, 3000))
+# identical files (locale copies, placeholder textures) share one blob in the pack
+import os
+os.makedirs('src/base/dup', exist_ok=True)
+for i in range(40):
+    open(f'src/base/dup/same{i}.txt', 'w').write('same content\n' * 2000)
+# an engine build per system: each client downloads only its own
+for o in ('linux', 'windows'):
+    os.makedirs(f'src/engine-{o}', exist_ok=True)
+    open(f'src/engine-{o}/engine.txt', 'w').write(o * 100000)
 EOF
 cat > rules.json <<'EOF'
 {"game": "test", "title": "Test Game", "include": ["**"], "exclude": ["launched.txt", "*.c"],
  "exec": ["fakegame"], "keep": ["base/cfg/*.cfg"],
+ "only": {"linux": ["engine-linux/**"], "windows": ["engine-windows/**"]},
  "run": {"linux": {"exe": "fakegame", "args": ["-game", "base", "+map", "start"]},
          "windows": {"exe": "fakegame.exe", "args": ["-game", "base", "+map", "start"]}}}
 EOF
@@ -100,7 +110,9 @@ EOF
 run_launcher --test-script s1.txt > s1.log
 check "first install via controller" "grep -q 'TEST RESULT: PASS' s1.log"
 check "game launched with manifest args" "grep -q 'launched: -game base +map start' client/game/launched.txt"
-check "installed files match" "cmp -s src/base/maps/big.bsp client/game/base/maps/big.bsp && cmp -s src/base/maps/m7.txt client/game/base/maps/m7.txt && [ -f client/game/base/empty.txt ]"
+check "installed files match" "cmp -s src/base/maps/big.bsp client/game/base/maps/big.bsp && cmp -s src/base/maps/m7.txt client/game/base/maps/m7.txt && [ -f client/game/base/empty.txt ] && cmp -s src/base/dup/same0.txt client/game/base/dup/same39.txt"
+OTHER=$([ "$TARGET" = linux ] && echo windows || echo linux)
+check "only this system's engine files installed" "cmp -s src/engine-$TARGET/engine.txt client/game/engine-$TARGET/engine.txt && [ ! -e client/game/engine-$OTHER ]"
 
 # ---- 2. new build: one changed file, one new, one removed; user edited a kept config
 reset_stats
@@ -206,6 +218,20 @@ else
 	SteamGameId=12345678 run_in client2 --test-script s7.txt > s7.log
 	check "steam mode detected from SteamGameId, launcher replaced by the game" "grep -q 'steam mode' s7.log && grep -q '^exec ' s7.log && grep -q 'launched: -game base +map start' client2/game/launched.txt"
 fi
+
+# ---- 8. server answers some requests with 429 (GitHub rate limit): install still finishes
+kill $SERVER 2>/dev/null; wait $SERVER 2>/dev/null
+python3 "$HERE/tools/test_server.py" rel --port "$PORT" --fail-every 4 > server.log 2>&1 &
+SERVER=$!
+sleep 1
+mkdir -p client3
+cp client/$EXE client3/$EXE
+cp client/launcher.json client3/launcher.json
+reset_stats
+printf 'wait ready 200\nexpect_local_version v3\n' > s8.txt
+run_in client3 --test-script s8.txt > s8.log
+R=$(curl -s "http://127.0.0.1:$PORT/stats" | python3 -c "import json,sys;print(json.load(sys.stdin)['refused'])")
+check "install survives HTTP 429 ($R requests refused)" "[ $R -gt 0 ] && grep -q 'TEST RESULT: PASS' s8.log && cmp -s src/base/maps/big.bsp client3/game/base/maps/big.bsp && cmp -s src/base/dup/same0.txt client3/game/base/dup/same7.txt"
 
 echo
 if [ $FAILS -eq 0 ]; then echo "ALL PASSED ($TARGET)"; else echo "$FAILS FAILED ($TARGET); logs in $WORK"; fi
