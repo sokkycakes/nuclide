@@ -10,3 +10,5 @@ all:
 	$(QCC) $(CFLAGS) teamdm.src
 	$(QCC) $(CFLAGS) duel.src
 	$(QCC) $(CFLAGS) dm_lobby.src
+	$(QCC) $(CFLAGS) freezetag.src
+	$(QCC) $(CFLAGS) archstiletto.src
