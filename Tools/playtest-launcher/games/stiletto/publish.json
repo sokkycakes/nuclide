@@ -17,7 +17,7 @@
     "bulwark/**"
   ],
   "exclude": [
-    "**/*.qc", "**/*.qh", "**/*.h", "**/*.src", "**/*.log", "**/*.bak", "**/*.new", "**/*.lnk",
+    "**/*.qc", "**/*.qh", "**/*.lno", "**/*.h", "**/*.src", "**/*.log", "**/*.bak", "**/*.new", "**/*.lnk",
     "**/Thumbs.db", "**/.DS_Store",
     "base/mapsrc/**", "base/modelsrc/**", "base/src/**", "base/saves/**", "base/tools/**",
     "base/PLUGINS", "base/PROJECT", "base/README.md", "base/FuncGodot.fgd",

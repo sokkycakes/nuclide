@@ -66,6 +66,23 @@ jobs:
           CXX: g++-13
         run: Tools/playtest-launcher/tools/build_bulwark.sh .bulwark-src bulwark
 
+      - name: Build any rules progs the branch does not carry
+        # g_gametype <mode> loads base/progs/<mode>.dat. A mode whose .dat
+        # was never committed (duel.dat was missing for months) silently
+        # fell back to no rules, and nobody could spawn. Compile each rules
+        # .src whose output is missing; committed .dat files are left as is.
+        run: |
+          chmod +x Tools/fteqw-linux-extract/fteqcc64
+          cd base/src/rules
+          for src in *.src; do
+            dat=$(sed -n 's/^#pragma[[:space:]]\+PROGS_DAT[[:space:]]\+"\(.*\)"/\1/p' "$src" | head -1)
+            [ -n "$dat" ] || continue
+            [ -f "$dat" ] && continue
+            echo "building $src -> $dat"
+            ../../../Tools/fteqw-linux-extract/fteqcc64 -I../../../src/common/ "$src"
+            [ -f "$dat" ] || { echo "::error::$src did not produce $dat"; exit 1; }
+          done
+
       - name: Work out the channel and release notes
         id: ch
         run: |
