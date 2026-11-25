@@ -788,6 +788,17 @@ Cmd_Parse(string sCMD)
 		}
 		VGUI_ShowTeamSelectionMenu();
 		break;
+	/* the pause page's Change Team (data/web/pause-menu) runs this; nothing
+	 * defined it, so the button did nothing on either engine. Team and
+	 * arena modes get their join/team page, the rest the hero pick. */
+	case "menu_changeteam":
+		localcmd("webcore_closemenu\n");
+		if (STRING_SET(serverkey("arena_state")) || teams.TeamCount() > 0i) {
+			localcmd("showTeamSelectionMenu\n");
+		} else {
+			localcmd("showClassSelectionMenu\n");
+		}
+		break;
 	case "showMOTD":
 		VGUI_ShowMOTD();
 		break;
@@ -841,6 +852,7 @@ Cmd_Init(void)
 	registercommand("showHeroSelectionMenu");
 	registercommand("showTeamSelectionMenu");
 	registercommand("showMOTD");
+	registercommand("menu_changeteam");
 	registercommand("showModelSpawner");
 	registercommand("showPlayerList");
 	registercommand("showObservers");
