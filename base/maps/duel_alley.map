@@ -5,6 +5,7 @@
 "classname" "worldspawn"
 "sky" "dune"
 "_sun" "1"
+"_ambient" "48"
 // brush 0
 {
 ( -608 -608 64 ) ( -560 -1216 64 ) ( -608 -1216 64 ) kenney_prototype_textures/dark/texture_09 [ 0 2.6329114437 0 -63.3797607422 ] [ 2.6329107285 0 0 -21.0631103516 ] 0 1 1 0 0 0
