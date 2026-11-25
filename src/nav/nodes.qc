@@ -187,3 +187,177 @@ Nodes_Flush(void)
 {
 	ncNodeEditor::Flush();
 }
+
+/* =========================================================================
+ * Automatic node graph ("sv way autogen [spacing]")
+ *
+ * Walks the floor out from every spawn point on a grid of `spacing` units
+ * (default 64) with the player's hull: a step is kept when the hull fits
+ * across at step height, there is floor within a fall the player survives,
+ * the floor is not too steep and is not lava, slime or sky. Flat steps and
+ * steps up to stair height link both ways, drops only down. The graph then
+ * replaces the loaded one and is saved as <map>.way (the engine writes it
+ * to data/, where Nodes_Init reads it on the next load).
+ * ========================================================================= */
+#define AUTOGEN_MAXNODES 2048
+#define AUTOGEN_STEP 18
+#define AUTOGEN_MAXDROP 192
+
+static int
+Nodes_AutoGen_Find(vector pos, float snap)
+{
+	for (int i = 0i; i < g_nodeCount; i++) {
+		vector d = g_nodeGraph[i].m_origin - pos;
+
+		if (fabs(d[2]) > 24) {
+			continue;
+		}
+		d[2] = 0;
+		if (vlen(d) < snap) {
+			return (i);
+		}
+	}
+	return (-1i);
+}
+
+static int
+Nodes_AutoGen_Add(vector pos)
+{
+	int iID = g_nodeCount++;
+	g_nodeGraph = (graphNode_t *)memreallocOld(g_nodeGraph, sizeof(graphNode_t), iID, g_nodeCount);
+	graphNode_t *n = g_nodeGraph + iID;
+	n->m_origin = pos;
+	n->m_neighborList = __NULL__;
+	n->m_neighborCount = 0;
+	n->m_nodeRadius = 32;
+	return (iID);
+}
+
+/* the floor under `pos` for a standing player, or [0,0,0] with false */
+static bool
+Nodes_AutoGen_Floor(vector pos, float maxDrop)
+{
+	tracebox(pos, VEC_HULL_MIN, VEC_HULL_MAX, pos - [0, 0, maxDrop], MOVE_NOMONSTERS, world);
+
+	if (trace_startsolid || trace_allsolid || trace_fraction >= 1.0f) {
+		return (false);
+	}
+	if (trace_plane_normal[2] < 0.7f) {
+		return (false);
+	}
+
+	float c = pointcontents(trace_endpos + [0, 0, VEC_HULL_MIN[2] + 2]);
+	if (c == CONTENT_LAVA || c == CONTENT_SLIME || c == CONTENT_SKY) {
+		return (false);
+	}
+	return (true);
+}
+
+static void
+Nodes_AutoGen_Seed(string classn, float snap)
+{
+	for (entity a = world; (a = find(a, ::classname, classn));) {
+		if (g_nodeCount >= AUTOGEN_MAXNODES) {
+			return;
+		}
+		/* spawn points sit at, or a little into, the floor */
+		if (Nodes_AutoGen_Floor(a.origin + [0, 0, 36], 256)
+			&& Nodes_AutoGen_Find(trace_endpos, snap) < 0i) {
+			Nodes_AutoGen_Add(trace_endpos);
+		}
+	}
+}
+
+void
+Nodes_AutoGenerate(float spacing)
+{
+	float snap;
+	int head = 0i;
+
+	if (spacing < 32) {
+		spacing = 64;
+	}
+	snap = spacing * 0.6f;
+
+	Nodes_Flush();
+	g_nodeGraph = __NULL__;
+	g_nodeCount = 0i;
+
+	Nodes_AutoGen_Seed("info_player_deathmatch", snap);
+	Nodes_AutoGen_Seed("info_player_start", snap);
+	Nodes_AutoGen_Seed("info_player_team1", snap);
+	Nodes_AutoGen_Seed("info_player_team2", snap);
+	Nodes_AutoGen_Seed("info_player_teamspawn", snap);
+	Nodes_AutoGen_Seed("info_node", snap);
+
+	if (g_nodeCount == 0i) {
+		print("way autogen: no spawn points to start from\n");
+		return;
+	}
+
+	while (head < g_nodeCount) {
+		vector from = g_nodeGraph[head].m_origin;
+
+		for (float k = 0; k < 8; k++) {
+			vector dir;
+			vector to;
+			vector ground;
+			int other;
+
+			dir[0] = cos(k * 45 * (M_PI / 180));
+			dir[1] = sin(k * 45 * (M_PI / 180));
+			dir[2] = 0;
+			/* diagonals reach the same grid as the straight steps */
+			to = from + dir * ((k % 2) ? spacing * 1.41421356f : spacing);
+
+			/* the hull must fit across at step height */
+			tracebox(from + [0, 0, AUTOGEN_STEP], VEC_HULL_MIN, VEC_HULL_MAX,
+				to + [0, 0, AUTOGEN_STEP], MOVE_NOMONSTERS, world);
+			if (trace_startsolid || trace_fraction < 1.0f) {
+				continue;
+			}
+
+			if (Nodes_AutoGen_Floor(to + [0, 0, AUTOGEN_STEP], AUTOGEN_STEP + AUTOGEN_MAXDROP) == false) {
+				continue;
+			}
+			ground = trace_endpos;
+
+			/* more than a stair up is a jump: leave it out */
+			if (ground[2] - from[2] > AUTOGEN_STEP + 1) {
+				continue;
+			}
+
+			other = Nodes_AutoGen_Find(ground, snap);
+			if (other == head) {
+				continue;
+			}
+			if (other < 0i) {
+				if (g_nodeCount >= AUTOGEN_MAXNODES) {
+					continue;
+				}
+				other = Nodes_AutoGen_Add(ground);
+			}
+
+			Node_Link(&g_nodeGraph[head], &g_nodeGraph[other]);
+
+			/* walk back up only what is a stair at most */
+			if (fabs(g_nodeGraph[other].m_origin[2] - from[2]) <= AUTOGEN_STEP + 1) {
+				Node_Link(&g_nodeGraph[other], &g_nodeGraph[head]);
+			}
+		}
+		head++;
+	}
+
+	int links = 0i;
+	for (int i = 0i; i < g_nodeCount; i++) {
+		links += g_nodeGraph[i].m_neighborCount;
+	}
+
+	print(sprintf("way autogen: %i nodes, %i links on %s (spacing %d)\n", g_nodeCount, links, mapname, spacing));
+	if (g_nodeCount >= AUTOGEN_MAXNODES) {
+		print("way autogen: hit the node limit; try a wider spacing\n");
+	}
+
+	ncNodeEditor::SaveFile(sprintf("%s.way", mapname));
+	print(sprintf("way autogen: saved %s.way (data/%s.way in the writable game folder)\n", mapname, mapname));
+}

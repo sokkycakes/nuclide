@@ -44,5 +44,7 @@ int g_nodeCount;
 void Nodes_Flush(void);
 void Nodes_Init(void);
 bool Nodes_Available(void);
+/** Builds a node graph by walking the floor out from the spawn points and saves it as <map>.way (console: sv way autogen [spacing]). */
+void Nodes_AutoGenerate(float spacing);
 
 /** @} */ // end of nav

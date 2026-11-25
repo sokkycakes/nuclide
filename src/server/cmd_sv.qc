@@ -415,6 +415,11 @@ Cmd_ParseServerCommand(void)
 		break;
 #ifdef BOT_INCLUDED
 	case "way":
+		/* "way autogen [spacing]" runs from the server console too */
+		if (argv(1) == "autogen") {
+			Nodes_AutoGenerate(stof(argv(2)));
+			break;
+		}
 		ncNodeEditor::Cmd();
 		break;
 #endif
