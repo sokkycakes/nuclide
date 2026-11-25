@@ -1154,10 +1154,19 @@ Arena_Promote(void)
 		}
 		/* 2v2: the whole winning team stays, in seat order */
 		if (winner && g_arenaShape == ARENASHAPE_2V2) {
-			bool winFirstHalf = ((winnerSlot - 1i) < (g_arenaSlotCount / 2i));
+			/* split the seats that played, not g_arenaSlotCount: a mode may
+			   grow the roster in MATCH_END (a 1v1 fill-down becoming 2v2) */
+			int teamHalf = 0i;
+			for (i = 0i; i < ARENA_MAXSLOTS; i++) {
+				if (g_arenaCompetitor[i]) {
+					teamHalf = i + 1i;
+				}
+			}
+			teamHalf = (teamHalf + 1i) / 2i;
+			bool winFirstHalf = ((winnerSlot - 1i) < teamHalf);
 			for (i = g_arenaSlotCount - 1i; i >= 0i; i--) {
 				c = g_arenaCompetitor[i];
-				if (!c || (i < (g_arenaSlotCount / 2i)) != winFirstHalf) {
+				if (!c || (i < teamHalf) != winFirstHalf) {
 					continue;
 				}
 				g_arenaCompetitor[i] = __NULL__;

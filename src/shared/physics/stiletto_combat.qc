@@ -47,6 +47,12 @@
 bool
 Stiletto_Combat_IsArenaBoss(entity e)
 {
+	/* The key is a userinfo key, so it outlives a map or gametype change.
+	 * Only honour it while Archstiletto is the active rules. */
+	if (strtolower(serverinfo.GetString("mode")) != "archstiletto") {
+		return (false);
+	}
+
 	return (userinfo.GetFloat(e, "*stiletto_boss") > 0.0f);
 }
 

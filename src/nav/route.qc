@@ -169,7 +169,8 @@ Route_SelectNearestOpponent(ncBot target)
 	float bestRange = 0.0f;
 
 	for (entity p = world; (p = next.Player(p));) {
-		if (p == target || p.health <= 0 || p.takedamage != DAMAGE_YES) {
+		if (p == target || p.health <= 0 || p.takedamage != DAMAGE_YES || p.movetype == MOVETYPE_NONE) {
+			/* MOVETYPE_NONE: a Freeze Tag statue, which cannot be hurt */
 			continue;
 		}
 		if (teams.TeamCount() > 1 && p.team == target.team) {

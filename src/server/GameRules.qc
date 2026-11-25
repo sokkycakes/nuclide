@@ -423,7 +423,16 @@ ncRuleDelegate::LinkProgs(void)
 		RULEMAP(newRule, ConsoleCommand, "CodeCallback_ConsoleCommand")
 		RULEMAP(newRule, FrameStart, "CodeCallback_FrameStart")
 		RULEMAP(newRule, ImpulseCommand, "CodeCallback_ImpulseCommand")
-		RULEMAP(newRule, Precache, "CodeCallback_Precache")
+		/* the rules progs spell it CodeCallback_Precaches. Without this they
+		 * never ran, so hero models were never precached and FTE's server
+		 * crashed once a bot spawned as a hero. */
+		newRule.Precache = externvalue(g_ruleCProgs, "CodeCallback_Precache");
+		if (!newRule.Precache) {
+			newRule.Precache = externvalue(g_ruleCProgs, "CodeCallback_Precaches");
+		}
+		if (!newRule.Precache) {
+			newRule.Precache = ncRuleDelegate::Precache;
+		}
 		RULEMAP(newRule, InitPostEnts, "CodeCallback_StartGameType")
 		RULEMAP(newRule, Input, "CodeCallback_Input")
 		RULEMAP(newRule, NPCDeath, "CodeCallback_NPCKilled")

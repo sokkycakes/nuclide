@@ -355,6 +355,14 @@ ArenaModes_ClientCommand(entity pl, string command)
 
 	switch (argv(0)) {
 	case "changehero": {
+		/* A swap respawns the player at a spawn point with fresh weapons and
+		 * HP. Mid-round that would thaw a statue or turn the boss into a
+		 * normal hero, so seated competitors wait until the round is over. */
+		int dirState = Arena_GetState();
+		if (Arena_IsCompetitor(pl) && (dirState == ARENA_COUNTDOWN || dirState == ARENA_LIVE || dirState == ARENA_SUDDEN_DEATH || dirState == ARENA_ROUND_END)) {
+			sprint(pl, PRINT_HIGH, "You can change hero between rounds.\n");
+			return (true);
+		}
 		if (teams.Valid((int)pl.team) == false) {
 			ents.Input(pl, "SetTeam", "1", pl);
 		}

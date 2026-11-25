@@ -32,7 +32,7 @@
  * a waiting human (arena_bots); without bots the match starts as 1v1 once two
  * players have been ready for arena_fillWait seconds.
  *
- * Seats: slots [0, n/2) are team 1 (Blue), [n/2, n) team 2 (Red); a team's
+ * Seats: slots [0, n/2) are team 1 (Red, the HUD's left/red plate), [n/2, n) team 2 (Blue); a team's
  * round points are kept on its first slot. */
 
 var int autocvar_freezetag_teamSize = 2;
@@ -86,7 +86,7 @@ FT_LeadSlot(int teamNum)
 string
 FT_TeamName(int teamNum)
 {
-	return (teamNum == 1i) ? "^4BLUE^7" : "^1RED^7";
+	return (teamNum == 1i) ? "^1RED^7" : "^4BLUE^7";
 }
 
 string
@@ -281,10 +281,10 @@ FT_PublishInfo(void)
 	if (Arena_CompetitorCount() > 0i) {
 		string names1 = FT_TeamMembers(1i);
 		string names2 = FT_TeamMembers(2i);
-		FT_SetInfo("arena_name1", sprintf("Blue: %s", names1));
-		FT_SetInfo("arena_name2", sprintf("Red: %s", names2));
-		FT_SetInfo("arena_p1", sprintf("Blue: %s (%i)", names1, g_ftScore[1]));
-		FT_SetInfo("arena_p2", sprintf("Red: %s (%i)", names2, g_ftScore[2]));
+		FT_SetInfo("arena_name1", sprintf("Red: %s", names1));
+		FT_SetInfo("arena_name2", sprintf("Blue: %s", names2));
+		FT_SetInfo("arena_p1", sprintf("Red: %s (%i)", names1, g_ftScore[1]));
+		FT_SetInfo("arena_p2", sprintf("Blue: %s (%i)", names2, g_ftScore[2]));
 		FT_SetInfo("arena_score1", itos(g_ftScore[1]));
 		FT_SetInfo("arena_score2", itos(g_ftScore[2]));
 		for (int i = 0i; i < ARENA_MAXSLOTS; i++) {
@@ -458,8 +458,8 @@ CodeCallback_StartGameType(void)
 	game.SetSpawnPoint("info_intermission");
 
 	/* teams are closed in the picker: seats are assigned by the director */
-	teams.SetUp(1, "Blue", [155, 205, 255], false);
-	teams.SetUp(2, "Red", [255, 64, 64], false);
+	teams.SetUp(1, "Red", [255, 64, 64], false);
+	teams.SetUp(2, "Blue", [155, 205, 255], false);
 	teams.SetSpawnPoint(1, "info_player_deathmatch");
 	teams.SetSpawnPoint(2, "info_player_deathmatch");
 
@@ -608,7 +608,7 @@ CodeCallback_ConsoleCommand(entity playerEntity, string command)
 						c.netname, FT_TeamOfSlot(i), g_ftFrozen[i], g_ftThaw[i]));
 				}
 			}
-			print(sprintf("  score blue %i red %i\n", g_ftScore[1], g_ftScore[2]));
+			print(sprintf("  score red %i blue %i\n", g_ftScore[1], g_ftScore[2]));
 		}
 		return (true);
 	}

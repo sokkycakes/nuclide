@@ -467,6 +467,7 @@ WebCoreHud_Draw(void)
 	int i;
 	int frags;
 	string pname;
+	string arenaMode;
 
 	if (autocvar_webcore_hud <= 0) {
 		WebCoreHud_Shutdown();
@@ -500,7 +501,10 @@ WebCoreHud_Draw(void)
 	score2 = 0;
 	name1 = "";
 	name2 = "";
-	if (STRING_SET(serverinfo.GetString("arena_state"))) {
+	/* Keyed on the mode: arena_* serverinfo keys outlive a map change, so
+	 * after an arena match a later deathmatch map still carries them. */
+	arenaMode = strtolower(serverinfo.GetString("mode"));
+	if (arenaMode == "duel" || arenaMode == "freezetag" || arenaMode == "archstiletto") {
 		/* Arena_BroadcastState publishes these from g_arenaPoints. Reading them
 		 * directly avoids fragile name matching and delayed player-key frags. */
 		score1 = serverinfo.GetInteger("arena_score1");
