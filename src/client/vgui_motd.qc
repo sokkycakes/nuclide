@@ -32,7 +32,11 @@ VGUI_ShowMOTD(void)
 			teamSelect = true;
 		}
 
-		if ((teams.TeamCount() > 0i) && (teamSelect == true)) {
+		/* arena modes (duel): a joiner waits on a team with no way in
+		 * until they pick JOIN MATCH, which the team selection opens */
+		bool arenaMode = STRING_SET(serverkey("arena_state"));
+
+		if (arenaMode || ((teams.TeamCount() > 0i) && (teamSelect == true))) {
 			printf("Opening Team Selection\n");
 			localcmd("showTeamSelectionMenu\n");
 		}
