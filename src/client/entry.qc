@@ -243,6 +243,8 @@ and seperate 2D plane operations from 3D ones. This is where the HUD, Chat etc.
 will be drawn. They don't necessarily have to be 2D but this is just a clear
 distinction from 3D world elements and overlays.
 */
+void Client_UpdateCursorMode(bool always);
+
 void
 CSQC_Update2D(float w, float h, bool focus)
 {
@@ -253,6 +255,8 @@ CSQC_Update2D(float w, float h, bool focus)
 	if (serverkeyfloat("background") == 1) {
 		return;
 	}
+
+	Client_UpdateCursorMode(false);
 
 	/* Lobby overlay: if active, draw the pre-game lobby UI on top and
 	   suppress the normal HUD. Chat and prints still show through. */
@@ -567,6 +571,24 @@ CSQC_UpdateView(float w, float h, float focus)
 When this returns FALSE, the engine is free to interpret the input event as it
 wishes. If it returns TRUE the engine is not set on ignoring it.
 */
+/** Show the mouse cursor while a VGUI window or the lobby overlay is up.
+`always` sets it every time (input events); otherwise only when that
+changes, so an overlay that appears without any input still gets its
+cursor. */
+void
+Client_UpdateCursorMode(bool always)
+{
+	static float lastWant = -1;
+	float want = (g_vguiWidgetCount || LobbyOverlay_WantsCursor()) ? 1 : 0;
+
+	if (always == false && want == lastWant) {
+		return;
+	}
+
+	lastWant = want;
+	setcursormode(want ? TRUE : FALSE, "gfx/cursor", [0,0,0], 1.0f);
+}
+
 float
 CSQC_InputEvent(float fEventType, float fKey, float fCharacter, float fDeviceID)
 {
@@ -620,11 +642,14 @@ CSQC_InputEvent(float fEventType, float fKey, float fCharacter, float fDeviceID)
 		vgui_pressed = VGUI_Input(fEventType, fKey, fCharacter, fDeviceID);
 	}
 
-	if (g_vguiWidgetCount) {
-		setcursormode(TRUE, "gfx/cursor", [0,0,0], 1.0f);
-	} else {
-		setcursormode(FALSE, "gfx/cursor", [0,0,0], 1.0f);
+	/* the pre-game lobby overlay takes clicks and its confirm keys */
+	if (!vgui_pressed) {
+		vgui_pressed = LobbyOverlay_InputEvent(fEventType, fKey);
 	}
+
+	/* VGUI windows and the lobby overlay need a cursor; with it the
+	   engine also reports absolute mouse positions (IE_MOUSEABS) */
+	Client_UpdateCursorMode(true);
 
 	/* spectator scroll wheel cycles players (not view modes) */
 	if (!vgui_pressed && fEventType == IE_KEYDOWN
