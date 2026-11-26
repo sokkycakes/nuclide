@@ -44,6 +44,8 @@ void
 ArenaModes_Init(string modeName)
 {
 	g_amModeName = modeName;
+	/* the display name, for the arena panel's title (webcore_arena.qc) */
+	serverinfo.SetString("arena_mode", modeName);
 	/* botlib lives in the server progs; reach it by name (absent = no bots) */
 	g_amNodesAvailable = externvalue(0, "Nodes_Available");
 	g_amAddRandomBot = externvalue(0, "BotProfile_AddRandom");
