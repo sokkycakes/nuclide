@@ -66,6 +66,44 @@ Hero_DisplayName(string heroID)
 	return (Titles_GetTextBody(heroID));
 }
 
+/* the hero's portrait, or "" when the game ships none: a portrait at
+ * gfx/ui/<hero id>/portrait wins, then the classic per-model picture
+ * models/player/<hero id>/<hero id> */
+static string
+Hero_PreviewImage(string heroID)
+{
+	string candidates[2];
+
+	candidates[0] = strcat("gfx/ui/", heroID, "/portrait");
+	candidates[1] = strcat("models/player/", heroID, "/", heroID);
+
+	for (int i = 0; i < 2; i++) {
+		vector imgSize = drawgetimagesize(candidates[i]);
+
+		if (imgSize[0] > 0 && imgSize[1] > 0) {
+			return (candidates[i]);
+		}
+	}
+
+	return ("");
+}
+
+/* the hero's one-paragraph description from titles.txt
+ * (ClassDescription_<hero id>); nothing rather than the raw key when an
+ * entry is missing */
+static string
+Hero_Description(string heroID)
+{
+	string key = strtoupper(strcat("ClassDescription_", heroID));
+	string text = Titles_GetTextBody(key);
+
+	if (text == key) {
+		return ("");
+	}
+
+	return (text);
+}
+
 static int g_classMenuTeam;
 static vguiWindow winClassSelection;
 static vguiPic imgClassPreview;
@@ -115,10 +153,27 @@ VGUIChangeClassButton::OnMouseEntered(void)
 
 	string heroID = teams.ClassForIndex(teamID, classSelection);
 
+	string preview = Hero_PreviewImage(heroID);
+	float textX = 338;
+
+	/* no picture for this hero: hide the frame and let the text use
+	 * the space instead of leaving an empty box */
+	if (preview == "") {
+		imgClassPreview.Hide();
+		textX = 190;
+	} else {
+		imgClassPreview.SetImage(preview);
+		imgClassPreview.SetSize([140,182]);
+		imgClassPreview.Show();
+	}
+
+	lblClassTitle.SetPos([textX, 90]);
+	lblClassCounter.SetPos([textX, 90 + 32]);
+	lblClassDescription.SetPos([textX, 90 + 32 + 32]);
+	lblClassDescription.SetSize([588 - textX, 240]);
+
 	lblClassTitle.SetTitle(Hero_DisplayName(heroID));
-	imgClassPreview.SetImage(strcat("models/player/", heroID, "/", heroID));
-	imgClassPreview.SetSize([170,221]);
-	lblClassDescription.SetTitle(Titles_GetTextBody(strcat("ClassDescription_", heroID)));
+	lblClassDescription.SetTitle(Hero_Description(heroID));
 }
 
 void
@@ -174,7 +229,8 @@ VGUI_ShowClassSelectionMenu(int wishTeam)
 		g_uiDesktop.Add(winClassSelection);
 		winClassSelection.Add(lblSelectClass);
 		winClassSelection.Add(frmClassInfo);
-		//winClassSelection.Add(imgClassPreview);
+		winClassSelection.Add(imgClassPreview);
+		imgClassPreview.Hide();
 		winClassSelection.Add(lblClassTitle);
 		winClassSelection.Add(lblClassCounter);
 		winClassSelection.Add(lblClassDescription);
