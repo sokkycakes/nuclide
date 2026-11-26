@@ -442,6 +442,42 @@ vguiWindow::PadInput(float flEVType, float flKey)
 {
 	bool isPad = false;
 
+#ifdef CLIENT
+	/* in game the keyboard drives a window the same way a pad does: the
+	 * arrows step the focus, Enter presses, Escape backs out. Only a
+	 * visible window gets here, so with none open the arrows stay
+	 * movement keys; number keys are the buttons' own key equivalents
+	 * and were handled before this. (The menu progs keep Escape and the
+	 * arrows for their own pages.) */
+	switch (flKey) {
+	case K_UPARROW:
+	case K_KP_UPARROW:
+		flKey = K_GP_DPAD_UP;
+		break;
+	case K_DOWNARROW:
+	case K_KP_DOWNARROW:
+		flKey = K_GP_DPAD_DOWN;
+		break;
+	case K_LEFTARROW:
+	case K_KP_LEFTARROW:
+		flKey = K_GP_DPAD_LEFT;
+		break;
+	case K_RIGHTARROW:
+	case K_KP_RIGHTARROW:
+		flKey = K_GP_DPAD_RIGHT;
+		break;
+	case K_ENTER:
+	case K_KP_ENTER:
+		flKey = K_GP_A;
+		break;
+	case K_ESCAPE:
+		flKey = K_GP_B;
+		break;
+	default:
+		break;
+	}
+#endif
+
 	switch (flKey) {
 	case K_GP_A:
 	case K_GP_B:
