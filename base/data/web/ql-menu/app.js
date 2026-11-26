@@ -181,6 +181,8 @@
     const base = {
       active: true,
       phase: "WARMUP",
+      mode: "duel",
+      modeName: "DUEL",
       round: "Round 0 / 3",
       map: "duel_alley",
       readyCount: 0,
@@ -1524,12 +1526,17 @@
     const joinX = 445;
 
     scoreInset(68, 58, 504, 332);
-    text("DUEL ARENA", 84, 88, { scale: 0.35, fontSize: 24, color: "#fff", baseline: "q3" });
+    /* mode/modeName come from the snapshot (webcore_arena.qc); older
+       snapshots without them are Duel */
+    const modeId = String(a.mode || "duel").toLowerCase();
+    const modeName = String(a.modeName || (a.mode ? a.mode : "DUEL")).toUpperCase();
+    const isDuel = modeId === "duel";
+    text(`${modeName} ARENA`, 84, 88, { scale: 0.35, fontSize: 24, color: "#fff", baseline: "q3" });
     text(String(a.map || "unknown").toUpperCase(), 84, 108, { scale: 0.2, fontSize: 16, color: FOCUS, baseline: "q3" });
     text(phase, 550, 88, { scale: 0.26, fontSize: 24, align: "right", color: phase === "LIVE" ? "#7dff9a" : FOCUS, baseline: "q3" });
     text(String(a.round || "Warmup"), 550, 108, { scale: 0.18, fontSize: 16, align: "right", color: "#aaa", baseline: "q3" });
 
-    text("CURRENT DUEL", 92, 145, { scale: 0.18, fontSize: 16, color: "#aaa", baseline: "q3" });
+    text(isDuel ? "CURRENT DUEL" : "CURRENT MATCH", 92, 145, { scale: 0.18, fontSize: 16, color: "#aaa", baseline: "q3" });
     if (players.length) {
       players.forEach((name, i) => {
         text(name, 105, 170 + i * 24, { scale: 0.24, fontSize: 24, color: i ? "#ff8a78" : "#9ecfff", baseline: "q3" });

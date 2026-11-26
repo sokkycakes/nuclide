@@ -92,6 +92,8 @@ WebCoreArenaUI_Publish(void)
 	string localPhase;
 	string snapshot;
 	string heroIDs;
+	string modeID;
+	string modeName;
 	int localArenaState;
 	bool joining;
 	bool needsHero;
@@ -137,7 +139,21 @@ WebCoreArenaUI_Publish(void)
 	localPhase = serverinfo.GetString("arena_round");
 	heroIDs = serverinfo.GetString("arena_heroes");
 
+	/* which arena mode this is: the rules id (duel, freezetag,
+	 * archstiletto) and the name the server gives it (arena_mode, from
+	 * ArenaModes_Init), falling back to the id in capitals */
+	modeID = serverinfo.GetString("g_gametype");
+	if (STRING_SET(modeID) == false) {
+		modeID = serverinfo.GetString("mode");
+	}
+	modeName = serverinfo.GetString("arena_mode");
+	if (STRING_SET(modeName) == false) {
+		modeName = strtoupper(modeID);
+	}
+
 	snapshot = "{\"active\":true";
+	snapshot = strcat(snapshot, ",\"mode\":", WebCoreArena_JSONString(modeID));
+	snapshot = strcat(snapshot, ",\"modeName\":", WebCoreArena_JSONString(modeName));
 	snapshot = strcat(snapshot, ",\"phase\":", WebCoreArena_JSONString(arenaState));
 	snapshot = strcat(snapshot, ",\"round\":", WebCoreArena_JSONString(localPhase));
 	snapshot = strcat(snapshot, ",\"map\":", WebCoreArena_JSONString(serverinfo.GetString("mapname")));

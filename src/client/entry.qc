@@ -15,6 +15,7 @@
 */
 
 void EFX_UpdateListener(ncView);
+void Client_SendLocalKeys(bool forced);
 
 const string g_rtEnvSphereMaterial = "rtenvsphere";
 
@@ -111,11 +112,10 @@ CSQC_Init(float apilevel, string enginename, float engineversion)
 
 	HUD_Init();
 
-	/* the player's spray, from _cl_playerspray */
-	Spray_InitLocalKeys();
-
-	/* the player's model choice, from cg_heroModel (empty: each hero's own; not _cl_playermodel, which old configs still hold as alice2) */
-	localcmd(sprintf("setinfo model %S\n", cvar_string("cg_heroModel")));
+	/* the player's spray (_cl_playerspray) and model choice (cg_heroModel)
+	   as user info; CSQC_UpdateView re-sends them when the
+	   cvars change mid-session */
+	Client_SendLocalKeys(true);
 
 	/* because the engine will do really bad hacks to our models otherwise. e.g. R6284 */
 	cvar_set("r_fullbrightSkins", "0");
@@ -393,6 +393,35 @@ var vector autocvar_overview_origin = [0,0,4096];
 var vector autocvar_overview_offset = [0,0,0];
 var float autocvar_overview_zoom = 1.0f;
 
+static string g_clientSentHeroModel;
+static string g_clientSentSpray;
+
+/** Sends the local player's spray (_cl_playerspray) and model choice
+   (cg_heroModel; empty: each hero's own, not _cl_playermodel, which old
+   configs still hold as alice2) as user info. With forced false it only
+   sends what changed since the last send, so a value set from the
+   console takes effect at once instead of at the next map. */
+void
+Client_SendLocalKeys(bool forced)
+{
+	string heroModel = cvar_string("cg_heroModel");
+	string spray = cvar_string("_cl_playerspray");
+
+	if (forced || heroModel != g_clientSentHeroModel) {
+		if (g_clientSentHeroModel)
+			strunzone(g_clientSentHeroModel);
+		g_clientSentHeroModel = strzone(heroModel);
+		localcmd(sprintf("setinfo model %S\n", heroModel));
+	}
+
+	if (forced || spray != g_clientSentSpray) {
+		if (g_clientSentSpray)
+			strunzone(g_clientSentSpray);
+		g_clientSentSpray = strzone(spray);
+		Spray_InitLocalKeys();
+	}
+}
+
 /** Called every single frame by the engine's renderer to construct a frame.
 This is for all clients on display. So we handle splitscreen/multiple-views
 in here.
@@ -405,6 +434,9 @@ CSQC_UpdateView(float w, float h, float focus)
 	vector vecViewAngles = view_angles;
 
 	g_focus = (bool)focus;
+
+	/* cg_heroModel / _cl_playerspray changed from the console */
+	Client_SendLocalKeys(false);
 
 	if (w == 0 || h == 0) {
 		return;
@@ -558,6 +590,9 @@ CSQC_UpdateView(float w, float h, float focus)
 	pSeat = __NULL__;
 	pSeatLocal = __NULL__;
 
+	/* g_vguiWidgetCount is current now that the 2D pass has drawn */
+	Client_UpdateCursorMode(false);
+
 	g_modelSpinAngle = time * autocvar_cg_modelSpinSpeed;
 	g_modelSpinRoll = sin(time * autocvar_cg_modelSpinRollSpeed);
 	g_modelSpinPitch = sin(time * autocvar_cg_modelSpinPitchSpeed);
@@ -571,10 +606,11 @@ CSQC_UpdateView(float w, float h, float focus)
 When this returns FALSE, the engine is free to interpret the input event as it
 wishes. If it returns TRUE the engine is not set on ignoring it.
 */
-/** Show the mouse cursor while a VGUI window or the lobby overlay is up.
-`always` sets it every time (input events); otherwise only when that
-changes, so an overlay that appears without any input still gets its
-cursor. */
+/** Show the mouse cursor while a VGUI window or the lobby overlay is up,
+and hide it again once none are. Called every frame as well as on input: a
+window the server opens (the team or hero page) must have the cursor, and
+the mouse grab let go, before the first key reaches it. `always` sets it
+every time (input events); otherwise only when it changes. */
 void
 Client_UpdateCursorMode(bool always)
 {

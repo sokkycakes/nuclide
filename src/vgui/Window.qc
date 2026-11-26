@@ -100,6 +100,11 @@ public:
 
 private:
 	vguiWidget m_padFocus;
+	/* where the pointer was when the pad/keyboard last moved the focus */
+	vector m_padFocusPointer;
+	/* the keys whose press this window used and whose release it still
+	 * owes the engine nothing for (see vguiWindow_PadKeyBit) */
+	int m_padKeysHeld;
 	vector m_vecColor;
 	float m_flAlpha;
 	vector m_vecDragOffset;
@@ -135,6 +140,13 @@ vguiWindow::ShowContents(void)
 void
 vguiWindow::NowVisible(void)
 {
+	/* presses from an earlier showing were never this one's, and a
+	 * reopened window starts from its first button again */
+	m_padKeysHeld = 0i;
+	if (m_padFocus) {
+		m_padFocus.FlagRemove(BUTTON_HOVER);
+		m_padFocus = __NULL__;
+	}
 	Focus();
 }
 
@@ -371,9 +383,13 @@ bool vguiWindow::Input (float flEVType, float flKey, float flChar, float flDevID
 			ret = super::Input(flEVType, flKey, flChar, flDevID);
 		}
 
-		/* the pointer moving takes over from a controller's focus */
+		/* the pointer moving takes over from a controller's focus. Only
+		 * a real move: the engine also reports where the pointer is when
+		 * it lets go of the mouse grab, and that must not throw away the
+		 * focus the arrow keys just set. */
 		if (flEVType == IE_MOUSEABS || flEVType == IE_MOUSEDELTA) {
-			m_padFocus = __NULL__;
+			if (g_vecMousePos != m_padFocusPointer)
+				m_padFocus = __NULL__;
 		}
 
 		/* a controller has no pointer: it drives the buttons instead */
@@ -437,10 +453,74 @@ vguiWindow::PadStep(vguiWidget from, int dir)
 	return after ? after : first;
 }
 
+/* one bit for each key PadInput can use, by the key as the engine sent it
+ * (so the arrow and keypad arrow are told apart); 0 for any other key */
+int
+vguiWindow_PadKeyBit(float flKey)
+{
+	switch (flKey) {
+	case K_GP_A: return 1i;
+	case K_GP_B: return 2i;
+	case K_GP_DPAD_UP: return 4i;
+	case K_GP_DPAD_DOWN: return 8i;
+	case K_GP_DPAD_LEFT: return 16i;
+	case K_GP_DPAD_RIGHT: return 32i;
+	case K_UPARROW: return 64i;
+	case K_KP_UPARROW: return 128i;
+	case K_DOWNARROW: return 256i;
+	case K_KP_DOWNARROW: return 512i;
+	case K_LEFTARROW: return 1024i;
+	case K_KP_LEFTARROW: return 2048i;
+	case K_RIGHTARROW: return 4096i;
+	case K_KP_RIGHTARROW: return 8192i;
+	case K_ENTER: return 16384i;
+	case K_KP_ENTER: return 32768i;
+	case K_ESCAPE: return 65536i;
+	default: return 0i;
+	}
+}
+
 bool
 vguiWindow::PadInput(float flEVType, float flKey)
 {
 	bool isPad = false;
+	int keyBit = vguiWindow_PadKeyBit(flKey);
+
+#ifdef CLIENT
+	/* in game the keyboard drives a window the same way a pad does: the
+	 * arrows step the focus, Enter presses, Escape backs out. Only a
+	 * visible window gets here, so with none open the arrows stay
+	 * movement keys; number keys are the buttons' own key equivalents
+	 * and were handled before this. (The menu progs keep Escape and the
+	 * arrows for their own pages.) */
+	switch (flKey) {
+	case K_UPARROW:
+	case K_KP_UPARROW:
+		flKey = K_GP_DPAD_UP;
+		break;
+	case K_DOWNARROW:
+	case K_KP_DOWNARROW:
+		flKey = K_GP_DPAD_DOWN;
+		break;
+	case K_LEFTARROW:
+	case K_KP_LEFTARROW:
+		flKey = K_GP_DPAD_LEFT;
+		break;
+	case K_RIGHTARROW:
+	case K_KP_RIGHTARROW:
+		flKey = K_GP_DPAD_RIGHT;
+		break;
+	case K_ENTER:
+	case K_KP_ENTER:
+		flKey = K_GP_A;
+		break;
+	case K_ESCAPE:
+		flKey = K_GP_B;
+		break;
+	default:
+		break;
+	}
+#endif
 
 	switch (flKey) {
 	case K_GP_A:
@@ -465,9 +545,22 @@ vguiWindow::PadInput(float flEVType, float flKey)
 		return (false);
 #endif
 
-	/* the release of a button the window used isn't the game's either */
-	if (flEVType != IE_KEYDOWN)
-		return (flEVType == IE_KEYUP);
+	/* the release of a key the window used isn't the game's either. A
+	 * key that was already down when the window opened (holding Up to
+	 * run when the team page appears) has its release go back to the
+	 * engine, or its bind's release (-forward) never runs and the
+	 * player keeps moving. */
+	if (flEVType != IE_KEYDOWN) {
+		if (flEVType != IE_KEYUP)
+			return (false);
+		if (m_padKeysHeld & keyBit) {
+			m_padKeysHeld &= ~keyBit;
+			return (true);
+		}
+		return (false);
+	}
+
+	m_padKeysHeld |= keyBit;
 
 	/* (QC's && doesn't short-circuit: test the focus before calling it) */
 	if (m_padFocus) {
@@ -500,6 +593,7 @@ vguiWindow::PadInput(float flEVType, float flKey)
 		m_padFocus.FlagRemove(BUTTON_HOVER);
 
 	m_padFocus = next;
+	m_padFocusPointer = g_vecMousePos;
 
 	if (next) {
 		next.FlagAdd(BUTTON_HOVER);
