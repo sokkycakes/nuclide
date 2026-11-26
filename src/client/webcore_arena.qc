@@ -135,7 +135,12 @@ WebCoreArenaUI_Publish(void)
 	g_webcoreArenaLastLocalState = localArenaState;
 
 	localPhase = serverinfo.GetString("arena_round");
-	heroIDs = serverinfo.GetString("arena_heroes");
+	heroIDs = serverinfo.GetList("arena_heroes_");
+
+	if (!STRING_SET(heroIDs)) {
+		/* a server still running older progs */
+		heroIDs = serverinfo.GetString("arena_heroes");
+	}
 
 	snapshot = "{\"active\":true";
 	snapshot = strcat(snapshot, ",\"phase\":", WebCoreArena_JSONString(arenaState));

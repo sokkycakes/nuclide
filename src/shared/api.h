@@ -174,6 +174,19 @@ typedef struct
 	@param serverKey specifies the server info-key to set.
 	@param setValue specifies the value of said key. */
 	void SetVector(string serverKey, vector setValue);
+	/** Returns a space-separated word list stored with SetList.
+
+	@param listPrefix specifies the key prefix, e.g. "arena_heroes_".
+	@return The words of keys <prefix>0, <prefix>1, ... joined by spaces. */
+	string GetList(string listPrefix);
+	/** Server only. Stores a space-separated word list across the keys
+	<prefix>0, <prefix>1, ..., each value short enough (under 64 bytes) that
+	stock FTE servers send it to every client, and clears any chunk left
+	over from a longer list.
+
+	@param listPrefix specifies the key prefix, e.g. "arena_heroes_".
+	@param listValue specifies the words. */
+	void SetList(string listPrefix, string listValue);
 } serverinfoAPI_t;
 
 serverinfoAPI_t serverinfo; /**< Access serverinfoAPI_t functions using this variable. */
@@ -737,6 +750,8 @@ _shared_main(void)
 	serverinfo.GetBool = linkToSharedProgs("SHPF_serverinfo_GetBool");
 	serverinfo.GetFloat = linkToSharedProgs("SHPF_serverinfo_GetFloat");
 	serverinfo.GetVector = linkToSharedProgs("SHPF_serverinfo_GetVector");
+	serverinfo.GetList = linkToSharedProgs("SHPF_serverinfo_GetList");
+	serverinfo.SetList = linkToSharedProgs("SHPF_serverinfo_SetList");
 
 	teams.BestAutoJoinTeam = linkToSharedProgs("SHPF_teams_BestAutoJoinTeam");
 	teams.TeamCount = linkToSharedProgs("SHPF_teams_TeamCount");

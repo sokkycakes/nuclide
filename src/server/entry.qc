@@ -562,6 +562,9 @@ SV_Shutdown(void)
 
 entity g_respawntimer;
 
+/* system/api.qc, compiled after this file */
+void SHPF_serverinfo_SetList(string listPrefix, string listValue);
+
 /** Called by the engine when we're ready to spawn entities.
 Before this, we are not able to spawn, touch or allocate any entity slots.
 */
@@ -593,6 +596,8 @@ initents(void)
 		for (int i = 0i; i < arenaKeyCount; i++) {
 			forceinfokey(world, argv(i), "");
 		}
+
+		SHPF_serverinfo_SetList("arena_heroes_", "");
 	}
 
 	/* clean up... */
@@ -603,6 +608,7 @@ initents(void)
 		forceinfokey(world, sprintf("teamclosed_%i", teamID), "");
 		forceinfokey(world, sprintf("teamspawn_%i", teamID), "");
 		forceinfokey(world, sprintf("teamclass_%i", teamID), "");
+		SHPF_serverinfo_SetList(sprintf("teamclass_%i_", teamID), "");
 	}
 
 	forceinfokey(world, sprintf("teamspawn_%d", TEAM_CONNECTING), "");
