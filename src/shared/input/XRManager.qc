@@ -74,24 +74,46 @@ FindXRInput(entity playerEntity, xrinput_t inputType)
 	return (foundInput);
 }
 
-/* true when the player's XR space and inputs are all still there. The
-   references live on the player edict, which outlives what they point at:
-   once one of those entities is removed its slot gets reused by something
-   else (a timer, a projectile), and calling an NSXRInput method on that
-   is a NULL function call, which aborts a stock FTE server. */
+/* true when 'input' is still one of this player's XR inputs. The classname
+   check comes first: only then is it safe to treat it as an NSXRInput.
+   The input type (GetType) is not compared here: xrinput_t is a 64-bit
+   enum and Bulwark's VM does not compare it the way FTE does, so the check
+   failed on every frame there and Init spawned three new inputs per frame
+   until the server ran out of edicts. The owner check is enough to catch a
+   slot reused by someone else's input; this player's own inputs are only
+   ever (re)assigned all together by Init. */
+static bool
+XRManager_InputValid(ncClient pl, NSXRInput input)
+{
+	if (!input || wasfreed(input) || input.classname != "NSXRInput") {
+		return (false);
+	}
+	if (input.owner != pl) {
+		return (false);
+	}
+	return (true);
+}
+
+/* true when the player's XR space and inputs are all still there and still
+   theirs. The references live on the player edict, which outlives what they
+   point at: once one of those entities is removed its slot gets reused by
+   something else (a timer, a projectile, another player's XR input), and
+   calling an NSXRInput method on a different class is a NULL function call,
+   which aborts a stock FTE server. Another player's input would pass the
+   class check but drive this player's view and weapon from the wrong hand. */
 static bool
 XRManager_RefsValid(ncClient pl)
 {
-	if (!pl.m_xrSpace || wasfreed(pl.m_xrSpace) || pl.m_xrSpace.classname != "NSXRSpace") {
+	if (!pl.m_xrSpace || wasfreed(pl.m_xrSpace) || pl.m_xrSpace.classname != "NSXRSpace" || pl.m_xrSpace.owner != pl) {
 		return (false);
 	}
-	if (!pl.m_xrInputHead || wasfreed(pl.m_xrInputHead) || pl.m_xrInputHead.classname != "NSXRInput") {
+	if (!XRManager_InputValid(pl, pl.m_xrInputHead)) {
 		return (false);
 	}
-	if (!pl.m_xrInputLeft || wasfreed(pl.m_xrInputLeft) || pl.m_xrInputLeft.classname != "NSXRInput") {
+	if (!XRManager_InputValid(pl, pl.m_xrInputLeft)) {
 		return (false);
 	}
-	if (!pl.m_xrInputRight || wasfreed(pl.m_xrInputRight) || pl.m_xrInputRight.classname != "NSXRInput") {
+	if (!XRManager_InputValid(pl, pl.m_xrInputRight)) {
 		return (false);
 	}
 	return (true);
