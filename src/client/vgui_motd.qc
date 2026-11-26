@@ -21,6 +21,14 @@
 var float autocvar_cg_motd = 1;
 
 static vguiWindow g_motdWindow;
+
+/* The join order is the MOTD first, then the hero or team picker. A server
+   can stuff showClassSelectionMenu before the first frame that opens the
+   MOTD (deathmatch does on the first spawn), which drew the two windows on
+   top of each other. Until the MOTD has been shown and closed (or skipped),
+   a picker request is kept here and run when it goes away. */
+static bool g_motdAutoDone;
+static string g_motdDeferredPicker;
 void VGUI_ShowMOTD(void);
 
 /* The VGUI fonts carry no typographic dashes or quotes; a motd.txt written
@@ -38,6 +46,25 @@ VGUI_MOTD_PlainText(string text)
 	return (text);
 }
 
+/* true when a picker command must wait for the MOTD; the command is kept
+   and run by VGUI_MOTD_Proceed. The latest request wins. */
+bool
+VGUI_MOTD_DeferPicker(string pickerCommand)
+{
+	bool motdUp = (g_motdWindow && g_motdWindow.Visible()) ? (true) : (false);
+
+	if (g_motdAutoDone && !motdUp) {
+		return (false);
+	}
+
+	if (g_motdDeferredPicker) {
+		strunzone(g_motdDeferredPicker);
+	}
+
+	g_motdDeferredPicker = strzone(pickerCommand);
+	return (true);
+}
+
 /* the window gets out of the way of the team and hero pickers */
 void
 VGUI_HideMOTD(void)
@@ -52,6 +79,15 @@ VGUI_HideMOTD(void)
 static void
 VGUI_MOTD_Proceed(void)
 {
+	/* a picker the server asked for while the MOTD was pending or up */
+	if (g_motdDeferredPicker) {
+		string pickerCommand = g_motdDeferredPicker;
+		g_motdDeferredPicker = __NULL__;
+		localcmd(sprintf("%s\n", pickerCommand));
+		strunzone(pickerCommand);
+		return;
+	}
+
 	int playerTeam = player.GetTeam();
 	bool teamSelect = ((playerTeam == TEAM_UNASSIGNED) || (playerTeam == TEAM_SPECTATOR)) ? (true) : (false);
 
@@ -127,6 +163,8 @@ void
 VGUI_AutoMOTD(void)
 {
 	bool show = true;
+
+	g_motdAutoDone = true;
 
 	if (autocvar_cg_motd <= 0) {
 		show = false;

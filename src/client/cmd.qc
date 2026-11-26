@@ -774,6 +774,10 @@ Cmd_Parse(string sCMD)
 	case "showClassSelectionMenu":
 	case "showHeroSelectionMenu": {
 		string webcoreSelector = strtolower(argv(0)) == "showheroselectionmenu" ? "hero" : "class";
+		/* the MOTD comes first; this runs again once it closes */
+		if (VGUI_MOTD_DeferPicker(sprintf("%s %s", argv(0), argv(1)))) {
+			break;
+		}
 		VGUI_HideMOTD();
 		if (argv(1) != "vgui" && WebCoreArenaUI_OpenSelector(webcoreSelector)) {
 			break;
@@ -790,6 +794,9 @@ Cmd_Parse(string sCMD)
 		break;
 	}
 	case "showTeamSelectionMenu":
+		if (VGUI_MOTD_DeferPicker(sprintf("%s %s", argv(0), argv(1)))) {
+			break;
+		}
 		VGUI_HideMOTD();
 		if (argv(1) != "vgui" && WebCoreArenaUI_OpenSelector("team")) {
 			break;
