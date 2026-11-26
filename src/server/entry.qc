@@ -588,7 +588,8 @@ initents(void)
 		int arenaKeyCount = tokenize("arena_state arena_round arena_ready "
 			"arena_score1 arena_score2 arena_winner arena_result arena_heroes "
 			"arena_deadline arena_lock arena_ents arena_vote arena_set "
-			"arena_set_serial arena_set_closed arena_set_left arena_set_log");
+			"arena_set_serial arena_set_closed arena_set_left arena_set_log "
+			"arena_mode");
 
 		for (int i = 0i; i < arenaKeyCount; i++) {
 			forceinfokey(world, argv(i), "");
