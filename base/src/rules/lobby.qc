@@ -113,7 +113,14 @@ bool Lobby_IsActive(void) { return (g_lobbyState == LOBBY_WARMUP || g_lobbyState
 int Lobby_GetPlayerState(entity pl) { return (Lobby_PlayerState(pl)); }
 /* API */
 void Lobby_Init(void) { g_lobbyRoomCode = Lobby_GenerateRoomCode(); g_lobbyQueueCount = 0i; g_lobbyHost = __NULL__; teams.SetUp(1, "Players", [155, 205, 255], false); teams.SetSpawnPoint(1, "info_player_deathmatch"); Lobby_EnterWarmup(); }
-void Lobby_FrameStart(void) { switch (g_lobbyState) { case LOBBY_WARMUP: Lobby_TickWarmup(); break; case LOBBY_COUNTDOWN: Lobby_TickCountdown(); break; case LOBBY_LIVE: Lobby_TickLive(); break; } Lobby_BroadcastThrottled(); }
+/* no host yet (on some engines the first client connects before
+   Lobby_Init clears the host) or a bot holds it: give it to a human */
+static void Lobby_CheckHost(void) {
+	if (g_lobbyHost && Lobby_IsBot(g_lobbyHost) == false) return;
+	entity h = Lobby_FirstHuman(__NULL__);
+	if (h) { Lobby_SetHost(h); Lobby_BroadcastState(); }
+}
+void Lobby_FrameStart(void) { Lobby_CheckHost(); switch (g_lobbyState) { case LOBBY_WARMUP: Lobby_TickWarmup(); break; case LOBBY_COUNTDOWN: Lobby_TickCountdown(); break; case LOBBY_LIVE: Lobby_TickLive(); break; } Lobby_BroadcastThrottled(); }
 void Lobby_OnPlayerConnect(entity pl) {
 	Lobby_SetPlayerState(pl, LOBBY_PLAYER_JOINED);
 	/* the first human to connect takes host, also from a bot host */
