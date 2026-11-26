@@ -137,13 +137,15 @@ CodeCallback_NPCKilled(entity npcEntity, entity inflictor, entity attacker, stri
 			attackerName = attacker.netname;
 		}
 	} else {
-		npcName = "Unknown";
+		attackerName = "Unknown";
 	}
 
+	/* weapon is the killing damage's weapon decl, "" when unknown
+	   (ncRuleDelegate::NPCDeath passes all four arguments) */
 	if (npcEntity == attacker)
-		combat.Obituary(npcEntity.netname, attacker.netname, weapon, "self");
+		combat.Obituary(npcName, attackerName, weapon, "self");
 	else
-		combat.Obituary(npcEntity.netname, attacker.netname, weapon, "");
+		combat.Obituary(npcName, attackerName, weapon, "");
 
 	/* update score-counter */
 	if (is.Player(attacker)) {

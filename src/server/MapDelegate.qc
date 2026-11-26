@@ -46,7 +46,7 @@ ncMapDelegate::PlayerDisconnect(ncPlayer pl)
 }
 
 void
-ncMapDelegate::NPCDeath(ncActor npc, ncEntity attacker, ncEntity inflictor)
+ncMapDelegate::NPCDeath(ncActor npc, ncEntity inflictor, ncEntity attacker, string weaponDef)
 {
 }
 

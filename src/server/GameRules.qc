@@ -121,7 +121,7 @@ ncRuleDelegate::PlayerKill(ncPlayer pl)
 }
 
 void
-ncRuleDelegate::NPCDeath(ncActor npc, ncEntity attacker, ncEntity inflictor)
+ncRuleDelegate::NPCDeath(ncActor npc, ncEntity inflictor, ncEntity attacker, string weaponDef)
 {
 }
 

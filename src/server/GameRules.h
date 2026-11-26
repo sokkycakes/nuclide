@@ -193,8 +193,11 @@ public:
 	virtual void PlayerPain(ncPlayer, ncActor, ncDict);
 	/** Overridable: Called to check if a ncPlayer can attack. */
 	virtual bool PlayerCanAttack(ncPlayer);
-	/** Overridable:: Called when an NPC gets killed. */
-	virtual void NPCDeath(ncActor, ncEntity, ncEntity);
+	/** Overridable: Called when an NPC gets killed. Parameters are the NPC,
+	the inflictor, the attacker and the weapon decl of the killing damage
+	("" when it is not known). Progs implement it as
+	CodeCallback_NPCKilled(entity npc, entity inflictor, entity attacker, string weapon). */
+	virtual void NPCDeath(ncActor, ncEntity, ncEntity, string);
 
 	/** Overridable: called when a ncPlayer requests a respawn.
 	In a multiplayer game, it'll put you back into the game as a player.

@@ -78,7 +78,7 @@ public:
 	/** Overridable: Called when a ncPlayer feels pain. */
 	virtual void PlayerPain(ncPlayer, ncActor, ncDict);
 	/** Overridable:: Called when an NPC gets killed. */
-	virtual void NPCDeath(ncActor, ncEntity, ncEntity);
+	virtual void NPCDeath(ncActor, ncEntity, ncEntity, string);
 
 	/* Imports additional entities from the named file. */
 	nonvirtual bool AppendEntitiesFromFile(string fileName);
