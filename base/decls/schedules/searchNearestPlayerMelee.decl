@@ -6,4 +6,7 @@ typeInfo searchNearestPlayerMelee
 	"task_4"	"RunToTarget"
 	"task_5"	"WaitForMovement"
 	"CanMeleeAttack1"	"ChangeMindset meleeCombat"
+	"NewEnemy"	"ChangeMindset hunt"
+	"Damage"	"ChangeMindset hunt"
+	"OccludedEnemy"	"ChangeMindset hunt"
 }

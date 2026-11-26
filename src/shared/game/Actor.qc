@@ -726,6 +726,15 @@ ncActor::Input(entity eAct, string strInput, string strData)
 		printf("%S (%d): %s\n", classname, num_for_edict(this), strData);
 		break;
 	case "ChangeMindset":
+		/* Already in this mindset and running a schedule: keep it.
+		 * Schedules such as searchNearestPlayer start with
+		 * "ChangeMindset search" for their own mindset; restarting here
+		 * would start the same schedule again from task 1, which runs
+		 * this Input again, recursing until the QC stack overflows. */
+		if (m_mindset == strData && m_activeSchedule) {
+			break;
+		}
+
 		m_mindset = strData;
 		CancelSchedule();
 		SelectNewSchedule();
