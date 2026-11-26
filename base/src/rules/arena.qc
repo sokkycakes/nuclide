@@ -527,6 +527,11 @@ Arena_BroadcastState(void)
 	serverinfo.SetString("arena_state", Arena_StateName());
 	serverinfo.SetString("arena_round", sprintf("Round %i / %i", g_arenaRound, g_arenaRoundLimit));
 	serverinfo.SetInteger("arena_ready", g_arenaQueueCount);
+	/* The roster in short keys (arena_heroes_0, _1, ...) that every client
+	 * receives. The single arena_heroes key is over 64 bytes, so a stock FTE
+	 * server sends it only to clients with info blobs; it is kept for older
+	 * engine builds that still read it. */
+	serverinfo.SetList("arena_heroes_", Arena_HeroIDs());
 	serverinfo.SetString("arena_heroes", Arena_HeroIDs());
 	serverinfo.SetInteger("arena_score1", g_arenaPoints[0]);
 	serverinfo.SetInteger("arena_score2", g_arenaPoints[1]);

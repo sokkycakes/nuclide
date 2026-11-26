@@ -137,7 +137,12 @@ WebCoreArenaUI_Publish(void)
 	g_webcoreArenaLastLocalState = localArenaState;
 
 	localPhase = serverinfo.GetString("arena_round");
-	heroIDs = serverinfo.GetString("arena_heroes");
+	heroIDs = serverinfo.GetList("arena_heroes_");
+
+	if (!STRING_SET(heroIDs)) {
+		/* a server still running older progs */
+		heroIDs = serverinfo.GetString("arena_heroes");
+	}
 
 	/* which arena mode this is: the rules id (duel, freezetag,
 	 * archstiletto) and the name the server gives it (arena_mode, from
