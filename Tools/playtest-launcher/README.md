@@ -57,6 +57,10 @@ The build also ships `bulwark/bulwark-ded`, the dedicated server. Testers
 host with `host-server.sh` (Linux) or `host-server.cmd` (Windows, runs
 `fteqw64.exe -dedicated`) from the game folder; both read
 `base/server.cfg`, which is installed once and never overwritten (`keep`).
+A change to the shipped `server.cfg` therefore reaches new installs only:
+existing hosts are told what to edit in `docs/PLAYTESTERS.txt`, and
+`host-server.cmd` warns while their copy still has the old plain
+`map duel_alley` line (which makes FTE load two maps when `+map` is given).
 The launcher has one Play entry per system, so hosting is documented in
 `docs/PLAYTESTERS.txt` rather than offered as a button.
 
