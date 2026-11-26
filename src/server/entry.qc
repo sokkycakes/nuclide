@@ -627,6 +627,8 @@ initents(void)
 	 * player.def snd_* / model keys actually land in the precache tables. */
 	g_ents_initialized = false;
 	precache.Entity("player");
+	/* the hiss of a spray (Spraylogo.qc CSEv_Spraylogo plays it) */
+	SoundDef_Precache("SprayCan.Paint");
 	g_ents_initialized = true;
 
 	RuleC_Init();
