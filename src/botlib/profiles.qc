@@ -32,6 +32,57 @@ Bot_ExistsInServer(string botName)
 	return (false);
 }
 
+/** True while Bot_InsertIntoGame runs its own ClientConnect and
+PutClientInServer, so PutClientInServer leaves the team pick to it. */
+bool g_botInserting;
+
+/** Set on a bot the engine put back in after a map change; its next
+SV_RunClientCommand picks it a team (Bot_CheckTeam), once the rules for
+the new map are up. */
+.bool botNeedsTeam;
+
+/** In a team mode, pick the bot a team (and a class, when the team has
+classes) the way a new bot does. */
+void
+Bot_AutoJoinTeam(ncPlayer targetBot)
+{
+	if (!targetBot) {
+		return;
+	}
+
+	if (teams.TeamCount() > 1) {
+		int wishTeam = teams.BestAutoJoinTeam();
+		int totalClasses = teams.TotalClasses(wishTeam);
+
+		ncRuleDelegate activeRules = ncRuleDelegate::ActiveInstance();
+		activeRules.PlayerRequestTeam(targetBot, wishTeam);
+
+		if (totalClasses > 0i) {
+			string playerClass = teams.ClassForIndex(wishTeam, rint(random(0, totalClasses)));
+			activeRules.ClientCommand(targetBot, strcat("join ", playerClass));
+		}
+	}
+}
+
+/** Called every SV_RunClientCommand for bots: finish a team pick that
+PutClientInServer left for later. */
+void
+Bot_CheckTeam(ncPlayer targetBot)
+{
+	if (targetBot.botNeedsTeam == false) {
+		return;
+	}
+
+	targetBot.botNeedsTeam = false;
+
+	/* already on a team (the rules placed it): leave it there */
+	if (teams.Valid((int)targetBot.team) == true) {
+		return;
+	}
+
+	Bot_AutoJoinTeam(targetBot);
+}
+
 void
 Bot_InsertIntoGame(entity targetBot)
 {
@@ -45,22 +96,14 @@ Bot_InsertIntoGame(entity targetBot)
 	userinfo.SetString(newBot, "*bot", "1");
 
 	self = targetBot;
+	newBot.botNeedsTeam = false;
+	g_botInserting = true;
 	ClientConnect();
 	PutClientInServer();
+	g_botInserting = false;
 	self = oldSelf;
 
-	if (teams.TeamCount() > 1) {
-		int wishTeam = teams.BestAutoJoinTeam();
-		int totalClasses = teams.TotalClasses(wishTeam);
-
-		ncRuleDelegate activeRules = ncRuleDelegate::ActiveInstance();
-		activeRules.PlayerRequestTeam(newBot, wishTeam);
-
-		if (totalClasses > 0i) {
-			string playerClass = teams.ClassForIndex(wishTeam, rint(random(0, totalClasses)));
-			activeRules.ClientCommand(newBot, strcat("join ", playerClass));
-		}
-	}
+	Bot_AutoJoinTeam(newBot);
 }
 
 bool

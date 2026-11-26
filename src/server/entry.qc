@@ -275,6 +275,17 @@ PutClientInServer(void)
 	if (g_grMode.InIntermission() == true) {
 		g_grMode.IntermissionToPlayer(ourPlayer);
 	}
+
+	/* A bot carried over a map change is put back in by the engine
+	   (ClientConnect, then PutClientInServer), not by
+	   Bot_InsertIntoGame, so nothing picks it a team: in a team mode it
+	   would stay a spectator on team 0 for good. Have it pick one on its
+	   next input frame, the same way a newly added bot does. (Not right here:
+	   on some engines this runs before the new map's rules have set up
+	   their teams.) */
+	if (is.Bot(ourPlayer) && g_botInserting == false) {
+		ourPlayer.botNeedsTeam = true;
+	}
 }
 
 /** Run before game physics have taken place.
@@ -400,6 +411,12 @@ SV_RunClientCommand(void)
 
 	if (g_mapEntitiesLoaded == false) {
 		return;
+	}
+
+	/* the map and its rules are up: a bot carried over from the last
+	   map may still need a team */
+	if (is.Bot(cl)) {
+		Bot_CheckTeam((ncPlayer)cl);
 	}
 
 	/* After a match IntermissionStart parks every player as a spectator,
