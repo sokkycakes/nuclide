@@ -583,6 +583,19 @@ Bot_KickRandom(void)
 	}
 }
 
+/** Set by game rules that seat bots themselves (the arena modes). While
+set, the bot_minClients quota is not applied; the cvar itself is left as
+the user set it. Cleared on every map start by BotLib_Init. */
+bool g_botQuotaSuspended;
+
+/** Rules progs reach this by name (externvalue) to take over the bot
+count for the current map. */
+void
+Bot_SuspendQuota(bool suspend)
+{
+	g_botQuotaSuspended = suspend;
+}
+
 void
 bot_spawner_think(void)
 {
@@ -590,8 +603,9 @@ bot_spawner_think(void)
 	int botCount = 0i;
 	int minClientsCvar = cvars.GetInteger("bot_minClients");
 
-	/* if -1, we are not managing _anything_ */
-	if (minClientsCvar == -1i) {
+	/* if -1, we are not managing _anything_; nor while the rules own the
+	   bot count (otherwise both would add and drop bots every second) */
+	if (minClientsCvar == -1i || g_botQuotaSuspended == true) {
 		self.nextthink = time + 5.0f;
 		return;
 	}
@@ -621,6 +635,8 @@ bot_spawner_think(void)
 void
 BotLib_Init(void)
 {
+	g_botQuotaSuspended = false;
+
 	/* kill all old bots */
 	Bot_KickAllBots();
 	BotProfile_Init();

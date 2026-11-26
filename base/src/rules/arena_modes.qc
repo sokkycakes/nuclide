@@ -34,6 +34,7 @@ var float autocvar_arena_fillWait = 8.0f;	/* seconds to wait for a full roster b
 
 var bool() g_amNodesAvailable;
 var bool() g_amAddRandomBot;
+var void(bool) g_amSuspendBotQuota;
 var float g_amNextBotTick;
 var float g_amNextHint;
 var int g_amLastReady;
@@ -47,6 +48,13 @@ ArenaModes_Init(string modeName)
 	/* botlib lives in the server progs; reach it by name (absent = no bots) */
 	g_amNodesAvailable = externvalue(0, "Nodes_Available");
 	g_amAddRandomBot = externvalue(0, "BotProfile_AddRandom");
+	/* the arena seats its own bots: keep botlib's bot_minClients quota
+	   from adding and dropping bots against us for this map (the cvar
+	   is left alone and applies again in other modes) */
+	g_amSuspendBotQuota = externvalue(0, "Bot_SuspendQuota");
+	if (g_amSuspendBotQuota) {
+		g_amSuspendBotQuota(true);
+	}
 	g_amNextBotTick = 0.0f;
 	g_amLastReady = -1i;
 	g_amReadySince = time;
@@ -136,6 +144,11 @@ ArenaModes_BotTick(int seats)
 	int bots;
 	int state;
 	bool betweenMatches;
+
+	/* keep the quota off even if botlib started after our init */
+	if (g_amSuspendBotQuota) {
+		g_amSuspendBotQuota(true);
+	}
 
 	/* arena_bots 0: hands off (bots an admin adds with addBot stay) */
 	if (autocvar_arena_bots == 0 || time < g_amNextBotTick) {
