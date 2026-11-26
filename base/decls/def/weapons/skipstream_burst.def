@@ -13,7 +13,10 @@ entityDef weapon_skipstream_burst
 
 	"spawnclass"		"ncWeapon"
 	"model"				"progs/g_nail.mdl"
-	"model_view"		"models/v_skipstream.iqm"
+	// STAND-IN view model: models/v_skipstream.iqm was never made, so Skipstream shows
+	// Collier's revolver until it exists. Its sequence order is unknown, so
+	// every act is 0, as in collier_sidearm.def.
+	"model_view"		"models/v_kingcobra.mdl"
 	"snd_acquire"		"weapon.pickup"
 	"snd_respawn"		"item.respawn"
 	"spin"				"1"
@@ -29,9 +32,9 @@ entityDef weapon_skipstream_burst
 	"clipSize"			"9"
 	"clipSizeDefault"	"9"
 
-	"act_fire"			"shootA"
-	"act_idle"			"idle"
-	"act_draw"			"draw"
+	"act_fire"			"0"
+	"act_idle"			"0"
+	"act_draw"			"0"
 
 	"snd_fire"			"weapon_collier_sidearm.shoot"
 	"snd_empty"			"weapon.empty"
@@ -51,8 +54,8 @@ entityDef fireInfo_skipstreamPrimary
 	"semiAuto"			"1"
 	"snd_fire"			"weapon_collier_sidearm.shoot"
 	"punchSpring"		"-0.6 0.2 0"
-	"act_reload"		"reload"
-	"act_reloadEmpty"	"reload"
+	"act_reload"		"0"
+	"act_reloadEmpty"	"0"
 }
 
 entityDef projectile_skipstream
