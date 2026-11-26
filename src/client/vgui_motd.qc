@@ -26,9 +26,11 @@ static vguiWindow g_motdWindow;
    can stuff showClassSelectionMenu before the first frame that opens the
    MOTD (deathmatch does on the first spawn), which drew the two windows on
    top of each other. Until the MOTD has been shown and closed (or skipped),
-   a picker request is kept here and run when it goes away. */
+   a picker request is kept here and run when it goes away. It is kept
+   per split-screen seat: each seat gets its own showClassSelectionMenu,
+   and the command must run again for the seat it was sent to. */
 static bool g_motdAutoDone;
-static string g_motdDeferredPicker;
+static string g_motdDeferredPicker[4];
 void VGUI_ShowMOTD(void);
 
 /* The VGUI fonts carry no typographic dashes or quotes; a motd.txt written
@@ -47,21 +49,26 @@ VGUI_MOTD_PlainText(string text)
 }
 
 /* true when a picker command must wait for the MOTD; the command is kept
-   and run by VGUI_MOTD_Proceed. The latest request wins. */
+   and run by VGUI_MOTD_Proceed. The latest request for a seat wins. */
 bool
 VGUI_MOTD_DeferPicker(string pickerCommand)
 {
 	bool motdUp = (g_motdWindow && g_motdWindow.Visible()) ? (true) : (false);
+	int seatNum = (int)getproperty(VF_ACTIVESEAT);
 
 	if (g_motdAutoDone && !motdUp) {
 		return (false);
 	}
 
-	if (g_motdDeferredPicker) {
-		strunzone(g_motdDeferredPicker);
+	if (seatNum < 0i || seatNum > 3i) {
+		seatNum = 0i;
 	}
 
-	g_motdDeferredPicker = strzone(pickerCommand);
+	if (g_motdDeferredPicker[seatNum]) {
+		strunzone(g_motdDeferredPicker[seatNum]);
+	}
+
+	g_motdDeferredPicker[seatNum] = strzone(pickerCommand);
 	return (true);
 }
 
@@ -79,12 +86,31 @@ VGUI_HideMOTD(void)
 static void
 VGUI_MOTD_Proceed(void)
 {
-	/* a picker the server asked for while the MOTD was pending or up */
-	if (g_motdDeferredPicker) {
-		string pickerCommand = g_motdDeferredPicker;
-		g_motdDeferredPicker = __NULL__;
-		localcmd(sprintf("%s\n", pickerCommand));
+	/* pickers the server asked for while the MOTD was pending or up. A
+	   seat other than the first gets the 'p<N>' prefix the engine uses
+	   for a command aimed at that seat, so it runs in its own context. */
+	bool ranPicker = false;
+
+	for (int seatNum = 0i; seatNum < 4i; seatNum++) {
+		string pickerCommand = g_motdDeferredPicker[seatNum];
+
+		if (!pickerCommand) {
+			continue;
+		}
+
+		g_motdDeferredPicker[seatNum] = __NULL__;
+
+		if (seatNum == 0i) {
+			localcmd(sprintf("%s\n", pickerCommand));
+		} else {
+			localcmd(sprintf("p%i %s\n", seatNum + 1i, pickerCommand));
+		}
+
 		strunzone(pickerCommand);
+		ranPicker = true;
+	}
+
+	if (ranPicker) {
 		return;
 	}
 
