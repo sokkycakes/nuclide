@@ -51,6 +51,18 @@ static void Lobby_BroadcastThrottled(void) {
 	g_lobbyNextBroadcast = time + 0.5f; Lobby_BroadcastState();
 }
 void Lobby_SetHost(entity pl) { g_lobbyHost = pl; }
+/* Host goes to people, never to bots: bots never ready up or start the
+   game, so a bot host would strand everyone in WARMUP. After a map
+   change the carried-over bots reconnect before the human has loaded,
+   which is how a bot used to end up as host. */
+static bool Lobby_IsBot(entity pl) { return (clienttype(pl) == CLIENTTYPE_BOT); }
+/* the first human other than `skip`, or __NULL__ */
+static entity Lobby_FirstHuman(entity skip) {
+	for (entity p = world; (p = next.Player(p));) {
+		if (p != skip && Lobby_IsBot(p) == false) return (p);
+	}
+	return (__NULL__);
+}
 bool Lobby_IsHost(entity pl) { return (pl == g_lobbyHost); }
 /* transitions */
 void Lobby_EnterWarmup(void) {
@@ -102,10 +114,15 @@ int Lobby_GetPlayerState(entity pl) { return (Lobby_PlayerState(pl)); }
 /* API */
 void Lobby_Init(void) { g_lobbyRoomCode = Lobby_GenerateRoomCode(); g_lobbyQueueCount = 0i; g_lobbyHost = __NULL__; teams.SetUp(1, "Players", [155, 205, 255], false); teams.SetSpawnPoint(1, "info_player_deathmatch"); Lobby_EnterWarmup(); }
 void Lobby_FrameStart(void) { switch (g_lobbyState) { case LOBBY_WARMUP: Lobby_TickWarmup(); break; case LOBBY_COUNTDOWN: Lobby_TickCountdown(); break; case LOBBY_LIVE: Lobby_TickLive(); break; } Lobby_BroadcastThrottled(); }
-void Lobby_OnPlayerConnect(entity pl) { Lobby_SetPlayerState(pl, LOBBY_PLAYER_JOINED); if (!g_lobbyHost) Lobby_SetHost(pl); }
+void Lobby_OnPlayerConnect(entity pl) {
+	Lobby_SetPlayerState(pl, LOBBY_PLAYER_JOINED);
+	/* the first human to connect takes host, also from a bot host */
+	if (Lobby_IsBot(pl) == false && (!g_lobbyHost || Lobby_IsBot(g_lobbyHost))) Lobby_SetHost(pl);
+	Lobby_BroadcastState();
+}
 void Lobby_OnPlayerSpawn(entity pl) { int st = Lobby_PlayerState(pl); if (st == LOBBY_PLAYER_SPECTATOR || pl.team == 3) return; if (g_lobbyState == LOBBY_WARMUP) Lobby_SpawnFreeplay(pl); else if (g_lobbyState == LOBBY_LIVE) { if (st == LOBBY_PLAYER_COMPETITOR) Lobby_SpawnGame(pl); else Lobby_SpawnWaitingView(pl); } else Lobby_SpawnWaitingView(pl); }
 bool Lobby_OnPlayerRequestRespawn(entity pl) { int st = Lobby_PlayerState(pl); if (g_lobbyState == LOBBY_WARMUP && st != LOBBY_PLAYER_SPECTATOR && pl.team != 3) { Lobby_SpawnFreeplay(pl); return (true); } if (g_lobbyState == LOBBY_LIVE && st == LOBBY_PLAYER_COMPETITOR) { Lobby_SpawnGame(pl); return (true); } return (false); }
-void Lobby_OnPlayerDisconnect(entity pl) { Lobby_QueueRemove(pl); if (pl == g_lobbyHost) { g_lobbyHost = __NULL__; for (entity p = world; (p = next.Player(p));) { if (p != pl) { g_lobbyHost = p; break; } } } Lobby_BroadcastState(); }
+void Lobby_OnPlayerDisconnect(entity pl) { Lobby_QueueRemove(pl); if (pl == g_lobbyHost) Lobby_SetHost(Lobby_FirstHuman(pl)); Lobby_BroadcastState(); }
 void Lobby_OnPlayerKilled(entity victim, entity attacker) { if (g_lobbyState != LOBBY_LIVE) return; if (is.Player(attacker)) { if (victim == attacker) attacker.frags--; else attacker.frags++; } victim.deaths++; }
 /* UX */
 void Lobby_SetReady(entity pl) { if (g_lobbyState != LOBBY_WARMUP) return; Lobby_SetPlayerState(pl, LOBBY_PLAYER_READY); Lobby_QueueAppend(pl); centerprint(pl, "You are READY"); }
