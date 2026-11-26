@@ -618,6 +618,30 @@ initents(void)
 		SHPF_serverinfo_SetList("arena_heroes_", "");
 	}
 
+	/* The same goes for the per-player star keys a mode owns: clients
+	 * (seat bots included) stay connected across the map change and
+	 * keep their userinfo, so *arena_state 3 or *lobby_state 1 from the
+	 * last duel or lobby showed up in every later mode, and a leftover
+	 * *stiletto_boss kept the boss rules on in a mode without a boss.
+	 * The owning mode sets them again when the player joins it. */
+	{
+		int playerKeyCount = tokenize("*arena_state *lobby_state "
+			"*duel_joining *stiletto_boss");
+		int clientSlots = cvars.GetInteger("maxclients");
+
+		for (int clientNum = 1i; clientNum <= clientSlots; clientNum++) {
+			entity clientEntity = edict_num((float)clientNum);
+
+			if (clienttype(clientEntity) == CLIENTTYPE_DISCONNECTED) {
+				continue;
+			}
+
+			for (int keyNum = 0i; keyNum < playerKeyCount; keyNum++) {
+				forceinfokey(clientEntity, argv(keyNum), "");
+			}
+		}
+	}
+
 	/* clean up... */
 	for (int teamID = 1; teamID < 1000; teamID++) {
 		forceinfokey(world, sprintf("team_%i", teamID), "");
