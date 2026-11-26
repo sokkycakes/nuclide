@@ -37,10 +37,8 @@ folder next to the launcher, then:
   Windows:  double-click host-server.cmd
             (or run: fteqw64.exe -dedicated -basedir . -manifest base.fmf)
   Linux:    ./host-server.sh   in a terminal
-            (or run: bulwark/bulwark-ded -basedir . -game base +map duel_alley,
-             or:     bulwark/bulwark -dedicated -basedir . -game base +map duel_alley
-             Run by hand like this, Bulwark starts no map unless you
-             name one, so keep the +map.)
+            (or run: bulwark/bulwark-ded -basedir . -game base
+             or:     bulwark/bulwark -dedicated -basedir . -game base)
 
 Settings (server name, player slots, game mode, time limit, password)
 are in game/base/server.cfg. Updates never overwrite that file. Options
