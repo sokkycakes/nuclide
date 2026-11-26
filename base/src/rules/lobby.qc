@@ -133,7 +133,11 @@ void Lobby_OnPlayerDisconnect(entity pl) { Lobby_QueueRemove(pl); if (pl == g_lo
 void Lobby_OnPlayerKilled(entity victim, entity attacker) { if (g_lobbyState != LOBBY_LIVE) return; if (is.Player(attacker)) { if (victim == attacker) attacker.frags--; else attacker.frags++; } victim.deaths++; }
 /* UX */
 void Lobby_SetReady(entity pl) { if (g_lobbyState != LOBBY_WARMUP) return; Lobby_SetPlayerState(pl, LOBBY_PLAYER_READY); Lobby_QueueAppend(pl); centerprint(pl, "You are READY"); }
-void Lobby_SetNotReady(entity pl) { Lobby_QueueRemove(pl); Lobby_SetPlayerState(pl, LOBBY_PLAYER_JOINED); centerprint(pl, "You are NOT READY"); }
+/* the ready list is locked once the countdown starts: like Lobby_SetReady,
+   un-readying is only allowed during warmup, otherwise a player (the host
+   included) who cancels mid-countdown would drop out of the match and could
+   not ready again */
+void Lobby_SetNotReady(entity pl) { if (g_lobbyState != LOBBY_WARMUP) { centerprint(pl, "The match is starting, ready list is locked."); return; } Lobby_QueueRemove(pl); Lobby_SetPlayerState(pl, LOBBY_PLAYER_JOINED); centerprint(pl, "You are NOT READY"); }
 void Lobby_SetSpectator(entity pl) { Lobby_QueueRemove(pl); Lobby_SetPlayerState(pl, LOBBY_PLAYER_SPECTATOR); game.MakePureSpectator(pl); game.TeleportToSpawn(pl); centerprint(pl, "You are spectating"); }
 void Lobby_StartGame(entity pl) { if (pl != g_lobbyHost) { centerprint(pl, "Only the host can start the game."); return; } if (g_lobbyState == LOBBY_WARMUP) { if (Lobby_PlayerState(pl) != LOBBY_PLAYER_READY) Lobby_SetReady(pl); Lobby_EnterCountdown(); } else if (g_lobbyState == LOBBY_COUNTDOWN) centerprint(pl, "Game already starting..."); }
 bool Lobby_OnClientCommand(entity pl, string command) { tokenize(command); switch (argv(0)) { case "ready": Lobby_SetReady(pl); return (true); case "notready": Lobby_SetNotReady(pl); return (true); case "spectate": Lobby_SetSpectator(pl); return (true); case "startgame": Lobby_StartGame(pl); return (true); default: return (false); } return (false); }

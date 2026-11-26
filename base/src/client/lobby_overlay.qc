@@ -90,20 +90,22 @@ static void Lb_DrawReady(void) {
 	if(st=="COUNTDOWN"){float r=serverkeyfloat("lobby_countdown");if(r<=0)r=0;string cs=sprintf("%.0f",r);
 	float cw=Font_StringWidth(cs,true,FONT_SPEC);Font_DrawText_RGBA([(g_vidsize[0]-cw)*0.5f,g_vidsize[1]*0.35f],cs,LB_GLD,1.0f,FONT_SPEC);}
 	vector rbs=Lb_ReadyBtnSize();vector rbp=Lb_ReadyBtnPos();float bw=rbs[0];float bh=rbs[1];float bx=rbp[0];float by=rbp[1];
-	string bt;vector bc;if(ms==1){bt="CANCEL";bc=LB_NRD;}else{bt="READY UP";bc=LB_RDY;}
+	string bt;vector bc;if(st=="COUNTDOWN"){bt=(ms==1)?"LOCKED IN":"NEXT MATCH";bc=LB_BTN;}else if(ms==1){bt="CANCEL";bc=LB_NRD;}else{bt="READY UP";bc=LB_RDY;}
 	drawfill([bx,by],[bw,bh],bc,0.8f,0);
 	Font_DrawText_RGBA([bx+(bw-Font_StringWidth(bt,false,FONT_SPEC_HINT))*0.5f,by+(bh-Font_GetHeight(FONT_SPEC_HINT))*0.5f],bt,LB_TXC,1.0f,FONT_SPEC_HINT);
 }
 static void Lb_DrawEsc(void) { Font_DrawText_RGBA(Lb_P([48,622]),"[ESC] Back",LB_DIM,1.0f,FONT_SPEC_HINT); }
 bool LobbyOverlay_ShouldDraw(void){string s=serverkey("lobby_state");return(s=="WARMUP"||s=="COUNTDOWN");}
 static bool Lb_IsHost(void) { string hst=serverkey("lobby_host"); string mn=getplayerkeyvalue(player_localnum,"name"); return (STRING_SET(mn)&&mn==hst); }
-static void Lb_ToggleReady(void) { if(getplayerkeyfloat(player_localnum,"*lobby_state")==1)localcmd("cmd notready\n");else localcmd("cmd ready\n"); }
+/* ready can only change during warmup; the server locks it at countdown */
+static void Lb_ToggleReady(void) { if(serverkey("lobby_state")!="WARMUP")return; if(getplayerkeyfloat(player_localnum,"*lobby_state")==1)localcmd("cmd notready\n");else localcmd("cmd ready\n"); }
 /* the overlay is a menu: it wants the mouse cursor (and absolute mouse
    positions) while it is up */
 bool LobbyOverlay_WantsCursor(void) { return LobbyOverlay_ShouldDraw(); }
-/* Clicks (on the press, once) and the confirm keys. Enter / pad A starts
-   the game for the host (which also readies them) and toggles ready for
-   everyone else. Returns true when the event was used. */
+/* Clicks (on the press, once) and the confirm keys. During warmup Enter /
+   pad A starts the game for the host (which also readies them) and toggles
+   ready for everyone else; during the countdown they do nothing, so a second
+   press cannot un-ready anyone. Returns true when the event was used. */
 bool LobbyOverlay_InputEvent(float evtype, float key) {
 	if(!LobbyOverlay_ShouldDraw())return (false);
 	if(evtype!=IE_KEYDOWN)return (false);
@@ -115,7 +117,8 @@ bool LobbyOverlay_InputEvent(float evtype, float key) {
 		/* a click anywhere else on the overlay must not fire the weapon */
 		return (true);
 	case K_ENTER: case K_KP_ENTER: case K_GP_A:
-		if(Lb_IsHost()&&serverkey("lobby_state")=="WARMUP")localcmd("cmd startgame\n");else Lb_ToggleReady();
+		if(serverkey("lobby_state")!="WARMUP")return (true);
+		if(Lb_IsHost())localcmd("cmd startgame\n");else Lb_ToggleReady();
 		return (true);
 	}
 	return (false);
