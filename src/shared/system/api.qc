@@ -986,6 +986,15 @@ sendInput(entity theTarget, string inputName, string dataString, entity activato
 	}
 
 #ifdef SERVER
+	/* an entity whose class constructor never ran (a client edict that has
+	   not been through ClientConnect yet, a raw spawn()) has no Input
+	   method; calling it is a NULL function call, which aborts a stock FTE
+	   server */
+	if (!targetEntity.Input) {
+		ncError("entity %d (%S) does not take inputs, dropping %S", num_for_edict(theTarget), theTarget.classname, inputName);
+		return;
+	}
+
 	targetEntity.Input(activator, inputName, dataString);
 #endif
 }

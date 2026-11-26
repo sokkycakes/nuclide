@@ -485,6 +485,15 @@ SV_ParseClientCommand(string cmd)
 		return;
 	}
 
+	/* A client can send 'cmd' while it is still connecting, before
+	   ClientConnect has made its edict an ncPlayer. The game and its rules
+	   would then call class methods that do not exist yet (NULL function,
+	   which aborts a stock FTE server). Leave such commands to the engine. */
+	if (!theClient.Input || !theClient.SharedInputFrame) {
+		clientcommand(self, cmd);
+		return;
+	}
+
 	for (ncAddonDelegate addonEnum = __NULL__; (addonEnum = AddonManager_NextAddon(addonEnum));) {
 		addonEnum.ClientCommand(theClient, cmd);
 	}
