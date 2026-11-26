@@ -137,16 +137,37 @@ ncPlayer::ncPlayer(void)
 #endif
 }
 
+/* Turns a client-supplied entity number into a weapon, or world when the
+   number does not name a live weapon. The number comes straight from
+   input_cursor_entitynumber, so it can be stale (the weapon was freed and its
+   slot reused by something else) or made up. Check the type before calling
+   any item method: on an entity that is not an ncItem the method fields are
+   NULL, and calling one aborts the whole server on stock FTE. */
 ncWeapon
 GetWeaponEntity(int theclientsnumber)
 {
-	entity e = edict_num((float)theclientsnumber);
+	ncWeapon e;
 
-	if (wasfreed(e)) {
-		e = world;
+	if (theclientsnumber <= 0i) {
+		return (__NULL__);
 	}
 
-	return e;
+	e = (ncWeapon)edict_num((float)theclientsnumber);
+
+	if (!e || wasfreed(e)) {
+		return (__NULL__);
+	}
+
+	/* not an item/weapon at all, or its class constructor has not run */
+	if (e._isWeapon != true || !e.IsWeapon) {
+		return (__NULL__);
+	}
+
+	if (e.IsWeapon() == false) {
+		return (__NULL__);
+	}
+
+	return (e);
 }
 
 
@@ -196,19 +217,13 @@ ncPlayer::SharedInputFrame(void)
 	   up bogus values to mess with the server game. any checks go here
 	   as this is where they'll be received first. */
 	if (input_cursor_entitynumber) {
+		/* world unless it names a live weapon (see GetWeaponEntity) */
 		ncWeapon nextWeapon = GetWeaponEntity(input_cursor_entitynumber);
 
-		/* might be nothing */
-		if (nextWeapon != __NULL__) {
-			/* item is not ours */
-			if (nextWeapon.owner != this) {
-				return;
-			}
-
-			/* item isn't a weapon */
-			if (nextWeapon.IsWeapon() == false) {
-				return;
-			}
+		/* a weapon that is not ours is ignored like any other bad value:
+		   the request is dropped, the rest of the input frame still runs */
+		if (nextWeapon && nextWeapon.owner != this) {
+			nextWeapon = __NULL__;
 		}
 
 		input_cursor_entitynumber = 0;
@@ -1337,6 +1352,16 @@ ncPlayer::ClientInputFrame(void)
 	}
 	if (pSeat->m_iInputJump == true) {
 		input_buttons |= INPUT_JUMP;
+	}
+
+	/* forget a selection whose weapon is gone (freed by a hero switch or
+	   a respawn), so the old edict number is not sent forever */
+	if (pSeat->m_iHUDWeaponSelected) {
+		entity selectedWeapon = findentity(world, ::entnum, (float)pSeat->m_iHUDWeaponSelected);
+
+		if (!selectedWeapon || selectedWeapon._isWeapon != true) {
+			pSeat->m_iHUDWeaponSelected = 0i;
+		}
 	}
 
 	if (pSeat->m_iHUDWeaponSelected) {

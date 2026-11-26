@@ -52,7 +52,10 @@ FindXRInput(entity playerEntity, xrinput_t inputType)
 
 	/* See if it exists already */
 	for (NSXRInput inputList = world; (inputList = find(inputList, ::classname, "NSXRInput"));) {
-		if (inputList.owner == playerEntity) {
+		/* only reuse this player's own inputs; skipping them here (as
+		   this used to) spawned three new ones on every Init and left
+		   the old ones lying around in reused edict slots */
+		if (inputList.owner != playerEntity) {
 			continue;
 		}
 		if (inputList.GetType() != inputType) {
@@ -69,6 +72,29 @@ FindXRInput(entity playerEntity, xrinput_t inputType)
 	foundInput.touch = 0;
 	foundInput.owner = playerEntity;
 	return (foundInput);
+}
+
+/* true when the player's XR space and inputs are all still there. The
+   references live on the player edict, which outlives what they point at:
+   once one of those entities is removed its slot gets reused by something
+   else (a timer, a projectile), and calling an NSXRInput method on that
+   is a NULL function call, which aborts a stock FTE server. */
+static bool
+XRManager_RefsValid(ncClient pl)
+{
+	if (!pl.m_xrSpace || wasfreed(pl.m_xrSpace) || pl.m_xrSpace.classname != "NSXRSpace") {
+		return (false);
+	}
+	if (!pl.m_xrInputHead || wasfreed(pl.m_xrInputHead) || pl.m_xrInputHead.classname != "NSXRInput") {
+		return (false);
+	}
+	if (!pl.m_xrInputLeft || wasfreed(pl.m_xrInputLeft) || pl.m_xrInputLeft.classname != "NSXRInput") {
+		return (false);
+	}
+	if (!pl.m_xrInputRight || wasfreed(pl.m_xrInputRight) || pl.m_xrInputRight.classname != "NSXRInput") {
+		return (false);
+	}
+	return (true);
 }
 
 void
@@ -97,8 +123,8 @@ ncXRManager::UpdateView(entity ePlayer)
 {
 	ncClient pl = (ncClient)ePlayer;
 
-	/* not yet ready */
-	if (!pl.m_xrSpace) {
+	/* not yet ready, or a reference went stale */
+	if (XRManager_RefsValid(pl) == false) {
 		ncXRManager::Init(ePlayer);
 	}
 
@@ -127,8 +153,8 @@ ncXRManager::InputFrame(entity ePlayer)
 {
 	ncClient pl = (ncClient)ePlayer;
 
-	/* not yet ready */
-	if (!pl.m_xrSpace) {
+	/* not yet ready, or a reference went stale */
+	if (XRManager_RefsValid(pl) == false) {
 		ncXRManager::Init(ePlayer);
 	}
 
@@ -157,7 +183,7 @@ ncXRManager::Available(entity ePlayer)
 {
 	ncClient pl = (ncClient)ePlayer;
 
-	if (!pl.m_xrInputHead) {
+	if (XRManager_RefsValid(pl) == false) {
 		return (false);
 	}
 
