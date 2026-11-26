@@ -418,6 +418,27 @@ Client_SendLocalKeys(bool forced)
 	}
 }
 
+/* -1 until the first frame has set it */
+var int g_vguiCursorShown = -1i;
+
+/** Show the mouse cursor while a VGUI window is up, and hide it again
+once none are. Called every frame as well as on input: a window the server
+opens (the team or hero page) must have the cursor, and the mouse grab let
+go, before the first key reaches it. Done only on the first input, the
+engine's report of the pointer's position on letting go arrives just after
+that key and throws away the focus the key moved. */
+void
+Client_UpdateCursorMode(bool force)
+{
+	int want = (g_vguiWidgetCount > 0i) ? 1i : 0i;
+
+	if (force == false && want == g_vguiCursorShown)
+		return;
+
+	g_vguiCursorShown = want;
+	setcursormode(want ? TRUE : FALSE, "gfx/cursor", [0,0,0], 1.0f);
+}
+
 /** Called every single frame by the engine's renderer to construct a frame.
 This is for all clients on display. So we handle splitscreen/multiple-views
 in here.
@@ -586,6 +607,9 @@ CSQC_UpdateView(float w, float h, float focus)
 	pSeat = __NULL__;
 	pSeatLocal = __NULL__;
 
+	/* g_vguiWidgetCount is current now that the 2D pass has drawn */
+	Client_UpdateCursorMode(false);
+
 	g_modelSpinAngle = time * autocvar_cg_modelSpinSpeed;
 	g_modelSpinRoll = sin(time * autocvar_cg_modelSpinRollSpeed);
 	g_modelSpinPitch = sin(time * autocvar_cg_modelSpinPitchSpeed);
@@ -652,11 +676,7 @@ CSQC_InputEvent(float fEventType, float fKey, float fCharacter, float fDeviceID)
 		vgui_pressed = VGUI_Input(fEventType, fKey, fCharacter, fDeviceID);
 	}
 
-	if (g_vguiWidgetCount) {
-		setcursormode(TRUE, "gfx/cursor", [0,0,0], 1.0f);
-	} else {
-		setcursormode(FALSE, "gfx/cursor", [0,0,0], 1.0f);
-	}
+	Client_UpdateCursorMode(true);
 
 	/* spectator scroll wheel cycles players (not view modes) */
 	if (!vgui_pressed && fEventType == IE_KEYDOWN
