@@ -587,6 +587,13 @@ HeroActions_CanAttack(entity player)
 	if (pl.m_heroGuardState) {
 		return (false);
 	}
+#ifdef SERVER
+	/* a rules progs holds a living player in place with MOVETYPE_NONE
+	   (Freeze Tag statues): no melee or hero abilities from a statue */
+	if (pl.movetype == MOVETYPE_NONE) {
+		return (false);
+	}
+#endif
 	if (pl.m_julietDashRecovery > 0.0f) {
 		return (false);
 	}

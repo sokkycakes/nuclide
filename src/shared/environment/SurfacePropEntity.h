@@ -203,6 +203,9 @@ private:
 	float m_timeUntilBonusArmorDecreases;
 	float max_armor;
 	float m_timeOfDeath;
+	/* weapon decl of the damage that is killing us; set only while
+	   Death() runs, so death callbacks can name the weapon */
+	string m_deathWeapon;
 	bool m_autoAim;
 	bool m_vulnerable;
 

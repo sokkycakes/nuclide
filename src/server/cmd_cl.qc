@@ -154,10 +154,13 @@ Cmd_ArenaTeleport(ncClient sender, int commandArguments)
 	sprint(sender, PRINT_HIGH, sprintf("Arena: %s (%g/%g)\n", pick.message, g_arenaSpot + 1, count));
 }
 
+/* every mixed-case command below, for Util_CommandName */
+#define CMDCL_MIXEDCASE_NAMES "specTarget listInventory giveInventoryItem removeInventoryItem removeAllInventoryItems listAmmo joinTeam"
+
 bool
 Cmd_ParseClientCommand(ncClient sender, string cmd, int commandArguments)
 {
-	switch (argv(0)) {
+	switch (Util_CommandName(argv(0), CMDCL_MIXEDCASE_NAMES)) {
 	case "say":
 		if (commandArguments == 2) {
 			g_grMode.ChatMessageAll(sender, argv(1));
@@ -173,15 +176,36 @@ Cmd_ParseClientCommand(ncClient sender, string cmd, int commandArguments)
 		}
 		break;
 	case "spectate":
-		if (is.Player(sender)) {
+		/* only someone playing can start spectating (it was inverted, so
+		   nobody outside the arena modes could). The mode decides how
+		   (team modes clear the team and colours); a mode with no say
+		   gets the plain spectator. */
+		if (!is.Player(sender) || sender.team == TEAM_SPECTATOR) {
 			break;
 		}
 
-		ncPlayer pl = (ncPlayer)sender;
-		pl.MakeSpectator();
+		if (g_grMode && g_grMode.PlayerRequestTeam((ncPlayer)sender, TEAM_SPECTATOR)) {
+			break;
+		}
+
+		ncPlayer specPlayer = (ncPlayer)sender;
+		specPlayer.MakeSpectator();
 		break;
 	case "play":
-		if (sender.classname != "spectator") {
+		/* back into the game from spectating, in every mode: team modes
+		   take the team with fewer players, free-for-all modes the hero
+		   roster team; a mode with no say spawns a plain player */
+		if (is.Player(sender) && sender.team != TEAM_SPECTATOR
+			&& sender.classname != "spectator") {
+			break;
+		}
+
+		int playTeam = 1i;
+		if (teams.TeamCount() > 1i) {
+			playTeam = teams.BestAutoJoinTeam();
+		}
+
+		if (g_grMode && g_grMode.PlayerRequestTeam((ncPlayer)sender, playTeam)) {
 			break;
 		}
 

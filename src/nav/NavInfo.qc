@@ -169,7 +169,11 @@ ncNavInfo::FindEmptySpotNearPosition(entity traceEntity, vector position, float 
 		testAngle[0] = testAngle[2] = 0.0f;
 		makevectors(testAngle);
 		testPos = position + (v_forward * 2048.0f);
-		tracebox(position, traceEntity.mins, traceEntity.maxs, testPos, MOVE_NORMAL, traceEntity);
+		/* world geometry only: the position is usually where the target
+		   (a player) stands, and a box started inside them is stuck
+		   (startsolid, zero distance), so every direction came back
+		   blocked and the caller gave up on reaching anyone. */
+		tracebox(position, traceEntity.mins, traceEntity.maxs, testPos, MOVE_NOMONSTERS, traceEntity);
 		distSquared = distance(position, trace_endpos);
 
 		if (distSquared > bestDist) {

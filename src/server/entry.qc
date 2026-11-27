@@ -228,6 +228,23 @@ PutClientInServer(void)
 
 	ncStats::Enter(ourPlayer);
 
+	/* A team mode may have painted this player in a team colour on an
+	   earlier map: give them their own colours back before the new mode
+	   decides. The keys are the ones a game's rules write with
+	   Colors_SetTeam (_teamcolor, the colour it set; _topcolor and
+	   _bottomcolor, the player's own). A colour the player picked since
+	   no longer matches _teamcolor and is kept. */
+	if (STRING_SET(infokey(ourPlayer, "_teamcolor"))) {
+		string teamColor = infokey(ourPlayer, "_teamcolor");
+
+		if (infokey(ourPlayer, "topcolor") == teamColor)
+			forceinfokey(ourPlayer, "topcolor", infokey(ourPlayer, "_topcolor"));
+		if (infokey(ourPlayer, "bottomcolor") == teamColor)
+			forceinfokey(ourPlayer, "bottomcolor", infokey(ourPlayer, "_bottomcolor"));
+
+		forceinfokey(ourPlayer, "_teamcolor", "");
+	}
+
 	if (g_grMode) {
 		g_grMode.PlayerSpawn(ourPlayer);
 	}
@@ -257,6 +274,17 @@ PutClientInServer(void)
 
 	if (g_grMode.InIntermission() == true) {
 		g_grMode.IntermissionToPlayer(ourPlayer);
+	}
+
+	/* A bot carried over a map change is put back in by the engine
+	   (ClientConnect, then PutClientInServer), not by
+	   Bot_InsertIntoGame, so nothing picks it a team: in a team mode it
+	   would stay a spectator on team 0 for good. Have it pick one on its
+	   next input frame, the same way a newly added bot does. (Not right here:
+	   on some engines this runs before the new map's rules have set up
+	   their teams.) */
+	if (is.Bot(ourPlayer) && g_botInserting == false) {
+		ourPlayer.botNeedsTeam = true;
 	}
 }
 
@@ -385,6 +413,20 @@ SV_RunClientCommand(void)
 		return;
 	}
 
+	/* the map and its rules are up: a bot carried over from the last
+	   map may still need a team */
+	if (is.Bot(cl)) {
+		Bot_CheckTeam((ncPlayer)cl);
+	}
+
+	/* After a match IntermissionStart parks every player as a spectator,
+	 * whose input never reaches ncPlayer::ProcessInput, so "fire or jump
+	 * to continue" was never heard and the match never left intermission.
+	 * Hear it here, for every client. */
+	if (g_grMode && g_grMode.InIntermission() == true) {
+		g_grMode.IntermissionEnd();
+	}
+
 	/* real free-fly spectators are not is.Player() — route input here */
 	if (cl.classname == "spectator") {
 		ncSpectator spec = (ncSpectator)cl;
@@ -440,6 +482,15 @@ SV_ParseClientCommand(string cmd)
 	ncClient theClient = (ncClient)self;
 
 	if (g_menuBackgroundMapMode == true) {
+		return;
+	}
+
+	/* A client can send 'cmd' while it is still connecting, before
+	   ClientConnect has made its edict an ncPlayer. The game and its rules
+	   would then call class methods that do not exist yet (NULL function,
+	   which aborts a stock FTE server). Leave such commands to the engine. */
+	if (!theClient.Input || !theClient.SharedInputFrame) {
+		clientcommand(self, cmd);
 		return;
 	}
 
@@ -537,6 +588,9 @@ SV_Shutdown(void)
 
 entity g_respawntimer;
 
+/* system/api.qc, compiled after this file */
+void SHPF_serverinfo_SetList(string listPrefix, string listValue);
+
 /** Called by the engine when we're ready to spawn entities.
 Before this, we are not able to spawn, touch or allocate any entity slots.
 */
@@ -546,9 +600,56 @@ initents(void)
 	ncRuleDelegate currentRule;
 	ncMapDelegate currentMap;
 
+	/* make g_gametype a real cvar, so "g_gametype duel" typed at the
+	 * console sets it instead of being an unknown command */
+	registercvar("g_gametype", "");
+
 	forceinfokey(world, "teams", "");
 	forceinfokey(world, "teamplay", "");
 	forceinfokey(world, "coop", "");
+	/* Serverinfo outlives the map. Mode state left set follows the player
+	 * into the next mode: dm_lobby's lobby_state drew the lobby overlay,
+	 * and the arena's arena_state made every later hero prompt open the
+	 * Duel arena page, over a deathmatch, taking the input. The mode that
+	 * owns them sets them again when it starts. */
+	forceinfokey(world, "lobby_state", "");
+	{
+		int arenaKeyCount = tokenize("arena_state arena_round arena_ready "
+			"arena_score1 arena_score2 arena_winner arena_result arena_heroes "
+			"arena_deadline arena_lock arena_ents arena_vote arena_set "
+			"arena_set_serial arena_set_closed arena_set_left arena_set_log "
+			"arena_mode");
+
+		for (int i = 0i; i < arenaKeyCount; i++) {
+			forceinfokey(world, argv(i), "");
+		}
+
+		SHPF_serverinfo_SetList("arena_heroes_", "");
+	}
+
+	/* The same goes for the per-player star keys a mode owns: clients
+	 * (seat bots included) stay connected across the map change and
+	 * keep their userinfo, so *arena_state 3 or *lobby_state 1 from the
+	 * last duel or lobby showed up in every later mode, and a leftover
+	 * *stiletto_boss kept the boss rules on in a mode without a boss.
+	 * The owning mode sets them again when the player joins it. */
+	{
+		int playerKeyCount = tokenize("*arena_state *lobby_state "
+			"*duel_joining *stiletto_boss");
+		int clientSlots = cvars.GetInteger("maxclients");
+
+		for (int clientNum = 1i; clientNum <= clientSlots; clientNum++) {
+			entity clientEntity = edict_num((float)clientNum);
+
+			if (clienttype(clientEntity) == CLIENTTYPE_DISCONNECTED) {
+				continue;
+			}
+
+			for (int keyNum = 0i; keyNum < playerKeyCount; keyNum++) {
+				forceinfokey(clientEntity, argv(keyNum), "");
+			}
+		}
+	}
 
 	/* clean up... */
 	for (int teamID = 1; teamID < 1000; teamID++) {
@@ -558,6 +659,7 @@ initents(void)
 		forceinfokey(world, sprintf("teamclosed_%i", teamID), "");
 		forceinfokey(world, sprintf("teamspawn_%i", teamID), "");
 		forceinfokey(world, sprintf("teamclass_%i", teamID), "");
+		SHPF_serverinfo_SetList(sprintf("teamclass_%i_", teamID), "");
 	}
 
 	forceinfokey(world, sprintf("teamspawn_%d", TEAM_CONNECTING), "");
@@ -582,6 +684,8 @@ initents(void)
 	 * player.def snd_* / model keys actually land in the precache tables. */
 	g_ents_initialized = false;
 	precache.Entity("player");
+	/* the hiss of a spray (Spraylogo.qc CSEv_Spraylogo plays it) */
+	SoundDef_Precache("SprayCan.Paint");
 	g_ents_initialized = true;
 
 	RuleC_Init();
@@ -603,7 +707,11 @@ initents(void)
 	if (cvars.GetBool("sv_background") == true) {
 		/* trade them in. */
 		serverinfo.SetBool("background", true);
-		localcmd("sv_background 0\n");
+		/* map_background runs the backdrop with g_gametype singleplayer
+		 * and coop 1. Hand those back, or the next map started from the
+		 * console inherits singleplayer rules (no hero pick, and death
+		 * waits on a quicksave that isn't there). */
+		localcmd("sv_background 0\nset g_gametype \"\"\nset coop 0\n");
 		g_menuBackgroundMapMode = true;
 	} else {
 		serverinfo.SetBool("background", false);

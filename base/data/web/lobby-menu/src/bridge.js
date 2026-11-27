@@ -20,6 +20,12 @@ export function readLobby() {
 }
 
 export function action(name) { return accepted(query('lobby_action:' + name)); }
+// The engine's reason when it refuses an action ({"ok":false,"error":...}); '' when accepted.
+export function actionError(name) {
+  const reply = query('lobby_action:' + name);
+  if (accepted(reply)) return '';
+  try { return JSON.parse(reply).error || 'not allowed now'; } catch (_) { return 'not allowed now'; }
+}
 export function leave() {
   if (!action('close')) return false;
   if (!accepted(query('cbuf:menu_webcore_title'))) query('cbuf:menu_webcore');
@@ -40,3 +46,15 @@ export function encodeChat(text) {
 }
 
 export function sendChat(text) { return action('chat:' + encodeChat(text)); }
+
+// Server names and passwords travel as UTF-8 hex too (empty text is '').
+export function encodeHex(text) {
+  return Array.from(unescape(encodeURIComponent(text))).map(ch => ('0' + ch.charCodeAt(0).toString(16)).slice(-2)).join('');
+}
+// setserver:<listen|dedicated>:<max>:<bots|fill>:<public 0|1>:<name hex>:<password hex>
+export function setServer(d) {
+  return actionError('setserver:' + (d.dedicated ? 'dedicated' : 'listen') + ':' + Number(d.max) + ':' +
+    (d.fill ? 'fill' : String(d.bots) === '' ? '' : Number(d.bots)) + ':' + (d.listed ? 1 : 0) + ':' + encodeHex(d.name.trim()) + ':' + encodeHex(d.password));
+}
+// A guest the host asked for a password joins again with it.
+export function joinWithPassword(text) { return actionError('joinpass:' + encodeHex(text)); }

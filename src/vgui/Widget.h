@@ -80,6 +80,11 @@ public:
 	virtual void Reposition(void);
 	/** Called whenever an input event gets directed to the widget. */
 	virtual bool Input(float, float, float, float);
+	/** Whether a controller can move to this widget and press it
+	    (see vguiWindow's controller handling). */
+	virtual bool PadFocusable(void);
+	/** A controller pressed this widget (A on the focused one). */
+	virtual void PadActivate(void);
 	/** Called when the widget has fully initialized.
        When you override this, you may call `super::Spawned();` to ensure
        the parent classes get to finish initializing also. */

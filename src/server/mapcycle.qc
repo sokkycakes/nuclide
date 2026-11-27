@@ -71,6 +71,8 @@ Mapcycle_Init(void)
 
 	/* by default, this will be multiplayer only */
 	if (cvars.GetInteger("sv_playerslots") <= 1i) {
+		/* still give the end of a match somewhere to go */
+		localcmd("alias nextmap map_restart 0\n");
 		return;
 	}
 

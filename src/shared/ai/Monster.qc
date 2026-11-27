@@ -2096,7 +2096,7 @@ ncMonster::Death(entity inflictor, entity attacker, int damage, vector dir, vect
 	StartSoundDef(m_sndDeath, CHAN_VOICE, true);
 	UseOutput(attacker, m_outputOnDeath);
 	HasBeenKilled();
-	g_grMode.NPCDeath(this, (ncActor)inflictor, (ncActor)attacker);
+	g_grMode.NPCDeath(this, (ncActor)inflictor, (ncActor)attacker, m_deathWeapon);
 
 	/* make sure we're not causing any more obituaries */
 	RemoveFlags(FL_MONSTER);

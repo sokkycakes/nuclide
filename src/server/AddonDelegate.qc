@@ -61,7 +61,7 @@ ncAddonDelegate::PlayerDisconnect(ncPlayer pl)
 }
 
 void
-ncAddonDelegate::NPCDeath(ncActor npc, ncEntity attacker, ncEntity inflictor)
+ncAddonDelegate::NPCDeath(ncActor npc, ncEntity inflictor, ncEntity attacker, string weaponDef)
 {
 }
 

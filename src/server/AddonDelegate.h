@@ -119,7 +119,7 @@ public:
 	/** Overridable: Called when a ncPlayer dies in the game. */
 	virtual void PlayerDeath(ncPlayer, ncEntity, ncEntity, string);
 	/** Overridable:: Called when an NPC gets killed. */
-	virtual void NPCDeath(ncActor, ncEntity, ncEntity);
+	virtual void NPCDeath(ncActor, ncEntity, ncEntity, string);
 
 	/** Called to link functions defined within multiprogs with the delegate's methods. */
 	virtual void LinkProgs(void);

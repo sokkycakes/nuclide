@@ -58,6 +58,10 @@ CodeCallback_PlayerRequestRespawn(entity playerEntity)
 		/* consume any queued hero pick / keep current hero (shared.qc) */
 		string heroID = Hero_ResolveSpawnHero(playerEntity);
 		ents.ChangeToClass(playerEntity, heroID);
+		/* repaint the team colour: a colour picked mid-match is kept
+		   (in _topcolor/_bottomcolor) for after the mode, not shown */
+		if (playerEntity.team == 1 || playerEntity.team == 2)
+			Colors_SetTeam(playerEntity, (playerEntity.team == 1) ? "0xff1800" : "0x9aff");
 		game.TeleportToSpawn(playerEntity);
 		music.PlayOnceOnClient(precache.Music("music/track05.ogg"), playerEntity);
 	}
@@ -76,8 +80,7 @@ CodeCallback_CallRequestTeam(entity playerEntity, int teamNum)
 
 		ents.Input(playerEntity, "SetTeam", itos(TEAM_SPECTATOR), playerEntity);
 		ents.ChangeToClass(playerEntity, "spectator");
-		userinfo.SetString(playerEntity, "topcolor", "0xffffff");
-		userinfo.SetString(playerEntity, "bottomcolor", "0xffffff");
+		Colors_Restore(playerEntity);
 		game.TeleportToSpawn(playerEntity);
 		return (true);
 	}
@@ -89,13 +92,7 @@ CodeCallback_CallRequestTeam(entity playerEntity, int teamNum)
 		string heroID = Hero_ResolveSpawnHero(playerEntity);
 		ents.ChangeToClass(playerEntity, heroID);
 
-		if (playerEntity.team == 1) {
-			userinfo.SetString(playerEntity, "topcolor", "0xff1800");
-			userinfo.SetString(playerEntity, "bottomcolor", "0xff1800");
-		} else {
-			userinfo.SetString(playerEntity, "topcolor", "0x9aff");
-			userinfo.SetString(playerEntity, "bottomcolor", "0x9aff");
-		}
+		Colors_SetTeam(playerEntity, (playerEntity.team == 1) ? "0xff1800" : "0x9aff");
 
 		game.TeleportToSpawn(playerEntity);
 		music.PlayOnceOnClient(precache.Music("music/track05.ogg"), playerEntity);

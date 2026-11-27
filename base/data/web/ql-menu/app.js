@@ -181,6 +181,8 @@
     const base = {
       active: true,
       phase: "WARMUP",
+      mode: "duel",
+      modeName: "DUEL",
       round: "Round 0 / 3",
       map: "duel_alley",
       readyCount: 0,
@@ -1524,12 +1526,17 @@
     const joinX = 445;
 
     scoreInset(68, 58, 504, 332);
-    text("DUEL ARENA", 84, 88, { scale: 0.35, fontSize: 24, color: "#fff", baseline: "q3" });
+    /* mode/modeName come from the snapshot (webcore_arena.qc); older
+       snapshots without them are Duel */
+    const modeId = String(a.mode || "duel").toLowerCase();
+    const modeName = String(a.modeName || (a.mode ? a.mode : "DUEL")).toUpperCase();
+    const isDuel = modeId === "duel";
+    text(`${modeName} ARENA`, 84, 88, { scale: 0.35, fontSize: 24, color: "#fff", baseline: "q3" });
     text(String(a.map || "unknown").toUpperCase(), 84, 108, { scale: 0.2, fontSize: 16, color: FOCUS, baseline: "q3" });
     text(phase, 550, 88, { scale: 0.26, fontSize: 24, align: "right", color: phase === "LIVE" ? "#7dff9a" : FOCUS, baseline: "q3" });
     text(String(a.round || "Warmup"), 550, 108, { scale: 0.18, fontSize: 16, align: "right", color: "#aaa", baseline: "q3" });
 
-    text("CURRENT DUEL", 92, 145, { scale: 0.18, fontSize: 16, color: "#aaa", baseline: "q3" });
+    text(isDuel ? "CURRENT DUEL" : "CURRENT MATCH", 92, 145, { scale: 0.18, fontSize: 16, color: "#aaa", baseline: "q3" });
     if (players.length) {
       players.forEach((name, i) => {
         text(name, 105, 170 + i * 24, { scale: 0.24, fontSize: 24, color: i ? "#ff8a78" : "#9ecfff", baseline: "q3" });
@@ -1700,7 +1707,43 @@
     }
   });
 
+  // Arrow keys (and a controller's d-pad, where the engine passes it on as
+  // arrows) light the nearest button that way; Enter (A) presses it.
+  function padMove(dx, dy) {
+    if (!hits.length) return;
+    const cur = hits.find((h) => h.id === state.hover);
+    if (!cur) {
+      const first = hits.slice().sort((a, b) => (a.y - b.y) || (a.x - b.x))[0];
+      state.hover = first.id;
+      return;
+    }
+    const cx = cur.x + cur.w / 2, cy = cur.y + cur.h / 2;
+    let best = null, bestScore = Infinity;
+    for (const h of hits) {
+      if (h === cur) continue;
+      const ox = h.x + h.w / 2 - cx, oy = h.y + h.h / 2 - cy;
+      const along = ox * dx + oy * dy, across = Math.abs(ox * dy) + Math.abs(oy * dx);
+      if (along <= 0) continue;
+      const score = along + across * 2;
+      if (score < bestScore) { bestScore = score; best = h; }
+    }
+    if (best) state.hover = best.id;
+  }
+
+  const PAD_DIRS = { ArrowUp: [0, -1], ArrowDown: [0, 1], ArrowLeft: [-1, 0], ArrowRight: [1, 0] };
+
   window.addEventListener("keydown", (e) => {
+    if (PAD_DIRS[e.key]) {
+      e.preventDefault();
+      padMove(PAD_DIRS[e.key][0], PAD_DIRS[e.key][1]);
+      return;
+    }
+    if (e.key === "Enter") {
+      e.preventDefault();
+      const h = hits.find((x) => x.id === state.hover);
+      if (h) h.onClick(); else padMove(0, 1);
+      return;
+    }
     if (arenaFixture) {
       if (e.key === "1") {
         arenaSnapshot = makeArenaFixture("waiting");

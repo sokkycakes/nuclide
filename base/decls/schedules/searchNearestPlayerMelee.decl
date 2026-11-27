@@ -1,9 +1,11 @@
 typeInfo searchNearestPlayerMelee
 {
-	"task_1"	"ChangeMindset search"
-	"task_2"	"StopMovement"
-	"task_3"	"TargetNearestPlayer"
-	"task_4"	"RunToTarget"
-	"task_5"	"WaitForMovement"
+	"task_1"	"StopMovement"
+	"task_2"	"TargetNearestPlayer"
+	"task_3"	"RunToTarget"
+	"task_4"	"WaitForMovement"
 	"CanMeleeAttack1"	"ChangeMindset meleeCombat"
+	"NewEnemy"	"ChangeMindset hunt"
+	"Damage"	"ChangeMindset hunt"
+	"OccludedEnemy"	"ChangeMindset hunt"
 }

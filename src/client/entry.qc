@@ -15,6 +15,7 @@
 */
 
 void EFX_UpdateListener(ncView);
+void Client_SendLocalKeys(bool forced);
 
 const string g_rtEnvSphereMaterial = "rtenvsphere";
 
@@ -110,6 +111,11 @@ CSQC_Init(float apilevel, string enginename, float engineversion)
 	g_overview = ncRadar::InitForCurrentMap();
 
 	HUD_Init();
+
+	/* the player's spray (_cl_playerspray) and model choice (cg_heroModel)
+	   as user info; CSQC_UpdateView re-sends them when the
+	   cvars change mid-session */
+	Client_SendLocalKeys(true);
 
 	/* because the engine will do really bad hacks to our models otherwise. e.g. R6284 */
 	cvar_set("r_fullbrightSkins", "0");
@@ -237,6 +243,8 @@ and seperate 2D plane operations from 3D ones. This is where the HUD, Chat etc.
 will be drawn. They don't necessarily have to be 2D but this is just a clear
 distinction from 3D world elements and overlays.
 */
+void Client_UpdateCursorMode(bool always);
+
 void
 CSQC_Update2D(float w, float h, bool focus)
 {
@@ -247,6 +255,8 @@ CSQC_Update2D(float w, float h, bool focus)
 	if (serverkeyfloat("background") == 1) {
 		return;
 	}
+
+	Client_UpdateCursorMode(false);
 
 	/* Lobby overlay: if active, draw the pre-game lobby UI on top and
 	   suppress the normal HUD. Chat and prints still show through. */
@@ -383,6 +393,35 @@ var vector autocvar_overview_origin = [0,0,4096];
 var vector autocvar_overview_offset = [0,0,0];
 var float autocvar_overview_zoom = 1.0f;
 
+static string g_clientSentHeroModel;
+static string g_clientSentSpray;
+
+/** Sends the local player's spray (_cl_playerspray) and model choice
+   (cg_heroModel; empty: each hero's own, not _cl_playermodel, which old
+   configs still hold as alice2) as user info. With forced false it only
+   sends what changed since the last send, so a value set from the
+   console takes effect at once instead of at the next map. */
+void
+Client_SendLocalKeys(bool forced)
+{
+	string heroModel = cvar_string("cg_heroModel");
+	string spray = cvar_string("_cl_playerspray");
+
+	if (forced || heroModel != g_clientSentHeroModel) {
+		if (g_clientSentHeroModel)
+			strunzone(g_clientSentHeroModel);
+		g_clientSentHeroModel = strzone(heroModel);
+		localcmd(sprintf("setinfo model %S\n", heroModel));
+	}
+
+	if (forced || spray != g_clientSentSpray) {
+		if (g_clientSentSpray)
+			strunzone(g_clientSentSpray);
+		g_clientSentSpray = strzone(spray);
+		Spray_InitLocalKeys();
+	}
+}
+
 /** Called every single frame by the engine's renderer to construct a frame.
 This is for all clients on display. So we handle splitscreen/multiple-views
 in here.
@@ -396,6 +435,9 @@ CSQC_UpdateView(float w, float h, float focus)
 
 	g_focus = (bool)focus;
 
+	/* cg_heroModel / _cl_playerspray changed from the console */
+	Client_SendLocalKeys(false);
+
 	if (w == 0 || h == 0) {
 		return;
 	} else {
@@ -407,7 +449,7 @@ CSQC_UpdateView(float w, float h, float focus)
 			g_vidsize[1] = h;
 			ClientGame_InitDone();
 			MOTD_Init();
-			VGUI_ShowMOTD();
+			VGUI_AutoMOTD();
 			Sky_Update(true);
 		}
 	}
@@ -421,6 +463,7 @@ CSQC_UpdateView(float w, float h, float focus)
 	}
 
 	/* these have to be checked every frame */
+	VGUI_HostMenu_Publish();
 	Fog_Update();
 	Sky_Update(false);
 	cvar_set("_background", serverkey("background"));
@@ -547,6 +590,9 @@ CSQC_UpdateView(float w, float h, float focus)
 	pSeat = __NULL__;
 	pSeatLocal = __NULL__;
 
+	/* g_vguiWidgetCount is current now that the 2D pass has drawn */
+	Client_UpdateCursorMode(false);
+
 	g_modelSpinAngle = time * autocvar_cg_modelSpinSpeed;
 	g_modelSpinRoll = sin(time * autocvar_cg_modelSpinRollSpeed);
 	g_modelSpinPitch = sin(time * autocvar_cg_modelSpinPitchSpeed);
@@ -560,6 +606,25 @@ CSQC_UpdateView(float w, float h, float focus)
 When this returns FALSE, the engine is free to interpret the input event as it
 wishes. If it returns TRUE the engine is not set on ignoring it.
 */
+/** Show the mouse cursor while a VGUI window or the lobby overlay is up,
+and hide it again once none are. Called every frame as well as on input: a
+window the server opens (the team or hero page) must have the cursor, and
+the mouse grab let go, before the first key reaches it. `always` sets it
+every time (input events); otherwise only when it changes. */
+void
+Client_UpdateCursorMode(bool always)
+{
+	static float lastWant = -1;
+	float want = (g_vguiWidgetCount || LobbyOverlay_WantsCursor()) ? 1 : 0;
+
+	if (always == false && want == lastWant) {
+		return;
+	}
+
+	lastWant = want;
+	setcursormode(want ? TRUE : FALSE, "gfx/cursor", [0,0,0], 1.0f);
+}
+
 float
 CSQC_InputEvent(float fEventType, float fKey, float fCharacter, float fDeviceID)
 {
@@ -597,6 +662,15 @@ CSQC_InputEvent(float fEventType, float fKey, float fCharacter, float fDeviceID)
 
 	//g_vecMousePos = getmousepos();
 
+	/* the message of the day and the host/vote window take keys and pad
+	   buttons first (VGUI itself only knows the mouse); Escape closes them
+	   instead of opening the pause page over them */
+	if (fEventType == IE_KEYDOWN) {
+		if (VGUI_MOTD_KeyDown(fKey) || VGUI_Admin_KeyDown(fKey)) {
+			return (true);
+		}
+	}
+
 	bool vgui_pressed;
 	vgui_pressed = Commandmenu_Input(fEventType, fKey, fCharacter, fDeviceID);
 
@@ -604,19 +678,23 @@ CSQC_InputEvent(float fEventType, float fKey, float fCharacter, float fDeviceID)
 		vgui_pressed = VGUI_Input(fEventType, fKey, fCharacter, fDeviceID);
 	}
 
-	if (g_vguiWidgetCount) {
-		setcursormode(TRUE, "gfx/cursor", [0,0,0], 1.0f);
-	} else {
-		setcursormode(FALSE, "gfx/cursor", [0,0,0], 1.0f);
+	/* the pre-game lobby overlay takes clicks and its confirm keys */
+	if (!vgui_pressed) {
+		vgui_pressed = LobbyOverlay_InputEvent(fEventType, fKey);
 	}
+
+	/* VGUI windows and the lobby overlay need a cursor; with it the
+	   engine also reports absolute mouse positions (IE_MOUSEABS) */
+	Client_UpdateCursorMode(true);
 
 	/* spectator scroll wheel cycles players (not view modes) */
 	if (!vgui_pressed && fEventType == IE_KEYDOWN
 		&& Client_LocalUsesSpectatorControls()) {
-		if (fKey == K_MWHEELUP) {
+		/* a controller's bumpers do what the wheel does */
+		if (fKey == K_MWHEELUP || fKey == K_GP_RSHOULDER) {
 			pSeat->m_iSpecWheelPending = 1;
 			return true;
-		} else if (fKey == K_MWHEELDOWN) {
+		} else if (fKey == K_MWHEELDOWN || fKey == K_GP_LSHOULDER) {
 			pSeat->m_iSpecWheelPending = -1;
 			return true;
 		}
@@ -681,6 +759,12 @@ CSQC_Input_Frame(void)
 	}
 
 	if (Client_LocalUsesSpectatorControls()) {
+		/* Stiletto binds the right mouse button and the left trigger to
+		 * the hero tool: for a spectator that is the "mode-" button */
+		if (pSeat->m_iInputHeroTool || pSeat->m_iInputAttack2) {
+			input_buttons |= INPUT_SECONDARY;
+		}
+
 		/* relay scroll-wheel target changes via impulse (handled server-side) */
 		if (pSeat->m_iSpecWheelPending > 0) {
 			input_impulse = IMPULSE_SPEC_NEXT;

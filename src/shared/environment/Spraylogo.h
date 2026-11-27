@@ -39,6 +39,7 @@ private:
 };
 
 void Spray_Parse(void);
+void Spray_InitLocalKeys(void);
 
 
 const string g_spray_mat_1 = \

@@ -125,7 +125,7 @@ VGUI_ShowTeamSelectionMenu(void)
 			btnForTeam = spawn(VGUITeamSelectButton);
 			btnForTeam.SetTitle(strtoupper(localize(team_name)));
 			btnForTeam.SetPos(btnpos);
-			btnForTeam.SetKeyEquivalent(ftos((float)t+1));
+			btnForTeam.SetKeyEquivalent(ftos((float)t));
 			btnForTeam.SetSize('124 24');
 			btnForTeam.SetTag(t);
 

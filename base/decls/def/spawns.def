@@ -46,3 +46,13 @@ entityDef info_player_team2
 	"editor_color" "0 0 1"
 	"spawnclass" "ncSpawnPoint"
 }
+
+/* Source / TF2 team spawn (arch_crux_test); a fallback spawn for any mode */
+entityDef info_player_teamspawn
+{
+	"editor_mins" "-16 -16 -36"
+	"editor_maxs" "16 16 36"
+	"editor_description" "Team Spawn Point (Source)"
+	"editor_color" "1 0 1"
+	"spawnclass" "ncSpawnPoint"
+}

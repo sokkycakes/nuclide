@@ -11,7 +11,10 @@ entityDef weapon_beaumont_revolver
 
 	"spawnclass"		"ncWeapon"
 	"model"				"progs/g_nail.mdl"
-	"model_view"		"models/v_beaumont.iqm"
+	// STAND-IN view model: models/v_beaumont.iqm was never made, so Beaumont shows
+	// Collier's revolver until it exists. Its sequence order is unknown, so
+	// every act is 0, as in collier_sidearm.def.
+	"model_view"		"models/v_kingcobra.mdl"
 	"snd_acquire"		"weapon.pickup"
 	"snd_respawn"		"item.respawn"
 	"spin"				"1"
@@ -27,9 +30,9 @@ entityDef weapon_beaumont_revolver
 	"clipSize"			"10"
 	"clipSizeDefault"	"10"
 
-	"act_fire"			"shootA"
-	"act_idle"			"idle"
-	"act_draw"			"draw"
+	"act_fire"			"0"
+	"act_idle"			"0"
+	"act_draw"			"0"
 
 	"snd_fire"			"weapon_collier_sidearm.shoot"
 	"snd_empty"			"weapon.empty"
@@ -49,8 +52,8 @@ entityDef fireInfo_beaumontPrimary
 	"semiAuto"			"1"
 	"snd_fire"			"weapon_collier_sidearm.shoot"
 	"punchSpring"		"-0.8 0.3 0"
-	"act_reload"		"reload"
-	"act_reloadEmpty"	"reload"
+	"act_reload"		"0"
+	"act_reloadEmpty"	"0"
 }
 
 entityDef projectile_beaumont

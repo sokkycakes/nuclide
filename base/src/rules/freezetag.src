@@ -1,0 +1,10 @@
+#pragma target fte_5768
+#pragma PROGS_DAT  "../../progs/freezetag.dat"
+
+#includelist
+../../../src/rules.src
+shared.qc
+arena.qc
+arena_modes.qc
+freezetag.qc
+#endlist

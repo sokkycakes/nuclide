@@ -11,7 +11,10 @@ entityDef weapon_angel_sniper
 
 	"spawnclass"		"ncWeapon"
 	"model"				"progs/g_nail.mdl"
-	"model_view"		"models/v_angel.iqm"
+	// STAND-IN view model: models/v_angel.iqm was never made, so Angel shows the
+	// Quake shotgun (the longest barrel shipped) until it exists. Frames as in
+	// shotgun.def: 0 idle, 1 fire.
+	"model_view"		"progs/v_shot.mdl"
 	"snd_acquire"		"weapon.pickup"
 	"snd_respawn"		"item.respawn"
 	"spin"				"1"
@@ -27,9 +30,9 @@ entityDef weapon_angel_sniper
 	"clipSize"			"5"
 	"clipSizeDefault"	"5"
 
-	"act_fire"			"shootA"
-	"act_idle"			"idle"
-	"act_draw"			"draw"
+	"act_fire"			"1"
+	"act_idle"			"0"
+	"act_draw"			"0"
 
 	"snd_fire"			"weapon_collier_sidearm.shoot"
 	"snd_empty"			"weapon.empty"
@@ -49,8 +52,8 @@ entityDef fireInfo_angelPrimary
 	"semiAuto"			"1"
 	"snd_fire"			"weapon_collier_sidearm.shoot"
 	"punchSpring"		"-2.0 0 0"
-	"act_reload"		"reload"
-	"act_reloadEmpty"	"reload"
+	"act_reload"		"0"
+	"act_reloadEmpty"	"0"
 }
 
 entityDef projectile_angel

@@ -121,7 +121,7 @@ ncRuleDelegate::PlayerKill(ncPlayer pl)
 }
 
 void
-ncRuleDelegate::NPCDeath(ncActor npc, ncEntity attacker, ncEntity inflictor)
+ncRuleDelegate::NPCDeath(ncActor npc, ncEntity inflictor, ncEntity attacker, string weaponDef)
 {
 }
 
@@ -318,7 +318,6 @@ ncRuleDelegate::IntermissionEnd(void)
 {
 	if (!m_iIntermission)
 		return;
-
 	if (time < m_flIntermissionTime)
 		return;
 
@@ -423,7 +422,16 @@ ncRuleDelegate::LinkProgs(void)
 		RULEMAP(newRule, ConsoleCommand, "CodeCallback_ConsoleCommand")
 		RULEMAP(newRule, FrameStart, "CodeCallback_FrameStart")
 		RULEMAP(newRule, ImpulseCommand, "CodeCallback_ImpulseCommand")
-		RULEMAP(newRule, Precache, "CodeCallback_Precache")
+		/* the rules progs spell it CodeCallback_Precaches. Without this they
+		 * never ran, so hero models were never precached and FTE's server
+		 * crashed once a bot spawned as a hero. */
+		newRule.Precache = externvalue(g_ruleCProgs, "CodeCallback_Precache");
+		if (!newRule.Precache) {
+			newRule.Precache = externvalue(g_ruleCProgs, "CodeCallback_Precaches");
+		}
+		if (!newRule.Precache) {
+			newRule.Precache = ncRuleDelegate::Precache;
+		}
 		RULEMAP(newRule, InitPostEnts, "CodeCallback_StartGameType")
 		RULEMAP(newRule, Input, "CodeCallback_Input")
 		RULEMAP(newRule, NPCDeath, "CodeCallback_NPCKilled")
@@ -441,6 +449,9 @@ ncRuleDelegate::LinkProgs(void)
 	}
 
 	serverinfo.SetString("mode", newRule.Title());
+	/* the id of the rules that loaded (g_gametype may name a mode that
+	 * fell back to deathmatch): the Host Menu and Call a Vote read it */
+	serverinfo.SetString("g_gametype", STRING_SET(g_ruleCName) ? g_ruleCName : "");
 	g_grMode = newRule;
 }
 
@@ -479,10 +490,21 @@ RuleC_Init(void)
 		return;
 	}
 
-	string gameType = g_ruleCName = Game_DefaultRules();
+	string gameType = Game_DefaultRules();
 	string pathToProgs;
 
 	pathToProgs = strcat("progs/", gameType, ".dat");
+
+	/* A g_gametype with no progs behind it (a typo, or a mode this build
+	 * did not ship) would leave the server with no rules at all: nobody
+	 * can spawn. Say so, and play deathmatch instead. */
+	if (fileExists(pathToProgs) == false) {
+		ncError("Progs at %S does not exist. Playing deathmatch instead.", pathToProgs);
+		gameType = "deathmatch";
+		pathToProgs = "progs/deathmatch.dat";
+	}
+
+	g_ruleCName = gameType;
 
 	/* No progs .dat, exit out */
 	if (fileExists(pathToProgs) == false) {

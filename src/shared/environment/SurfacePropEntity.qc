@@ -363,7 +363,9 @@ ncSurfacePropEntity::Damage(entity inflictor, entity attacker, ncDict damageDecl
 				AddVelocity(dmgDir * knockBack);
 			}
 
+			m_deathWeapon = damageDecl.GetString("weapon");
 			Death(inflictor, attacker, (int)damagePoints, dmgDir, hitLocation, damageDecl.GetInteger("hitbody"));
+			m_deathWeapon = "";
 		} else if (damagePoints > 0) {
 			Pain(inflictor, attacker, (int)damagePoints, dmgDir, hitLocation, damageDecl.GetInteger("hitbody"));
 		}

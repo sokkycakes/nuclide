@@ -1,0 +1,26 @@
+// The pre-game lobby's choices (read by Bulwark; docs/spec/lobby.md in bulwark-engine).
+// The HTML page base/data/web/lobby-menu/src/model.js keeps the same lists as its
+// fallback for engines that don't send them; change both together.
+//
+//   map <id> "<title>"                      offered only when maps/<id>.bsp is shipped
+//   ruleset <ID> "<title>" [<map it picks> [seatbots]]  loads progs/<id in lower case>.dat
+//
+// seatbots: the rules fill their own empty seats with bots (arena_bots), so the
+// lobby's Bots setting switches arena_bots on or off instead of setting the
+// bot_minClients quota, which would fight the rules' own bot filler.
+//
+// The map a ruleset names is picked when the host switches to it, until the host
+// picks a map themselves.
+
+map duel_alley     "Duel Alley"
+map arch_testbed   "Arch Testbed"
+map arch_crux_test "Arch Crux Test"
+map envtest        "Env Test"
+map lean           "Lean Test"
+
+ruleset DUEL         "Duel"            duel_alley
+ruleset DEATHMATCH   "Deathmatch"      arch_testbed
+ruleset TEAMDM       "Team Deathmatch" arch_testbed
+ruleset DOMINATION   "Domination"      arch_testbed
+ruleset FREEZETAG    "Freeze Tag"      duel_alley seatbots
+ruleset ARCHSTILETTO "Archstiletto"    duel_alley seatbots

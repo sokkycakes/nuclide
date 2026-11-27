@@ -331,6 +331,68 @@ SHPF_serverinfo_SetString(string serverKey, string setValue)
 #endif
 }
 
+/* Word lists in serverinfo.
+ *
+ * Stock FTE treats a serverinfo value of 64 bytes or more as a "blob" key
+ * and only sends it to clients that advertise PEXT2_INFOBLOBS, which remote
+ * FTE clients do not. A list such as the hero roster (about 112 bytes) then
+ * never reaches them. So a list is stored across numbered keys, each value
+ * well under that limit: <prefix>0, <prefix>1, ... holding space-separated
+ * words, whole words only, read back in order until the first empty key. */
+#define SERVERINFO_LIST_CHUNK 56
+
+string
+SHPF_serverinfo_GetList(string listPrefix)
+{
+	string result = "";
+
+	for (int i = 0i; i < 64i; i++) {
+		string chunk = serverkey(strcat(listPrefix, itos(i)));
+
+		if (!STRING_SET(chunk)) {
+			break;
+		}
+
+		result = (result == "") ? chunk : strcat(result, " ", chunk);
+	}
+
+	return (result);
+}
+
+void
+SHPF_serverinfo_SetList(string listPrefix, string listValue)
+{
+#ifdef SERVER
+	int chunkIndex = 0i;
+	string chunk = "";
+	float wordCount = tokenize_console(listValue);
+
+	for (float w = 0; w < wordCount; w++) {
+		string word = argv(w);
+
+		if (chunk != "" && strlen(chunk) + 1 + strlen(word) > SERVERINFO_LIST_CHUNK) {
+			forceinfokey(world, strcat(listPrefix, itos(chunkIndex)), chunk);
+			chunkIndex++;
+			chunk = word;
+		} else {
+			chunk = (chunk == "") ? word : strcat(chunk, " ", word);
+		}
+	}
+
+	if (chunk != "") {
+		forceinfokey(world, strcat(listPrefix, itos(chunkIndex)), chunk);
+		chunkIndex++;
+	}
+
+	/* drop the chunks a longer earlier list left behind */
+	while (chunkIndex < 64i && STRING_SET(serverkey(strcat(listPrefix, itos(chunkIndex))))) {
+		forceinfokey(world, strcat(listPrefix, itos(chunkIndex)), "");
+		chunkIndex++;
+	}
+#else
+#endif
+}
+
 void
 SHPF_serverinfo_SetInteger(string serverKey, int setValue)
 {
@@ -691,6 +753,13 @@ SHPF_teams_SetUp(int teamID, string teamTitle, vector teamColor, bool openTeam)
 #endif
 }
 
+/* teamclass_<team>_0, _1, ...: see SHPF_serverinfo_SetList */
+static string
+SHPF_teams_ClassListKey(int teamID)
+{
+	return sprintf("teamclass_%i_", teamID);
+}
+
 void
 SHPF_teams_AddClass(int teamID, string classType)
 {
@@ -699,17 +768,15 @@ SHPF_teams_AddClass(int teamID, string classType)
 	}
 
 #ifdef SERVER
-	int teamCount = 0i;
-	string teamInfo = __NULL__;
+	string listKey = SHPF_teams_ClassListKey(teamID);
 	string currentClasses = __NULL__;
 
 	if (!STRING_SET(classType)) {
 		ncError("Class type cannot be empty.");
 	}
 
-	teamInfo = sprintf("teamclass_%i", teamID);
-	currentClasses = SHPF_serverinfo_GetString(teamInfo);
-	SHPF_serverinfo_SetString(teamInfo, strcat(currentClasses, classType, " "));
+	currentClasses = SHPF_serverinfo_GetList(listKey);
+	SHPF_serverinfo_SetList(listKey, (currentClasses == "") ? classType : strcat(currentClasses, " ", classType));
 #else
 #endif
 }
@@ -721,10 +788,7 @@ SHPF_teams_TotalClasses(int teamID)
 		return 0i;
 	}
 
-	int numClasses = 0i;
-	int realCount = 0i;
-	string teamInfo = sprintf("teamclass_%i", teamID);
-	string currentClasses = SHPF_serverinfo_GetString(teamInfo);
+	string currentClasses = SHPF_serverinfo_GetList(SHPF_teams_ClassListKey(teamID));
 	return (int)tokenize_console(currentClasses);
 }
 
@@ -736,12 +800,10 @@ SHPF_teams_ClassForIndex(int teamID, int classIndex)
 	}
 
 	int numClasses = 0i;
-	int realCount = 0i;
-	string teamInfo = sprintf("teamclass_%i", teamID);
-	string currentClasses = SHPF_serverinfo_GetString(teamInfo);
+	string currentClasses = SHPF_serverinfo_GetList(SHPF_teams_ClassListKey(teamID));
 	numClasses = (int)tokenize_console(currentClasses);
 
-	if (numClasses < classIndex) {
+	if (classIndex < 0i || classIndex >= numClasses) {
 		return "";
 	}
 
@@ -924,6 +986,15 @@ sendInput(entity theTarget, string inputName, string dataString, entity activato
 	}
 
 #ifdef SERVER
+	/* an entity whose class constructor never ran (a client edict that has
+	   not been through ClientConnect yet, a raw spawn()) has no Input
+	   method; calling it is a NULL function call, which aborts a stock FTE
+	   server */
+	if (!targetEntity.Input) {
+		ncError("entity %d (%S) does not take inputs, dropping %S", num_for_edict(theTarget), theTarget.classname, inputName);
+		return;
+	}
+
 	targetEntity.Input(activator, inputName, dataString);
 #endif
 }

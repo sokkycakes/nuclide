@@ -52,7 +52,10 @@ FindXRInput(entity playerEntity, xrinput_t inputType)
 
 	/* See if it exists already */
 	for (NSXRInput inputList = world; (inputList = find(inputList, ::classname, "NSXRInput"));) {
-		if (inputList.owner == playerEntity) {
+		/* only reuse this player's own inputs; skipping them here (as
+		   this used to) spawned three new ones on every Init and left
+		   the old ones lying around in reused edict slots */
+		if (inputList.owner != playerEntity) {
 			continue;
 		}
 		if (inputList.GetType() != inputType) {
@@ -69,6 +72,51 @@ FindXRInput(entity playerEntity, xrinput_t inputType)
 	foundInput.touch = 0;
 	foundInput.owner = playerEntity;
 	return (foundInput);
+}
+
+/* true when 'input' is still one of this player's XR inputs. The classname
+   check comes first: only then is it safe to treat it as an NSXRInput.
+   The input type (GetType) is not compared here: xrinput_t is a 64-bit
+   enum and Bulwark's VM does not compare it the way FTE does, so the check
+   failed on every frame there and Init spawned three new inputs per frame
+   until the server ran out of edicts. The owner check is enough to catch a
+   slot reused by someone else's input; this player's own inputs are only
+   ever (re)assigned all together by Init. */
+static bool
+XRManager_InputValid(ncClient pl, NSXRInput input)
+{
+	if (!input || wasfreed(input) || input.classname != "NSXRInput") {
+		return (false);
+	}
+	if (input.owner != pl) {
+		return (false);
+	}
+	return (true);
+}
+
+/* true when the player's XR space and inputs are all still there and still
+   theirs. The references live on the player edict, which outlives what they
+   point at: once one of those entities is removed its slot gets reused by
+   something else (a timer, a projectile, another player's XR input), and
+   calling an NSXRInput method on a different class is a NULL function call,
+   which aborts a stock FTE server. Another player's input would pass the
+   class check but drive this player's view and weapon from the wrong hand. */
+static bool
+XRManager_RefsValid(ncClient pl)
+{
+	if (!pl.m_xrSpace || wasfreed(pl.m_xrSpace) || pl.m_xrSpace.classname != "NSXRSpace" || pl.m_xrSpace.owner != pl) {
+		return (false);
+	}
+	if (!XRManager_InputValid(pl, pl.m_xrInputHead)) {
+		return (false);
+	}
+	if (!XRManager_InputValid(pl, pl.m_xrInputLeft)) {
+		return (false);
+	}
+	if (!XRManager_InputValid(pl, pl.m_xrInputRight)) {
+		return (false);
+	}
+	return (true);
 }
 
 void
@@ -97,8 +145,8 @@ ncXRManager::UpdateView(entity ePlayer)
 {
 	ncClient pl = (ncClient)ePlayer;
 
-	/* not yet ready */
-	if (!pl.m_xrSpace) {
+	/* not yet ready, or a reference went stale */
+	if (XRManager_RefsValid(pl) == false) {
 		ncXRManager::Init(ePlayer);
 	}
 
@@ -127,8 +175,8 @@ ncXRManager::InputFrame(entity ePlayer)
 {
 	ncClient pl = (ncClient)ePlayer;
 
-	/* not yet ready */
-	if (!pl.m_xrSpace) {
+	/* not yet ready, or a reference went stale */
+	if (XRManager_RefsValid(pl) == false) {
 		ncXRManager::Init(ePlayer);
 	}
 
@@ -157,7 +205,7 @@ ncXRManager::Available(entity ePlayer)
 {
 	ncClient pl = (ncClient)ePlayer;
 
-	if (!pl.m_xrInputHead) {
+	if (XRManager_RefsValid(pl) == false) {
 		return (false);
 	}
 

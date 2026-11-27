@@ -84,21 +84,29 @@ Entity_EntityUpdate(float type, float new)
 		break;
 	case ENT_PLAYER:
 		ncPlayer pl = (ncPlayer)self;
+		/* FTE keeps the same client entity when a spectator becomes a
+		   player (Bulwark sends it as a new one), so the entity still has
+		   ncSpectator's methods: its predraw is not ncPlayer's, and the
+		   local player in third person skipped everything ncPlayer::predraw
+		   does (player colour tint, attachments). _isPlayer is false on
+		   anything ncPlayer's constructor has not run on (ncIO clears it). */
+		float playerNew = new;
 
-		if (new) {
+		if (new || pl._isPlayer == false) {
 			spawnfunc_ncPlayer();
+			playerNew = true;
 		}
 
 		/* splitscreen */
 		CSQC_UpdateSeat();
 		self.customphysics = Empty;
 
-		Predict_EntityUpdate(pl, new);
+		Predict_EntityUpdate(pl, playerNew);
 
 		/* any differences in things that are read below are now
 		   officially from prediction misses. */
 		float a = readfloat();
-		pl.ReceivePlayerEntity(new, a);
+		pl.ReceivePlayerEntity(playerNew, a);
 		break;
 	case ENT_SPECTATOR:
 		Spectator_ReadEntity(new);

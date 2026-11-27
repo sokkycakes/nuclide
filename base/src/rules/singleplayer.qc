@@ -35,7 +35,15 @@ CodeCallback_PlayerSpawn(entity playerTarget)
 bool
 CodeCallback_PlayerRequestRespawn(entity playerTarget)
 {
-	localcmd("load quick\n");
+	/* back to the last quicksave when there is one (FTE writes a folder,
+	 * Bulwark a .sav); without one, start over at a spawn point rather
+	 * than leave the player dead with nothing to load */
+	if (fileExists("saves/quick/info.fsv") || fileExists("saves/quick.sav")) {
+		localcmd("load quick\n");
+		return (true);
+	}
+
+	CodeCallback_PlayerSpawn(playerTarget);
 	return (true);
 }
 

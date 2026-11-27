@@ -12,3 +12,53 @@ TESTMSG
 	= Test Message =
 	This should be centered.
 }
+
+// Hero pick descriptions (SELECT YOUR HERO). Keyed ClassDescription_<hero id>.
+
+ClassDescription_hero_collier
+{
+Revolver duelist.
+4 HP. Sidearm revolver, grapple, melee.
+}
+
+ClassDescription_hero_beaumont
+{
+Fast revolver gunslinger.
+4 HP. Rapid-fire revolver, grapple. No air dash or stall.
+}
+
+ClassDescription_hero_vagrant
+{
+Knife brawler. Always at sprint pace.
+4 HP. Thrown knives, warp knife, melee.
+}
+
+ClassDescription_hero_skipstream
+{
+Burst revolver skirmisher.
+4 HP. Burst revolver, grapple.
+}
+
+ClassDescription_hero_angel
+{
+Long-range sniper.
+4 HP. Hitscan sniper rifle, grapple.
+}
+
+ClassDescription_hero_motionblue
+{
+Explosive mobility. Blast-jumps with own slugs.
+4 HP. Explosive slug launcher, grapple.
+}
+
+ClassDescription_hero_juliet
+{
+Zoner with a charge gun.
+4 HP. Charge gun, double jump, low gravity.
+}
+
+ClassDescription_hero_archstiletto
+{
+The namesake. Heavy melee with super armor.
+8 HP. Axe swing, lunge.
+}
