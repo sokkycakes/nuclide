@@ -20,7 +20,60 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  progs:
+    # fteqcc64 is built against glibc 2.38, newer than the ubuntu-22.04 the
+    # publish job stays on for the launcher's sake, so the QuakeC is compiled
+    # here and handed over as an artifact.
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build every QuakeC progs from source
+        # The game modules (progs.dat, csprogs.dat, hud.dat, menu.dat) and
+        # the rules progs g_gametype <mode> loads (base/progs/<mode>.dat)
+        # and the per-map progs a map loads (base/maps/<map>.dat)
+        # are committed binaries, and a branch that changes the .qc but not
+        # the binary ships the old code with no merge conflict to warn
+        # anyone (a duel.qc or vgui_motd.qc change, say). duel.dat was also
+        # never committed for months, so Duel silently fell back to default
+        # rules. Compile every module here, every time, so what ships is
+        # always built from the sources being shipped.
+        run: |
+          chmod +x Tools/fteqw-linux-extract/fteqcc64
+          qcc="$PWD/Tools/fteqw-linux-extract/fteqcc64"
+          for mod in server client hud menu; do
+            echo "building base/src/$mod"
+            (cd "base/src/$mod" && "$qcc" -I../../../src/common/ progs.src) || { echo "::error::base/src/$mod did not compile"; exit 1; }
+          done
+          # rules progs (base/progs/<mode>.dat) and per-map progs
+          # (base/maps/<map>.dat: Domination's capture points on the lqdm maps)
+          for dir in base/src/rules base/src/maps; do
+            (
+              cd "$dir"
+              for src in *.src; do
+                dat=$(sed -n 's/^#pragma[[:space:]]\+PROGS_DAT[[:space:]]\+"\(.*\)"/\1/p' "$src" | head -1)
+                [ -n "$dat" ] || continue
+                echo "building $dir/$src -> $dat"
+                rm -f "$dat"
+                "$qcc" -I../../../src/common/ "$src"
+                [ -f "$dat" ] || { echo "::error::$dir/$src did not produce $dat"; exit 1; }
+              done
+            ) || exit 1
+          done
+
+      - name: Hand the compiled progs to the publish job
+        uses: actions/upload-artifact@v4
+        with:
+          name: progs
+          path: |
+            base/*.dat
+            base/progs/*.dat
+            base/maps/*.dat
+          if-no-files-found: error
+
   publish:
+    needs: progs
     runs-on: ubuntu-22.04   # older glibc, so the Linux launcher runs on more distros
     env:
       # Bulwark branch the Linux build runs Stiletto on. It must hold the
@@ -69,38 +122,12 @@ jobs:
           CXX: g++-13
         run: Tools/playtest-launcher/tools/build_bulwark.sh .bulwark-src bulwark
 
-      - name: Build every QuakeC progs from source
-        # The game modules (progs.dat, csprogs.dat, hud.dat, menu.dat) and
-        # the rules progs g_gametype <mode> loads (base/progs/<mode>.dat)
-        # and the per-map progs a map loads (base/maps/<map>.dat)
-        # are committed binaries, and a branch that changes the .qc but not
-        # the binary ships the old code with no merge conflict to warn
-        # anyone (a duel.qc or vgui_motd.qc change, say). duel.dat was also
-        # never committed for months, so Duel silently fell back to default
-        # rules. Compile every module here, every time, so what ships is
-        # always built from the sources being shipped.
-        run: |
-          chmod +x Tools/fteqw-linux-extract/fteqcc64
-          qcc="$PWD/Tools/fteqw-linux-extract/fteqcc64"
-          for mod in server client hud menu; do
-            echo "building base/src/$mod"
-            (cd "base/src/$mod" && "$qcc" -I../../../src/common/ progs.src) || { echo "::error::base/src/$mod did not compile"; exit 1; }
-          done
-          # rules progs (base/progs/<mode>.dat) and per-map progs
-          # (base/maps/<map>.dat: Domination's capture points on the lqdm maps)
-          for dir in base/src/rules base/src/maps; do
-            (
-              cd "$dir"
-              for src in *.src; do
-                dat=$(sed -n 's/^#pragma[[:space:]]\+PROGS_DAT[[:space:]]\+"\(.*\)"/\1/p' "$src" | head -1)
-                [ -n "$dat" ] || continue
-                echo "building $dir/$src -> $dat"
-                rm -f "$dat"
-                "$qcc" -I../../../src/common/ "$src"
-                [ -f "$dat" ] || { echo "::error::$dir/$src did not produce $dat"; exit 1; }
-              done
-            ) || exit 1
-          done
+      - name: Take the progs compiled from source
+        # compiled by the progs job above (see its comment for why)
+        uses: actions/download-artifact@v4
+        with:
+          name: progs
+          path: base
 
       - name: Work out the channel and release notes
         id: ch
